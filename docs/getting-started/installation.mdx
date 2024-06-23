@@ -8,12 +8,12 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import CodeBlock from '@theme/CodeBlock';
 
-**Suites is compatible with a wide range of testing and dependency injection frameworks. This section provides
-instructions for installing Suites and highlights important compatibility and configuration details.**
+Suites is compatible with a wide range of testing and dependency injection frameworks. This section provides
+instructions for installing Suites and highlights important compatibility and configuration details.
 
 ## Setup Suites in a New or Existing Project
 
-When installing Suites, make sure to choose the adapter and mocking library that match your project's
+When installing Suites, make sure to choose the proper DI and mocking adapters that match your project's
 dependency-injection framework and preferred testing library.
 
 <Tabs groupId="suites-adapter" className="adapters-tabs" queryString="suites-adapter">
@@ -27,26 +27,21 @@ dependency-injection framework and preferred testing library.
       {`$ npm install --save-dev @suites/unit @suites/doubles.jest @suites/di.inversify`}
     </CodeBlock>
   </TabItem>
-  <TabItem attributes={{className: 'tsyringe'}} value="tsyringe" label="TSyringe">
-    <CodeBlock language="bash">
-      {`$ npm install --save-dev @suites/unit @suites/doubles.jest @suites/di.tsyringe`}
-    </CodeBlock>
-  </TabItem>
 </Tabs>
 
 ### Supported Testing Libraries and DI Frameworks (Adapters)
 * **Available DI Adapters:**
   * `@suites/di.nestjs`
   * `@suites/di.inversify`
-  * `@suites/di.tsyringe`
+  * _`@suites/di.tsyringe`_ (WIP)
 
 * **Available Mocking Libraries:**
   * `@suites/doubles.jest`
   * `@suites/doubles.sinon`
   * `@suites/doubles.vitest`
-  * `@suites/doubles.bun`
+  * _`@suites/doubles.bun`_ (WIP)
 
-**After installation, no additional configuration for the test runner is required.**
+**After installation, no additional configuration for the test runner is needed.**
 
 ### Setting Up `tsconfig.json`
 In order to use Suites, you need to enable the [`emitDecoratorMetadata`](https://www.typescriptlang.org/tsconfig#emitDecoratorMetadata) and [`experimentalDecorators`](https://www.typescriptlang.org/tsconfig#experimentalDecorators) options in your `tsconfig.json` file.

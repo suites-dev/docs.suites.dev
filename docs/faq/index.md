@@ -9,19 +9,19 @@ title: FAQ
 
 ### What is Suites?
 
-Suites is a testing meta-framework designed to streamline and unify the testing process across various software
+> Suites is a testing meta-framework designed to streamline and unify the testing process across various software
 development environments. It integrates with multiple Dependency Injection (DI) frameworks and testing libraries,
-providing a versatile platform for both unit and integration testing.
+providing a versatile platform for unit testing.
 
 ### How does Suites differ from traditional testing frameworks?
 
-Suites is not just a testing framework; it's a meta-framework. This means it works on top of existing frameworks and
+> Suites is not a testing framework; it's a meta-framework. This means it works on top of existing frameworks and
 libraries, providing a unified interface and set of tools. It supports various testing approaches, including solitary
-and sociable unit tests, and broad integration tests.
+and sociable unit tests.
 
 ### Who can benefit from using Suites?
 
-Suites is ideal for developers and teams working in diverse environments who seek a unified, efficient approach to
+> Suites is ideal for developers and teams working in diverse environments who seek a unified, efficient approach to
 testing. It is particularly beneficial for projects that require integration with multiple DI frameworks and testing
 libraries.
 
@@ -29,29 +29,13 @@ libraries.
 
 ### How do I integrate Suites with my existing testing setup?
 
-You can integrate Suites by installing it as a dependency in your project and configuring it to work with your existing
+> You can integrate Suites by installing it as a dependency in your project and configuring it to work with your existing
 DI frameworks and testing libraries. Detailed guides and examples are available in our documentation.
 
 ### Can Suites be used with any DI framework?
 
-Suites is designed to be framework-agnostic and works with a variety of popular DI frameworks, including InversifyJS,
-TSyringe, and others.
-
-### Does Suites support Continuous Integration (CI) pipelines?
-
-Yes, Suites is optimized for CI environments. It enhances CI pipelines' efficiency and supports various CI tools.
-
-## Usage Questions
-
-### How do I write sociable unit tests with Suites?
-
-Sociable unit tests can be written using `TestBed.sociable` in Suites. This approach allows testing units in conjunction
-with real instances of their dependencies. Our documentation provides detailed examples.
-
-### Can I restrict I/O operations in my tests with Suites?
-
-Yes, Suites supports testing environments where I/O operations are restricted, such as using Docker containers. This
-ensures that unit tests remain isolated and do not depend on external I/O.
+> Suites aims to be framework-agnostic and works with a variety of popular DI frameworks, including InversifyJS,
+NestJS, and others to come.
 
 ## Migration Questions
 

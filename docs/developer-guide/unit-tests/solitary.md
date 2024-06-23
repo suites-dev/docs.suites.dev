@@ -1,5 +1,5 @@
 ---
-sidebar_position: 1
+sidebar_position: 4
 title: Solitary Unit Tests
 ---
 
@@ -7,7 +7,7 @@ title: Solitary Unit Tests
 
 ## Introduction
 
-Solitary Unit Tests, or isolated tests, are designed to evaluate a single unit of work entirely separate from its
+Solitary Unit Tests, or isolated unit tests, aim to evaluate a single unit of work entirely separate from its
 external dependencies. These tests leverage test doubles, such as [mocks](/docs/glossary/mock) and
 [stubs](/docs/glossary/stub), to mimic the behavior of these dependencies. This method is pivotal for confirming the
 functionality and reliability of individual units within a system, ensuring that each part performs as expected under
@@ -131,16 +131,16 @@ methods using the references to the mock instances (using `logger` and `reporter
 
 ### Step 3: Using `.mock().using()` to Define Final Mock Behavior
 
-**Automock provides a more declarative way to specify mock implementations using the `.mock().using()` method chain.
-This allows us to define the mock behavior directly when setting up the `TestBed`.**
+Suites provides a more declarative way to specify mock implementations using the `.mock().using()` method chain.
+This allows us to define the mock behavior directly when setting up the `TestBed`.
 
 Here's how we can modify the test setup to use this approach:
 
-```typescript
+```typescript showLineNumbers
 beforeAll(() => {
   const mockUsers: User[] = [{ id: 1, name: 'John' }, { id: 2, name: 'Jane' }];
 
-  const { unit, unitRef } = TestBed.create(UserService)
+  const { unit, unitRef } = TestBed.solitary(UserService)
     .mock(Database)
     .using({ getUsers: async () => mockUsers })
     .compile();
@@ -164,7 +164,7 @@ Here's how we can achieve that:
 beforeAll(() => {
    const mockUsers: User[] = [{ id: 1, name: 'John' }, { id: 2, name: 'Jane' }];
 
-   const { unit, unitRef } = TestBed.create(UserService)
+   const { unit, unitRef } = TestBed.solitary (UserService)
     .mock(Database)
     .using({ getUsers: jest.fn().mockResolvedValue(mockUsers) })
     .compile();

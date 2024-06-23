@@ -20,7 +20,7 @@ distinguishes between two main types of unit tests, which will be the focus of t
 
 Object-oriented design tends to treat a class as the "unit," procedural or functional approaches might consider a single
 function as a unit. **In the context of Suites, we consider the smallest unit to be a class**, and distinguish between
-two types of what is called "unit testing."
+two types of what is called "unit testing" - solitary and sociable unit tests.
 
 ## In this section
 - [Mocks and Stubs](/docs/unit-tests/mocks-and-stubs)

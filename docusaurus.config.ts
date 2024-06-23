@@ -61,18 +61,6 @@ const config: Config = {
         ],
       },
     ],
-    [
-      '@docusaurus/plugin-content-docs',
-      {
-        id: 'learn',
-        path: 'learn',
-        routeBasePath: 'learn',
-        sidebarPath: require.resolve('./config/learn-sidebars.js'),
-        remarkPlugins: [
-          [require('@docusaurus/remark-plugin-npm2yarn'), {sync: true}],
-        ],
-      },
-    ],
   ],
   themeConfig: {
     metadata: [
