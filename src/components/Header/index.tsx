@@ -36,12 +36,6 @@ export default function Header(): JSX.Element {
               <li className={styles.hidden_xs}>
                 <Link href="#" title="Documentation | Suites">Docs</Link>
               </li>
-              <li className={styles.hidden_sm}>
-                <Link href="/learn" title="API Reference | Suites">API Reference</Link>
-              </li>
-              <li className={styles.hidden_sm}>
-                <Link href="/learn" title="Learn | Suites">Learn</Link>
-              </li>
               <li>
                 <Link href="#" target="_blank" className={styles.icon}>
                   <FaGithub />
@@ -62,12 +56,6 @@ export default function Header(): JSX.Element {
             <ul className={styles.navWrapper}>
               <li className={styles.hidden_xs}>
                 <Link href="/docs" title="Documentation | Suites">Documentation</Link>
-              </li>
-              <li className={styles.hidden_sm}>
-                <Link href="/learn" title="Learn | Suites">Learn</Link>
-              </li>
-              <li className={styles.hidden_sm}>
-                <Link href="/learn" title="API Reference | Suites">API Reference</Link>
               </li>
               <li>
                 <Link href="https://github.com/suites-dev/suites" target="_blank" className="icon m-l-30">

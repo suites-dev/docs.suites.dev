@@ -1,8 +1,8 @@
 /* Footer CSS */
 .pageFooter {
-  background-color: #f1f3f3;
+  background-color: var(--outer-space);
   text-align: center;
-  color: #090909;
+  color: var(--battleship-gray);
   padding: 30px 0;
   font-weight: bold;
 }
@@ -14,14 +14,14 @@
 }
 
 .pageFooter .icon:hover {
-  color: #090909;
+  color: #ffffff;
 }
 
 .pageFooter p {
   font-size: 14px;
   font-weight: 500;
   line-height: 26px;
-  color: rgba(96, 95, 95, 0.87);
+  color: var(--battleship-gray);
 }
 
 .pageFooter p a {

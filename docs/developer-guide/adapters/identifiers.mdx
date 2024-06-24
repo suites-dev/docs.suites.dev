@@ -27,12 +27,12 @@ information.
 <Tabs groupId="suites-adapter" className="adapters-tabs" queryString="suites-adapter">
   <TabItem attributes={{className: 'nestjs'}} value="nestjs" label="NestJS" default>
     <CodeBlock language="bash">
-      {`$ npm i -D @suites/adapters.nestjs`}
+      {`$ npm i -D @suites/di.nestjs`}
     </CodeBlock>
   </TabItem>
   <TabItem attributes={{className: 'inversifyjs'}} value="inverisfyjs" label="InversifyJS">
     <CodeBlock language="bash">
-      {`$ npm i -D @suites/adapters.inversify`}
+      {`$ npm i -D @suites/di.inversify`}
     </CodeBlock>
   </TabItem>
 </Tabs>
@@ -69,12 +69,12 @@ class UserService {
 **To resolve or mock a class-based dependency, just use the class itself.**
 
 ```tsx title="UnitReference API"
-const { unitRef } = TestBed.create(UserService).compile();
+const { unitRef } = await TestBed.solitary(UserService).compile();
 const userApiService = unitRef.get(ApiService);
 ```
 
 ```tsx title="MockOverride API"
-const { unit, unitRef } = TestBed.create(UserService)
+const { unit, unitRef } = await TestBed.solitary(UserService)
   .mock(ApiService)
   .using({ ... })
   .compile();
@@ -117,12 +117,12 @@ class UserService {
 **Resolving or mocking such dependencies is straightforward; use the class itself:**
 
 ```tsx title="UnitReference API"
-const { unitRef } = TestBed.create(UserService).compile();
+const { unitRef } = await TestBed.solitary(UserService).compile();
 const userApiService = unitRef.get(ApiService);
 ```
 
 ```tsx title="MockOverride API"
-const { unit, unitRef } = TestBed.create(UserService)
+const { unit, unitRef } = await TestBed.solitary(UserService)
   .mock(ApiService)
   .using({ ... })
   .compile();
@@ -182,12 +182,12 @@ class UserService {
 **To resolve or mock a token-based dependency, use the token itself, whether it's a string or symbol:**
 
 ```tsx title="UnitReference API"
-const { unitRef } = TestBed.create(UserService).compile();
+const { unitRef } = await TestBed.solitary(UserService).compile();
 const logger = unitRef.get<Logger>(LOGGER_TOKEN);
 ```
 
 ```tsx title="MockOverride API"
-const { unit, unitRef } = TestBed.create(UserService)
+const { unit, unitRef } = await TestBed.solitary(UserService)
   .mock<Logger>(LOGGER_TOKEN)
   .using({ ... })
   .compile();

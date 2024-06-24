@@ -28,25 +28,25 @@ framework, Automock Adapters adeptly handle these details.
     </thead>
     <tbody>
         <tr>
-            <td><strong>NestJS Adapter (<code>@suites/adapters.nestjs</code>)</strong></td>
+            <td><strong>NestJS Adapter (<code>@suites/di.nestjs</code>)</strong></td>
             <td>✅</td>
             <td>✅</td>
         </tr>
         <tr>
-            <td><strong>Inversify Adapter (<code>@suites/adapters.inversify</code>)</strong></td>
+            <td><strong>Inversify Adapter (<code>@suites/di.inversify</code>)</strong></td>
             <td>✅ (Beta)</td>
             <td>✅ (Beta)</td>
         </tr>
         <tr>
-            <td><strong>TSyringe Adapter (<code>@suites/adapters.tsyringe</code>)</strong></td>
+            <td><strong>TSyringe Adapter (<code>@suites/di.tsyringe</code>)</strong></td>
             <td colspan="2" align="center">Contributions are Welcome 🙏</td>
         </tr>
         <tr>
-            <td><strong>Ts.ED Adapter (<code>@suites/adapters.tsed</code>)</strong></td>
+            <td><strong>Ts.ED Adapter (<code>@suites/di.tsed</code>)</strong></td>
             <td align="center" colspan="2">Contributions are Welcome 🙏</td>
         </tr>
         <tr>
-            <td><strong>TypeDI Adapter (<code>@suites/adapters.typedi</code>)</strong></td>
+            <td><strong>TypeDI Adapter (<code>@suites/di.typedi</code>)</strong></td>
             <td align="center" colspan="2">Contributions are Welcome 🙏</td>
         </tr>
     </tbody>

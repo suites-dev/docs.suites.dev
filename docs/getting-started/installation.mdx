@@ -13,21 +13,21 @@ instructions for installing Suites and highlights important compatibility and co
 
 ## Setup Suites in a New or Existing Project
 
-When installing Suites, make sure to choose the proper DI and mocking adapters that match your project's
-dependency-injection framework and preferred testing library.
 
-<Tabs groupId="suites-adapter" className="adapters-tabs" queryString="suites-adapter">
-  <TabItem attributes={{className: 'nestjs'}} value="nestjs" label="NestJS" default>
-    <CodeBlock language="bash">
-      {`$ npm install --save-dev @suites/unit @suites/doubles.jest @suites/di.nestjs`}
-    </CodeBlock>
-  </TabItem>
-  <TabItem attributes={{className: 'inversifyjs'}} value="inverisfyjs" label="InversifyJS">
-    <CodeBlock language="bash">
-      {`$ npm install --save-dev @suites/unit @suites/doubles.jest @suites/di.inversify`}
-    </CodeBlock>
-  </TabItem>
-</Tabs>
+First, install Suites' core package:
+
+```bash
+$ npm i -D @suites/unit
+```
+
+Then, to fully integrate Suites into your mocking and dependency injection frameworks, install the corresponding
+adapters for your project. For example, to use Suites with Jest and NestJS you would run (alongside the core package):
+
+```bash
+$ npm i -D @suites/doubles.jest @suites/di.nestjs
+````
+
+Suites will automatically detect the installed adapters and configure itself accordingly.
 
 ### Supported Testing Libraries and DI Frameworks (Adapters)
 * **Available DI Adapters:**
@@ -40,8 +40,10 @@ dependency-injection framework and preferred testing library.
   * `@suites/doubles.sinon`
   * `@suites/doubles.vitest`
   * _`@suites/doubles.bun`_ (WIP)
+  * _`@suites/doubles.deno`_ (WIP)
+  * _`@suites/doubles.node`_ Vanilla (WIP)
 
-**After installation, no additional configuration for the test runner is needed.**
+After installation, no additional configuration for the test runner is needed.
 
 ### Setting Up `tsconfig.json`
 In order to use Suites, you need to enable the [`emitDecoratorMetadata`](https://www.typescriptlang.org/tsconfig#emitDecoratorMetadata) and [`experimentalDecorators`](https://www.typescriptlang.org/tsconfig#experimentalDecorators) options in your `tsconfig.json` file.

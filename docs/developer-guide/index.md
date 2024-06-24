@@ -9,7 +9,7 @@ leverage its capabilities to create reliable tests. Whether you are new to Suite
 provides detailed information to help you make the most of Suites.
 
 ## Prerequisites
-- [What is Suites?](/docs/what-is-suites)
+- [What is Suites?](/docs/overview/what-is-suites)
 - [Getting Started Tutorial](/docs/getting-started)
 
 ## In this section

@@ -1,6 +1,6 @@
 module.exports = {
-  appId: 'V7T2AOSBQC',
-  apiKey: '3e97d584fb2fd1d9213ac18d61e83845',
+  appId: 'S3EVZGZBUX',
+  apiKey: '35d82ebfb36fc4302594525adbcfa45e',
   rateLimit: 8,
   maxDepth: 10,
   startUrls: ['https://suites.dev/', 'https://suites.dev/api-reference', 'https://suites.dev/docs'],
