@@ -1,23 +1,76 @@
 .features {
-  display: none;
-  margin-top: 0;
-  padding: 1rem 1rem 0;
+  width: 100%; /* Ensure the features section spans the full width */
+  margin-top: 30px;
+  padding: 0; /* Remove padding around the section */
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.col--6 {
+  width: 50%; /* Each column takes up half of the width */
+  padding: 0; /* Remove padding between columns */
+  margin: 0;
+  box-sizing: border-box;
 }
 
 .feature {
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  height: 16rem;
+  background: var(--ifm-color-primary-darkest);
   text-align: left;
-  margin-top: 20px;
-}
-
-.feature:nth-child(1) {
-  margin-top: 0;
+  width: 100%; /* Ensures the feature content uses the full width of its column */
+  display: flex; /* Added for aligning the title and description horizontally */
+  flex-direction: column; /* Stack title and description vertically */
+  margin-bottom: 20px;
 }
 
 .feature h3 {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  padding: 10px;
+  background: #782D44;
+  text-align: center;
+  margin: 0; /* Remove margin around the title */
   letter-spacing: 0.25px;
-  display: inline;
+  font-size: 1.2rem;
+}
+
+.feature strong {
+  display: block;
+  font-size: 1.125rem;
 }
 
 .feature p {
-  display: inline;
+  display: block;
+  font-size: 1rem;
+  line-height: 2;
+  padding: 20px;
+  margin: 0; /* Remove margin around the paragraph */
+}
+
+.container {
+  width: 100%; /* Ensures the container spans the full width */
+  margin: 0; /* Remove any default margin */
+  padding: 0; /* Remove any default padding */
+}
+
+.row {
+  display: flex;
+  width: 100%; /* Ensures the row spans the full width */
+  margin: 0; /* Eliminate space between rows */
+}
+
+.col {
+  margin: 0;
+  padding: 0;
+}
+@media (min-width: 768px) { /* Adjust breakpoint as necessary */
+  .col--6 {
+    padding: 0;
+  }
+}
+
+.buttons {
+  text-align: right; /* Aligns the button to the right */
 }

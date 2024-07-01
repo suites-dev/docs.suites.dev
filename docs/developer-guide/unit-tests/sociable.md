@@ -132,9 +132,9 @@ describe('User Service Unit Spec', () => {
 - **Simplified Setup**: Reduces the need for extensive mocking, making test setups more straightforward in some cases.
 - **Broader Scope**: Provides a wider scope of testing, ensuring that the interactions between units are verified.
 
-### Using `.mock().using()` and `.mock().final()` in Sociable Unit Tests
+### Using `.mock().impl()` and `.mock().final()` in Sociable Unit Tests
 
-Defining final behavior and controlling mocks with `.using()` is still possible with sociable unit tests. Refer to the [Solitary Unit Tests](/docs/solitary-unit-tests#using-mockusing-for-flexible-mock-behavior) section for details on using these methods.
+Defining final behavior and controlling mocks with `.impl()` is still possible with sociable unit tests. Refer to the [Solitary Unit Tests](/docs/solitary-unit-tests#using-mockusing-for-flexible-mock-behavior) section for details on using these methods.
 
 ## Next Steps
 

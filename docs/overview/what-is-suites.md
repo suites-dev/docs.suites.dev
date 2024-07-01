@@ -16,15 +16,15 @@ and InversifyJS (and more to come). It offers a streamlined and opinionated appr
 However, Suites' vision extends far beyond the realm of DI-centric unit testing. In the future, we plan to expand
 Suites' capabilities to encompass a broader range of testing scenarios, including integration testing and more.
 
+## Supported Technologies
+
+Suites supports a broad spectrum of DI frameworks and testing libraries, including but not limited to:
+
+✅ **Dependency Injection Frameworks: NestJS, InversifyJS (TSyringe coming soon!)** \
+✅ **Mocking Libraries: Jest, Sinon, and Vitest (Bun and Deno coming soon!)**
+
 ## Prerequisites
 
   - Familiarity with [TypeScript](https://www.typescriptlang.org/)
   - Familiarity with [basic testing principles and practices](/docs)
   - You use a dependency injection framework
-
-## Supported Technologies
-
-Suites supports a broad spectrum of DI frameworks and testing libraries, including but not limited to:
-
-✅ **Dependency Injection Frameworks**: NestJS, InversifyJS (TSyringe coming soon!) \
-✅ **Mocking Libraries**: Jest, Sinon, and Vitest (Bun and Deno coming soon!)

@@ -31,25 +31,13 @@ Suites introduces a more flexible architecture that is adaptable to various test
 abstracting away the complexities of integrating with different DI frameworks and mocking libraries, Suites provides a
 more robust and adaptable platform that can grow with your project's needs.
 
-### Future-Proofing
-
-With the JavaScript ecosystem continually evolving, particularly with the adoption of ECMAScript Modules (ESM), Suites
-is created to be future-proof. It supports dynamic imports and seamlessly integrates with both CommonJS and ESM,
-ensuring compatibility with upcoming JavaScript standards and tools.
-
 ### Improved Developer Experience
 
 At the heart of Suites is the goal to improve the developer experience. By consolidating functionality into a cohesive
 framework and reducing the boilerplate associated with setting up tests, Suites enables developers to focus more on
 writing meaningful tests and less on configuring their testing tools.
 
-## A Meta-Framework Ecosystem
-
-Suites transcends the traditional boundaries of testing tools by evolving into a [meta-framework](/docs/suites-as-a-meta-framework),
-or [an ecosystem](/docs/) of tools and practices, created to support a comprehensive testing strategy. This transition reflects our commitment to
-creating a versatile, integrated stack that not only simplifies but also enriches the entire testing process.
-
-## Forward Together
+## Transitioning from Automock to Suites
 
 The shift from Automock to Suites is not just a change of tools but a step towards a more integrated and efficient
 approach to software testing. Suites is committed to retaining all the strengths of Automock while opening new avenues
@@ -60,6 +48,3 @@ comprehensive migration tools and documentation to ensure that your move to Suit
 
 > **Learn More**: To understand the detailed changes and how to migrate your existing projects from Automock to Suites,
 > please refer to our [Migration Guide](/docs/migration-from-automock-to-suites).
-
-We are excited about the possibilities that Suites brings to the software testing landscape and are committed to
-continuing our support for the developer community in creating high-quality software more efficiently.

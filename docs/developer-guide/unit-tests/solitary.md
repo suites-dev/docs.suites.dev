@@ -149,9 +149,9 @@ In this approach, we've defined the mock behavior directly in the test setup usi
 
 Notice that this value cannot be retrieved from the unit reference as it is a final mock implementation.
 
-### Using `.mock().using()` for Flexible Mock Behavior
+### Using `.mock().impl()` for Flexible Mock Behavior
 
-To define mock behavior while still allowing control and monitoring during tests, use `.mock().using()`. This approach employs a callback to dynamically create stubs using the installed mocking library.
+To define mock behavior while still allowing control and monitoring during tests, use `.mock().impl()`. This approach employs a callback to dynamically create stubs using the installed mocking library.
 
 Here's how we can modify the test setup to use this approach:
 
@@ -159,7 +159,7 @@ Here's how we can modify the test setup to use this approach:
 beforeAll(async () => {
   const { unit, unitRef } = await TestBed.solitary(UserService)
     .mock(UserApi)
-    .using(stubFn => ({ getRandom: stubFn().mockResolvedValue({ id: 1, name: 'John' }) }))
+    .impl(stubFn => ({ getRandom: stubFn().mockResolvedValue({ id: 1, name: 'John' }) }))
     .compile();
 
   underTest = unit;
@@ -177,7 +177,7 @@ test('should generate a random user and save to the database', async () => {
 });
 ```
 
-In this setup, the `.mock().using()` method allows defining the behavior of the `getRandom` method using a stub function. The `stubFn` is equivalent to the stub function from the installed mocking library (e.g., `jest.fn()`), but it is provided within the callback for convenience and abstraction.
+In this setup, the `.mock().impl()` method allows defining the behavior of the `getRandom` method using a stub function. The `stubFn` is equivalent to the stub function from the installed mocking library (e.g., `jest.fn()`), but it is provided within the callback for convenience and abstraction.
 
 ## Advantages of Solitary Unit Testing
 

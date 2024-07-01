@@ -41,10 +41,6 @@ const config: Config = {
           customCss: require.resolve('./src/css/custom.css'),
         },
         blog: false,
-        gtag: {
-          trackingID: 'G-K2J8XLLS52',
-          anonymizeIP: true,
-        },
       },
     ],
   ],
@@ -86,11 +82,6 @@ const config: Config = {
           to: '/docs',
           position: 'left',
           label: 'Docs',
-        },
-        {
-          to: '/learn',
-          label: 'Learn',
-          position: 'left',
         },
         {
           to: '/api-reference',

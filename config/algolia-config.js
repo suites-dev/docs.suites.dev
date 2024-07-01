@@ -3,7 +3,7 @@ module.exports = {
   apiKey: '35d82ebfb36fc4302594525adbcfa45e',
   rateLimit: 8,
   maxDepth: 10,
-  startUrls: ['https://suites.dev/', 'https://suites.dev/api-reference', 'https://suites.dev/docs'],
+  startUrls: ['https://suites.dev/', 'https://suites.dev/api-reference', 'https://suites.dev/key-features', 'https://suites.dev/docs'],
   sitemaps: ['https://suites.dev/sitemap.xml'],
   ignoreCanonicalTo: true,
   discoveryPatterns: ['https://suites.dev/**'],

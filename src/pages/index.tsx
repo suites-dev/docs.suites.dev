@@ -14,7 +14,9 @@ function HomepageHeader() {
 
         <h1 className={styles.title}>{siteConfig.title}</h1>
         <p className="hero__subtitle">
-          Focus on creating solid test suites, automate the generation of<br />mock objects, and improve the unit testing workflow.
+          Suites is a meta-framework helping developers focus on<br />
+          creating solid test suites, automate the generation of mock<br />
+          objects, and improve their unit testing workflow.
         </p>
         <div className={styles.buttons}>
           <Link
@@ -42,7 +44,7 @@ export default function Home(): JSX.Element {
   return (
     <Layout
       title={siteConfig.title}
-      description="Standalone Library for Automated Mocking of Class Dependencies.">
+      description="Suites">
       <HomepageHeader />
     </Layout>
   );

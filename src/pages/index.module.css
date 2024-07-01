@@ -4,30 +4,29 @@
  */
 
 .heroBanner {
-  font-family: 'Open Sans', sans-serif;
+  font-family: "Inter", sans-serif;
   padding: 4rem 0;
   text-align: center;
   position: relative;
   overflow: hidden;
   height: 48rem;
-  color: #262626;
+  color: #2f2f2f;
 }
 
 @media screen and (max-width: 996px) {
   .heroBanner {
-    font-family: 'Open Sans', sans-serif;
     padding: 2rem;
   }
 }
 
 .title {
-  font-family: 'Open Sans', sans-serif;
+  font-family: "Inter", sans-serif;
   font-size: 2.75rem;
   font-weight: 700;
 }
 
 .buttons {
-  font-family: 'Open Sans', sans-serif;
+  font-family: "Inter", sans-serif;
   letter-spacing: -.75px;
   display: flex;
   align-items: center;
@@ -35,20 +34,18 @@
 }
 
 .button {
-  font-family: 'Open Sans', sans-serif;
+  font-family: "Inter", sans-serif;
   display: block;
   font-size: 1.15rem;
-  background: #fff;
   padding: 8px 20px;
-  color: #262626;
+  color: #2f2f2f;
+  background: #e8e8e8;
   letter-spacing: .1px;
   font-weight: bold;
   border-radius: 30px;
 }
 
 .button:hover {
-  background: #e8e8e8;
-  color: #262626;
   text-decoration: none;
 }
 

@@ -1,0 +1,78 @@
+---
+sidebar_position: 1
+title: Welcome to Suites
+---
+import React from 'react';
+import { HomepageFeatures, ExploreLink } from '@site/src/components/HomepageFeatures';
+
+# Welcome to Suites!
+
+Suites is an opinionated, flexible [testing meta-framework](https://google.com) aimed at elevating the software testing experience within
+backend systems. By integrating a wide array of testing tools into a cohesive framework, Suites simplifies the process
+of creating reliable tests, thereby ensuring the development of high-quality software.
+
+<HomepageFeatures  />
+
+### Fluent and Convenient API
+
+Suites offers a fluent, convenient, and semantic API that makes writing tests a pleasure. The intuitive design of the
+API ensures that you can quickly set up your tests and focus on verifying the behavior of your application.
+
+```typescript title="user.service.spec.ts"
+import { TestBed, Mocked } from '@suites/unit';
+
+describe('User Service Unit Spec', () => {
+  let underTest: UserService;
+  let userApi: Mocked<UserApi>;
+
+  beforeAll(async () => {
+    const { unit, unitRef } = await TestBed.solitary(UserService).compile();
+
+    underTest = unit;
+
+    userApi = unitRef.get(UserApi);
+  });
+
+  it('should generate a random user and save to the database', async () => {
+    userApi.getRandom.mockResolvedValue({ id: 1, name: 'John' } as User);
+    await underTest.generateRandomUser();
+    expect(database.saveUser).toHaveBeenCalledWith(userFixture);
+  });
+});
+```
+
+<ExploreLink />
+
+### Solving Key Challenges
+
+- 👨‍💻👩‍💻 **Inconsistent Testing Practices**: Suites promotes a standardized approach to testing, incorporating industry
+best practices and methodologies to ensure a high level of consistency and quality in test suites.
+
+- 📉 **Learning Curve for New Testing Tools**: Suites mitigates this by offering comprehensive learning resources and
+guides, reducing the learning curve for new tools and practices, and keeping developers up-to-date with the latest in
+testing methodologies.
+
+- 😥 **Time-Consuming Test Setup and Configuration**: Suites provides templates and pre-configured setups to accelerate
+this process, allowing developers to focus more on writing tests and less on setup.
+
+- 🧪 **Difficulty in Scaling Testing Efforts**: Suites' flexible architecture supports projects of all sizes, from small
+microservices to large monoliths, ensuring that testing practices can scale alongside project development.
+
+- 🔍 **Fragmented Testing Ecosystem**: Suites acts as a central hub for testing, guiding users in selecting the right
+tools and methodologies for their specific needs, and providing a comprehensive solution that covers unit testing (and
+also integration testing in the near future).
+
+## Emphasizing Community and Official Support
+
+Suites is officially documented and supported within the NestJS and InversifyJS communities, with more DI adapters to
+come. This official support ensures that you have access to the latest features, best practices, and community-driven
+enhancements.
+
+> **NestJS Official Docs**: [NestJS Documentation](https://docs.nestjs.com/)
+>
+> **InversifyJS Official Docs**: [InversifyJS Documentation](https://inversify.io/)
+
+## Getting Started
+
+Ready to dive in? Check out our [Quick Start Guide](/docs/get-started/quick-start) to set up Suites in your project and
+write your first test.
