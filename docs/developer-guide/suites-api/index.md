@@ -27,7 +27,7 @@ describe('User Service Solitary Unit Test', () => {
   let database: Mocked<Database>;
 
   beforeAll(async () => {
-    const {unit, unitRef} = await TestBed.solitary(UserService).compile();
+    const { unit, unitRef } = await TestBed.solitary(UserService).compile();
     underTest = unit;
 
     database = unitRef.get(Database);
@@ -58,9 +58,9 @@ describe('User Service Sociable Unit Test', () => {
   let database: Mocked<Database>;
 
   beforeAll(async () => {
-    const {unit, unitRef} = await TestBed.sociable(UserService)
-    .expose(UserApi)
-    .compile();
+    const { unit, unitRef } = await TestBed.sociable(UserService)
+      .expose(UserApi)
+      .compile();
 
     underTest = unit;
     database = unitRef.get(Database);
@@ -81,12 +81,12 @@ Defines the final behavior of a mock. The mocked class cannot be retrieved from 
 
 ```typescript
 beforeAll(async () => {
-  const {unit} = await TestBed.solitary(UserService)
-  .mock(UserApi)
-  .final({
-    getRandom: async () => ({id: 1, name: 'John'})
-  })
-  .compile();
+  const { unit } = await TestBed.solitary(UserService)
+    .mock(UserApi)
+    .final({
+      getRandom: async () => ({id: 1, name: 'John'})
+    })
+    .compile();
 
   underTest = unit;
 });
@@ -104,12 +104,12 @@ unit reference.
 
 ```typescript
 beforeAll(async () => {
-  const {unit, unitRef} = await TestBed.solitary(UserService)
-  .mock(UserApi)
-  .impl(stubFn => ({
-    getRandom: stubFn().mockResolvedValue({id: 1, name: 'John'})
-  }))
-  .compile();
+  const { unit, unitRef } = await TestBed.solitary(UserService)
+    .mock(UserApi)
+    .impl(stubFn => ({
+      getRandom: stubFn().mockResolvedValue({id: 1, name: 'John'})
+    }))
+    .compile();
 
   underTest = unit;
   const userApi = unitRef.get(UserApi);
