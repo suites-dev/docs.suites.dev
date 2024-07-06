@@ -7,11 +7,11 @@ module.exports = {
   sitemaps: ['https://suites.dev/sitemap.xml'],
   ignoreCanonicalTo: true,
   discoveryPatterns: ['https://suites.dev/**'],
-  indexName: 'suites',
+  indexName: 'netlify_8963435b-d90c-4317-801d-f102b0f669bc_master_all',
   searchPagePath: 'search',
   actions: [
     {
-      indexName: 'suites',
+      indexName: 'netlify_8963435b-d90c-4317-801d-f102b0f669bc_master_all',
       pathsToMatch: ['https://suites.dev/**'],
       recordExtractor: ({ $, helpers }) => {
         // priority order: deepest active sub list header -> navbar active item -> 'Documentation'
