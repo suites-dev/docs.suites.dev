@@ -44,20 +44,6 @@ const config: Config = {
       },
     ],
   ],
-  plugins: [
-    [
-      '@docusaurus/plugin-content-docs',
-      {
-        id: 'api-reference',
-        path: 'api-reference',
-        routeBasePath: 'api-reference',
-        sidebarPath: require.resolve('./config/api-sidebars.js'),
-        remarkPlugins: [
-          [require('@docusaurus/remark-plugin-npm2yarn'), {sync: true}],
-        ],
-      },
-    ],
-  ],
   themeConfig: {
     metadata: [
       {
@@ -82,11 +68,6 @@ const config: Config = {
           to: '/docs',
           position: 'left',
           label: 'Docs',
-        },
-        {
-          to: '/api-reference',
-          label: 'API Reference',
-          position: 'left',
         },
         {
           href: 'https://github.com/suites-dev/suites',
