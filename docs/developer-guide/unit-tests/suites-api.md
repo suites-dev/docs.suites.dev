@@ -1,9 +1,9 @@
 ---
-sidebar_position: 1
-title: Suites Testing API
+sidebar_position: 6
+title: Suites API
 ---
 
-# Suites Testing API
+# Suites API
 
 Suites provides a comprehensive and flexible API for setting up and managing unit tests. Whether you're writing solitary
 unit tests or sociable unit tests, Suites simplifies the process with a consistent and semantic interface. This page

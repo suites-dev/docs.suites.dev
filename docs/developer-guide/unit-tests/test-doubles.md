@@ -1,19 +1,34 @@
 ---
-sidebar_position: 1
-title: Test Doubles
+sidebar_position: 5
+title: Unit Testing & Test Doubles
 ---
 
-# Mocks, Stubs, and Spies
+# Unit Testing & Test Doubles
 
 ## Introduction
 
-Testing in modern software development often requires isolating components to verify their behavior without the interference of external dependencies. This is where test doubles—mocks, stubs, and spies—come into play. Understanding these concepts is crucial for effective unit testing, and Suites provides robust support for these tools to enhance your testing workflow.
+Testing in modern software development often requires isolating components to verify their behavior without the
+interference of external dependencies. This is where test doubles—mocks, stubs, and spies—come into play. Understanding
+these concepts is crucial for effective unit testing, and Suites provides robust support for these tools to enhance your
+testing workflow.
 
-## What Are Mocks, Stubs, and Spies?
+## What Are Test Doubles?
+
+Test doubles are objects that replace real dependencies in unit tests. They allow you to isolate the component under
+test and verify its behavior in a controlled environment.
+
+Test doubles come in three main flavors:
+
+- **Mocks**: Objects that mimic the behavior of real objects and are used to verify interactions between objects.
+- **Stubs**: Special types of mocks that return predefined values and are useful for providing canned responses to
+  method calls.
+- **Spies**: Objects that allow you to observe and verify interactions with real objects.
 
 ### Mocks
 
-Mocks are objects that mimic the behavior of real objects. They are used to verify interactions between objects and can be configured to respond in specific ways. In Suites, mocks are used to replace real dependencies in solitary and sociable unit tests.
+Mocks are objects that mimic the behavior of real objects. They are used to verify interactions between objects and can
+be configured to respond in specific ways. In Suites, mocks are used to replace real dependencies in solitary and
+sociable unit tests.
 
 #### Example
 
@@ -98,9 +113,9 @@ In Suites, mocks and stubs are handled through the `@suites/unit` package. The `
 - **`TestBed.solitary()`**: For creating an isolated environment with all dependencies mocked.
 - **`TestBed.sociable()`**: For creating a testing environment where certain dependencies are real, and their dependencies are mocked.
 
-### Using `.mock().final()` and `.mock().using()`
+### Using `.mock().final()` and `.mock().impl()`
 
-Suites introduces `.mock().final()` and `.mock().using()` methods to give you fine control over mock behaviors.
+Suites introduces `.mock().final()` and `.mock().impl()` methods to give you fine control over mock behaviors.
 
 #### `.mock().final()`
 
@@ -133,7 +148,7 @@ beforeAll(async () => {
 });
 ```
 
-### Mocked Type
+### The `Mocked` Type
 
 The `Mocked` type in Suites provides a type-safe way to define mocked instances, ensuring that mocks retain the same type information as the real objects.
 
@@ -144,8 +159,8 @@ import { UserService } from './user.service';
 let userService: Mocked<UserService>;
 ```
 
-## Conclusion
+## What's Next?
+After understanding the basics of test doubles, you can explore more advanced testing techniques:
 
-Mocks, stubs, and spies are essential tools in the unit testing toolbox. Suites simplifies their use by providing a cohesive framework that abstracts away the complexities of integrating different mocking libraries and dependency injection frameworks. By leveraging Suites' powerful API, you can create robust and maintainable tests that ensure your software's quality and reliability.
-
-For more detailed examples and advanced configurations, visit the [Solitary Unit Tests](/docs/solitary-unit-tests) and [Sociable Unit Tests](/docs/sociable-unit-tests) sections.
+- [Solitary Unit Tests](./integration-testing.md): Learn how to write solitary unit tests in Suites.
+- [Sociable Unit Tests](./integration-testing.md): Discover how to write sociable unit tests in Suites.

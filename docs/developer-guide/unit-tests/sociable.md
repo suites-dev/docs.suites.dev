@@ -1,6 +1,6 @@
 ---
 sidebar_position: 5
-title: Sociable Unit Tests
+title: Sociable Unit Test Example
 ---
 
 # Sociable Unit Tests

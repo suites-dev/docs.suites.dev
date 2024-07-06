@@ -1,6 +1,6 @@
 ---
 sidebar_position: 4
-title: Solitary Unit Tests
+title: Solitary Unit Test Example
 ---
 
 # Solitary Unit Tests

@@ -1,15 +1,13 @@
 ---
-sidebar_position: 2
+sidebar_position: 3
 title: Installation
 description: Learn how to install and configure Suites to enhance your unit testing process across various DI frameworks and testing libraries.
 ---
 
+## Setup Suites in a New or Existing Project
 
 Suites is compatible with a wide range of testing and dependency injection frameworks. This section provides
 instructions for installing Suites and highlights important compatibility and configuration details.
-
-## Setup Suites in a New or Existing Project
-
 
 First, install Suites' core package:
 
@@ -18,7 +16,9 @@ $ npm i -D @suites/unit
 ```
 
 Then, to fully integrate Suites into your mocking and dependency injection frameworks, install the corresponding
-adapters for your project. For example, to use Suites with Jest and NestJS you would run (alongside the core package):
+di framework and mocking library adapters for your project.
+
+For example, to use Suites with Jest and NestJS you would run (alongside `@suites/unit` core package):
 
 ```bash
 $ npm i -D @suites/doubles.jest @suites/di.nestjs
@@ -26,13 +26,13 @@ $ npm i -D @suites/doubles.jest @suites/di.nestjs
 
 Suites will automatically detect the installed adapters and configure itself accordingly.
 
-### Supported Testing Libraries and DI Frameworks (Adapters)
-* **Available DI Adapters:**
+## Supported Libraries
+### Available Dependency Injection Adapters:
   * `@suites/di.nestjs`
   * `@suites/di.inversify`
   * _`@suites/di.tsyringe`_ (WIP)
 
-* **Available Mocking Libraries:**
+### Available Mocking Libraries Adapters:
   * `@suites/doubles.jest`
   * `@suites/doubles.sinon`
   * `@suites/doubles.vitest`
@@ -42,7 +42,7 @@ Suites will automatically detect the installed adapters and configure itself acc
 
 After installation, no additional configuration for the test runner is needed.
 
-### Setting Up `tsconfig.json`
+## Setting Up `tsconfig.json`
 In order to use Suites, you need to enable the [`emitDecoratorMetadata`](https://www.typescriptlang.org/tsconfig#emitDecoratorMetadata) and [`experimentalDecorators`](https://www.typescriptlang.org/tsconfig#experimentalDecorators) options in your `tsconfig.json` file.
 This configuration is necessary for Suites to reflect class dependencies and to work with dependency injection frameworks.
 
@@ -54,8 +54,30 @@ This configuration is necessary for Suites to reflect class dependencies and to 
   }
 }
 ```
+## Monorepo Support
 
-### For Vitest Users
+Suites is fully compatible with Monorepo, accommodating projects that use different mocking or di frameworks.
+
+### Recommended Setups for Monorepo
+
+If you are using Suites in a Monorepo, consider the following setups:
+
+**Using one the same mocking and di framework across all workspaces** \
+Install the corresponding adapter under the root directory of your Monorepo.
+Suites will automatically detect the adapter and configure itself accordingly.
+
+**Using different frameworks across workspaces**
+Install the corresponding adapter in each workspace separately. Make sure to config the hoisting of the `node_modules`
+to enable Suites to detect the adapter in the workspace.
+
+:::note
+Unfortunately, NPM workspaces do not support the hoisting of dependencies, which means that working with different DI or
+mocking libraries with npm workspaces is not supported at the moment. We recommend using Yarn workspaces for this purpose.
+:::
+
+
+
+## For Vitest Users
 
 When integrating Suites with Vitest, additional configuration is required. Vitest typically uses [`esbuild`](https://esbuild.github.io/) for
 TypeScript interpretation, which doesn't support `emitDecoratorMetadata` - a feature extensively used by Suites for
@@ -76,26 +98,13 @@ import swc from 'unplugin-swc';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
-  test: {
-    globals: true,
-    root: './',
-  },
+  test: { globals: true, root: './' },
   plugins: [
-    // This is required to build the test files with SWC
-    swc.vite({
-      // Explicitly set the module type to avoid inheriting this value from a `.swcrc` config file
-      module: { type: 'es6' },
-    }),
+    swc.vite({ module: { type: 'es6' } }),
   ],
 });
 
 ```
-
-## Monorepo Support
-
-Suites is fully compatible with Monorepo, accommodating projects that use different DI frameworks. Ensure you
-install the correct adapter for each workspace within your Monorepo. In some cases, multiple adapters may be necessary
-to support different frameworks within your project.
 
 ## What's Next?
 After installing Suites, you can start writing your first test.

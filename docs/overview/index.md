@@ -14,6 +14,7 @@ developers it caters to. Let's embark on this journey to understand how Suites c
 
 ## In this section
  - [What is Suites?](/docs/overview/what-is-suites)
+ - [Quick Start](/docs/overview/quickstart)
+ - [Installation](/docs/overview/installation)
  - [What Problems Does Suites Solve?](/docs/overview/problems-solved)
- - [The Shift from Automock to Suites](/docs/overview/the-shift-from-automock)
- - [Suites as a Meta-Framework](/docs/overview/meta-framework)
+ - [Migrating from Automock](/docs/overview/migrating-from-automock)
