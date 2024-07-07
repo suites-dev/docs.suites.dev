@@ -76,11 +76,8 @@ export function HomepageFeatures(): JSX.Element {
 export function ExploreLink(): JSX.Element {
   return (
     <div className={styles.buttons}>
-      <a href="/docs/getting-started" className="button button--outline button--primary">
-        Explore Suites API 📚
-      </a>
       &nbsp;&nbsp;
-      <a href="/docs/getting-started" className="button button--outline button--primary">
+      <a href="/docs/developer-guide" className="button button--outline button--primary">
         See Developer Guide 🚀
       </a>
     </div>

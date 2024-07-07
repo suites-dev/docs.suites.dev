@@ -25,8 +25,8 @@ two types of what is called "unit testing", "solitary" and "sociable" unit tests
 
 ## In this section
 - [Fundamentals of Unit Testing](/docs/developer-guide/unit-tests/fundamentals)
-- [Mocks and Stubs](/docs/unit-tests/mocks-and-stubs)
-- [The Solitary Unit Testing Approach](/docs/unit-tests/solitary-unit-test)
-- [The Sociable Unit Testing Approach](/docs/unit-tests/sociable-unit-test)
+- [Mocks and Stubs](/docs/developer-guide/unit-tests/test-doubles)
+- [The Solitary Unit Testing Approach](/docs/developer-guide/unit-tests/solitary)
+- [The Sociable Unit Testing Approach](/docs/developer-guide/unit-tests/sociable)
 
 

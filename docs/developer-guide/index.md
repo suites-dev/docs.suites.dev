@@ -11,8 +11,7 @@ provides detailed information to help you make the most of Suites.
 
 ## Prerequisites
 - [What is Suites?](/docs/overview/what-is-suites)
-- [Getting Started Tutorial](/docs/getting-started)
 
 ## In this section
 - [Unit Testing with Suites](/docs/developer-guide/unit-tests)
-- [Dependency Injection and Suites](/docs/di-tests)
+- [Dependency Injection and Suites](/docs/developer-guide/adapters)

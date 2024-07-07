@@ -9,7 +9,7 @@ title: Solitary Unit Test Example
 
 Solitary Unit Tests, or isolated unit tests, aim to evaluate a single unit of work entirely separate from its external dependencies. These tests leverage test doubles, such as [mocks](/docs/glossary/mock) and [stubs](/docs/glossary/stub), to mimic the behavior of these dependencies. This method is pivotal for confirming the functionality and reliability of individual units within a system, ensuring that each part performs as expected under controlled conditions.
 
-In contrast, [Sociable Unit Tests](/docs/sociable-unit-tests) involve real implementations of dependencies to verify the interactions between multiple units. However, sociable tests still mock the dependencies of the dependencies to maintain control over the test environment.
+In contrast, [Sociable Unit Tests](/docs/developer-guide/unit-tests/sociable) involve real implementations of dependencies to verify the interactions between multiple units. However, sociable tests still mock the dependencies of the dependencies to maintain control over the test environment.
 
 ## Step-by-Step Example
 

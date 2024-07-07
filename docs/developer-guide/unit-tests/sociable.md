@@ -9,7 +9,7 @@ title: Sociable Unit Test Example
 
 Sociable Unit Tests, also known as integrated unit tests, focus on testing a unit of work in conjunction with its real dependencies, but still mock the dependencies of those dependencies. This approach ensures that the interactions between a unit and its immediate collaborators are tested in a controlled environment, providing a broader scope of validation compared to solitary unit tests.
 
-In contrast to [Solitary Unit Tests](/docs/solitary-unit-tests), where all dependencies are mocked, sociable tests expose certain dependencies to verify real interactions between units. However, they do not extend to the level of integration tests, which typically involve actual I/O operations and full system interactions.
+In contrast to [Solitary Unit Tests](/docs/developer-guide/unit-tests/solitary), where all dependencies are mocked, sociable tests expose certain dependencies to verify real interactions between units. However, they do not extend to the level of integration tests, which typically involve actual I/O operations and full system interactions.
 
 ## Step-by-Step Example
 
@@ -134,7 +134,7 @@ describe('User Service Unit Spec', () => {
 
 ### Using `.mock().impl()` and `.mock().final()` in Sociable Unit Tests
 
-Defining final behavior and controlling mocks with `.impl()` is still possible with sociable unit tests. Refer to the [Solitary Unit Tests](/docs/solitary-unit-tests#using-mockusing-for-flexible-mock-behavior) section for details on using these methods.
+Defining final behavior and controlling mocks with `.impl()` is still possible with sociable unit tests. Refer to the [Solitary Unit Tests](/docs/developer-guide/unit-tests/solitary) section for details on using these methods.
 
 ## Next Steps
 
