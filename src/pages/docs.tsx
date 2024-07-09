@@ -128,7 +128,7 @@ const libraries: LibraryItem[] = [
 function Library({title, name, img, link}: LibraryItem) {
   return (
     <div className={styles.library}>
-      <a href={link} title={name}>
+      <a href={link} title={name} className={styles.libraryLink}>
         <img src={img} alt={title}/>
       </a>
     </div>

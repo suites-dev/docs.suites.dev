@@ -75,6 +75,7 @@
     }
 
     .codeBlock {
+        max-width: 100%;
         margin: 30px auto;
     }
 }
@@ -89,7 +90,7 @@
 }
 
 .library {
-    a {
+    .libraryLink {
         border: 1px solid var(--ifm-color-accent);
         display: block;
         flex-direction: column;
