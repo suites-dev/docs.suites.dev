@@ -62,20 +62,18 @@ Suites is fully compatible with Monorepo, accommodating projects that use differ
 
 If you are using Suites in a Monorepo, consider the following setups:
 
-**Using one the same mocking and di framework across all workspaces** \
-Install the corresponding adapter under the root directory of your Monorepo.
-Suites will automatically detect the adapter and configure itself accordingly.
+> **Using one the same mocking and di framework across all workspaces** \
+> Install the corresponding adapter under the root directory of your Monorepo.
+> Suites will automatically detect the adapter and configure itself accordingly.
 
-**Using different frameworks across workspaces**
-Install the corresponding adapter in each workspace separately. Make sure to config the hoisting of the `node_modules`
-to enable Suites to detect the adapter in the workspace.
+> **Using different frameworks across workspaces** \
+> Install the corresponding adapter in each workspace separately. Make sure to config the hoisting of the `node_modules`
+> to enable Suites to detect the adapter in the workspace.
 
 :::note
 Unfortunately, NPM workspaces do not support the hoisting of dependencies, which means that working with different DI or
 mocking libraries with npm workspaces is not supported at the moment. We recommend using Yarn workspaces for this purpose.
 :::
-
-
 
 ## For Vitest Users
 

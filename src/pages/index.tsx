@@ -13,14 +13,14 @@ function HomepageHeader() {
         <img className={styles.logo} src="img/logo.svg" alt="Suites Logo" />
 
         <h1 className={styles.title}>{siteConfig.title}</h1>
-        <p className="hero__subtitle">
+        <p className={styles.subtitle}>
           Suites is a meta-framework helping developers focus on<br />
           creating solid test suites, automate the generation of mock<br />
           objects, and improve their unit testing workflow.
         </p>
         <div className={styles.buttons}>
           <Link
-            className={styles.button}
+            className={`${styles.button} button button--outline button--primary`}
             to="/docs">
             Read the Docs
           </Link>
@@ -28,7 +28,7 @@ function HomepageHeader() {
           &nbsp;
           &nbsp;
           <Link
-            className={styles.button}
+            className={`${styles.button} button button--outline button--primary`}
             to="https://github.com/suites-dev/suites">
             Source Code
           </Link>

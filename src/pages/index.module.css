@@ -4,51 +4,110 @@
  */
 
 .heroBanner {
-  font-family: "Inter", sans-serif;
-  padding: 4rem 0;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-  height: 48rem;
-  color: #2f2f2f;
+    font-family: "Inter", sans-serif;
+    padding: 4rem 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    height: 48rem;
+    color: #2f2f2f;
+    background-color: #242526;
 }
 
 @media screen and (max-width: 996px) {
-  .heroBanner {
-    padding: 2rem;
-  }
+    .heroBanner {
+        padding: 2rem;
+    }
 }
 
 .title {
-  font-family: "Inter", sans-serif;
-  font-size: 2.75rem;
-  font-weight: 700;
+    font-family: "Inter", sans-serif;
+    font-size: 3.25rem;
+    color: rgba(239, 71, 121, 1);
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.subtitle {
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    color: rgba(253, 245, 248, 0.88);
+    font-family: "Inter", sans-serif;
+    font-size: 1.4rem;
+    font-weight: 500;
 }
 
 .buttons {
-  font-family: "Inter", sans-serif;
-  letter-spacing: -.75px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    width: 480px;
+    font-family: "Inter", sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    margin: 0 auto;
+    margin-top: 50px;
 }
 
 .button {
-  font-family: "Inter", sans-serif;
-  display: block;
-  font-size: 1.15rem;
-  padding: 8px 20px;
-  color: #2f2f2f;
-  background: #e8e8e8;
-  letter-spacing: .1px;
-  font-weight: bold;
-  border-radius: 30px;
+    font-family: "Inter", sans-serif;
+    font-size: 1.15rem;
+    padding: 8px 24px;
+    border: 3px solid rgba(239, 71, 121, 1);
 }
 
 .button:hover {
-  text-decoration: none;
+    transition: background 0.3s;
+    text-decoration: none;
+    color: #2f2f2f;
 }
 
 .logo {
-  width: 180px;
+    display: none;
+}
+
+.docs {
+    margin: 0 auto;
+    max-width: 1272px;
+    padding: 60px 16px 24px;
+
+    font-family: "Inter", sans-serif;
+
+    h1 {
+        font-size: 3rem;
+    }
+
+    .codeBlock {
+        margin: 30px auto;
+    }
+}
+
+.libraries {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px auto;
+}
+
+.supported {
+}
+
+.library {
+    a {
+        border: 1px solid var(--ifm-color-accent);
+        display: block;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 30px 40px;
+        margin: 8px;
+        border-radius: 8px;
+        background-color: #2f2f2f;
+        color: #fff;
+        text-decoration: none;
+        font-family: "Inter", sans-serif;
+        font-size: 1.25rem;
+        font-weight: 500;
+        transition: background 0.3s;
+
+        img {
+            height: 100px;
+        }
+    }
 }

@@ -1,6 +1,6 @@
 .features {
   width: 100%; /* Ensure the features section spans the full width */
-  margin-top: 30px;
+  margin-top: 40px;
   padding: 0; /* Remove padding around the section */
   display: flex;
   flex-wrap: wrap;
@@ -14,39 +14,34 @@
 }
 
 .feature {
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
-  height: 16rem;
-  background: var(--ifm-color-primary-darkest);
+  font-family: "Inter", sans-serif;
+  padding: 20px 10px;
+  height: 250px;
+  background: linear-gradient(18deg, rgba(7, 7, 7, 0.325) 52.75%, var(--ifm-color-primary) 180%);
   text-align: left;
   width: 100%; /* Ensures the feature content uses the full width of its column */
   display: flex; /* Added for aligning the title and description horizontally */
   flex-direction: column; /* Stack title and description vertically */
   margin-bottom: 20px;
+  justify-content: space-evenly;
+  border-radius: 8px;
 }
 
-.feature h3 {
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-  padding: 10px;
-  background: #782D44;
-  text-align: center;
-  margin: 0; /* Remove margin around the title */
-  letter-spacing: 0.25px;
-  font-size: 1.2rem;
+.featureWrap {
+  padding-left: 0;
+  padding-right: 1.2rem;
 }
 
-.feature strong {
-  display: block;
-  font-size: 1.125rem;
+.feature h2 {
+  margin: 0;
+  letter-spacing: 0.35px;
+  font-size: 1.8rem;
 }
 
-.feature p {
-  display: block;
+.description {
   font-size: 1rem;
-  line-height: 2;
   padding: 20px;
-  margin: 0; /* Remove margin around the paragraph */
+  padding-bottom: 10px;
 }
 
 .container {
@@ -61,10 +56,11 @@
   margin: 0; /* Eliminate space between rows */
 }
 
-.col {
+.features .col {
   margin: 0;
   padding: 0;
 }
+
 @media (min-width: 768px) { /* Adjust breakpoint as necessary */
   .col--6 {
     padding: 0;
@@ -73,4 +69,23 @@
 
 .buttons {
   text-align: right; /* Aligns the button to the right */
+}
+
+.button {
+  margin-right: 14px;
+}
+
+.heading {
+  padding-left: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.icon {
+  background: rgba(239, 71, 121, .5);
+  padding: 20px;
+  margin-right: 20px;
+  border-radius: 5px;
+  font-size: 1.8rem;
+  display: block;
 }

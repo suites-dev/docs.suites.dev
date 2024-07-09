@@ -9,8 +9,9 @@ In this guide, we'll build a small, two-class application and test it using Suit
 NestJS annotations for convenience, Suites supports a wide range of dependency injection (DI) frameworks and mocking
 libraries. The principles remain the same, so you can adapt this guide to your preferred tools.
 
-> :bulb: You can find this example and more in the [Suites Examples](https://github.com/suites-dev/examples) repository
-
+:::info
+:bulb: You can find this example and more in the [Suites Examples](https://github.com/suites-dev/examples) repository
+:::
 
 ## Setup
 
@@ -34,7 +35,9 @@ Install additional packages for TypeScript and Jest:
 npm install --save-dev ts-jest @types/jest jest typescript
 ```
 
-> :bulb: Suites supports Node 16 and above.
+:::note
+:bulb: Suites supports Node 16 and above.
+:::
 
 ### Project Structure
 
@@ -162,7 +165,7 @@ our test environment.
 
 Here’s the setup and test for `UserService`:
 
-```typescript title="tests/user.service.spec.ts" {1,7,10-12}
+```typescript title="user.service.spec.ts" {1,7,10-12}
 import { TestBed, Mocked } from '@suites/unit';
 import { UserService } from './user.service';
 import { UserRepository } from './user.repository';
@@ -188,27 +191,9 @@ describe('User Service Unit Spec', () => {
 });
 ```
 
-### Key Highlights
-
-- **Solitary Unit Testing**: We're using `TestBed.solitary()` to isolate the `UserService` class.
-- **Automatic Mocking**: When the class under test (`UserService`) is instantiated using `TestBed.solitary()`,
-- all its dependencies are automatically mocked.
-- **Virtual DI Container**: Suites skips the full DI container and creates an isolated container leveraging the DI
-  framework's reflection and metadata.
-
-:::info Why there isn't a DI container here?
-When the class under test is instantiated using `TestBed.solitary()`, all its dependencies are automatically mocked.
-Instead of using the full DI container, Suites constructs an isolated container by leveraging the DI framework's
-reflection and metadata. This process skips the overhead of the full DI container while maintaining the benefits of
-dependency injection. This approach ensures faster test execution and reduces complexity in the test setup.
-:::
-
-### More than Solitary
-
-Suites supports both solitary and sociable unit tests, providing flexibility in how you structure your tests. In this
-quick start, we've focused on a solitary test setup, but the principles apply to all supported DI frameworks and mocking
-libraries. To explore more complex scenarios, including sociable tests, check out the [Unit Testing](/docs/unit-tests)
-section.
+**When the class under test is instantiated using `TestBed.solitary()`, all its dependencies are automatically mocked.**
+These mocks start as stubs with no predefined behaviors or return values. \
+This setup offers a clean slate, allowing to define specific behaviors required for each test scenario.
 
 ### Running the Test
 Run your tests with:
@@ -219,11 +204,37 @@ $ npm test
 
 ## Review
 
-### What We've Learned
+### Explanation of `unit` and `unitRef`
 
-- **Setup**: Installed Suites packages and initialized a new project.
-- **Class Creation**: Created a simple `UserService` and `UserRepository` with basic functionality.
-- **Testing**: Set up and executed a solitary unit test using Suites.
+- **unit**: This represents the instance of the class under test created by the `TestBed`.
+- **unitRef**: This allows you to retrieve instances of the mocked dependencies created by the `TestBed`.
+
+> The `Mocked` type is used to type the mocked instances of the classes. This type is provided by the `@suites/unit` package. This type relies on the mocking library used in the test environment.
+
+
+### Key Highlights
+
+- **Solitary Unit Testing**: We're using `TestBed.solitary()` to isolate the `UserService` class.
+
+- **Automatic Mocking**: When the class under test (`UserService`) is instantiated using `TestBed.solitary()`,
+  all its dependencies are automatically mocked.
+
+- **Virtual DI Container**: Suites skips the full DI container and creates an isolated container leveraging the DI
+  framework's reflection and metadata.
+
+### Why there isn't a DI container here?
+
+Suites bypasses the traditional DI container by directly utilizing the DI framework's reflection and metadata
+capabilities to construct an isolated test environment. This means that instead of loading the entire DI container,
+Suites creates a lightweight, virtual container that mirrors the dependency injection mechanism. This streamlined
+approach reduces setup complexity and overhead, leading to faster test execution while still benefiting from dependency
+injection principles.
+
+### More than Solitary
+
+In this quick start, we've focused on a solitary test setup, but the principles apply to all supported DI frameworks
+and mocking libraries. To explore more complex scenarios, including sociable tests, check out the
+[Unit Testing](/docs/unit-tests) section.
 
 ### Adapting to Different Libraries
 

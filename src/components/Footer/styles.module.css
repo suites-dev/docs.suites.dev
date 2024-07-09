@@ -1,9 +1,10 @@
 /* Footer CSS */
 .pageFooter {
-  background-color: var(--outer-space);
+  background-color: #242526;
   text-align: center;
-  color: var(--battleship-gray);
-  padding: 30px 0;
+  color: rgba(204, 204, 204, 0.61);
+  font-family: "Inter", sans-serif;
+  padding: 20px 0;
   font-weight: bold;
 }
 
@@ -21,11 +22,11 @@
   font-size: 14px;
   font-weight: 500;
   line-height: 26px;
-  color: var(--battleship-gray);
+  color: rgba(204, 204, 204, 0.61);
 }
 
 .pageFooter p a {
-  color: var(--ifm-color-primary);
+  color: var(--ifm-color-primary-dark);
   font-weight: 600;
 }
 /* Footer section CSS */

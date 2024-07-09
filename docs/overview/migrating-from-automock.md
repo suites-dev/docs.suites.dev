@@ -14,9 +14,9 @@ our testing tools to better meet the needs of modern software development.
 
 ## The Shift from Automock
 
-This transition from Automock's culmination at version `2.1.0` to Suites' inaugural launch at version `3.0.0` brings
-forth expanded functionality and enhanced support. To facilitate a smooth transition, Automock will continue to receive
-critical fixes, but its development will cease with version `2.1.0`, making way for the future with Suites.
+Version `3.0.0` of Suites is the first release after Automock's `v2.1.0` completion, and it comes with it more features and
+better support. Automock will still get critical fixes until version `v2.1.0`, when development will stop to make way for
+Suites. This will help with the transition.
 
 ## Migration
 
@@ -65,20 +65,4 @@ packages, previously under `@automock`.
 
 The release history and tags under the `@automock` scope will be preserved for historical reference. However, from
 version `3.0.0` onwards, the focus will shift to `@suites`, reflecting our new direction and expanded scope.
-
-## Looking Ahead
-
-The shift from Automock to Suites is not just a change of tools but a step towards a more integrated and efficient
-approach to software testing. Suites is committed to retaining all the strengths of Automock while opening new avenues
-for testing capabilities.
-
-For existing Automock users, transitioning to Suites has been made as smooth as possible. We have developed
-comprehensive migration tools and documentation to ensure that your move to Suites is straightforward and beneficial.
-
-> **Learn More**: To understand the detailed changes and how to migrate your existing projects from Automock to Suites,
-> please refer to our [Migration Guide](/docs/migration-from-automock-to-suites).
-
-We are excited about the possibilities that Suites brings to the software testing landscape and are committed to
-continuing our support for the developer community in creating high-quality software more efficiently.
-
-Thank you for being an early adopter and supporting our journey from Automock to Suites!
+  

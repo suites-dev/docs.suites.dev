@@ -34,7 +34,7 @@ const config: Config = {
           routeBasePath: 'docs',
           sidebarPath: require.resolve('./config/docs-sidebars.js'),
           remarkPlugins: [
-            [require('@docusaurus/remark-plugin-npm2yarn'), {sync: true}],
+            [require('@docusaurus/remark-plugin-npm2yarn'), { sync: true }],
           ],
         },
         theme: {
@@ -50,10 +50,11 @@ const config: Config = {
         name: 'keywords',
         content: 'auto mocking, dependency injection, inversion of control, jest, sinon, nestjs, inversifyjs'
       },
-      {name: 'description', content: 'Standalone Library for Automated Mocking of Class Dependencies.'},
+      { name: 'description', content: 'Standalone Library for Automated Mocking of Class Dependencies.' },
     ],
     colorMode: {
-      disableSwitch: true,
+      disableSwitch: false,
+      respectPrefersColorScheme: true,
       defaultMode: 'dark',
     },
     algolia: algoliaConfig,
