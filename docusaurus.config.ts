@@ -5,13 +5,13 @@ import { draculaThemeConfig } from './config/prisma-theme.config';
 const config: Config = {
   title: 'Suites',
   tagline: 'Standalone Library for Automated Mocking of Class Dependencies',
+  organizationName: 'suites-dev',
   url: 'https://suites.dev',
   baseUrl: '/',
   onBrokenLinks: 'ignore',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.png',
-  organizationName: 'Suites',
-  projectName: 'suites.dev',
+  projectName: 'suites',
   headTags: [
     {
       tagName: 'link',

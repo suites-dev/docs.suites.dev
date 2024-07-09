@@ -96,31 +96,31 @@ const libraries: LibraryItem[] = [
   {
     title: 'Jest',
     link: 'https://jestjs.io/',
-    img: 'img/jest-logo.png',
+    img: '/img/jest-logo.png',
     name: 'Jest'
   },
   {
     title: 'Sinon',
     link: 'https://sinonjs.org/',
-    img: 'img/sinon-logo.png',
+    img: '/img/sinon-logo.png',
     name: 'Sinon'
   },
   {
     title: 'Vitest',
     link: 'https://vitest.io/',
-    img: 'img/vitest-logo.png',
+    img: '/img/vitest-logo.png',
     name: 'Vitest'
   },
   {
     title: 'NestJS',
-    link: 'https://vitest.io/',
-    img: 'img/nestjs-logo.png',
+    link: 'https://docs.nestjs.com',
+    img: '/img/nestjs-logo.png',
     name: 'Vitest'
   },
   {
     title: 'Inversify',
-    link: 'https://vitest.io/',
-    img: 'img/inversify-logo.png',
+    link: 'https://inversify.io/',
+    img: '/img/inversify-logo.png',
     name: 'Vitest'
   },
 ];
