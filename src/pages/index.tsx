@@ -16,7 +16,7 @@ function HomepageHeader() {
         <p className={styles.subtitle}>
           Suites is a meta-framework that focuses on helping developers build solid test suites, eliminates boilerplate code, and improves their unit testing process.
         </p>
-        <div className={`container ${styles.buttons}`}>
+        <div className={`${styles.buttons} container`}>
           <div className={'row'}>
             <div className={'col'}>
               <Link

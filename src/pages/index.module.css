@@ -41,7 +41,7 @@
 }
 
 .buttons {
-    max-width: 50%;
+    max-width: 50% !important;
     font-family: "Inter", sans-serif;
     margin-top: 50px;
 }
