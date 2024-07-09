@@ -4,7 +4,7 @@ import { draculaThemeConfig } from './config/prisma-theme.config';
 
 const config: Config = {
   title: 'Suites',
-  tagline: 'Standalone Library for Automated Mocking of Class Dependencies',
+  tagline: 'A meta-framework that focuses on helping developers build solid test suites, eliminates boilerplate code, and improves their unit testing process',
   organizationName: 'suites-dev',
   url: 'https://suites.dev',
   baseUrl: '/',
@@ -48,9 +48,14 @@ const config: Config = {
     metadata: [
       {
         name: 'keywords',
-        content: 'auto mocking, dependency injection, inversion of control, jest, sinon, nestjs, inversifyjs'
+        content: 'auto mocking, meta framework, jest, sinon, vitest, dependency injection, inversion of control, nestjs, inversifyjs'
       },
-      { name: 'description', content: 'Standalone Library for Automated Mocking of Class Dependencies.' },
+      { name: 'description', content: 'A meta-framework that focuses on helping developers build solid test suites, eliminates boilerplate code, and improves their unit testing process.' },
+      { name: 'og:title', content: 'Suites' },
+      { name: 'og:description', content: 'A meta-framework that focuses on helping developers build solid test suites, eliminates boilerplate code, and improves their unit testing process.' },
+      { name: 'og:image', content: 'https://suites.dev/img/logo.png' },
+      { name: 'og:url', content: 'https://suites.dev' },
+      { name: 'og:type', content: 'website' }
     ],
     colorMode: {
       disableSwitch: false,
@@ -69,6 +74,16 @@ const config: Config = {
           to: '/docs',
           position: 'left',
           label: 'Docs',
+        },
+        {
+          to: '/docs/overview/quickstart',
+          position: 'left',
+          label: 'Quick Start',
+        },
+        {
+          to: '/docs/developer-guide/unit-tests/',
+          position: 'left',
+          label: 'Unit Testing',
         },
         {
           href: 'https://github.com/suites-dev/suites',

@@ -3,6 +3,7 @@ import { ExploreLink, HomepageFeatures } from '@site/src/components/HomepageFeat
 import Layout from '@theme/Layout';
 import styles from './index.module.css';
 import CodeBlock from '@theme/CodeBlock';
+import Link from '@docusaurus/Link';
 
 function MainPage() {
   return (
@@ -25,7 +26,7 @@ function MainPage() {
 
       <br/>
 
-      <div className={styles.supported}>
+      <div className={'container'}>
         <h2>Supported Mocking Libraries and Dependency Injection Frameworks</h2>
         <p>
           Suites works seamlessly with popular mocking libraries and dependency injection frameworks.
@@ -115,34 +116,36 @@ const libraries: LibraryItem[] = [
     title: 'NestJS',
     link: 'https://docs.nestjs.com',
     img: '/img/nestjs-logo.png',
-    name: 'Vitest'
+    name: 'NestJS'
   },
   {
     title: 'Inversify',
     link: 'https://inversify.io/',
     img: '/img/inversify-logo.png',
-    name: 'Vitest'
+    name: 'Inversify'
   },
 ];
 
 function Library({title, name, img, link}: LibraryItem) {
   return (
     <div className={styles.library}>
-      <a href={link} title={name} className={styles.libraryLink}>
-        <img src={img} alt={title}/>
-      </a>
+      <Link href={link} title={name} className={styles.libraryLink}>
+        <img src={img} alt={title} className={styles.libraryImage}/>
+      </Link>
     </div>
   );
 }
 
 function Libraries(): JSX.Element {
   return (
-    <section className={styles.libraries}>
-      {libraries.map((props, idx) => (
-        <div key={idx}> {/* Ensure class matches your CSS */}
-          <Library {...props} />
-        </div>
-      ))}
+    <section className={`container ${styles.libraries}`}>
+      <div className={'row'}>
+        {libraries.map((props, idx) => (
+          <div className={`col`} style={{ paddingLeft: 0 }}>
+            <Library key={idx} {...props} />
+          </div>
+        ))}
+      </div>
     </section>
   );
 }

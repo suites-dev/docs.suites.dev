@@ -16,7 +16,7 @@
 .feature {
   font-family: "Inter", sans-serif;
   padding: 20px 10px;
-  height: 250px;
+  min-height: 250px;
   background: linear-gradient(18deg, rgba(7, 7, 7, 0.325) 52.75%, var(--ifm-color-primary) 180%);
   text-align: left;
   width: 100%; /* Ensures the feature content uses the full width of its column */
@@ -82,7 +82,7 @@
 }
 
 .icon {
-  background: rgba(239, 71, 121, .5);
+  background: rgba(239, 71, 121, .3);
   padding: 20px;
   margin-right: 20px;
   border-radius: 5px;

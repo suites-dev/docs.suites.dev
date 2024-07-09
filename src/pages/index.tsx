@@ -6,32 +6,33 @@ import Layout from '@theme/Layout';
 import styles from './index.module.css';
 
 function HomepageHeader() {
-  const { siteConfig } = useDocusaurusContext();
+  const {siteConfig} = useDocusaurusContext();
   return (
     <header className={clsx('hero hero--primary', styles.heroBanner)}>
       <div className="container">
-        <img className={styles.logo} src="img/logo.svg" alt="Suites Logo" />
+        <img className={styles.logo} src="img/logo.svg" alt="Suites Logo"/>
 
         <h1 className={styles.title}>{siteConfig.title}</h1>
         <p className={styles.subtitle}>
-          Suites is a meta-framework helping developers focus on<br />
-          creating solid test suites, automate the generation of mock<br />
-          objects, and improve their unit testing workflow.
+          Suites is a meta-framework that focuses on helping developers build solid test suites, eliminates boilerplate code, and improves their unit testing process.
         </p>
-        <div className={styles.buttons}>
-          <Link
-            className={`${styles.button} button button--outline button--primary`}
-            to="/docs">
-            Read the Docs
-          </Link>
-          &nbsp;
-          &nbsp;
-          &nbsp;
-          <Link
-            className={`${styles.button} button button--outline button--primary`}
-            to="https://github.com/suites-dev/suites">
-            Source Code
-          </Link>
+        <div className={`container ${styles.buttons}`}>
+          <div className={'row'}>
+            <div className={'col'}>
+              <Link
+                className={`${styles.button} button button--outline button--primary`}
+                to="/docs">
+                Read the Docs
+              </Link>
+            </div>
+            <div className={'col'}>
+              <Link
+                className={`${styles.button} button button--outline button--primary`}
+                to="https://github.com/suites-dev/suites">
+                Source Code
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </header>
@@ -39,13 +40,13 @@ function HomepageHeader() {
 }
 
 export default function Home(): JSX.Element {
-  const { siteConfig } = useDocusaurusContext();
+  const {siteConfig} = useDocusaurusContext();
 
   return (
     <Layout
       title={siteConfig.title}
       description="Suites">
-      <HomepageHeader />
+      <HomepageHeader/>
     </Layout>
   );
 }

@@ -22,27 +22,27 @@
 
 .title {
     font-family: "Inter", sans-serif;
-    font-size: 3.25rem;
+    font-size: 3rem;
     color: rgba(239, 71, 121, 1);
     font-weight: bold;
     text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    letter-spacing: -1px;
 }
 
 .subtitle {
     text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     color: rgba(253, 245, 248, 0.88);
     font-family: "Inter", sans-serif;
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     font-weight: 500;
+    max-width: 40em;
+    margin: 0 auto;
+    line-height: 2.25rem;
 }
 
 .buttons {
-    width: 480px;
+    max-width: 50%;
     font-family: "Inter", sans-serif;
-    display: flex;
-    align-items: center;
-    justify-content: space-evenly;
-    margin: 0 auto;
     margin-top: 50px;
 }
 
@@ -50,6 +50,8 @@
     font-family: "Inter", sans-serif;
     font-size: 1.15rem;
     padding: 8px 24px;
+    width: 12em;
+    margin: 10px;
     border: 3px solid rgba(239, 71, 121, 1);
 }
 
@@ -81,34 +83,21 @@
 }
 
 .libraries {
-    display: flex;
-    justify-content: space-between;
     margin: 20px auto;
 }
 
-.supported {
+.library {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 40px;
+    margin: 8px;
+    border-radius: 8px;
+    background-color: #2f2f2f;
+    border: 1px solid var(--ifm-color-accent);
 }
 
-.library {
-    .libraryLink {
-        border: 1px solid var(--ifm-color-accent);
-        display: block;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 30px 40px;
-        margin: 8px;
-        border-radius: 8px;
-        background-color: #2f2f2f;
-        color: #fff;
-        text-decoration: none;
-        font-family: "Inter", sans-serif;
-        font-size: 1.25rem;
-        font-weight: 500;
-        transition: background 0.3s;
-
-        img {
-            height: 100px;
-        }
-    }
+.libraryImage {
+    height: 100px;
 }
