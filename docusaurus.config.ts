@@ -53,7 +53,7 @@ const config: Config = {
       { name: 'description', content: 'A meta-framework that focuses on helping developers build solid test suites, eliminates boilerplate code, and improves their unit testing process.' },
       { name: 'og:title', content: 'Suites' },
       { name: 'og:description', content: 'A meta-framework that focuses on helping developers build solid test suites, eliminates boilerplate code, and improves their unit testing process.' },
-      { name: 'og:image', content: 'https://suites.dev/img/logo.png' },
+      { name: 'og:image', content: 'https://suites.dev/img/banner.png' },
       { name: 'og:url', content: 'https://suites.dev' },
       { name: 'og:type', content: 'website' }
     ],
