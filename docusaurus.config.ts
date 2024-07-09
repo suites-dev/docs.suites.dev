@@ -58,7 +58,7 @@ const config: Config = {
       { name: 'og:type', content: 'website' }
     ],
     colorMode: {
-      disableSwitch: false,
+      disableSwitch: true,
       respectPrefersColorScheme: true,
       defaultMode: 'dark',
     },

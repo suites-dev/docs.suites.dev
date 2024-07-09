@@ -19,7 +19,7 @@
   /* Complementary and Neutral Shades */
   --ifm-color-accent: #522E38; /* Deep Mauve, works as a darker, neutral complement */
   --ifm-color-secondary: #FFC2D4; /* Soft Pink, lighter and less saturated */
-  --ifm-background-color: #FFE0E9; /* Very Light Pink, ideal for backgrounds */
+  --ifm-background-color: #ffffff; /* Very Light Pink, ideal for backgrounds */
   --ifm-background-color-dark: #602437; /* Deep Reddish Brown, good for dark mode backgrounds or accents */
 
   /* Utility Colors */
