@@ -4,6 +4,7 @@ import Layout from '@theme/Layout';
 import styles from './index.module.css';
 import CodeBlock from '@theme/CodeBlock';
 import Link from '@docusaurus/Link';
+import Head from '@docusaurus/Head';
 
 function MainPage() {
   return (
@@ -80,6 +81,9 @@ describe('User Service Unit Spec', () => {
 export default function HomePage() {
   return (
     <Layout>
+      <Head>
+        <title>Welcome | Suites Documentation</title>
+      </Head>
       <MainPage/>
     </Layout>
   );

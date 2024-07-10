@@ -3,7 +3,7 @@ import type { Config } from '@docusaurus/types';
 import { draculaThemeConfig } from './config/prisma-theme.config';
 
 const config: Config = {
-  title: 'Suites',
+  title: 'Suites Documentation',
   tagline: 'A meta-framework that focuses on helping developers build solid test suites, eliminates boilerplate code, and improves their unit testing process',
   organizationName: 'suites-dev',
   url: 'https://suites.dev',
@@ -57,7 +57,7 @@ const config: Config = {
       { name: 'author', content: 'Suites' },
       { property: 'description', content: 'A meta-framework that focuses on helping developers build solid test suites, eliminates boilerplate code, and improves their unit testing process.' },
       { property: 'og:title', content: 'Suites' },
-      { property: 'og:description', content: 'A meta-framework that focuses on helping developers build solid test suites, eliminates boilerplate code, and improves their unit testing process.' },
+      { property: 'og:description', name: 'description', content: 'A meta-framework that focuses on helping developers build solid test suites, eliminates boilerplate code, and improves their unit testing process.' },
       { property: 'og:image', name: 'image', content: 'https://suites.dev/img/banner.png' },
       { property: 'og:url', content: 'https://suites.dev' },
       { property: 'og:type', content: 'website' }
