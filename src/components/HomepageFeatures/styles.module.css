@@ -1,35 +1,23 @@
 .features {
   width: 100%; /* Ensure the features section spans the full width */
-  margin-top: 40px;
+  margin-top: 20px;
   padding: 0; /* Remove padding around the section */
   display: flex;
   flex-wrap: wrap;
-}
-
-.col--6 {
-  width: 50%; /* Each column takes up half of the width */
-  padding: 0; /* Remove padding between columns */
-  margin: 0;
-  box-sizing: border-box;
+  margin-bottom: 20px;
 }
 
 .feature {
+  margin: 8px;
   font-family: "Inter", sans-serif;
   padding: 20px 10px;
   min-height: 250px;
   background: linear-gradient(18deg, rgba(7, 7, 7, 0.325) 52.75%, var(--ifm-color-primary) 180%);
   text-align: left;
-  width: 100%; /* Ensures the feature content uses the full width of its column */
   display: flex; /* Added for aligning the title and description horizontally */
   flex-direction: column; /* Stack title and description vertically */
-  margin-bottom: 20px;
   justify-content: space-evenly;
   border-radius: 8px;
-}
-
-.featureWrap {
-  padding-left: 0;
-  padding-right: 1.2rem;
 }
 
 .feature h2 {
@@ -42,12 +30,6 @@
   font-size: 1rem;
   padding: 20px;
   padding-bottom: 10px;
-}
-
-.container {
-  width: 100%; /* Ensures the container spans the full width */
-  margin: 0; /* Remove any default margin */
-  padding: 0; /* Remove any default padding */
 }
 
 .row {

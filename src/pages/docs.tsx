@@ -9,46 +9,47 @@ import Head from '@docusaurus/Head';
 function MainPage() {
   return (
     <div className={`container ${styles.docs}`}>
-      <h1>Welcome to Suites</h1>
-      <p>
-        <strong>
-          Suites is an opinionated, <a href="/docs/overview/what-is-suites#suites-as-a-meta-framework">flexible
-          testing meta-framework</a> aimed at elevating the software testing experience within backend systems working
-          with dependency injection (DI) frameworks.
-        </strong>
-      </p>
-      <p>
-        Suites provides a unified testing experience that combines best practices, industry standards, and a wide range
-        of testing tools to help developers create robust, maintainable, and scalable test suites, thereby ensuring the
-        development of high-quality software.
-      </p>
+      <div className={'row'}>
+        <h1>Welcome to Suites</h1>
+        <p>
+          <strong>
+            Suites is an opinionated, <a href="/docs/overview/what-is-suites#suites-as-a-meta-framework">flexible
+            testing meta-framework</a> aimed at elevating the software testing experience within backend systems working
+            with dependency injection (DI) frameworks.
+          </strong>
+        </p>
+        <p>
+          Suites provides a unified testing experience that combines best practices, industry standards, and a wide
+          range
+          of testing tools to help developers create robust, maintainable, and scalable test suites, thereby ensuring
+          the
+          development of high-quality software.
+        </p>
 
-      <HomepageFeatures/>
+        <HomepageFeatures />
+      </div>
 
-      <br/>
-
-      <div className={'container'}>
+      <div className={'row'} style={{ marginTop: 50 }}>
         <h2>Supported Mocking Libraries and Dependency Injection Frameworks</h2>
         <p>
           Suites works seamlessly with popular mocking libraries and dependency injection frameworks.
           This means that you can leverage the full power of these libraries and frameworks while enjoying the
           convenience and flexibility that Suites provides.
         </p>
-        <Libraries/>
+        <Libraries />
       </div>
 
-      <br/>
+      <div className={'row'} style={{ marginTop: 50 }}>
+        <h2>Fluent and Convenient API for Unit Testing</h2>
+        <p>
+          Suites offers a fluent, convenient, and semantic API that makes writing tests a pleasure. The intuitive design
+          of the API ensures that you can quickly set up your tests and focus on verifying the behavior of your
+          application.
+        </p>
 
-      <h2>Fluent and Convenient API for Unit Testing</h2>
-      <p>
-        Suites offers a fluent, convenient, and semantic API that makes writing tests a pleasure. The intuitive design
-        of the API ensures that you can quickly set up your tests and focus on verifying the behavior of your
-        application.
-      </p>
-
-      <div className={styles.codeBlock}>
-        <CodeBlock language="typescript" title="user.service.spec.ts">
-          {`import { TestBed, Mocked } from '@suites/unit';
+        <div className={styles.codeBlock} style={{ marginTop: 20 }}>
+          <CodeBlock language="typescript" title="user.service.spec.ts">
+            {`import { TestBed, Mocked } from '@suites/unit';
 
 describe('User Service Unit Spec', () => {
   let underTest: UserService; // 🧪 Declare the unit under test
@@ -71,8 +72,18 @@ describe('User Service Unit Spec', () => {
     });
   });
 }`}
-        </CodeBlock>
-        <ExploreLink/>
+          </CodeBlock>
+          <ExploreLink/>
+        </div>
+      </div>
+
+      <div className={'row'} style={{ marginTop: 20 }}>
+        <h2>Getting Started</h2>
+        <p>
+          Ready to get started with Suites? Check out the <Link to="/docs/overview/">documentation overview</Link> to
+          learn more about
+          Suites and how you can use it to improve your testing experience.
+        </p>
       </div>
     </div>
   );
@@ -132,24 +143,22 @@ const libraries: LibraryItem[] = [
 
 function Library({title, name, img, link}: LibraryItem) {
   return (
-    <div className={styles.library}>
-      <Link href={link} title={name} className={styles.libraryLink}>
-        <img src={img} alt={title} className={styles.libraryImage}/>
-      </Link>
-    </div>
+    <Link href={link} title={name} className={styles.libraryLink}>
+      <img src={img} alt={title} className={styles.libraryImage}/>
+    </Link>
   );
 }
 
 function Libraries(): JSX.Element {
   return (
-    <section className={`container ${styles.libraries}`}>
+    <div className={`container ${styles.libraries}`}>
       <div className={'row'}>
         {libraries.map((props, idx) => (
-          <div className={`col`} style={{ paddingLeft: 0 }}>
+          <div className={`col ${styles.library}`}>
             <Library key={idx} {...props} />
           </div>
         ))}
       </div>
-    </section>
+    </div>
   );
 }

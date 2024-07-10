@@ -49,7 +49,6 @@ const FeatureList: FeatureItem[] = [
 
 function Feature({ title, description, icon, link }: FeatureItem) {
   return (
-    <div className={styles.feature}>
       <div>
         <div className={styles.heading}>
           <FontAwesomeIcon icon={icon} className={styles.icon} />
@@ -60,7 +59,6 @@ function Feature({ title, description, icon, link }: FeatureItem) {
           <a className={`${styles.button} button button--primary button--outline`} href={link.ref}>{link.text} &nbsp;<FontAwesomeIcon icon={faArrowRight} /></a>
         </div>
       </div>
-    </div>
   );
 }
 
@@ -70,7 +68,7 @@ export function HomepageFeatures(): JSX.Element {
       <div className="container">
         <div className="row">
           {FeatureList.map((props, idx) => (
-            <div className={`col col--6 ${styles.featureWrap}`} key={idx}> {/* Ensure class matches your CSS */}
+            <div className={`col ${styles.feature}`} key={idx}> {/* Ensure class matches your CSS */}
               <Feature {...props} />
             </div>
           ))}
