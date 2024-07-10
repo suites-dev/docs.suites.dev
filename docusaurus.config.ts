@@ -20,27 +20,6 @@ const config: Config = {
         href: 'https://fonts.googleapis.com',
       },
     },
-    {
-      tagName: 'script',
-      attributes: {
-        src: 'https://cdn.jsdelivr.net/npm/@algolia/algoliasearch-netlify-frontend@1/dist/algoliasearchNetlify.js',
-      },
-    },
-    {
-      tagName: 'script',
-      attributes: {
-        type: 'text/javascript',
-      },
-      innerHTML: `
-        algoliasearchNetlify({
-          appId: 'S3EVZGZBUX',
-          apiKey: '35d82ebfb36fc4302594525adbcfa45e',
-          siteId: '8963435b-d90c-4317-801d-f102b0f669bc',
-          branch: 'master',
-          selector: '.DocSearch-Input',
-        });
-      `
-    }
   ],
   i18n: {
     defaultLocale: 'en',
