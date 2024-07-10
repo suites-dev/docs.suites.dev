@@ -12,7 +12,7 @@ module.exports = {
   searchPagePath: 'search',
   actions: [
     {
-      indexName: 'automock',
+      indexName: 'suites-index',
       pathsToMatch: ['https://suites.dev/**'],
       recordExtractor: ({ $, helpers }) => {
         // priority order: deepest active sub list header -> navbar active item -> 'Documentation'
