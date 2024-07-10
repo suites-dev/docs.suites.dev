@@ -20,6 +20,27 @@ const config: Config = {
         href: 'https://fonts.googleapis.com',
       },
     },
+    {
+      tagName: 'script',
+      attributes: {
+        src: 'https://cdn.jsdelivr.net/npm/@algolia/algoliasearch-netlify-frontend@1/dist/algoliasearchNetlify.js',
+      },
+    },
+    {
+      tagName: 'script',
+      attributes: {
+        type: 'text/javascript',
+      },
+      innerHTML: `
+        algoliasearchNetlify({
+          appId: 'S3EVZGZBUX',
+          apiKey: '35d82ebfb36fc4302594525adbcfa45e',
+          siteId: '8963435b-d90c-4317-801d-f102b0f669bc',
+          branch: 'master',
+          selector: '.DocSearch-Input',
+        });
+      `
+    }
   ],
   i18n: {
     defaultLocale: 'en',
@@ -34,7 +55,7 @@ const config: Config = {
           routeBasePath: 'docs',
           sidebarPath: require.resolve('./config/docs-sidebars.js'),
           remarkPlugins: [
-            [require('@docusaurus/remark-plugin-npm2yarn'), { sync: true }],
+            [require('@docusaurus/remark-plugin-npm2yarn'), {sync: true}],
           ],
         },
         theme: {
@@ -54,17 +75,23 @@ const config: Config = {
         name: 'keywords',
         content: 'auto mocking, meta framework, jest, sinon, vitest, dependency injection, inversion of control, nestjs, inversifyjs'
       },
-      { name: 'author', content: 'Suites' },
-      { property: 'description', content: 'A meta-framework that focuses on helping developers build solid test suites, eliminates boilerplate code, and improves their unit testing process.' },
-      { property: 'og:title', content: 'Suites' },
-      { property: 'og:description', name: 'description', content: 'A meta-framework that focuses on helping developers build solid test suites, eliminates boilerplate code, and improves their unit testing process.' },
-      { property: 'og:image', name: 'image', content: 'https://suites.dev/img/banner.png' },
-      { property: 'og:url', content: 'https://suites.dev' },
-      { property: 'og:type', content: 'website' }
+      {name: 'author', content: 'Suites'},
+      {
+        property: 'description',
+        content: 'A meta-framework that focuses on helping developers build solid test suites, eliminates boilerplate code, and improves their unit testing process.'
+      },
+      {property: 'og:title', content: 'Suites'},
+      {
+        property: 'og:description',
+        name: 'description',
+        content: 'A meta-framework that focuses on helping developers build solid test suites, eliminates boilerplate code, and improves their unit testing process.'
+      },
+      {property: 'og:image', name: 'image', content: 'https://suites.dev/img/banner.png'},
+      {property: 'og:url', content: 'https://suites.dev'},
+      {property: 'og:type', content: 'website'}
     ],
     colorMode: {
       disableSwitch: true,
-      respectPrefersColorScheme: true,
       defaultMode: 'dark',
     },
     algolia: algoliaConfig,
