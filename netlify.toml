@@ -1,9 +1,0 @@
-[[redirects]]
-from = "/docs"
-to = "/docs/get-started"
-status = 301
-
-[[redirects]]
-from = "/api-reference"
-to = "/api-reference/category/api-reference"
-status = 301

@@ -1,7 +1,7 @@
 module.exports = {
   appId: 'S3EVZGZBUX',
   apiKey: '35d82ebfb36fc4302594525adbcfa45e',
-  indexName: 'suites-index',
+  indexName: 'suites',
   rateLimit: 8,
   contextualSearch: true,
   maxDepth: 10,
@@ -12,7 +12,7 @@ module.exports = {
   searchPagePath: 'search',
   actions: [
     {
-      indexName: 'suites-index',
+      indexName: 'suites',
       pathsToMatch: ['https://suites.dev/**'],
       recordExtractor: ({ $, helpers }) => {
         // priority order: deepest active sub list header -> navbar active item -> 'Documentation'
@@ -45,7 +45,7 @@ module.exports = {
     },
   ],
   initialIndexSettings: {
-    automock: {
+    suites: {
       attributesForFaceting: [
         'type',
         'lang',
