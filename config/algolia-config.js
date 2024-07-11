@@ -11,7 +11,7 @@ module.exports = {
   actions: [
     {
       indexName: 'suites',
-      pathsToMatch: ['https://suites.dev/**'],
+      pathsToMatch: ['https://suites.dev/docs/**'],
       recordExtractor: ({ $, helpers }) => {
         // priority order: deepest active sub list header -> navbar active item -> 'Documentation'
         const lvl0 =
@@ -80,7 +80,7 @@ module.exports = {
         'content',
       ],
       distinct: true,
-      attributeForDistinct: 'url',
+      attributeForDistinct: 'pathname',
       customRanking: [
         'desc(weight.pageRank)',
         'desc(weight.level)',
