@@ -1,7 +1,7 @@
 module.exports = {
   appId: 'S3EVZGZBUX',
   apiKey: '35d82ebfb36fc4302594525adbcfa45e',
-  indexName: 'suites',
+  indexName: 'netlify_8963435b-d90c-4317-801d-f102b0f669bc_master_all',
   rateLimit: 8,
   maxDepth: 10,
   startUrls: ['https://suites.dev', 'https://suites.dev/docs'],
@@ -10,7 +10,7 @@ module.exports = {
   discoveryPatterns: ['https://suites.dev/docs/**'],
   actions: [
     {
-      indexName: 'suites',
+      indexName: 'netlify_8963435b-d90c-4317-801d-f102b0f669bc_master_all',
       pathsToMatch: ['https://suites.dev/docs/**'],
       recordExtractor: ({ $, helpers }) => {
         // priority order: deepest active sub list header -> navbar active item -> 'Documentation'
@@ -43,7 +43,7 @@ module.exports = {
     },
   ],
   initialIndexSettings: {
-    suites: {
+    'netlify_8963435b-d90c-4317-801d-f102b0f669bc_master_all': {
       attributesForFaceting: [
         'type',
         'lang',
