@@ -14,7 +14,7 @@ module.exports = {
     {
       indexName: 'suites',
       pathsToMatch: ['https://suites.dev/**'],
-      recordExtractor: ({ $, helpers }) => {
+      recordExtractor: ({$, helpers}) => {
         // priority order: deepest active sub list header -> navbar active item -> 'Documentation'
         const lvl0 =
           $(
@@ -54,9 +54,17 @@ module.exports = {
         'docusaurus_tag',
       ],
       attributesToRetrieve: [
+        'hierarchy.lvl0',
+        'hierarchy.lvl1',
+        'hierarchy.lvl2',
+        'hierarchy.lvl3',
+        'hierarchy.lvl4',
+        'hierarchy.lvl5',
+        'hierarchy.lvl6',
         'hierarchy',
         'content',
         'anchor',
+        'type',
         'url',
         'url_without_anchor',
         'type',
@@ -65,17 +73,17 @@ module.exports = {
       attributesToSnippet: ['content:10'],
       camelCaseAttributes: ['hierarchy', 'content'],
       searchableAttributes: [
-        'unordered(hierarchy.lvl0)',
-        'unordered(hierarchy.lvl1)',
-        'unordered(hierarchy.lvl2)',
-        'unordered(hierarchy.lvl3)',
-        'unordered(hierarchy.lvl4)',
-        'unordered(hierarchy.lvl5)',
-        'unordered(hierarchy.lvl6)',
+        'hierarchy.lvl0',
+        'hierarchy.lvl1',
+        'hierarchy.lvl2',
+        'hierarchy.lvl3',
+        'hierarchy.lvl4',
+        'hierarchy.lvl5',
+        'hierarchy.lvl6',
         'content',
       ],
       distinct: true,
-      attributeForDistinct: 'url',
+      attributeForDistinct: 'pathname',
       customRanking: [
         'desc(weight.pageRank)',
         'desc(weight.level)',
