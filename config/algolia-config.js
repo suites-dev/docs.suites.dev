@@ -1,6 +1,6 @@
 module.exports = {
-  appId: '6AEEQNQ46E',
-  apiKey: '48747db81aa730f211924c45fa869adc',
+  appId: 'S3EVZGZBUX',
+  apiKey: '35d82ebfb36fc4302594525adbcfa45e',
   indexName: 'suites-index',
   rateLimit: 8,
   contextualSearch: true,
