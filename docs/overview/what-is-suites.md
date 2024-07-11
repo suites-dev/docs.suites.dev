@@ -10,8 +10,8 @@ backend systems.**
 
 By integrating a wide array of testing tools into a cohesive framework, Suites simplifies the process
 of creating reliable tests, thereby ensuring the development of high-quality software.
-[Originating from the solid foundation laid by Automock](/docs/overview/migrating-from-automock), Suites has evolved into a more comprehensive solution,
-aimed at addressing [a broader range of testing challenges](/docs/overview/problems-solved).
+[Originating from the solid foundation laid by Automock](/docs/overview/migrating-from-automock/), Suites has evolved into a more comprehensive solution,
+aimed at addressing [a broader range of testing challenges](/docs/overview/problems-solved/).
 
 
 ## Supported Libraries

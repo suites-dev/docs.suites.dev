@@ -162,5 +162,5 @@ let userService: Mocked<UserService>;
 ## What's Next?
 After understanding the basics of test doubles, you can explore more advanced testing techniques:
 
-- [Solitary Unit Tests](./integration-testing.md): Learn how to write solitary unit tests in Suites.
-- [Sociable Unit Tests](./integration-testing.md): Discover how to write sociable unit tests in Suites.
+- [Solitary Unit Tests](/docs/developer-guide/unit-tests/solitary/): Learn how to write solitary unit tests in Suites.
+- [Sociable Unit Tests](/docs/developer-guide/unit-tests/sociable/): Discover how to write sociable unit tests in Suites.
