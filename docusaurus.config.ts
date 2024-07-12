@@ -34,7 +34,7 @@ const config: Config = {
           routeBasePath: 'docs',
           sidebarPath: require.resolve('./config/docs-sidebars.js'),
           remarkPlugins: [
-            [require('@docusaurus/remark-plugin-npm2yarn'), {sync: true}],
+            [require('@docusaurus/remark-plugin-npm2yarn'), { sync: true }],
           ],
         },
         theme: {
@@ -54,20 +54,20 @@ const config: Config = {
         name: 'keywords',
         content: 'auto mocking, meta framework, jest, sinon, vitest, dependency injection, inversion of control, nestjs, inversifyjs'
       },
-      {name: 'author', content: 'Suites'},
+      { name: 'author', content: 'Suites' },
       {
         property: 'description',
         content: 'A meta-framework that focuses on helping developers build solid test suites, eliminates boilerplate code, and improves their unit testing process.'
       },
-      {property: 'og:title', content: 'Suites'},
+      { property: 'og:title', content: 'Suites' },
       {
         property: 'og:description',
         name: 'description',
         content: 'A meta-framework that focuses on helping developers build solid test suites, eliminates boilerplate code, and improves their unit testing process.'
       },
-      {property: 'og:image', name: 'image', content: 'https://suites.dev/img/banner.png'},
-      {property: 'og:url', content: 'https://suites.dev'},
-      {property: 'og:type', content: 'website'}
+      { property: 'og:image', name: 'image', content: 'https://suites.dev/img/banner.png' },
+      { property: 'og:url', content: 'https://suites.dev' },
+      { property: 'og:type', content: 'website' }
     ],
     colorMode: {
       disableSwitch: true,

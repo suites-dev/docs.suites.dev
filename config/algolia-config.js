@@ -1,7 +1,7 @@
 module.exports = {
-  appId: 'S3EVZGZBUX',
-  apiKey: '35d82ebfb36fc4302594525adbcfa45e',
-  indexName: 'suites-main',
+  appId: 'OR8PNMV0IL',
+  apiKey: '28a25b54e18eb96f17089adf1f3ed295',
+  indexName: 'suites',
   rateLimit: 8,
   maxDepth: 10,
   startUrls: ['https://suites.dev', 'https://suites.dev/docs'],
@@ -10,7 +10,7 @@ module.exports = {
   externalUrlRegex: 'suites\\.dev',
   actions: [
     {
-      indexName: 'suites-main',
+      indexName: 'suites',
       pathsToMatch: ['https://suites.dev/docs/**'],
       recordExtractor: ({ $, helpers }) => {
         // priority order: deepest active sub list header -> navbar active item -> 'Documentation'
@@ -43,7 +43,7 @@ module.exports = {
     },
   ],
   initialIndexSettings: {
-    'suites-main': {
+    suites: {
       attributesForFaceting: [
         'type',
         'lang',
