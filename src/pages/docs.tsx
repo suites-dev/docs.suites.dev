@@ -47,7 +47,7 @@ function MainPage() {
           application.
         </p>
 
-        <div className={styles.codeBlock} style={{ marginTop: 20 }}>
+        <div className={styles.codeBlock}>
           <CodeBlock language="typescript" title="user.service.spec.ts">
             {`import { TestBed, Mocked } from '@suites/unit';
 

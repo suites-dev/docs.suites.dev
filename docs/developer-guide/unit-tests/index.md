@@ -1,6 +1,5 @@
 ---
 sidebar_position: 1
-description: Bla bla
 title: Unit Testing
 toc_min_heading_level: 3
 ---
@@ -9,23 +8,27 @@ toc_min_heading_level: 3
 
 ## Introduction
 
-Unit testing is a fundamental practice in software development, ensuring that individual units of code function are
-correctly in isolation. These concepts have been extensively discussed in the writings of Martin Fowler. He
-distinguishes between two main types of unit tests, which will be the focus of this section.
+This section is dedicated to exploring the core concepts and practices of unit testing with Suites.
+Unit testing is a fundamental practice in software development, ensuring that individual components of your application
+work as intended. Suites provides powerful tools and abstractions to streamline the creation and management of unit
+tests, let's dive in and explore them.
 
 ## Unit Tests in The Context of Suites
 
-Object-oriented design tends to treat a class as the "unit," procedural or functional approaches might consider a single
-function as a unit. **In the context of Suites, we consider the smallest unit to be a class**, and distinguish between
-two types of what is called "unit testing", "solitary" and "sociable" unit tests.
+Unit testing can take on different meanings depending on the programming paradigm. In object-oriented design, a "unit"
+typically refers to a single class. In procedural or functional programming, it might refer to a single function.
+**Within the context of Suites, we consider the smallest unit to be a class.**
 
-> :bulb: For foundational insights into unit testing, including the distinctions between solitary and sociable
-> tests, [Martin Fowler's writings](https://martinfowler.com/bliki/UnitTest.html) offer invaluable guidance.
+Suites distinguishes between two types of unit testing: "solitary" and "sociable" unit tests:
 
+- **Solitary Unit Tests**: Focus on testing a single class in complete isolation by mocking all its dependencies.
+
+- **Sociable Unit Tests**: Test a class along with its real dependencies, simulating a more integrated environment
+  without involving I/O operations.
 
 ## In this section
 - [Fundamentals of Unit Testing](/docs/developer-guide/unit-tests/fundamentals)
-- [Mocks and Stubs](/docs/developer-guide/unit-tests/test-doubles)
+- [Test Doubles (Mocks and Stubs)](/docs/developer-guide/unit-tests/test-doubles)
 - [The Solitary Unit Testing Approach](/docs/developer-guide/unit-tests/solitary)
 - [The Sociable Unit Testing Approach](/docs/developer-guide/unit-tests/sociable)
 

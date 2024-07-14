@@ -7,15 +7,23 @@ title: Solitary Unit Test Example
 
 ## Introduction
 
-Solitary Unit Tests, or isolated unit tests, aim to evaluate a single unit of work entirely separate from its external dependencies. These tests leverage test doubles, such as [mocks](/docs/glossary/mock) and [stubs](/docs/glossary/stub), to mimic the behavior of these dependencies. This method is pivotal for confirming the functionality and reliability of individual units within a system, ensuring that each part performs as expected under controlled conditions.
+Solitary Unit Tests, or isolated unit tests, aim to evaluate a single unit of work entirely separate from its external
+dependencies. These tests leverage test doubles, such as [mocks and stubs](/docs/developer-guide/unit-tests/test-doubles),
+to mimic the behavior of these dependencies. This method is important for confirming the functionality and reliability of
+individual units within a system, ensuring that each part performs as expected under controlled conditions.
 
-In contrast, [Sociable Unit Tests](/docs/developer-guide/unit-tests/sociable) involve real implementations of dependencies to verify the interactions between multiple units. However, sociable tests still mock the dependencies of the dependencies to maintain control over the test environment.
+In contrast, [Sociable Unit Tests](/docs/developer-guide/unit-tests/sociable) involve real implementations of
+dependencies to verify the interactions between multiple units. However, sociable tests still mock the dependencies of
+the dependencies to maintain control over the test environment.
 
 ## Step-by-Step Example
 
-> :bulb: Please note that this example is agnostic to the mocking library (we'll use Jest) and any specific [DI framework's adapter](docs/developer-guide/adapters). The injection mechanism might differ based on the DI framework.
+In this example, we have a `UserService` class that depends on a `UserApi` class to fetch a random user and a `Database`
+class to save the user. The `UserApi` depends on an `HttpService` to make HTTP requests. We'll mock
+the `UserApi`, `Database`, and `HttpService` classes to test the `UserService` class in isolation.
 
-In this example, we have a `UserService` class that depends on a `UserApi` class to fetch a random user and a `Database` class to save the user. The `UserApi` depends on an `HttpService` to make HTTP requests. We'll mock the `UserApi`, `Database`, and `HttpService` classes to test the `UserService` class in isolation.
+> :bulb: Please note that this example is agnostic to the mocking library (we'll use Jest) and any
+> specific DI framework's adapter. The injection mechanism might differ based on the DI framework.
 
 ### Step 1: Define the Classes
 
@@ -53,7 +61,7 @@ export class UserApi {
 
 @Injectable()
 export class Database {
-  async saveUser(user: User): Promise<number> { /* Save user to the database */ }
+  async saveUser(user: User): Promise<number> { /* Saves user to the database */ }
 }
 ```
 
@@ -78,18 +86,10 @@ export class UserService {
 
 ### Step 2: Set Up the Test
 
-To test the `UserService` class in isolation, we'll use the `TestBed` factory from `@suites/unit` package to create our test environment. Here's how we can set up the test:
+To test the `UserService` class in isolation, we'll use the `TestBed` factory from `@suites/unit` package to create our
+test environment. Here’s a basic setup and test for `UserService`:
 
-#### Explanation of `unit` and `unitRef`
-
-- **`unit`**: This represents the instance of the class under test created by the `TestBed`.
-- **`unitRef`**: This allows you to retrieve instances of the mocked dependencies created by the `TestBed`.
-
-### Simple Test Example
-
-Here’s a basic setup and test for `UserService`:
-
-```typescript title="user.service.spec.ts" {1,9-10,14-15,19-20} showLineNumbers
+```typescript title="user.service.spec.ts" {1,10-11,15,20-21} showLineNumbers
 import { TestBed, Mocked } from '@suites/unit';
 import { UserService } from './user.service';
 import { UserApi, HttpService, Database } from './services';
@@ -122,13 +122,17 @@ describe('User Service Unit Spec', () => {
 });
 ```
 
-> :information_source: The `Mocked` type is used to type the mocked instances of the classes. This type is provided by the `@suites/unit` package. This type relies on the mocking library used in the test environment.
+> :bulb: The `Mocked` type is used to type the mocked instances of the classes. This type is provided by the `@suites/unit` package. This type relies on the mocking library used in the test environment.
 
-### Automatic Mocking of Dependencies
+**Automatic Mocking of Dependencies**
 
-When the class under test is instantiated using `TestBed.solitary()`, all its dependencies are automatically mocked. Initially, these stubs (mocks) have no predefined values or behaviors. This setup allows you to define the specific behaviors you need for each test, providing precise control over the testing conditions.
+When the class under test is instantiated using `TestBed.solitary()`, all its dependencies are automatically mocked.
+Initially, these stubs (mocks) have no predefined values or behaviors. This setup allows you to define the specific
+behaviors you need for each test, providing precise control over the testing conditions.
 
-### Using `.mock().final()` for Final Mock Behavior
+### Step 3: Using Suites Mocking API to Define Mock Behavior
+
+**Using `.mock().final()` for Final Mock Behavior**
 
 Suites provides a more declarative way to specify mock implementations using the `.mock().final()` method chain. This method defines the final behavior of the mocks and doesn't allow further stubbing.
 
@@ -149,7 +153,7 @@ In this approach, we've defined the mock behavior directly in the test setup usi
 
 Notice that this value cannot be retrieved from the unit reference as it is a final mock implementation.
 
-### Using `.mock().impl()` for Flexible Mock Behavior
+**Using `.mock().impl()` for Flexible Mock Behavior**
 
 To define mock behavior while still allowing control and monitoring during tests, use `.mock().impl()`. This approach employs a callback to dynamically create stubs using the installed mocking library.
 
@@ -177,14 +181,11 @@ test('should generate a random user and save to the database', async () => {
 });
 ```
 
-In this setup, the `.mock().impl()` method allows defining the behavior of the `getRandom` method using a stub function. The `stubFn` is equivalent to the stub function from the installed mocking library (e.g., `jest.fn()`), but it is provided within the callback for convenience and abstraction.
+In this setup, the `.mock().impl()` method allows defining the behavior of the `getRandom` method using a stub function.
+The `stubFn` is equivalent to the stub function from the installed mocking library (e.g., `jest.fn()`), but it is
+provided within the callback for convenience and abstraction.
 
-## Advantages of Solitary Unit Testing
-
-- **Precision and Focus**: By isolating the unit from external influences, tests can accurately target and verify specific functionalities, enhancing clarity and test effectiveness.
-- **Design Insights**: Solitary tests can reveal design decisions, highlighting areas for improvement or refactoring.
-- **Documentation**: Serve as a precise documentation for classes, detailing expected inputs, outputs, and interactions.
-- **Simplified Test Maintenance**: Test fixtures and setups are minimal and specific to each test, avoiding the complexity and overhead associated with broader test environments.
+> :bulb: Refer to the [Suites API](/docs/developer-guide/unit-tests/suites-api) section for details on the mocking API.
 
 ## Next Steps
 

@@ -8,9 +8,9 @@ title: Unit Testing & Test Doubles
 ## Introduction
 
 Testing in modern software development often requires isolating components to verify their behavior without the
-interference of external dependencies. This is where test doubles—mocks, stubs, and spies—come into play. Understanding
-these concepts is crucial for effective unit testing, and Suites provides robust support for these tools to enhance your
-testing workflow.
+interference of external dependencies. This is where test doubles—mocks and stubs-come into play. Understanding
+these concepts are important for effective unit testing, and Suites provides robust support for these tools to
+enhance the testing workflow.
 
 ## What Are Test Doubles?
 
@@ -22,58 +22,63 @@ Test doubles come in three main flavors:
 - **Mocks**: Objects that mimic the behavior of real objects and are used to verify interactions between objects.
 - **Stubs**: Special types of mocks that return predefined values and are useful for providing canned responses to
   method calls.
-- **Spies**: Objects that allow you to observe and verify interactions with real objects.
+- **Spies**: Objects that allow you to observe and verify interactions with real objects. In the context of Suites,
+  spies are redundant because mocks can be used to achieve the same functionality with sociable unit tests.
 
 ### Mocks
 
 Mocks are objects that mimic the behavior of real objects. They are used to verify interactions between objects and can
 be configured to respond in specific ways. In Suites, mocks are used to replace real dependencies in solitary and
-sociable unit tests.
+sociable unit tests, and they are simply a collection of stubs.
 
 #### Example
 
-```typescript
-import { TestBed, mock } from '@suites/unit';
-import { UserService } from './user.service';
-import { UserApi, Database } from './services';
+```typescript {5,6}
+import { TestBed, Mocked } from '@suites/unit';
 
 describe('User Service Unit Test with Mocks', () => {
   let underTest: UserService;
-  let userApi: ReturnType<typeof mock>;
-  let database: ReturnType<typeof mock>;
+  let userApi: Mocked<UserService>;
+  let database: Mocked<Database>;
 
   beforeAll(async () => {
     const { unit, unitRef } = await TestBed.solitary(UserService).compile();
     underTest = unit;
+
     userApi = unitRef.get(UserApi);
     database = unitRef.get(Database);
-  });
-
-  it('should call getRandom and saveUser', async () => {
-    userApi.getRandom.mockResolvedValue({ id: 1, name: 'John' });
-    database.saveUser.mockResolvedValue(1);
-
-    await underTest.generateRandomUser();
-
-    expect(userApi.getRandom).toHaveBeenCalled();
-    expect(database.saveUser).toHaveBeenCalledWith({ id: 1, name: 'John' });
   });
 });
 ```
 
 ### Stubs
 
-Stubs are special types of mocks that return predefined values. They are useful for providing canned responses to method calls during tests. Suites abstracts the underlying mocking library's stub functions, making it easier to use stubs consistently across different libraries.
+Stubs are special types of objects that return predefined values. They are useful for providing canned responses to
+method calls during tests. Suites abstracts the underlying mocking library's stub functions, making it easier to use
+stubs consistently across different libraries.
 
 #### Example
 
-```typescript
-import { stub } from '@suites/unit';
+```typescript {11}
+import { TestBed, Mocked } from '@suites/unit';
 
-const userApiStub = stub();
-userApiStub.getRandom.mockResolvedValue({ id: 1, name: 'John' });
+describe('User Service Unit Test with Mocks', () => {
+  let underTest: UserService;
+  let userApi: Mocked<UserService>;
+  let database: Mocked<Database>;
 
-expect(userApiStub.getRandom()).resolves.toEqual({ id: 1, name: 'John' });
+  beforeAll(async () => {
+    const { unit, unitRef } = await TestBed.solitary(UserService)
+      .mock(UserApi)
+      .impl((stubFn) => ({ getRandom: stubFn().mockResolvedValue({ id: 1, name: 'John' }) }))
+      .compile();
+
+    underTest = unit;
+
+    userApi = unitRef.get(UserApi);
+    database = unitRef.get(Database);
+  });
+});
 ```
 
 ### Spies

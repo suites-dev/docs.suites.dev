@@ -82,7 +82,7 @@ To test the `UserService` class with a real `UserApi` dependency, we'll use the 
 
 Here’s a basic setup and test for `UserService` using sociable unit tests:
 
-```typescript title="user.service.spec.ts" {1,10-11,16-17,21-22} showLineNumbers
+```typescript title="user.service.spec.ts" {1,10-12,16,21-23} showLineNumbers
 import { TestBed, Mocked } from '@suites/unit';
 import { UserService } from './user.service';
 import { UserApi, HttpService, Database } from './services';
@@ -124,17 +124,15 @@ describe('User Service Unit Spec', () => {
 });
 ```
 
-> :information_source: In this setup, the `UserApi` dependency is real, while the `HttpService` and `Database` dependencies are mocked. This approach allows us to test the real interactions within the `UserApi` class while controlling the behavior of its dependencies.
+> :bulb: In this setup, the `UserApi` dependency is real, while the `HttpService` and `Database` dependencies are
+> mocked. This approach allows us to test the real interactions within the `UserApi` class while controlling the behavior
+> of its dependencies.
 
-### Advantages of Sociable Unit Testing
+### Step 3: Using Suites Mocking API to Define Mock Behavior
 
-- **Integration Assurance**: Validates that units work correctly when integrated with actual dependencies.
-- **Simplified Setup**: Reduces the need for extensive mocking, making test setups more straightforward in some cases.
-- **Broader Scope**: Provides a wider scope of testing, ensuring that the interactions between units are verified.
-
-### Using `.mock().impl()` and `.mock().final()` in Sociable Unit Tests
-
-Defining final behavior and controlling mocks with `.impl()` is still possible with sociable unit tests. Refer to the [Solitary Unit Tests](/docs/developer-guide/unit-tests/solitary) section for details on using these methods.
+Defining final behavior and controlling mocks with `.mock().impl()` and `.mock().final()` is still possible with
+sociable unit tests. Refer to the [Suites API](/docs/developer-guide/unit-tests/suites-api) section for details
+on using these methods.
 
 ## Next Steps
 

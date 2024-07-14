@@ -1,0 +1,9 @@
+[[redirects]]
+from = "/api-reference"
+to = "/docs"
+status = 301
+
+[[redirects]]
+from = "/docs/getting-started/change-log"
+to = "/docs/overview/migrating-from-automock"
+status = 301
