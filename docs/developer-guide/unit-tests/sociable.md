@@ -76,7 +76,9 @@ export class UserService {
 
 ### Step 2: Set Up the Test
 
-To test the `UserService` class with a real `UserApi` dependency, we'll use the `TestBed` factory from the `@suites/unit` package to create our test environment. Here's how we can set up the test:
+To test the `UserService` class with a real `UserApi` dependency, we'll use the `TestBed` factory from the
+`@suites/unit` package to create our test environment.
+Here's how we can set up the test:
 
 ### Simple Test Example
 
@@ -103,7 +105,6 @@ describe('User Service Unit Spec', () => {
     underTest = unit;
 
     // Retrieve the mock instances
-    userApi = unitRef.get(UserApi);
     database = unitRef.get(Database);
     httpService = unitRef.get(HttpService);
   });
@@ -124,9 +125,45 @@ describe('User Service Unit Spec', () => {
 });
 ```
 
-> :bulb: In this setup, the `UserApi` dependency is real, while the `HttpService` and `Database` dependencies are
-> mocked. This approach allows us to test the real interactions within the `UserApi` class while controlling the behavior
-> of its dependencies.
+### Clarifying the `.expose()` Behavior
+
+In the setup for sociable tests, when we use `.expose()` to include a class like `UserApi` as a real dependency, Suites
+still mocks its internal dependencies (`HttpService` and `Database` in this example). This setup allows us to test the
+real interactions within the `UserApi` class while controlling the behavior of its dependencies. Essentially, this
+approach ensures that the `UserApi` class operates correctly in conjunction with other real components while maintaining
+a controlled testing environment for its interactions.
+
+### Exposing Limitations and Anti-Patterns
+
+When using the `.expose()` method to make certain classes real in your test environment, it's important to understand
+some limitations and potential anti-patterns:
+
+**No Retrieval of Exposed Classes from Unit Reference:**
+
+- You cannot retrieve an exposed class from the [`unitRef`](/docs/developer-guide/unit-tests/suites-api#solitary-unit-tests) using `.get()` after calling `.expose()`. This limitation is
+  by design. The purpose of `.expose()` is to make the class a real, non-mocked dependency within the test context,
+  making it part of the "system under test."
+
+- Allowing retrieval of exposed classes from the `unitRef` could lead to undesirable testing practices, such as
+  attempting to on the internal state or behavior of a real class. This contradicts the essence of sociable unit
+  testing, where the goal is to verify real interactions within a controlled environment.
+
+- By restricting access to exposed classes, Suites ensures that the interactions remain consistent and that developers
+  do not inadvertently mock or stub the behavior of real components, preserving the integrity of the sociable testing
+  approach.
+
+**Avoid Over-Exposing Dependencies:**
+
+- Over-exposing classes in your test context can lead to complex tests that become difficult to maintain and understand.
+  Sociable unit tests aim to test interactions between a few key classes while maintaining control over others using
+  mocks or stubs.
+
+- Excessive exposure may introduce unnecessary complexity, reducing the clarity and effectiveness of the test. It’s best
+  to limit exposure to only those classes directly involved in the interaction you wish to test, keeping the test scope
+  focused.
+
+By understanding and adhering to these limitations and anti-patterns, you can maximize the effectiveness of sociable
+unit tests in Suites, maintaining a clear and controlled test environment.
 
 ### Step 3: Using Suites Mocking API to Define Mock Behavior
 
@@ -136,4 +173,6 @@ on using these methods.
 
 ## Next Steps
 
-By combining both solitary and sociable unit tests, you can achieve a comprehensive testing strategy that ensures each component works correctly on its own and in conjunction with others. This holistic approach provides a robust foundation for verifying individual components in isolation while also ensuring the reliability of interactions between components.
+By combining both solitary and sociable unit tests, you can achieve a comprehensive testing strategy that ensures each
+component works correctly on its own and in conjunction with others. This holistic approach provides a robust foundation
+for verifying individual components in isolation while also ensuring the reliability of interactions between components.
