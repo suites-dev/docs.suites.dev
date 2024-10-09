@@ -54,21 +54,47 @@ This configuration is necessary for Suites to reflect class dependencies and to 
   }
 }
 ```
+
+## For Yarn v1.x Users
+
+Due to a known issue with Yarn `v1.x`'s `postinstall` script handling
+([see details](https://github.com/yarnpkg/yarn/issues/5476)), an extra step is required to set up reference types for
+your project when using Suites.
+
+Follow these instructions to manually add the necessary type references:
+
+1. **Create a `global.d.ts` file**: Place this file in your project's `rootDir` (as specified in your `tsconfig.json`).
+
+2. **Add the reference type**: Inside `global.d.ts`, include the reference type for your chosen mocking library:
+
+```typescript title="global.d.ts"
+/// <reference types="@suites/doubles.<YOUR_MOCKING_LIBRARY>/unit" />
+   ```
+
+3. **Example**: If you’re using Jest, the content of the `global.d.ts` should be:
+
+```typescript title="global.d.ts"
+/// <reference types="@suites/doubles.jest/unit" />
+   ```
+
+By adding this reference manually, you ensure that your project correctly recognizes the types from the Suites
+framework, allowing for a smooth development experience.
+
 ## Monorepo Support
 
 Suites is fully compatible with Monorepo, accommodating projects that use different mocking or di frameworks.
 
-### Recommended Setups for Monorepo
+### Recommended Setups (for Monorepo / Non-Monorepo)
 
 If you are using Suites in a Monorepo, consider the following setups:
 
-> **Using one the same mocking and di framework across all workspaces** \
-> Install the corresponding adapter under the root directory of your Monorepo.
-> Suites will automatically detect the adapter and configure itself accordingly.
+**Using one the same mocking and di framework across all workspaces** \
+Install the corresponding adapter under the root directory of your Monorepo.
+Suites will automatically detect the adapter and configure itself accordingly.
 
-> **Using different frameworks across workspaces** \
-> Install the corresponding adapter in each workspace separately. Make sure to config the hoisting of the `node_modules`
-> to enable Suites to detect the adapter in the workspace.
+**Using different frameworks across workspaces** \
+Install the corresponding adapter in each workspace separately. Make sure to config the hoisting of the `node_modules`
+to enable Suites to detect the adapter in the workspace.
 
 :::note
 Unfortunately, NPM workspaces do not support the hoisting of dependencies, which means that working with different DI or
