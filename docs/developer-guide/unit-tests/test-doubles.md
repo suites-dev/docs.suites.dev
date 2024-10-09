@@ -1,9 +1,9 @@
 ---
 sidebar_position: 5
-title: Unit Testing & Test Doubles
+title: Mocks, Stubs, and Spies
 ---
 
-# Unit Testing & Test Doubles
+# Test Doubles
 
 ## Introduction
 
@@ -22,8 +22,9 @@ Test doubles come in three main flavors:
 - **Mocks**: Objects that mimic the behavior of real objects and are used to verify interactions between objects.
 - **Stubs**: Special types of mocks that return predefined values and are useful for providing canned responses to
   method calls.
-- **Spies**: Objects that allow you to observe and verify interactions with real objects. In the context of Suites,
-  spies are redundant because mocks can be used to achieve the same functionality with sociable unit tests.
+- **Spies**: Objects that allow to observe and verify interactions with real objects. In the context of Suites,
+  spies are redundant because mocks can be used to achieve the same functionality
+  with [sociable unit tests](/docs/developer-guide/unit-tests/sociable/).
 
 ### Mocks
 
@@ -49,6 +50,17 @@ describe('User Service Unit Test with Mocks', () => {
     database = unitRef.get(Database);
   });
 });
+```
+
+#### The `Mocked` Type
+
+The `Mocked` type in Suites provides a type-safe way to define mocked instances, ensuring that mocks retain the same type information as the real objects.
+
+```typescript
+import { Mocked } from '@suites/unit';
+import { UserService } from './user.service';
+
+let userService: Mocked<UserService>;
 ```
 
 ### Stubs
@@ -81,88 +93,23 @@ describe('User Service Unit Test with Mocks', () => {
 });
 ```
 
-### Spies
-
-Spies allow you to observe and verify interactions with real objects. Unlike mocks and stubs, spies can call through to the actual implementation while still recording how they were used. However, relying heavily on spies can lead to tests that are harder to maintain and debug.
-
-#### Example
-
-```typescript
-import { TestBed } from '@suites/unit';
-import { HttpService } from './services';
-
-describe('HttpService with Spies', () => {
-  let httpService: HttpService;
-
-  beforeAll(async () => {
-    const { unit } = await TestBed.sociable(HttpService).compile();
-    httpService = unit;
-  });
-
-  it('should call the real get method', async () => {
-    const spy = jest.spyOn(httpService, 'get');
-    await httpService.get('/endpoint');
-    expect(spy).toHaveBeenCalled();
-  });
-});
-```
-
-## Suites' Approach to Mocks, Stubs, and Spies
+## Suites' Approach to Mocks and Stubs
 
 ### Mocks and Stubs in Suites
 
-In Suites, mocks and stubs are handled through the `@suites/unit` package. The `TestBed` factory method creates the testing environment, allowing you to easily define and manage test doubles.
+In Suites, mocks and stubs are handled through the `@suites/unit` package. The `TestBed` factory method creates the
+testing environment, allowing you to easily define and manage test doubles.
 
 #### Creating Mocks and Stubs
 
 - **`TestBed.solitary()`**: For creating an isolated environment with all dependencies mocked.
-- **`TestBed.sociable()`**: For creating a testing environment where certain dependencies are real, and their dependencies are mocked.
+- **`TestBed.sociable()`**: For creating a testing environment where certain dependencies are real, and their
+  dependencies are mocked.
 
 ### Using `.mock().final()` and `.mock().impl()`
 
-Suites introduces `.mock().final()` and `.mock().impl()` methods to give you fine control over mock behaviors.
-
-#### `.mock().final()`
-
-This method defines a mock behavior that cannot be changed later in the test suite. It's useful for ensuring consistent behavior across tests.
-
-```typescript
-beforeAll(async () => {
-  const { unit } = await TestBed.solitary(UserService)
-    .mock(UserApi)
-    .final({ getRandom: async () => ({ id: 1, name: 'John' }) })
-    .compile();
-
-  underTest = unit;
-});
-```
-
-#### `.mock().using()`
-
-This method allows defining mock behavior while still enabling dynamic control and monitoring during tests.
-
-```typescript
-beforeAll(async () => {
-  const { unit, unitRef } = await TestBed.solitary(UserService)
-    .mock(UserApi)
-    .using(stubFn => ({ getRandom: stubFn().mockResolvedValue({ id: 1, name: 'John' }) }))
-    .compile();
-
-  underTest = unit;
-  userApi = unitRef.get(UserApi);
-});
-```
-
-### The `Mocked` Type
-
-The `Mocked` type in Suites provides a type-safe way to define mocked instances, ensuring that mocks retain the same type information as the real objects.
-
-```typescript
-import { Mocked } from '@suites/unit';
-import { UserService } from './user.service';
-
-let userService: Mocked<UserService>;
-```
+Suites introduces `.mock().final()` and `.mock().impl()` methods to give you fine control over mock behaviors,
+read more about them in the [Suites API](/docs/developer-guide/unit-tests/suites-api) section.
 
 ## What's Next?
 After understanding the basics of test doubles, you can explore more advanced testing techniques:

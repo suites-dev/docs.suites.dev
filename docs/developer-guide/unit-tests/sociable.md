@@ -140,9 +140,9 @@ some limitations and potential anti-patterns:
 
 **No Retrieval of Exposed Classes from Unit Reference:**
 
-- You cannot retrieve an exposed class from the [`unitRef`](/docs/developer-guide/unit-tests/suites-api#solitary-unit-tests) using `.get()` after calling `.expose()`. This limitation is
-  by design. The purpose of `.expose()` is to make the class a real, non-mocked dependency within the test context,
-  making it part of the "system under test."
+- You cannot retrieve an exposed class from the [`unitRef`](/docs/developer-guide/unit-tests/suites-api#unit-reference)
+  using `.get()` after calling `.expose()`. This limitation is by design. The purpose of `.expose()` is to make the
+  class a real, non-mocked dependency within the test context, making it part of the "system under test."
 
 - Allowing retrieval of exposed classes from the `unitRef` could lead to undesirable testing practices, such as
   attempting to on the internal state or behavior of a real class. This contradicts the essence of sociable unit
@@ -161,9 +161,6 @@ some limitations and potential anti-patterns:
 - Excessive exposure may introduce unnecessary complexity, reducing the clarity and effectiveness of the test. It’s best
   to limit exposure to only those classes directly involved in the interaction you wish to test, keeping the test scope
   focused.
-
-By understanding and adhering to these limitations and anti-patterns, you can maximize the effectiveness of sociable
-unit tests in Suites, maintaining a clear and controlled test environment.
 
 ### Step 3: Using Suites Mocking API to Define Mock Behavior
 
