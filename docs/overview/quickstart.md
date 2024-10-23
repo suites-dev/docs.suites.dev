@@ -35,9 +35,11 @@ Install additional packages for TypeScript and Jest:
 npm install --save-dev ts-jest @types/jest jest typescript
 ```
 
-:::note
-:bulb: Suites supports Node 16 and above.
-:::
+And lastly, [install the reflect-metadata package](https://github.com/rbuckton/reflect-metadata?tab=readme-ov-file#metadata-reflection-api):
+
+```bash
+npm install reflect-metadata
+```
 
 ### Project Structure
 
@@ -165,8 +167,9 @@ our test environment.
 
 Here’s the setup and test for `UserService`:
 
-```typescript title="user.service.spec.ts" {1,7,10-12}
-import { TestBed, Mocked } from '@suites/unit';
+```typescript title="user.service.spec.ts" {1,2,7-8,11-13}
+import { TestBed } from '@suites/unit';
+import type { Mocked } from '@suites/unit';
 import { UserService } from './user.service';
 import { UserRepository } from './user.repository';
 
@@ -209,7 +212,10 @@ $ npm test
 - **unit**: This represents the instance of the class under test created by the `TestBed`.
 - **unitRef**: This allows you to retrieve instances of the mocked dependencies created by the `TestBed`.
 
-> The `Mocked` type is used to type the mocked instances of the classes. This type is provided by the `@suites/unit` package. This type relies on the mocking library used in the test environment.
+
+### The `Mocked<T>` Type
+
+This type is used to type the mocked instances of the classes. This type is provided by the `@suites/unit` package. This type relies on the mocking library used in the test environment.
 
 
 ### Key Highlights
@@ -232,9 +238,9 @@ injection principles.
 
 ### More than Solitary
 
-In this quick start, we've focused on a solitary test setup, but the principles apply to all supported DI frameworks
-and mocking libraries. To explore more complex scenarios, including sociable tests, check out the
-[Unit Testing](/docs/unit-tests) section.
+In this quick start, we've focused on a [solitary test setup](/docs/developer-guide/unit-tests/solitary).
+To explore more complex scenarios, including [sociable unit tests](/docs/developer-guide/unit-tests/sociable),
+check out the [Unit Testing](/docs/unit-tests) section.
 
 ### Adapting to Different Libraries
 

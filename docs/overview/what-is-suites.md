@@ -5,14 +5,16 @@ description: What is Suites?
 toc_min_heading_level: 3
 ---
 
-**Suites is an opinionated, flexible testing meta-framework aim at elevating the software testing experience within
+**Suites is a progressive, flexible testing meta-framework aimed at elevating the software testing experience within
 backend systems.**
 
-By integrating a wide array of testing tools into a cohesive framework, Suites simplifies the process
-of creating reliable tests, thereby ensuring the development of high-quality software.
-[Originating from the solid foundation laid by Automock](/docs/overview/migrating-from-automock/), Suites has evolved into a more comprehensive solution,
-aimed at addressing [a broader range of testing challenges](/docs/overview/problems-solved/).
-
+By integrating a wide array of testing tools into a cohesive framework, Suites simplifies the process of creating
+reliable tests, thereby ensuring the development of high-quality software. **Suites focuses specifically on Dependency
+Injection (DI) patterns, a subset of the broader Inversion of Control (IoC) principle, to provide a consistent and
+scalable approach to managing dependencies in tests.** \
+[Originating from the solid foundation laid by Automock](/docs/overview/migrating-from-automock/),
+Suites has evolved into a more comprehensive solution, aimed at addressing
+[a broader range of testing challenges](/docs/overview/problems-solved/).
 
 ## Supported Libraries
 
@@ -25,7 +27,7 @@ Suites supports a broad spectrum of DI frameworks and testing libraries includin
 
 Suites is a meta-framework that integrates various testing libraries and tools, such as Jest, Sinon, and Vitest, with
 dependency injection frameworks like NestJS and InversifyJS. By combining these technologies, Suites provides a
-comprehensive testing solution that simplifies the process of writing, running, and managing tests for backend systems.
+comprehensive testing solution that simplifies the process of writing, running, and managing tests.
 
 ## What is a Meta-Framework?
 

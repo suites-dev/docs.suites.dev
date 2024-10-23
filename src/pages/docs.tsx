@@ -13,7 +13,7 @@ function MainPage() {
         <h1>Welcome to Suites</h1>
         <p>
           <strong>
-            Suites is an opinionated, <a href="/docs/overview/what-is-suites#suites-as-a-meta-framework">flexible
+            Suites is a <a href="/docs/overview/what-is-suites#suites-as-a-meta-framework">progressive, flexible
             testing meta-framework</a> aimed at elevating the software testing experience within backend systems working
             with dependency injection (DI) frameworks.
           </strong>

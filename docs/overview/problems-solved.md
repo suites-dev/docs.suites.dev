@@ -36,6 +36,5 @@ methodologies.
 ### 🔍 Fragmented Testing Ecosystem
 
   **The testing ecosystem is vast and fragmented, often leading to confusion about what
-  tools and practices to adopt.** Suites acts as a central hub for testing, guiding users in selecting the right tools
-  and methodologies for their specific needs, and providing a comprehensive solution that covers unit testing (and
-  also integration testing in the near future).
+  tools and practices to adopt.** Suites acts as a central hub for testing, guiding developers in selecting the right
+  tools and methodologies for their specific needs, and providing a comprehensive solution that covers unit testing.

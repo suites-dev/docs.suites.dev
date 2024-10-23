@@ -71,7 +71,7 @@ export default function Header(): JSX.Element {
             <div className={styles.mainWrapper}>
               <img src="img/logo.png" alt="Suites Logo" className={styles.mainLogo}/>
               <h1>Suites <span>(formerly Automock)</span></h1>
-              <h4>An opinionated, progressive testing meta-framework</h4>
+              <h4>A progressive testing meta-framework</h4>
               <div className={styles.buttonsWrapper}>
                 <a href="/docs" className={`${styles.btn} ${styles.documentationBtn}`}>Documentation</a>
                 <a href="https://github.com/suites-dev/suites" className={`${styles.btn} ${styles.sourceBtn}`}>

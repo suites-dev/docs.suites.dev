@@ -6,17 +6,16 @@ description: Migrating from Automock to Suites
 
 ## Introduction
 
-As technology and development practices evolve, so too must the tools that support them. Automock has been at the
-forefront of simplifying unit testing by providing a streamlined approach to creating mocks and stubs within various
-dependency injection frameworks. Building on the strong foundation laid by Automock, we are excited to introduce its
-successor: Suites. This evolution marks a significant milestone in our journey to enhance and expand the capabilities of
-our testing tools to better meet the needs of modern software development.
+As technology and development practices evolve, so many tools that support them. Building on the strong
+foundation laid by Automock, we are excited to introduce its successor: Suites.
+This evolution marks a significant milestone in our journey to enhance and expand the capabilities of our testing tools
+to better meet the needs of modern software development.
 
 ## The Shift from Automock
 
-Version `3.0.0` of Suites is the first release after Automock's `v2.1.0` completion, and it comes with it more features and
-better support. Automock will still get critical fixes until version `v2.1.0`, when development will stop to make way for
-Suites. This will help with the transition.
+Version `3.0.0` of Suites is the first release after Automock's `v2.1.0` completion, and it comes with it more features
+and better support. Automock will still get critical fixes until version `v2.1.0`, when development will stop to make
+way for Suites. This will help with the transition.
 
 ## Migration
 
@@ -27,8 +26,8 @@ Suites. This will help with the transition.
 ## Changes
 
 Transitioning from Automock to Suites introduces minimal disruptions. The primary change involves the `TestBed`
-factory's migration, which now resides within `@suites/unit` instead of the individual `@suites/jest` or `@suites/sinon`
-packages, previously under `@automock`.
+factory's migration, which now resides within `@suites/unit` instead of the individual `@automock/jest` or
+`@automock/sinon` packages.
 
 ## Key Changes from Automock to Suites
 

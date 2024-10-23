@@ -6,10 +6,10 @@ description: Learn how to install and configure Suites to enhance your unit test
 
 ## Setup Suites in a New or Existing Project
 
-Suites is compatible with a wide range of testing and dependency injection frameworks. This section provides
-instructions for installing Suites and highlights important compatibility and configuration details.
+This section provides instructions for installing Suites and highlights important compatibility and configuration
+details.
 
-First, install Suites' core package:
+First, install Suites' main package:
 
 ```bash
 $ npm i -D @suites/unit
@@ -22,6 +22,12 @@ For example, to use Suites with Jest and NestJS you would run (alongside `@suite
 
 ```bash
 $ npm i -D @suites/doubles.jest @suites/di.nestjs
+````
+
+Lastly, make sure `reflect-metadata` is also installed in your project, not as a dev dependency ([Why?](https://www.typescriptlang.org/docs/handbook/decorators.html#metadata)):
+
+```bash
+$ npm i reflect-metadata
 ````
 
 Suites will automatically detect the installed adapters and configure itself accordingly.
