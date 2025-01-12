@@ -63,13 +63,13 @@ describe('User Service Unit Spec', () => {
     
     // 🔍 Retrieve a dependency (mock) from the unit
     userApi = unitRef.get(UserApi);
+  });
 
-    // ✅ Test test test
-    it('should generate a random user and save to the database', async () => {
-      userApi.getRandom.mockResolvedValue({id: 1, name: 'John'} as User);
-      await underTest.generateRandomUser();
-      expect(database.saveUser).toHaveBeenCalledWith(userFixture);
-    });
+  // ✅ Test test test
+  it('should generate a random user and save to the database', async () => {
+    userApi.getRandom.mockResolvedValue({id: 1, name: 'John'} as User);
+    await underTest.generateRandomUser();
+    expect(database.saveUser).toHaveBeenCalledWith(userFixture);
   });
 }`}
           </CodeBlock>
