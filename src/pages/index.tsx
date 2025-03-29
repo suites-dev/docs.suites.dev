@@ -15,8 +15,8 @@ function HomepageHeader() {
         </div>
         <div className={'row'}>
           <p className={styles.subtitle}>
-            Suites is a meta-framework that focuses on helping developers build solid test suites, eliminates
-            boilerplate code, and improves their unit testing process.
+            A unit testing framework for dependency injection that automates mocking, simplifies test setup, 
+            and enables developers to build comprehensive and reliable test suites.
           </p>
         </div>
         <div className={'row'} style={{ maxWidth: '600px', margin: '20px auto' }}>
@@ -44,7 +44,8 @@ export default function Home(): JSX.Element {
   return (
     <Layout>
       <Head>
-        <title>Suites | A Testing Meta-Framework</title>
+        <title>Suites | Unit Testing Framework for Dependency Injection</title>
+        <meta name="description" content="Suites automates mocking and simplifies test setup for dependency injection frameworks like NestJS and InversifyJS, reducing boilerplate code." />
       </Head>
       <HomepageHeader/>
     </Layout>

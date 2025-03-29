@@ -1,5 +1,6 @@
 .features {
   width: 100%; /* Ensure the features section spans the full width */
+  max-width: 98%;
   margin-top: 20px;
   padding: 0; /* Remove padding around the section */
   display: flex;
@@ -18,10 +19,14 @@
   flex-direction: column; /* Stack title and description vertically */
   justify-content: space-evenly;
   border-radius: 8px;
+  /* Remove any border that could be causing lines */
+  border: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .feature h2 {
   margin: 0;
+  border: none;
   letter-spacing: 0.35px;
   font-size: 1.8rem;
 }
@@ -70,4 +75,8 @@
   border-radius: 5px;
   font-size: 1.8rem;
   display: block;
+  /* Remove any border or outline that might be causing lines */
+  border: none;
+  outline: none;
+  box-shadow: none;
 }

@@ -1,23 +1,34 @@
 ---
 sidebar_position: 5
-title: Sociable Unit Test Example
+title: Sociable Unit Tests
+description: Testing real component interactions with Suites
 ---
 
 # Sociable Unit Tests
 
 ## Introduction
 
-Sociable Unit Tests, also known as integrated unit tests, focus on testing a unit of work in conjunction with its real dependencies, but still mock the dependencies of those dependencies. This approach ensures that the interactions between a unit and its immediate collaborators are tested in a controlled environment, providing a broader scope of validation compared to solitary unit tests.
+Sociable unit tests focus on testing a component with its real dependencies while still controlling the dependencies of those dependencies. This approach ensures that you verify how components actually interact in a controlled environment, providing more realistic validation than solitary tests.
 
-In contrast to [Solitary Unit Tests](/docs/developer-guide/unit-tests/solitary), where all dependencies are mocked, sociable tests expose certain dependencies to verify real interactions between units. However, they do not extend to the level of integration tests, which typically involve actual I/O operations and full system interactions.
+:::note When to use sociable tests
+Sociable tests are ideal when:
+- You need to verify interactions between components
+- You want to test integration points between several components
+- You're testing behaviors that emerge from component collaboration
+- You want to refactor internal implementation without breaking tests
+:::
+
+In contrast to [solitary unit tests](/docs/developer-guide/unit-tests/solitary), which replace all dependencies with mocks, sociable tests use real implementations for selected dependencies to verify genuine interactions.
 
 ## Step-by-Step Example
 
-Continuing from our previous example with the `UserService` class, we'll now set up a sociable unit test. We'll expose the `UserApi` dependency to test real interactions while mocking the `HttpService` and `Database` dependencies.
+Continuing from our previous example with the `UserService` class, we'll now set up a sociable unit test. We'll use a real `UserApi` dependency while still mocking its dependencies (`HttpService`) and other dependencies of `UserService` (`Database`).
+
+> 💡 This example is agnostic to the mocking library (we'll use Jest) and any specific DI framework's adapter.
 
 ### Step 1: Define the Classes
 
-Here are the interfaces and classes we'll use in our example. Consider the `UserService` class as the unit under test, and we will expose the `UserApi` dependency.
+Here are the interfaces and classes we'll use in our example:
 
 ```typescript title="types.ts"
 export interface User {
@@ -76,13 +87,7 @@ export class UserService {
 
 ### Step 2: Set Up the Test
 
-To test the `UserService` class with a real `UserApi` dependency, we'll use the `TestBed` factory from the
-`@suites/unit` package to create our test environment.
-Here's how we can set up the test:
-
-### Simple Test Example
-
-Here’s a basic setup and test for `UserService` using sociable unit tests:
+To test the `UserService` class with a real `UserApi` dependency, we'll use the `TestBed.sociable()` method and specify which dependencies should be real using the `.expose()` method:
 
 ```typescript title="user.service.spec.ts" {1,10-12,16,21-23} showLineNumbers
 import { TestBed, Mocked } from '@suites/unit';
@@ -90,86 +95,87 @@ import { UserService } from './user.service';
 import { UserApi, HttpService, Database } from './services';
 import { User } from './types';
 
-describe('User Service Unit Spec', () => {
-  let underTest: UserService;
+describe('UserService Integration Tests', () => {
+  let userService: UserService;
 
-  // Declare the mock instances
-  let userApi: UserApi;
-  let database: Mocked<Database>;
-  let httpService: Mocked<HttpService>;
+  // Note: userApi is NOT Mocked since it will be a real instance
+  let database: Mocked<Database>; // A mock with stubbed methods
+  let httpService: Mocked<HttpService>; // A mock with stubbed methods
 
   beforeAll(async () => {
-    // Create the test environment with UserApi exposed
-    const { unit, unitRef } = await TestBed.sociable(UserService).expose(UserApi).compile();
+    // Create the test environment with UserApi as a real dependency
+    const { unit, unitRef } = await TestBed.sociable(UserService)
+      .expose(UserApi) // UserApi will be a real implementation
+      .compile();
 
-    underTest = unit;
+    userService = unit;
 
-    // Retrieve the mock instances
+    // Retrieve the mock instances (note: you can't retrieve UserApi)
     database = unitRef.get(Database);
     httpService = unitRef.get(HttpService);
   });
 
   it('should generate a random user and save to the database', async () => {
+    // Configure the stubbed methods of the mocked dependencies
     const userFixture: User = { id: 1, name: 'John' };
-
-    // Mock the HttpService dependency
     httpService.get.mockResolvedValue({ data: userFixture });
-    database.saveUser.mockResolvedValue(userFixture.id);
+    database.saveUser.mockResolvedValue(42);
 
-    const result = await underTest.generateRandomUser();
-
-    expect(httpService.get).toHaveBeenCalledWith('/random-user');
-    expect(database.saveUser).toHaveBeenCalledWith(userFixture);
-    expect(result).toEqual(userFixture.id);
+    // Test the behavior that emerges from the real interaction between UserService and UserApi
+    const result = await userService.generateRandomUser();
+    
+    // Verify the result is what we expect
+    expect(result).toBe(42);
   });
 });
 ```
 
-### Clarifying the `.expose()` Behavior
+### Understanding `.expose()` Behavior
 
-In the setup for sociable tests, when we use `.expose()` to include a class like `UserApi` as a real dependency, Suites
-still mocks its internal dependencies (`HttpService` and `Database` in this example). This setup allows us to test the
-real interactions within the `UserApi` class while controlling the behavior of its dependencies. Essentially, this
-approach ensures that the `UserApi` class operates correctly in conjunction with other real components while maintaining
-a controlled testing environment for its interactions.
+In sociable tests, the `.expose()` method indicates which classes should be real implementations rather than mocks:
 
-### Exposing Limitations and Anti-Patterns
+1. **Real Implementations**: Classes specified in `.expose()` are instantiated as real objects
+2. **Mocked Dependencies**: The dependencies of exposed classes are still automatically mocked (each method becomes a stub)
+3. **Cannot Retrieve Exposed Classes**: Exposed classes can't be retrieved from `unitRef.get()` because they are real implementations, not mocks
 
-When using the `.expose()` method to make certain classes real in your test environment, it's important to understand
-some limitations and potential anti-patterns:
+### Important Considerations When Using Sociable Tests
 
-**No Retrieval of Exposed Classes from Unit Reference:**
+When using sociable tests, keep the following points in mind:
 
-- You cannot retrieve an exposed class from the [`unitRef`](/docs/developer-guide/unit-tests/suites-api#unit-reference)
-  using `.get()` after calling `.expose()`. This limitation is by design. The purpose of `.expose()` is to make the
-  class a real, non-mocked dependency within the test context, making it part of the "system under test."
+**1. Focus on Outcomes, Not Implementations**
 
-- Allowing retrieval of exposed classes from the `unitRef` could lead to undesirable testing practices, such as
-  attempting to on the internal state or behavior of a real class. This contradicts the essence of sociable unit
-  testing, where the goal is to verify real interactions within a controlled environment.
+Even though sociable tests let you test real interactions, they should still focus on testing the outcomes (return values, state changes) rather than implementation details.
 
-- By restricting access to exposed classes, Suites ensures that the interactions remain consistent and that developers
-  do not inadvertently mock or stub the behavior of real components, preserving the integrity of the sociable testing
-  approach.
+**2. Avoid Excessive Exposure**
 
-**Avoid Over-Exposing Dependencies:**
+Don't expose too many classes in a single test. The more classes you expose, the closer your test gets to being an integration test, potentially making it slower and more brittle.
 
-- Over-exposing classes in your test context can lead to complex tests that become difficult to maintain and understand.
-  Sociable unit tests aim to test interactions between a few key classes while maintaining control over others using
-  mocks or stubs.
+**3. Complementary to Solitary Tests**
 
-- Excessive exposure may introduce unnecessary complexity, reducing the clarity and effectiveness of the test. It’s best
-  to limit exposure to only those classes directly involved in the interaction you wish to test, keeping the test scope
-  focused.
+Sociable tests complement solitary tests - they don't replace them. Use solitary tests for detailed behavior verification and sociable tests for validating interactions.
 
-### Step 3: Using Suites Mocking API to Define Mock Behavior
+### Step 3: Configuring Mock Behavior
 
-Defining final behavior and controlling mocks with `.mock().impl()` and `.mock().final()` is still possible with
-sociable unit tests. Refer to the [Suites API](/docs/developer-guide/unit-tests/suites-api) section for details
-on using these methods.
+Like with solitary tests, you can use `.mock().final()` and `.mock().impl()` to configure the behavior of stubbed methods in your mocks for non-exposed dependencies:
 
-## Next Steps
+```typescript
+beforeAll(async () => {
+  const { unit, unitRef } = await TestBed.sociable(UserService)
+    .expose(UserApi) // UserApi will be a real implementation
+    .mock(Database) // Specify which dependency to configure
+    .final({
+      // Define each method's behavior
+      saveUser: async () => 42
+    })
+    .compile();
 
-By combining both solitary and sociable unit tests, you can achieve a comprehensive testing strategy that ensures each
-component works correctly on its own and in conjunction with others. This holistic approach provides a robust foundation
-for verifying individual components in isolation while also ensuring the reliability of interactions between components.
+  userService = unit;
+  httpService = unitRef.get(HttpService);
+});
+```
+
+## What's Next?
+
+By combining solitary and sociable unit tests, you can create a comprehensive testing strategy that validates both independent component behavior and component interactions. This balanced approach provides confidence in your system while maintaining test maintainability.
+
+For more detailed information about configuring mocks and test environments, see the [Suites API](/docs/developer-guide/unit-tests/suites-api) documentation.

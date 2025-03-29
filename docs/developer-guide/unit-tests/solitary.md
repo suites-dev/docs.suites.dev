@@ -1,33 +1,33 @@
 ---
 sidebar_position: 4
-title: Solitary Unit Test Example
+title: Solitary Unit Tests
+description: Testing in isolation with Suites
 ---
 
 # Solitary Unit Tests
 
 ## Introduction
 
-Solitary Unit Tests, or isolated unit tests, aim to evaluate a single unit of work entirely separate from its external
-dependencies. These tests leverage test doubles, such as [mocks and stubs](/docs/developer-guide/unit-tests/test-doubles),
-to mimic the behavior of these dependencies. This method is important for confirming the functionality and reliability of
-individual units within a system, ensuring that each part performs as expected under controlled conditions.
+Solitary unit tests aim to evaluate a single unit of work in complete isolation from its external dependencies. These tests use mocks (collections of stubs) to replace dependencies, making it possible to test the behavior of a component without being affected by its collaborators.
 
-In contrast, [Sociable Unit Tests](/docs/developer-guide/unit-tests/sociable) involve real implementations of
-dependencies to verify the interactions between multiple units. However, sociable tests still mock the dependencies of
-the dependencies to maintain control over the test environment.
+:::note When to use solitary tests
+Solitary tests are ideal when:
+- You want to test the logic and behavior of a single component
+- You need to control all inputs to ensure predictable test results
+- You're developing new components and want to ensure they work correctly in isolation
+:::
+
+In contrast to [sociable unit tests](/docs/developer-guide/unit-tests/sociable), where certain dependencies are real implementations, solitary tests replace all dependencies with mocks to ensure true isolation.
 
 ## Step-by-Step Example
 
-In this example, we have a `UserService` class that depends on a `UserApi` class to fetch a random user and a `Database`
-class to save the user. The `UserApi` depends on an `HttpService` to make HTTP requests. We'll mock
-the `UserApi`, `Database`, and `HttpService` classes to test the `UserService` class in isolation.
+In this example, we have a `UserService` class that depends on a `UserApi` class to fetch a random user and a `Database` class to save the user. The `UserApi` depends on an `HttpService` to make HTTP requests. We'll completely mock all dependencies to test the `UserService` class in isolation.
 
-> :bulb: Please note that this example is agnostic to the mocking library (we'll use Jest) and any
-> specific DI framework's adapter. The injection mechanism might differ based on the DI framework.
+> 💡 This example is agnostic to the mocking library (we'll use Jest) and any specific DI framework's adapter.
 
 ### Step 1: Define the Classes
 
-Here are the interfaces and classes we'll use in our example. Consider the `UserService` class as the unit under test:
+Here are the interfaces and classes we'll use in our example:
 
 ```typescript title="types.ts"
 export interface User {
@@ -51,62 +51,60 @@ export class HttpService {
 
 @Injectable()
 export class UserApi {
-  constructor(private http: HttpService) {}
+  constructor(private httpService: HttpService) {}
 
   async getRandom(): Promise<User> {
-    const response = await this.http.get('/random-user');
-    return response.data;
+    const data = await this.httpService.get('https://api.randomuser.me/');
+    // Process data...
+    return { id: Math.random(), name: 'John Doe' };
   }
 }
 
 @Injectable()
 export class Database {
-  async saveUser(user: User): Promise<number> { /* Saves user to the database */ }
+  async saveUser(user: User): Promise<number> {
+    // In a real database, this would insert the user
+    // and return the newly created user ID.
+    return Math.floor(Math.random() * 1000);
+  }
 }
-```
-
-```typescript title="user.service.ts"
-import { User, Database } from './services';
-import { UserApi } from './user-api';
 
 @Injectable()
 export class UserService {
-  constructor(private userApi: UserApi, private database: Database) {}
+  constructor(
+    private userApi: UserApi,
+    private database: Database,
+  ) {}
 
-  async generateRandomUser(): Promise<number | boolean> {
-    try {
-      const user = await this.userApi.getRandom();
-      return this.database.saveUser(user);
-    } catch (error) {
-      return false;
-    }
+  async generateRandomUser(): Promise<number> {
+    const randomUser = await this.userApi.getRandom();
+    return this.database.saveUser(randomUser);
   }
 }
 ```
 
-### Step 2: Set Up the Test
+### Step 2: Write the Test
 
-To test the `UserService` class in isolation, we'll use the `TestBed` factory from `@suites/unit` package to create our
-test environment. Here’s a basic setup and test for `UserService`:
+Now, let's write a solitary unit test for the `UserService` class:
 
-```typescript title="user.service.spec.ts" {1,10-11,15,20-21} showLineNumbers
-import { TestBed, Mocked } from '@suites/unit';
-import { UserService } from './user.service';
-import { UserApi, HttpService, Database } from './services';
-import { User } from './types';
+```typescript title="user.service.spec.ts" {4,8-9,12-13}
+import { TestBed } from '@suites/unit';
+import type { Mocked } from '@suites/unit';
+import { UserService } from './services';
+import { UserApi, Database } from './services';
 
-describe('User Service Unit Spec', () => {
-  let underTest: UserService;
+describe('UserService Tests', () => {
+  let userService: UserService;
 
   // Declare the mock instances
-  let userApi: Mocked<UserApi>;
-  let database: Mocked<Database>;
+  let userApi: Mocked<UserApi>; // A mock with stubbed methods
+  let database: Mocked<Database>; // A mock with stubbed methods
 
   beforeAll(async () => {
-    // Create the test environment
+    // Create the test environment with automatic mocking
     const { unit, unitRef } = await TestBed.solitary(UserService).compile();
 
-    underTest = unit;
+    userService = unit;
     
     // Retrieve the mock instances
     userApi = unitRef.get(UserApi);
@@ -114,81 +112,111 @@ describe('User Service Unit Spec', () => {
   });
 
   it('should generate a random user and save to the database', async () => {
+    // Configure the stubbed methods to return predefined values
     userApi.getRandom.mockResolvedValue({ id: 1, name: 'John' } as User);
+    database.saveUser.mockResolvedValue(42);
 
-    await underTest.generateRandomUser();
-    expect(database.saveUser).toHaveBeenCalledWith(userFixture);
+    // Test the outcome, not the implementation details
+    const result = await userService.generateRandomUser();
+    
+    // Verify the result is what we expect (the return value from database.saveUser)
+    expect(result).toBe(42);
   });
 });
 ```
 
-> :bulb: The `Mocked` type is used to type the mocked instances of the classes. This type is provided by the `@suites/unit` package. This type relies on the mocking library used in the test environment.
+> 💡 The `Mocked<T>` type is used to type the mock instances where each method has been replaced with a stub. This type is provided by the `@suites/unit` package and relies on the mocking library used in the test environment.
 
 **Automatic Mocking of Dependencies**
 
-When the class under test is instantiated using `TestBed.solitary()`, all its dependencies are automatically mocked.
-Initially, these stubs (mocks) have no predefined values or behaviors. This setup allows you to define the specific
-behaviors you need for each test, providing precise control over the testing conditions.
+When the class under test is instantiated using `TestBed.solitary()`, all its dependencies are automatically mocked with each method becoming a stub. Initially, these stubs have no predefined responses. This setup allows you to define specific responses for each method in your tests, providing precise control over the testing conditions.
 
-### Step 3: Using Suites Mocking API to Define Mock Behavior
+## The Virtual DI Container
 
-**Using `.mock().final()` for Final Mock Behavior**
+A key innovation in Suites' solitary testing approach is the "virtual DI container" concept. This is how it works:
 
-Suites provides a more declarative way to specify mock implementations using the `.mock().final()` method chain. This method defines the final behavior of the mocks and doesn't allow further stubbing.
+### Traditional DI Testing vs. Suites' Approach
 
-Here's how we can use this approach:
+**Traditional Testing with DI Frameworks:**
+1. Initialize the entire DI container
+2. Manually register mock implementations for dependencies
+3. Retrieve the service under test from the container
+4. Configure mock behavior
+
+**Suites' Virtual DI Container:**
+1. Analyzes the class under test using the DI framework's metadata
+2. Creates a minimal container with only the necessary components
+3. Automatically generates and injects mocks for all dependencies
+4. Provides direct access to both the unit and its mocked dependencies
+
+### Benefits of the Virtual Container
+
+- **Performance**: Eliminates the overhead of initializing the full DI container
+- **Simplicity**: Reduces boilerplate code for setting up tests
+- **Precision**: Creates only the dependencies needed for the test
+- **Framework Integration**: Works with your DI framework's existing annotations
+- **Isolation**: Ensures complete isolation of the unit under test
+
+### How It Works Behind the Scenes
+
+Suites leverages the reflection capabilities of modern DI frameworks to:
+1. Extract dependency metadata from class decorators and type annotations
+2. Create appropriate mocks for each dependency identified
+3. Build a virtual dependency graph with these mocks
+4. Use the DI framework's own resolution rules when injecting dependencies
+5. Provide a consistent interface for test setup regardless of the underlying framework
+
+This approach maintains the benefits of your DI framework's design while optimizing for testing performance and simplicity.
+
+### Step 3: Configuring Mock Behavior
+
+Suites provides two ways to configure the behavior of your mocks:
+
+**Using `.mock().final()` for Immutable Responses**
+
+The `.mock().final()` method provides a declarative way to define stub behavior that can't be changed later. This is useful when you want consistent behavior across all tests:
 
 ```typescript showLineNumbers
 beforeAll(async () => {
   const { unit } = await TestBed.solitary(UserService)
-    .mock(UserApi)
-    .final({ getRandom: async () => ({ id: 1, name: 'John' }) })
+    .mock(UserApi) // Specify which dependency to configure
+    .final({
+      // Define each method's behavior
+      getRandom: async () => ({ id: 1, name: 'John' })
+    })
     .compile();
 
-  underTest = unit;
+  userService = unit;
+  // Note: userApi cannot be retrieved from unitRef
 });
 ```
 
-In this approach, we've defined the mock behavior directly in the test setup using `.mock().final()`. This finalizes the behavior of the `getRandom` method, ensuring it cannot be changed in the test suite, which can be useful for ensuring consistent behavior across tests.
+When using `.final()`, the mock can't be retrieved from `unitRef` or modified later.
 
-Notice that this value cannot be retrieved from the unit reference as it is a final mock implementation.
+**Using `.mock().impl()` for Flexible Responses**
 
-**Using `.mock().impl()` for Flexible Mock Behavior**
-
-To define mock behavior while still allowing control and monitoring during tests, use `.mock().impl()`. This approach employs a callback to dynamically create stubs using the installed mocking library.
-
-Here's how we can modify the test setup to use this approach:
+For more flexibility, use `.mock().impl()` to define stub behavior while allowing further modification:
 
 ```typescript showLineNumbers
 beforeAll(async () => {
   const { unit, unitRef } = await TestBed.solitary(UserService)
-    .mock(UserApi)
-    .impl(stubFn => ({ getRandom: stubFn().mockResolvedValue({ id: 1, name: 'John' }) }))
+    .mock(UserApi) // Specify which dependency to configure
+    .impl(stubFn => ({
+      // Use the underlying mock library's function
+      getRandom: stubFn().mockResolvedValue({ id: 1, name: 'John' })
+    }))
     .compile();
 
-  underTest = unit;
+  userService = unit;
+  // The mock can still be retrieved and further configured
   userApi = unitRef.get(UserApi);
-  database = unitRef.get(Database);
-});
-
-test('should generate a random user and save to the database', async () => {
-  const userFixture: User = { id: 1, name: 'John' };
-
-  await underTest.generateRandomUser();
-
-  expect(userApi.getRandom).toHaveBeenCalled();
-  expect(database.saveUser).toHaveBeenCalledWith(userFixture);
 });
 ```
 
-In this setup, the `.mock().impl()` method allows defining the behavior of the `getRandom` method using a stub function.
-The `stubFn` is equivalent to the stub function from the installed mocking library (e.g., `jest.fn()`), but it is
-provided within the callback for convenience and abstraction.
+<div class="next-steps-section">
 
-> :bulb: Refer to the [Suites API](/docs/developer-guide/unit-tests/suites-api) section for details on the mocking API.
+## What's Next?
 
-## Next Steps
+Solitary unit tests are excellent for verifying individual components in isolation. However, to test how components work together, you'll want to use [sociable unit tests](/docs/developer-guide/unit-tests/sociable). By combining both approaches, you can build a comprehensive testing strategy that validates both independent component behavior and component interactions.
 
-Solitary unit tests provide a robust foundation for verifying individual components in isolation. However, to ensure the reliability of your entire system, it's also important to test interactions between components. This is where [Sociable Unit Tests](/docs/sociable-unit-tests) come into play, enabling you to expose certain dependencies and test the interactions across multiple units within a controlled environment.
-
-By combining both solitary and sociable unit tests, you can achieve a comprehensive testing strategy that ensures each component works correctly on its own and in conjunction with others.
+</div>

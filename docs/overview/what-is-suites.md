@@ -5,47 +5,42 @@ description: What is Suites?
 toc_min_heading_level: 3
 ---
 
-**Suites is a progressive, flexible testing meta-framework aimed at elevating the software testing experience within
-backend systems.**
+**Suites is a progressive, flexible unit-testing framework aimed at elevating the software testing experience within backend systems.** By providing a powerful set of tools tailored for dependency injection testing, Suites simplifies the process of creating reliable unit tests,
+thereby ensuring the development of high-quality software.
 
-By integrating a wide array of testing tools into a cohesive framework, Suites simplifies the process of creating
-reliable tests, thereby ensuring the development of high-quality software. **Suites focuses specifically on Dependency
-Injection (DI) patterns, a subset of the broader Inversion of Control (IoC) principle, to provide a consistent and
-scalable approach to managing dependencies in tests.** \
-[Originating from the solid foundation laid by Automock](/docs/overview/migrating-from-automock/),
-Suites has evolved into a more comprehensive solution, aimed at addressing
+Suites focuses specifically on dependency injections patterns, a subset of the broader inversion of control (IoC) principle, to provide a consistent and
+scalable approach to managing dependency-injected classes. [Originating from the solid foundation laid by Automock](/docs/overview/migrating-from-automock/),
+Suites has evolved into a comprehensive solution for testing DI-based applications, aimed at addressing
 [a broader range of testing challenges](/docs/overview/problems-solved/).
 
 ## Supported Libraries
 
-Suites supports a broad spectrum of DI frameworks and testing libraries including:
+Suites works seamlessly with popular DI frameworks and testing libraries including:
 
 ✅ **Dependency Injection Frameworks:** NestJS, InversifyJS (TSyringe coming soon!) \
 ✅ **Mocking Libraries:** Jest, Sinon, and Vitest (Bun and Deno coming soon!)
 
-## Suites as a Meta-Framework
+## How Suites Works
 
-Suites is a meta-framework that integrates various testing libraries and tools, such as Jest, Sinon, and Vitest, with
-dependency injection frameworks like NestJS and InversifyJS. By combining these technologies, Suites provides a
-comprehensive testing solution that simplifies the process of writing, running, and managing tests.
-
-## What is a Meta-Framework?
-
-A meta-framework is essentially a framework of frameworks. Unlike traditional frameworks that provide a specific set of
-functionalities and tools directly to the end-user, a meta-framework operates at a higher level. It integrates,
-orchestrates, and enhances underlying frameworks, libraries, and tools without being a direct provider of the
-functionality itself.
+Suites integrates with your existing testing libraries and DI frameworks, such as Jest, Sinon, and Vitest with
+NestJS and InversifyJS. Through this integration, Suites provides specialized tools and utilities that make it easier to 
+write, run, and manage tests for dependency-injected classes. It handles the complexity of mocking dependencies and managing
+the DI container, which lets developers focus on writing meaningful tests.
 
 ## Prerequisites
 
-  - Familiarity with [TypeScript](https://www.typescriptlang.org/)
-  - Familiarity with [basic testing principles and practices](/docs)
-  - You use a dependency injection framework
+  - **TypeScript project**: Suites requires TypeScript with decorators and metadata reflection enabled
+  - **Node.js environment**: Compatible with Node.js 16.x and above
+  - **Dependency injection framework**: One of the supported frameworks (NestJS, InversifyJS)
+  - **Testing library**: One of the supported libraries (Jest, Sinon, Vitest)
+  - **Basic understanding of unit testing**: Knowledge of concepts like mocking, stubbing, and test isolation
+
+<div class="next-steps-section">
 
 ## What's Next?
 
 Now that you have a basic understanding of what Suites is, you can explore the features and capabilities it
-offers.
-
-To get started, check out the [Quick Start](/docs/overview/quickstart) guide to learn how to set up Suites in
+offers. To get started, check out the [Quick Start](/docs/overview/quickstart) guide to learn how to set up Suites in
 your project and start writing tests.
+
+</div>

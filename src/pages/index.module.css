@@ -4,7 +4,7 @@
  */
 
 .heroBanner {
-    font-family: "Inter", sans-serif;
+    font-family: 'Inter', sans-serif;
     padding: 4rem 0;
     text-align: center;
     position: relative;
@@ -21,7 +21,7 @@
 }
 
 .title {
-    font-family: "Inter", sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 3.35rem;
     color: rgba(239, 71, 121, 1);
     font-weight: bold;
@@ -33,7 +33,7 @@
 .subtitle {
     text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     color: rgba(253, 245, 248, 0.88);
-    font-family: "Inter", sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 1.2rem;
     font-weight: 500;
     max-width: 40em;
@@ -43,12 +43,12 @@
 
 .buttons {
     max-width: 50% !important;
-    font-family: "Inter", sans-serif;
+    font-family: 'Inter', sans-serif;
     margin-top: 50px;
 }
 
 .button {
-    font-family: "Inter", sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 1.15rem;
     padding: 8px 24px;
     width: 12em;
@@ -70,24 +70,27 @@
     margin: 0 auto;
     max-width: 1272px;
     padding: 60px 16px 24px;
-    font-family: "Inter", sans-serif;
+    font-family: 'Inter', sans-serif;
+}
 
-    h1 {
-        font-size: 3rem;
-    }
+.docs h1 {
+    font-size: 3rem;
 }
 
 .codeBlock {
     max-width: 100%;
-    margin: 30px auto;
+    margin: 0 auto;
 }
 
 .libraries {
     margin-top: 20px;
+    max-width: 90%;
+    display: flex;
+    justify-content: center;
 }
 
 .library {
-    margin: 8px;
+    margin: 10px 15px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -96,9 +99,17 @@
     padding: 30px 40px;
     border-radius: 8px;
     background-color: #2f2f2f;
-    border: 1px solid var(--ifm-color-accent);
+    border: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.library:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
 .libraryImage {
     height: 100px;
+    max-width: 100%;
+    object-fit: contain;
 }

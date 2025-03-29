@@ -3,51 +3,87 @@ sidebar_position: 2
 title: Dependency Injection Adapters
 ---
 
-# Introduction
+# Dependency Injection Adapters
 
-## Adapters: Bridging Frameworks and Dependency Injection
+## Understanding Adapters 🧠
 
-Automock's core strength lies in its consistent logic and approach to automating mock object creation. However, the
-diverse landscape of Dependency Injection frameworks, each with its unique intricacies, presents a challenge. To
-address this, Automock introduces the concept of "Adapters."
+Suites' core strength lies in its consistent approach to automating mock object creation. However, the
+diverse landscape of Dependency Injection frameworks, each with its unique characteristics, presents a challenge. To
+address this, Suites introduces the concept of "Adapters."
 
-Automock Adapters are tailored connectors designed specifically for different DI frameworks. They ensure seamless
-integration, optimal performance, and a harmonized testing experience across various contexts. Whether it's the nuances
+Suites Adapters are specialized connectors designed for different DI frameworks. They ensure seamless
+integration, optimal performance, and a unified testing experience across various environments. Whether it's the differences
 in how dependencies are registered, the methods of resolution, or the specific annotations and decorators unique to a
-framework, Automock Adapters adeptly handle these details.
+framework, Suites Adapters handle these details for you.
 
-### Supported DI Frameworks
+<div class="in-this-section">
+
+### What You'll Find in This Section
+
+- **Adapters Overview** - Learn how Suites bridges different DI frameworks
+- **Identifiers & Injection Tokens** - Understand how to work with various dependency identifiers
+- **Framework-Specific Guides** - Detailed information for each supported DI framework
+
+</div>
+
+## Supported DI Frameworks
+
+Suites currently supports the following Dependency Injection frameworks:
 
 <table>
     <thead>
         <tr>
             <th>DI Framework Adapter</th>
-            <th>Jest (<code>@suites/jest</code>)</th>
-            <th>Sinon (<code>@suites/sinon</code>)</th>
+            <th>Jest (<code>@suites/doubles.jest</code>)</th>
+            <th>Sinon (<code>@suites/doubles.sinon</code>)</th>
+            <th>Vitest (<code>@suites/doubles.vitest</code>)</th>
         </tr>
     </thead>
     <tbody>
         <tr>
-            <td><strong>NestJS Adapter (<code>@suites/di.nestjs</code>)</strong></td>
+            <td><strong>NestJS (<code>@suites/di.nestjs</code>)</strong></td>
             <td>✅</td>
             <td>✅</td>
+            <td>✅</td>
         </tr>
         <tr>
-            <td><strong>Inversify Adapter (<code>@suites/di.inversify</code>)</strong></td>
-            <td>✅ (Beta)</td>
-            <td>✅ (Beta)</td>
+            <td><strong>InversifyJS (<code>@suites/di.inversify</code>)</strong></td>
+            <td>✅</td>
+            <td>✅</td>
+            <td>✅</td>
         </tr>
         <tr>
-            <td><strong>TSyringe Adapter (<code>@suites/di.tsyringe</code>)</strong></td>
-            <td colspan="2" align="center">Contributions are Welcome 🙏</td>
+            <td><strong>TSyringe (<code>@suites/di.tsyringe</code>)</strong></td>
+            <td colspan="3" align="center">Coming Soon 🚀</td>
         </tr>
         <tr>
-            <td><strong>Ts.ED Adapter (<code>@suites/di.tsed</code>)</strong></td>
-            <td align="center" colspan="2">Contributions are Welcome 🙏</td>
+            <td><strong>Ts.ED (<code>@suites/di.tsed</code>)</strong></td>
+            <td align="center" colspan="3">Contributions Welcome 🙏</td>
         </tr>
         <tr>
-            <td><strong>TypeDI Adapter (<code>@suites/di.typedi</code>)</strong></td>
-            <td align="center" colspan="2">Contributions are Welcome 🙏</td>
+            <td><strong>TypeDI (<code>@suites/di.typedi</code>)</strong></td>
+            <td align="center" colspan="3">Contributions Welcome 🙏</td>
         </tr>
     </tbody>
 </table>
+
+## How Adapters Work 💡
+
+Suites adapters work by:
+
+1. **Analyzing Metadata** - Reading the dependency metadata from your classes
+2. **Creating Virtual Containers** - Building lightweight container representations
+3. **Mapping Dependencies** - Connecting your code's dependencies to test doubles
+4. **Providing Type Safety** - Ensuring type-safe access to mocked dependencies
+
+This approach allows Suites to provide a consistent API regardless of which DI framework you're using, while still respecting the specific characteristics of each framework.
+
+<div class="next-steps-section">
+
+## Next Steps
+
+- [**Identifiers & Injection Tokens**](/docs/developer-guide/adapters/identifiers) - Learn how to work with different types of dependency identifiers
+- [**InversifyJS Guide**](/docs/developer-guide/adapters/inversifyjs) - Special considerations for InversifyJS
+- [**Installation**](/docs/overview/installation/) - Set up Suites with your preferred DI framework and testing library
+
+</div>

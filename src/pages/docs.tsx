@@ -9,13 +9,13 @@ import Head from '@docusaurus/Head';
 function MainPage() {
   return (
     <div className={`container ${styles.docs}`}>
-      <div className={'row'}>
+      <div className={'row'} style={{ padding: '10px' }}>
         <h1>Welcome to Suites</h1>
         <p>
           <strong>
             Suites is a <a href="/docs/overview/what-is-suites#suites-as-a-meta-framework">progressive, flexible
-            testing meta-framework</a> aimed at elevating the software testing experience within backend systems working
-            with dependency injection (DI) frameworks.
+            unit-testing framework</a> aimed at elevating the software testing experience within backend systems working
+            with dependency injection frameworks.
           </strong>
         </p>
         <p>
@@ -39,17 +39,18 @@ function MainPage() {
         <Libraries />
       </div>
 
-      <div className={'row'} style={{ marginTop: 50 }}>
+      <div className={'row'} style={{ marginTop: '50px', padding: '0 20px' }}>
         <h2>Fluent and Convenient API for Unit Testing</h2>
         <p>
-          Suites offers a fluent, convenient, and semantic API that makes writing tests a pleasure. The intuitive design
-          of the API ensures that you can quickly set up your tests and focus on verifying the behavior of your
-          application.
+          <Link to="/docs/developer-guide/unit-tests/suites-api">Suites offers a fluent, convenient, and semantic
+            API</Link> that makes writing tests a pleasure. The intuitive design of the API ensures that you can quickly
+          set up your tests and focus on verifying the behavior of your application.
         </p>
 
         <div className={styles.codeBlock}>
-          <CodeBlock language="typescript" title="user.service.spec.ts">
-            {`import { TestBed, Mocked } from '@suites/unit';
+          <CodeBlock language="typescript" title="user.service.spec.ts" className={styles.codeBlock}>
+            {`import { TestBed } from '@suites/unit';
+import type { Mocked } from '@suites/unit';
 
 describe('User Service Unit Spec', () => {
   let underTest: UserService; // 🧪 Declare the unit under test
@@ -152,9 +153,9 @@ function Library({title, name, img, link}: LibraryItem) {
 function Libraries(): JSX.Element {
   return (
     <div className={`container ${styles.libraries}`}>
-      <div className={'row'}>
+      <div className="row" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
         {libraries.map((props, idx) => (
-          <div className={`col ${styles.library}`}>
+          <div key={idx} className={`col col--2 ${styles.library}`} style={{ display: 'flex', justifyContent: 'center' }}>
             <Library key={idx} {...props} />
           </div>
         ))}

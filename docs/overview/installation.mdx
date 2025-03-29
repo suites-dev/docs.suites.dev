@@ -7,7 +7,11 @@ description: Learn how to install and configure Suites to enhance your unit test
 ## Setup Suites in a New or Existing Project
 
 This section provides instructions for installing Suites and highlights important compatibility and configuration
-details.
+details for setting up unit testing with your DI framework.
+
+:::info
+:bulb: You can find complete setup examples in the [Suites Examples](https://github.com/suites-dev/examples) repository
+:::
 
 First, install Suites' main package:
 
@@ -15,20 +19,20 @@ First, install Suites' main package:
 $ npm i -D @suites/unit
 ```
 
-Then, to fully integrate Suites into your mocking and dependency injection frameworks, install the corresponding
-di framework and mocking library adapters for your project.
+Then, to integrate Suites with your dependency injection framework and preferred testing library, install the corresponding
+adapters for your project.
 
 For example, to use Suites with Jest and NestJS you would run (alongside `@suites/unit` core package):
 
 ```bash
 $ npm i -D @suites/doubles.jest @suites/di.nestjs
-````
+```
 
 Lastly, make sure `reflect-metadata` is also installed in your project, not as a dev dependency ([Why?](https://www.typescriptlang.org/docs/handbook/decorators.html#metadata)):
 
 ```bash
 $ npm i reflect-metadata
-````
+```
 
 Suites will automatically detect the installed adapters and configure itself accordingly.
 
@@ -61,50 +65,45 @@ This configuration is necessary for Suites to reflect class dependencies and to 
 }
 ```
 
-## For Yarn v1.x Users
+## Type Reference Configuration
 
-Due to a known issue with Yarn `v1.x`'s `postinstall` script handling
-([see details](https://github.com/yarnpkg/yarn/issues/5476)), an extra step is required to set up reference types for
-your project when using Suites.
+To ensure type safety and maintain a clean API, Suites requires setting up type references for your mocking library. This approach enables importing all utilities from `@suites/unit` while maintaining proper type information.
 
-Follow these instructions to manually add the necessary type references:
+### Setting Up Type References
 
-1. **Create a `global.d.ts` file**: Place this file in your project's `rootDir` (as specified in your `tsconfig.json`).
+1. **Create a `global.d.ts` file** in your project's root directory (or the location specified as `rootDir` in your `tsconfig.json`).
 
-2. **Add the reference type**: Inside `global.d.ts`, include the reference type for your chosen mocking library:
+2. **Add the reference type** for your chosen mocking library:
 
 ```typescript title="global.d.ts"
-/// <reference types="@suites/doubles.<YOUR_MOCKING_LIBRARY>/unit" />
-   ```
+/// <reference types="@suites/doubles.jest/unit" />  // For Jest
+// OR
+/// <reference types="@suites/doubles.sinon/unit" /> // For Sinon
+// OR
+/// <reference types="@suites/doubles.vitest/unit" /> // For Vitest
+```
 
-3. **Example**: If you’re using Jest, the content of the `global.d.ts` should be:
-
-```typescript title="global.d.ts"
-/// <reference types="@suites/doubles.jest/unit" />
-   ```
-
-By adding this reference manually, you ensure that your project correctly recognizes the types from the Suites
-framework, allowing for a smooth development experience.
+This configuration ensures your project correctly recognizes the types provided by Suites (like the `Mocked<T>` type) without needing to import them from library-specific modules. It aligns with Suites' philosophy of reducing coupling and providing a unified API.
 
 ## Monorepo Support
 
-Suites is fully compatible with Monorepo, accommodating projects that use different mocking or di frameworks.
+Suites is fully compatible with monorepo setups, accommodating projects that use different mocking or DI frameworks.
 
-### Recommended Setups (for Monorepo / Non-Monorepo)
+### Recommended Setups
 
-If you are using Suites in a Monorepo, consider the following setups:
+When using Suites in a monorepo, consider the following setups:
 
-**Using one the same mocking and di framework across all workspaces** \
-Install the corresponding adapter under the root directory of your Monorepo.
+**Using the same mocking and DI framework across all workspaces** \
+Install the corresponding adapter under the root directory of your monorepo.
 Suites will automatically detect the adapter and configure itself accordingly.
 
 **Using different frameworks across workspaces** \
-Install the corresponding adapter in each workspace separately. Make sure to config the hoisting of the `node_modules`
-to enable Suites to detect the adapter in the workspace.
+Install the corresponding adapter in each workspace separately. Make sure to configure your package manager's hoisting settings
+to enable Suites to detect the adapter in each workspace.
 
 :::note
-Unfortunately, NPM workspaces do not support the hoisting of dependencies, which means that working with different DI or
-mocking libraries with npm workspaces is not supported at the moment. We recommend using Yarn workspaces for this purpose.
+Some package managers may have limitations with dependency hoisting that can affect using different DI or mocking libraries
+across workspaces. Please refer to your package manager's documentation for specific guidance on dependency hoisting.
 :::
 
 ## For Vitest Users
@@ -133,9 +132,12 @@ export default defineConfig({
     swc.vite({ module: { type: 'es6' } }),
   ],
 });
-
 ```
+
+<div class="next-steps-section">
 
 ## What's Next?
 After installing Suites, you can start writing your first test.
 Check out the [Developer Guide](/docs/developer-guide) to learn how to write your first test using Suites.
+
+</div>

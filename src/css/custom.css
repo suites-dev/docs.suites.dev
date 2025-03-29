@@ -33,11 +33,44 @@
   --ifm-color-gray-dark: rgb(86, 90, 98); /* Dark gray, close to charcoal */
   --ifm-color-gray-darker: #262b34ff; /* Even darker, great for high contrast elements */
   --ifm-color-gray-light: #f2f4f4ff; /* Light gray for background contrasts and space */
+
+  /* Theme colors (light mode default) */
+  --theme-background: #ffffff;
+  --theme-text: #333333;
+  --theme-border: rgba(0, 0, 0, 0.1);
+  --theme-section-bg: #f8f9fa;
+  --theme-section-border: var(--ifm-color-primary);
+  --theme-card-bg: rgba(253, 245, 248, 0.4);
+  --theme-card-hover-shadow: rgba(0, 0, 0, 0.05);
+  --theme-card-text: var(--ifm-color-gray-dark);
+
+  /* Set color scheme support */
+  color-scheme: light dark;
+}
+
+/* Dark mode colors */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --theme-background: #1a1a1a;
+    --theme-text: #e6e6e6;
+    --theme-border: rgba(255, 255, 255, 0.1);
+    --theme-section-bg: #2d2d2d;
+    --theme-section-border: var(--ifm-color-primary);
+    --theme-card-bg: rgba(45, 45, 45, 0.7);
+    --theme-card-hover-shadow: rgba(0, 0, 0, 0.2);
+    --theme-card-text: #c4c4c4;
+
+    /* Override docusaurus dark mode colors */
+    --ifm-background-color: var(--theme-background);
+    --ifm-font-color-base: var(--theme-text);
+  }
 }
 
 html {
   position: relative;
   min-height: 450px;
+  background-color: var(--theme-background);
+  color: var(--theme-text);
 }
 
 body {
@@ -45,21 +78,208 @@ body {
   font-size: 17px;
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
+  background-color: var(--theme-background);
+  color: var(--theme-text);
 }
 
 * {
   outline: 0 !important;
 }
 
-a:hover,
-a:focus,
-a:active {
+a:hover {
   text-decoration: none;
 }
 
-a:focus,
-a:active {
-  color: var(--ifm-background-color);
+/* Custom link state styling */
+main a {
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+main a:hover {
+  text-decoration: underline;
+}
+
+/* Fix for the active link state (when clicked) - only for content */
+main a:active {
+  color: var(--ifm-color-primary) !important; /* Keep original color */
+  text-decoration: underline !important; /* Add underline for visual feedback */
+}
+
+/* Documentation links */
+.markdown a {
+  color: var(--ifm-color-primary);
+  font-weight: 500;
+}
+
+.markdown a:active {
+  color: var(--ifm-color-primary) !important;
+  text-decoration: underline !important;
+}
+
+/* Table of contents links */
+.table-of-contents__link:active {
+  color: var(--ifm-color-primary) !important;
+  text-decoration: underline !important;
+}
+
+/* Sidebar menu links - excluding from active state color change */
+.menu__link:active {
+  text-decoration: underline !important;
+}
+
+/* Fix admonition/info cube links and borders */
+.alert {
+  border: none !important;
+  border-radius: 0;
+  border-left-width: 6px !important;
+  border-left-style: solid !important;
+  box-shadow: none;
+}
+
+.alert a {
+  color: #ffffff !important;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.alert a:hover {
+  opacity: 0.8;
+}
+
+/* Specific alert type styling */
+.alert--info {
+  border-left-color: var(--ifm-color-info) !important;
+}
+
+.alert--success {
+  border-left-color: var(--ifm-color-success) !important;
+}
+
+.alert--warning {
+  border-left-color: var(--ifm-color-warning) !important;
+}
+
+.alert--danger {
+  border-left-color: var(--ifm-color-error) !important;
+}
+
+.next-steps-section h2 {
+  font-family: "Barlow", sans-serif;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: var(--theme-text);
+}
+
+.next-steps-section ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  list-style: none;
+  padding: 0;
+}
+
+.next-steps-section ul li {
+  background: var(--theme-card-bg);
+  border: 1px solid var(--theme-border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  transition: all 0.2s ease;
+}
+
+.next-steps-section ul li:hover {
+  border-color: var(--ifm-color-primary-light);
+  box-shadow: 0 4px 12px var(--theme-card-hover-shadow);
+  transform: translateY(-2px);
+}
+
+.next-steps-section ul li a {
+  display: block;
+  font-weight: 500;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  color: var(--ifm-color-primary);
+}
+
+.next-steps-section ul li p {
+  color: var(--theme-card-text);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* In This Section component for index pages */
+.in-this-section {
+  margin: 2rem 0 3rem;
+  padding: 1.5rem 2rem;
+  background-color: var(--theme-section-bg);
+  border-radius: 12px;
+  border-left: 4px solid var(--theme-section-border);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.in-this-section h3 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--theme-text);
+}
+
+.in-this-section ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.in-this-section ul li {
+  position: relative;
+  padding-left: 1.5rem;
+  padding-bottom: 0.5rem;
+  color: var(--theme-text);
+  font-size: 1.05rem;
+}
+
+.in-this-section ul li::before {
+  content: '›';
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--ifm-color-primary);
+  font-weight: bold;
+  font-size: 1.4rem;
+}
+
+.in-this-section strong {
+  color: var(--theme-text);
+  font-weight: 600;
+}
+
+/* Replace generic h2:last-of-type selector with a specific class */
+.section-divider {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--theme-border);
+  color: var(--theme-text);
+}
+
+/* Update related selectors to use the new class */
+.section-divider + ul {
+  padding-left: 0;
+}
+
+.section-divider + ul li {
+  list-style: none;
+  margin-bottom: 0.75rem;
+  color: var(--theme-text);
+}
+
+.section-divider + ul li a {
+  font-weight: 500;
+  color: var(--ifm-color-primary);
 }
 
 .container {
@@ -91,6 +311,7 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
   margin-top: 0;
   margin-bottom: 20px;
+  color: var(--theme-text);
 }
 
 h1, h2 {
@@ -168,4 +389,41 @@ div[class*="codeBlockTitle_"] {
 html[data-theme='dark'] .header-github-link:before {
   background: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='white' d='M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12'/%3E%3C/svg%3E")
   no-repeat;
+}
+
+/* Add a manual theme toggler, add this if you want a button to override system preference */
+.theme-toggle-button {
+  margin-left: 0.5rem;
+  padding: 0.4rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.theme-toggle-button:hover {
+  background-color: var(--theme-border);
+}
+
+html[data-theme='dark'] .theme-toggle-button svg {
+  fill: #f5f5f5;
+}
+
+html[data-theme='light'] .theme-toggle-button svg {
+  fill: #2d2d2d;
+}
+
+/* Dark mode adjustments for components */
+@media (prefers-color-scheme: dark) {
+  .in-this-section {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .alert a {
+    color: #ffffff !important;
+  }
 }

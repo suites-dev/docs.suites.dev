@@ -7,20 +7,26 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import CodeBlock from '@theme/CodeBlock';
 
-Throughout this documentation, you'll encounter references to "identifiers," guiding you on how to use them
-effectively in different contexts.
+# Understanding Dependency Identifiers
 
-In dependency injection (DI), identifiers play an important role in determining how dependencies are provided and resolved.
-This guide delves into the nuances of identifiers, shedding light on their significance and varied implementations
-across DI frameworks.
+In dependency injection (DI), identifiers play a crucial role in determining how dependencies are provided and resolved.
+This guide explores the different types of identifiers and explains how to use them effectively with Suites.
+
+<div class="in-this-section">
+
+### What You'll Find in This Section
+
+- **Class-based Injection** - Using TypeScript classes as identifiers
+- **Token-based Injection** - Working with string and symbol tokens
+- **Handling Metadata** - Adding context to your identifiers
+- **Framework-specific Examples** - Code samples for NestJS and InversifyJS
+
+</div>
 
 :::note
-It's important to note that the usage and support for different types of identifiers
-or metadata may vary from one adapter to another. If exists, refer to the specific adapter's documentation for detailed
-information.
+The usage and support for different types of identifiers or metadata may vary between adapters.
+Please refer to the specific adapter's documentation for detailed information.
 :::
-
-<br />
 
 **Before diving in, ensure you've installed the appropriate adapter for your DI framework:**
 
@@ -37,13 +43,13 @@ information.
   </TabItem>
 </Tabs>
 
-> :bulb: See the full installation guide [here](/docs/get-started/installation)
+:::tip
+See the full installation guide [here](/docs/overview/installation)
+:::
 
-## Class-based Injection
+## Class-based Injection 💡
 
-Class-based injection is a fundamental concept in Dependency Injection frameworks. It revolves around the idea of
-using actual TypeScript classes both as a blueprint for creating instances and as an identifier for fetching
-specific dependencies.
+Class-based injection is a fundamental concept in Dependency Injection frameworks. It uses TypeScript classes both as a blueprint for creating instances and as an identifier for resolving dependencies.
 
 <Tabs groupId="suites-adapter" className="adapters-tabs" queryString="suites-adapter">
   <TabItem attributes={{className: 'nestjs'}} value="nestjs" label="NestJS" default>
@@ -66,7 +72,7 @@ class UserService {
   </TabItem>
 </Tabs>
 
-**To resolve or mock a class-based dependency, just use the class itself.**
+**To resolve or mock a class-based dependency with Suites, simply use the class itself:**
 
 ```tsx title="UnitReference API"
 const { unitRef } = await TestBed.solitary(UserService).compile();
@@ -80,18 +86,16 @@ const { unit, unitRef } = await TestBed.solitary(UserService)
   .compile();
 ```
 
-## Token-based Injection
+## Token-based Injection 💡
 
-Tokens, which can be strings or symbols, serve as unique keys to fetch specific dependencies from the container. They're
-especially useful for distinguishing multiple instances of the same type or for non-class-based dependencies.
+Tokens (strings or symbols) serve as unique keys to fetch specific dependencies from the container. They're
+especially useful for distinguishing multiple instances of the same type or for interface-based dependencies.
 
-Just like class-based injection, the core idea of token-based injection remains consistent across different DI
-frameworks, but the syntax and nuances differ. Below, we've provided examples for different frameworks to showcase
-how token-based injection is implemented in each.
+The concept of token-based injection is consistent across DI frameworks, but the syntax varies by implementation.
 
 ### Class as Token
 
-Sometimes, classes double up as injection tokens. Here's how:
+Sometimes, classes are explicitly used as injection tokens:
 
 <Tabs groupId="suites-adapter" className="adapters-tabs" queryString="suites-adapter">
   <TabItem attributes={{className: 'nestjs'}} value="nestjs" label="NestJS" default>
@@ -114,7 +118,7 @@ class UserService {
   </TabItem>
 </Tabs>
 
-**Resolving or mocking such dependencies is straightforward; use the class itself:**
+**With Suites, you can resolve or mock these dependencies using the class itself:**
 
 ```tsx title="UnitReference API"
 const { unitRef } = await TestBed.solitary(UserService).compile();
@@ -132,7 +136,7 @@ const { unit, unitRef } = await TestBed.solitary(UserService)
 
 Tokens can be strings or symbols, each serving as a unique identifier for a dependency.
 
-Consider the following `Logger` interface, it will serve as an example for this part.
+Consider the following `Logger` interface as an example:
 
 ```typescript
 interface Logger {
@@ -140,7 +144,7 @@ interface Logger {
 }
 ```
 
-Also, consider the following constant as a token:
+And a token constant:
 
 <Tabs>
   <TabItem value="string" label="String-Based Token">
@@ -155,8 +159,7 @@ Also, consider the following constant as a token:
   </TabItem>
 </Tabs>
 
-You probably added this token to your dependency injection framework so that it might find a class or object that
-corresponds to this interface and inject its implementation.
+You would register this token with your DI framework to associate it with a specific implementation of the Logger interface:
 
 <Tabs groupId="suites-adapter" className="adapters-tabs" queryString="suites-adapter">
   <TabItem attributes={{className: 'nestjs'}} value="nestjs" label="NestJS" default>
@@ -179,7 +182,7 @@ class UserService {
   </TabItem>
 </Tabs>
 
-**To resolve or mock a token-based dependency, use the token itself, whether it's a string or symbol:**
+**With Suites, you resolve or mock token-based dependencies using the token itself:**
 
 ```tsx title="UnitReference API"
 const { unitRef } = await TestBed.solitary(UserService).compile();
@@ -195,8 +198,8 @@ const { unit, unitRef } = await TestBed.solitary(UserService)
 
 ### Circular Dependencies and Lazy Loading
 
-Circular dependencies, where two classes interdependent on each other, can be tricky. While best avoided, certain
-scenarios necessitate them. DI frameworks often provide mechanisms like lazy loading to handle such cases.
+Circular dependencies occur when two classes depend on each other. While best avoided, some scenarios require them.
+DI frameworks provide mechanisms like lazy loading to handle such cases:
 
 <Tabs groupId="suites-adapter" className="adapters-tabs" queryString="suites-adapter">
   <TabItem attributes={{className: 'nestjs'}} value="nestjs" label="NestJS" default>
@@ -219,15 +222,26 @@ class UserService {
   </TabItem>
 </Tabs>
 
+**With Suites, you can resolve or mock circular dependencies using the base identifier without the circular dependency wrapper:**
 
-**Resolving or mocking a circular dependency is akin to handling a regular identifier, sans the circular dependency
-wrapper.**
+```tsx
+// Example for NestJS
+const apiService = unitRef.get(ApiService); // Not forwardRef(() => ApiService)
 
-### Identifiers with Metadata
+// Example for InversifyJS
+const apiService = unitRef.get(ApiService); // Not new LazyServiceIdentifer(() => ApiService)
+```
 
-Automock allows for metadata inclusion alongside the primary identifier. Metadata offers additional context or
-qualifiers for identifiers, granting more nuanced control over dependency retrieval. For instance, a service might have
+### Identifiers with Metadata 💡
+
+Suites allows for metadata inclusion alongside the primary identifier. Metadata provides additional context or
+qualifiers for identifiers, enabling more precise control over dependency resolution. For instance, a service might have
 multiple instances, each distinguished by specific metadata.
 
-As of now, only the InversifyJS adapter supports metadata. You can refer to [InversifyJS](/docs/adapters/inversifyjs)
-page for further information.
+Currently, only the InversifyJS adapter supports metadata. For more information, visit the [InversifyJS documentation](/docs/developer-guide/adapters/inversifyjs) page.
+
+## Next Steps
+
+- [**InversifyJS Guide**](/docs/developer-guide/adapters/inversifyjs) - Learn about advanced identifier patterns in InversifyJS
+- [**Unit Testing Fundamentals**](/docs/developer-guide/unit-tests/fundamentals) - Explore the core principles of unit testing with Suites
+- [**Test Doubles**](/docs/developer-guide/unit-tests/test-doubles) - Understand how to work with mocks, stubs, and other test doubles
