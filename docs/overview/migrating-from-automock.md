@@ -1,7 +1,7 @@
 ---
 sidebar_position: 7
 title: Migrating from Automock
-description: Migrating from Automock to Suites
+description: Learn how to migrate your existing Automock tests to Suites
 ---
 
 ## Introduction
@@ -146,18 +146,44 @@ If you see errors like `TypeError: Cannot read properties of undefined (reading 
 
 ### Type Errors with Mocked
 
-If you encounter type errors with mocked dependencies, make sure you're using the new `Mocked<T>` type from `@suites/unit`:
+If you encounter type errors with mocked dependencies like "Cannot find name 'Mocked'" or "Type 'Mocked' is not generic", you need to set up type references. This is a new required step in Suites that wasn't needed in Automock.
+
+**Solution:** Create a `global.d.ts` file in your project root with the appropriate type reference:
+
+```typescript title="global.d.ts"
+/// <reference types="@suites/doubles.jest/unit" />  // For Jest
+// OR
+/// <reference types="@suites/doubles.sinon/unit" /> // For Sinon
+// OR
+/// <reference types="@suites/doubles.vitest/unit" /> // For Vitest
+```
+
+Make sure your `tsconfig.json` includes this file:
+
+```json title="tsconfig.json"
+{
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.spec.ts", 
+    "global.d.ts"
+  ]
+}
+```
+
+Then use the `Mocked<T>` type from `@suites/unit`:
 
 ```typescript
-// Before
+// Before (Automock)
 import { UserRepository } from './user.repository';
 let userRepo: jest.Mocked<UserRepository>;
 
-// After
+// After (Suites)
 import { Mocked } from '@suites/unit';
 import { UserRepository } from './user.repository';
 let userRepo: Mocked<UserRepository>;
 ```
+
+See the [installation guide](/docs/overview/installation#-required-type-reference-configuration) for complete details.
 
 ### Missing Dependencies
 

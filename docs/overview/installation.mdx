@@ -1,5 +1,5 @@
 ---
-sidebar_position: 3
+sidebar_position: 4
 title: Installation
 description: Learn how to install and configure Suites to enhance your unit testing process across various DI frameworks and testing libraries.
 ---
@@ -13,13 +13,17 @@ details for setting up unit testing with your DI framework.
 :bulb: You can find complete setup examples in the [Suites Examples](https://github.com/suites-dev/examples) repository
 :::
 
+### Step 1: Install Core Package
+
 First, install Suites' main package:
 
 ```bash
 $ npm i -D @suites/unit
 ```
 
-Then, to integrate Suites with your dependency injection framework and preferred testing library, install the corresponding
+### Step 2: Install Adapters
+
+To integrate Suites with your dependency injection framework and preferred testing library, install the corresponding
 adapters for your project.
 
 For example, to use Suites with Jest and NestJS you would run (alongside `@suites/unit` core package):
@@ -28,7 +32,9 @@ For example, to use Suites with Jest and NestJS you would run (alongside `@suite
 $ npm i -D @suites/doubles.jest @suites/di.nestjs
 ```
 
-Lastly, make sure `reflect-metadata` is also installed in your project, not as a dev dependency ([Why?](https://www.typescriptlang.org/docs/handbook/decorators.html#metadata)):
+### Step 3: Install reflect-metadata
+
+Make sure `reflect-metadata` is also installed in your project, not as a dev dependency ([Why?](https://www.typescriptlang.org/docs/handbook/decorators.html#metadata)):
 
 ```bash
 $ npm i reflect-metadata
@@ -36,38 +42,13 @@ $ npm i reflect-metadata
 
 Suites will automatically detect the installed adapters and configure itself accordingly.
 
-## Supported Libraries
-### Available Dependency Injection Adapters:
-  * `@suites/di.nestjs`
-  * `@suites/di.inversify`
-  * _`@suites/di.tsyringe`_ (WIP)
+## Required: Type Reference Configuration
 
-### Available Mocking Libraries Adapters:
-  * `@suites/doubles.jest`
-  * `@suites/doubles.sinon`
-  * `@suites/doubles.vitest`
-  * _`@suites/doubles.bun`_ (WIP)
-  * _`@suites/doubles.deno`_ (WIP)
-  * _`@suites/doubles.node`_ Vanilla (WIP)
+:::warning This step is REQUIRED for the `Mocked<T>` type to work
+Without this configuration, you will encounter TypeScript errors like "Cannot find name 'Mocked'" or "Type 'Mocked' is not generic". This is the most common setup issue with Suites.
+:::
 
-After installation, no additional configuration for the test runner is needed.
-
-## Setting Up `tsconfig.json`
-In order to use Suites, you need to enable the [`emitDecoratorMetadata`](https://www.typescriptlang.org/tsconfig#emitDecoratorMetadata) and [`experimentalDecorators`](https://www.typescriptlang.org/tsconfig#experimentalDecorators) options in your `tsconfig.json` file.
-This configuration is necessary for Suites to reflect class dependencies and to work with dependency injection frameworks.
-
-```json title="tsconfig.json"
-{
-  "compilerOptions": {
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
-  }
-}
-```
-
-## Type Reference Configuration
-
-To ensure type safety and maintain a clean API, Suites requires setting up type references for your mocking library. This approach enables importing all utilities from `@suites/unit` while maintaining proper type information.
+To ensure type safety and enable the `Mocked<T>` type, you **must** set up type references for your mocking library:
 
 ### Setting Up Type References
 
@@ -83,7 +64,65 @@ To ensure type safety and maintain a clean API, Suites requires setting up type 
 /// <reference types="@suites/doubles.vitest/unit" /> // For Vitest
 ```
 
-This configuration ensures your project correctly recognizes the types provided by Suites (like the `Mocked<T>` type) without needing to import them from library-specific modules. It aligns with Suites' philosophy of reducing coupling and providing a unified API.
+3. **Ensure your `tsconfig.json` includes this file**:
+
+```json title="tsconfig.json"
+{
+  "compilerOptions": {
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
+  },
+  "include": [
+    "src/**/*.spec.ts",
+    "global.d.ts"  // Make sure this is included
+  ]
+}
+```
+
+This configuration ensures your project correctly recognizes the types provided by Suites (like the `Mocked<T>` type) without needing to import them from library-specific modules.
+
+:::tip Troubleshooting
+If you're still getting "Cannot find name 'Mocked'" errors after adding the type reference:
+- Restart your TypeScript language server (in VSCode: Cmd/Ctrl + Shift + P → "TypeScript: Restart TS Server")
+- Make sure the `global.d.ts` file is in your project root or included in your `tsconfig.json`
+- Verify you've installed the correct adapter package (e.g., `@suites/doubles.jest` for Jest)
+:::
+
+## Setting Up `tsconfig.json`
+
+In addition to the type references, you need to enable decorator support in your `tsconfig.json` file.
+This configuration is necessary for Suites to reflect class dependencies and to work with dependency injection frameworks.
+
+```json title="tsconfig.json"
+{
+  "compilerOptions": {
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    // ... other options
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.spec.ts",
+    "global.d.ts"
+  ]
+}
+```
+
+## Supported Libraries
+### Available Dependency Injection Adapters:
+  * `@suites/di.nestjs`
+  * `@suites/di.inversify`
+  * _`@suites/di.tsyringe`_ (WIP)
+
+### Available Mocking Libraries Adapters:
+  * `@suites/doubles.jest`
+  * `@suites/doubles.sinon`
+  * `@suites/doubles.vitest`
+  * _`@suites/doubles.bun`_ (WIP)
+  * _`@suites/doubles.deno`_ (WIP)
+  * _`@suites/doubles.node`_ Vanilla (WIP)
+
+After installation and configuration, no additional setup for the test runner is needed.
 
 ## Monorepo Support
 
@@ -138,6 +177,6 @@ export default defineConfig({
 
 ## What's Next?
 After installing Suites, you can start writing your first test.
-Check out the [Developer Guide](/docs/developer-guide) to learn how to write your first test using Suites.
+Check out the [Quick Start](/docs/overview/quickstart) guide to see Suites in action, or dive into the [Developer Guide](/docs/developer-guide) for comprehensive documentation.
 
 </div>

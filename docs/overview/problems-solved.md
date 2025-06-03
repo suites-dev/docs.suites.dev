@@ -1,7 +1,8 @@
 ---
-sidebar_position: 3
+sidebar_position: 6
 title: What Problems Does Suites Solve?
-description: Common testing challenges and how Suites addresses them
+description: Understanding the common challenges Suites addresses in unit testing
+toc_min_heading_level: 3
 ---
 
 # Testing Challenges Solved by Suites 🛠️
@@ -29,6 +30,7 @@ Suites provides a streamlined `TestBed` API that automatically handles dependenc
 ```typescript
 const { unit, unitRef } = await TestBed.solitary(UserService).compile();
 ```
+This is especially powerful when your code follows good [design principles for unit clarity and dependency management](../developer-guide/design-for-testability/unit-clarity-responsibility.md).
 
 ### 2. Inconsistent Testing Practices Across Teams 🧩
 
@@ -52,7 +54,7 @@ With its intuitive API and consistent patterns, Suites reduces the learning curv
 Tests that are too focused on implementation details often break during routine refactoring, even when the behavior of the system remains the same. This leads to unnecessary maintenance work and can discourage refactoring altogether.
 
 **Suites Solution:** ✅
-Suites encourages focusing on behavior rather than implementation details. By making it easy to test outcomes rather than interactions, Suites helps create tests that are resilient to refactoring while still providing strong verification.
+Suites encourages focusing on behavior rather than implementation details. By making it easy to test outcomes rather than interactions, Suites helps create tests that are resilient to refactoring while still providing strong verification. Adhering to principles like the [Single Responsibility Principle and clear API design](../developer-guide/design-for-testability/unit-clarity-responsibility.md), and ensuring you [don't expose internals](../developer-guide/design-for-testability/defensive-coding-maintenance.md#don-t-expose-internals), further enhances this resilience.
 
 ### 5. Difficulty Scaling Testing Efforts 📈
 
@@ -60,7 +62,7 @@ Suites encourages focusing on behavior rather than implementation details. By ma
 As applications grow, maintaining test suites becomes increasingly complex. Dependencies multiply, test setup becomes more complicated, and test run times increase.
 
 **Suites Solution:** ✅
-Suites' architecture scales effortlessly from small applications to large enterprise systems. Its optimized approach to dependency mocking improves test performance, and its consistent patterns keep complexity manageable even as your application grows.
+Suites' architecture scales effortlessly from small applications to large enterprise systems. Its optimized approach to dependency mocking improves test performance, and its consistent patterns keep complexity manageable even as your application grows. This scalability is greatly aided when applications are designed with principles like [decomposing large units and limiting dependencies](../developer-guide/design-for-testability/unit-clarity-responsibility.md#decompose-large-units).
 
 ### 6. Integration Between Different Testing Libraries 🔌
 

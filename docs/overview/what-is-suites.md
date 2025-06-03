@@ -1,7 +1,7 @@
 ---
-sidebar_position: 1
+sidebar_position: 2
 title: What is Suites?
-description: What is Suites?
+description: Understanding what Suites is and how it can help you write better tests
 toc_min_heading_level: 3
 ---
 
@@ -26,6 +26,10 @@ Suites integrates with your existing testing libraries and DI frameworks, such a
 NestJS and InversifyJS. Through this integration, Suites provides specialized tools and utilities that make it easier to 
 write, run, and manage tests for dependency-injected classes. It handles the complexity of mocking dependencies and managing
 the DI container, which lets developers focus on writing meaningful tests.
+
+:::info Want to become a Suites expert?
+Visit **[Suites Academy](/academy/)** for in-depth tutorials on design principles, advanced testing strategies, and architectural patterns that will help you get the most out of Suites.
+:::
 
 ## Prerequisites
 
