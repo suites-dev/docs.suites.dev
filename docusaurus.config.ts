@@ -120,16 +120,7 @@ const config: Config = {
           return undefined;
         },
       },
-    ],
-    [
-      '@docusaurus/plugin-content-docs',
-      {
-        id: 'academy',
-        path: 'academy',
-        routeBasePath: 'academy',
-        sidebarPath: require.resolve('./config/sidebarsAcademy.js'),
-      },
-    ],
+    ]
   ],
   themeConfig: {
     metadata: [
@@ -184,12 +175,6 @@ const config: Config = {
           to: '/docs/developer-guide/unit-tests/',
           position: 'left',
           label: 'Unit Testing',
-        },
-        {
-          to: '/academy',
-          position: 'right',
-          html: '<img src="/img/icons/academy-icon.svg" alt="Suites Academy" class="navbar-icon academy-icon" /> Suites Academy',
-          className: 'header-academy-link',
         },
         {
           href: 'https://github.com/suites-dev/suites',
