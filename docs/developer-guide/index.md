@@ -59,3 +59,13 @@ If you encounter challenges or have questions while using Suites, consider these
 - Check the [GitHub Discussions](https://github.com/suites-dev/suites/discussions) for community support
 - Review the [examples repository](https://github.com/suites-dev/examples) for practical implementations
 - Search for existing issues or create a new one on [GitHub Issues](https://github.com/suites-dev/suites/issues)
+
+## Dive Deeper
+
+Explore the following sections to master testing with Suites:
+
+*   **[Suites Academy](/academy): Dive deep into design principles and advanced testing strategies to make your code inherently easier to test.**
+*   [Unit Tests](./unit-tests/index.md): Understand how to write solitary and sociable unit tests, and leverage Suites' mocking capabilities.
+*   [Adapters](./adapters/index.md): Discover how to integrate Suites with various DI frameworks and mocking libraries.
+
+For a quick start, check out our [Overview section](../../overview/quickstart).

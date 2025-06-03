@@ -76,6 +76,8 @@ Suites adapters work by:
 3. **Mapping Dependencies** - Connecting your code's dependencies to test doubles
 4. **Providing Type Safety** - Ensuring type-safe access to mocked dependencies
 
+This process is most effective when your application code adheres to [established principles for testable design](../design-for-testability/index.md), particularly around how dependencies are declared and injected.
+
 This approach allows Suites to provide a consistent API regardless of which DI framework you're using, while still respecting the specific characteristics of each framework.
 
 <div class="next-steps-section">

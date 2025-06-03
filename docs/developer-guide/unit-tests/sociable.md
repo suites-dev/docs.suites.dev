@@ -8,7 +8,7 @@ description: Testing real component interactions with Suites
 
 ## Introduction
 
-Sociable unit tests focus on testing a component with its real dependencies while still controlling the dependencies of those dependencies. This approach ensures that you verify how components actually interact in a controlled environment, providing more realistic validation than solitary tests.
+Sociable unit tests focus on testing a component with its real dependencies while still controlling the dependencies of *those* dependencies. This approach ensures that you verify how components actually interact in a controlled environment, providing more realistic validation than solitary tests. Ideally, the "real" dependencies you include in sociable tests are themselves well-designed, adhering to principles like the [Single Responsibility Principle](../design-for-testability/unit-clarity-responsibility.md#single-responsibility-principle-srp) and being [pure or stateless](../design-for-testability/code-structure-simplicity.md#pure-functions-when-possible) where possible, and are thoroughly [tested in isolation](./solitary.md).
 
 :::note When to use sociable tests
 Sociable tests are ideal when:
@@ -146,9 +146,15 @@ When using sociable tests, keep the following points in mind:
 
 Even though sociable tests let you test real interactions, they should still focus on testing the outcomes (return values, state changes) rather than implementation details.
 
-**2. Avoid Excessive Exposure**
+**2. Avoid Excessive Exposure & Distinguish from Integration Tests**
 
-Don't expose too many classes in a single test. The more classes you expose, the closer your test gets to being an integration test, potentially making it slower and more brittle.
+Don't expose too many classes in a single test. The more classes you expose, the test might *feel* like it's approaching an integration test, but it's crucial to remember that **Suites' sociable tests are still unit tests.**
+
+*   **No Real I/O:** A key distinction is that true integration tests often involve real I/O operations (e.g., hitting an actual database or making live network calls). Suites' sociable unit tests, by design, **do not perform real I/O**. Even if an `.expose()`-d collaborator (like `UserApi` in our example) normally has a dependency that performs I/O (like `HttpService`), Suites will *still mock that I/O-performing dependency* of the exposed collaborator. The "sociable" interaction is confined to the logical collaboration between your unit and its in-memory collaborators.
+*   **Focus:** Sociable tests verify the contract and interaction logic between a few closely related, trusted, in-memory units. Integration tests verify the flow through multiple components, often including external systems.
+*   **Brittleness/Slowness:** If a sociable test becomes brittle or slow, it's usually because too many *logical units* are being tested together, increasing complexity, not because of external I/O.
+
+Strive to keep your units focused, aligning with the [Single Responsibility Principle and clear API design](../design-for-testability/unit-clarity-responsibility.md).
 
 **3. Complementary to Solitary Tests**
 
@@ -173,6 +179,26 @@ beforeAll(async () => {
   httpService = unitRef.get(HttpService);
 });
 ```
+
+## Sociable Unit Tests vs. Integration Tests: A Clear Distinction
+
+It's important to clearly differentiate Suites' sociable unit tests from traditional integration tests:
+
+*   **Sociable Unit Tests (Suites):**
+    *   **Purpose:** Test the direct interaction and contract between a primary unit and one or more of its immediate, *in-memory* collaborators.
+    *   **Scope:** Uses real instances for specified collaborators (`.expose()`).
+    *   **I/O Handling:** **Crucially, any dependencies of these exposed collaborators that would perform I/O (e.g., database access, HTTP calls) are *still automatically mocked by Suites***. This ensures the test remains fast, deterministic, and free of external system dependencies.
+    *   **Focus:** Verifying logical collaboration and data flow between in-memory objects.
+    *   **Tooling:** Achieved with `TestBed.sociable()`.
+
+*   **Integration Tests (General Concept):**
+    *   **Purpose:** Verify the interaction between multiple components, modules, or services, potentially including their connections to external systems like databases, message queues, or other microservices.
+    *   **Scope:** Can involve several layers of the application and real external infrastructure (often a test/staging version).
+    *   **I/O Handling:** Often involve **real I/O operations** to test the full integration path.
+    *   **Focus:** Ensuring different parts of the system (or different systems) work together correctly, including their data persistence and communication mechanisms.
+    *   **Tooling:** Typically involve different setup, test runners, and potentially tools like Docker Compose for managing external services. Not directly managed by Suites' `TestBed` for unit tests.
+
+**In summary:** Suites' sociable tests allow you to test how your well-designed, in-memory objects work together, while still ensuring that all external I/O is mocked out. This maintains the speed and reliability expected of unit tests. True integration tests are a separate, valuable layer of testing that sociable unit tests do not replace.
 
 ## What's Next?
 

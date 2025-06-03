@@ -6,6 +6,7 @@ title: InversifyJS Identifiers
 # Working with InversifyJS Identifiers 🧠
 
 InversifyJS has unique concepts like different binding types and custom decorators that affect how you work with dependency injection. This guide covers InversifyJS-specific features and how Suites integrates with them.
+All these patterns assume that dependencies are resolved and passed via [constructor injection](/academy/dependencies-side-effects#constructor-only-injection), which is a core principle for testability that Suites fully supports.
 
 <div class="in-this-section">
 

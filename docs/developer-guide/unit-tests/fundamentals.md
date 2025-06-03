@@ -35,7 +35,11 @@ In traditional software testing literature, a "unit" refers to the smallest test
 
 **In Suites, a unit is typically a class that represents a logical component of your application.**
 
-This definition acknowledges that in DI-based applications, classes are the natural boundaries for business logic and functionality. By focusing on classes as units, Suites aligns with how developers naturally structure their applications.
+This definition acknowledges that in DI-based applications, classes are the natural boundaries for business logic and functionality. By focusing on classes as units, Suites aligns with how developers naturally structure their applications. Of course, for a class to be an effective "unit," it should ideally adhere to [sound design principles for testability](../design-for-testability/index.md).
+
+:::tip Want to master testable architecture?
+For a deep dive into designing your classes for optimal testability with Suites, including principles like SRP, dependency management, and isolating I/O, check out our **[Design for Testability modules in Suites Academy](/academy/)**.
+:::
 
 ## The Value of Unit Testing
 
@@ -43,7 +47,7 @@ Unit testing delivers several key benefits that improve both your codebase and d
 
 1. **Early Bug Detection** - Catch issues at the earliest possible stage of development, when they're least expensive to fix. By testing individual components in isolation, you can identify and resolve problems before they ripple through your application.
 
-2. **Improved Design** - Writing tests for individual units encourages better software design. When a unit is easy to test, it's often because it has clear responsibilities, minimal dependencies, and a well-defined interface—all hallmarks of good design.
+2. **Improved Design** - Writing tests for individual units encourages better software design. When a unit is easy to test, it's often because it has clear responsibilities, minimal dependencies, and a well-defined interface—all hallmarks of good design. Exploring [design for testability principles](../design-for-testability/index.md) can further enhance this.
 
 3. **Safer Refactoring** - With a comprehensive suite of unit tests, you can refactor code with confidence. Tests serve as a safety net, immediately alerting you if changes break existing functionality.
 
@@ -114,11 +118,11 @@ Whether solitary or sociable, effective unit tests share these key qualities:
 
 2. **Reliable** - Tests should produce consistent results when run repeatedly under the same conditions. Flaky tests that sometimes pass and sometimes fail undermine confidence in the test suite.
 
-3. **Isolated** - Each test should be independent of other tests. One test should not affect the state or behavior of another test, as this can lead to unpredictable test runs and difficult debugging.
+3. **Isolated** - Each test should be independent of other tests. One test should not affect the state or behavior of another test, as this can lead to unpredictable test runs and difficult debugging. Key to this is properly [isolating I/O and external interactions](../design-for-testability/boundaries-interactions.md). Suites helps enforce this by always mocking I/O boundaries, even for the deeper dependencies of real collaborators in [sociable tests](./sociable.md).
 
-4. **Readable** - Tests should clearly express their intent. A well-written test serves as documentation, helping other developers understand what the code should do.
+4. **Readable** - Tests should clearly express their intent. A well-written test serves as documentation, helping other developers understand what the code should do. Good [test naming conventions and defensive coding practices](../design-for-testability/defensive-coding-maintenance.md) contribute significantly to readability.
 
-5. **Maintainable** - As the codebase evolves, tests should be easy to update. Overly complex or brittle tests can become a maintenance burden that slows development.
+5. **Maintainable** - As the codebase evolves, tests should be easy to update. Overly complex or brittle tests can become a maintenance burden that slows development. Adhering to [principles of clarity and simplicity in code structure](../design-for-testability/code-structure-simplicity.md) helps here.
 
 ## Suites' Approach to Unit Testing
 

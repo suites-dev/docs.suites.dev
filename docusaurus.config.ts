@@ -8,7 +8,8 @@ const config: Config = {
   organizationName: 'suites-dev',
   url: 'https://suites.dev',
   baseUrl: '/',
-  onBrokenLinks: 'ignore',
+  trailingSlash: false,
+  onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.png',
   projectName: 'suites',
@@ -30,6 +31,7 @@ const config: Config = {
       '@docusaurus/preset-classic',
       {
         docs: {
+          id: 'default',
           path: 'docs',
           routeBasePath: 'docs',
           sidebarPath: require.resolve('./config/docs-sidebars.js'),
@@ -45,6 +47,87 @@ const config: Config = {
           trackingID: 'G-G7FJBNFPJJ',
           anonymizeIP: true,
         },
+      },
+    ],
+  ],
+  plugins: [
+    [
+      '@docusaurus/plugin-client-redirects',
+      {
+        redirects: [
+          // Core redirects from old automock.dev structure
+          {
+            from: '/docs/api-reference',
+            to: '/docs/developer-guide/unit-tests/suites-api',
+          },
+          {
+            from: '/docs/extras/deep-mocking',
+            to: '/docs/developer-guide/unit-tests/test-doubles',
+          },
+          {
+            from: '/docs/guides',
+            to: '/docs/developer-guide',
+          },
+          {
+            from: '/docs/unit-tests',
+            to: '/docs/developer-guide/unit-tests',
+          },
+          {
+            from: '/docs/sociable-unit-tests',
+            to: '/docs/developer-guide/unit-tests/sociable',
+          },
+          {
+            from: '/docs/get-started/installation',
+            to: '/docs/overview/installation',
+          },
+          {
+            from: '/docs/adapters/identifiers',
+            to: '/docs/developer-guide/adapters/identifiers',
+          },
+          {
+            from: '/docs/adapters/intro',
+            to: '/docs/developer-guide/adapters',
+          },
+          {
+            from: '/docs/migrating',
+            to: '/docs/overview/migrating-from-automock',
+          },
+          {
+            from: '/api-reference/api/testbedbuilder-api',
+            to: '/docs/developer-guide/unit-tests/suites-api',
+          },
+          // Additional likely redirects from automock.dev
+          {
+            from: '/docs/overview/depdency-injection-and-automock',
+            to: '/docs/overview/what-is-suites',
+          },
+          {
+            from: '/docs/fundamentals',
+            to: '/docs/developer-guide/unit-tests/fundamentals',
+          },
+          {
+            from: '/docs/mocking',
+            to: '/docs/developer-guide/unit-tests/test-doubles',
+          },
+        ],
+        createRedirects(existingPath) {
+          // Handle trailing slash variations
+          if (existingPath.includes('/docs/')) {
+            return [
+              existingPath.endsWith('/') ? existingPath.slice(0, -1) : existingPath + '/',
+            ];
+          }
+          return undefined;
+        },
+      },
+    ],
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'academy',
+        path: 'academy',
+        routeBasePath: 'academy',
+        sidebarPath: require.resolve('./config/sidebarsAcademy.js'),
       },
     ],
   ],
@@ -70,8 +153,9 @@ const config: Config = {
       { property: 'og:type', content: 'website' }
     ],
     colorMode: {
-      disableSwitch: true,
       defaultMode: 'dark',
+      disableSwitch: true,
+      respectPrefersColorScheme: false,
     },
     algolia: algoliaConfig,
     navbar: {
@@ -87,6 +171,11 @@ const config: Config = {
           label: 'Docs',
         },
         {
+          to: '/docs/overview/installation',
+          position: 'left',
+          label: 'Installation',
+        },
+        {
           to: '/docs/overview/quickstart',
           position: 'left',
           label: 'Quick Start',
@@ -95,6 +184,12 @@ const config: Config = {
           to: '/docs/developer-guide/unit-tests/',
           position: 'left',
           label: 'Unit Testing',
+        },
+        {
+          to: '/academy',
+          position: 'right',
+          html: '<img src="/img/icons/academy-icon.svg" alt="Suites Academy" class="navbar-icon academy-icon" /> Suites Academy',
+          className: 'header-academy-link',
         },
         {
           href: 'https://github.com/suites-dev/suites',

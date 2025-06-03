@@ -11,6 +11,8 @@ toc_min_heading_level: 3
 
 Effective unit testing is essential for maintaining high-quality code in applications built with dependency injection. This section explores how Suites provides specialized tools and patterns to make testing DI-based applications more efficient, consistent, and maintainable.
 
+**Before diving into the specifics of unit testing with Suites, we highly recommend exploring our guide on [Design for Testability](../design-for-testability/index.md). Understanding these core principles will significantly enhance your ability to write effective and maintainable tests, as Suites is designed to work best with well-structured, testable code.**
+
 <div class="in-this-section">
 
 ### In This Section

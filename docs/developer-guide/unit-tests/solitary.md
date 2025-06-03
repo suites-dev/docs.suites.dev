@@ -8,7 +8,7 @@ description: Testing in isolation with Suites
 
 ## Introduction
 
-Solitary unit tests aim to evaluate a single unit of work in complete isolation from its external dependencies. These tests use mocks (collections of stubs) to replace dependencies, making it possible to test the behavior of a component without being affected by its collaborators.
+Solitary unit tests aim to evaluate a single unit of work in complete isolation from its external dependencies. These tests use mocks (collections of stubs) to replace dependencies, making it possible to test the behavior of a component without being affected by its collaborators. This approach aligns strongly with principles like the [Single Responsibility Principle](../design-for-testability/unit-clarity-responsibility.md#single-responsibility-principle-srp) and [isolating I/O boundaries](../design-for-testability/boundaries-interactions.md#isolate-external-calls-the-adaptergateway-pattern).
 
 :::note When to use solitary tests
 Solitary tests are ideal when:
@@ -125,6 +125,8 @@ describe('UserService Tests', () => {
 });
 ```
 
+This example works smoothly because `UserService` adheres to key [testability principles](../design-for-testability/index.md) such as [constructor-only injection](../design-for-testability/dependencies-side-effects.md#constructor-only-injection) for its dependencies (`UserApi`, `Database`), which Suites leverages for automatic mocking.
+
 > 💡 The `Mocked<T>` type is used to type the mock instances where each method has been replaced with a stub. This type is provided by the `@suites/unit` package and relies on the mocking library used in the test environment.
 
 **Automatic Mocking of Dependencies**
@@ -155,7 +157,7 @@ A key innovation in Suites' solitary testing approach is the "virtual DI contain
 - **Simplicity**: Reduces boilerplate code for setting up tests
 - **Precision**: Creates only the dependencies needed for the test
 - **Framework Integration**: Works with your DI framework's existing annotations
-- **Isolation**: Ensures complete isolation of the unit under test
+- **Isolation**: Ensures complete isolation of the unit under test, a core tenet of [designing for testability](../design-for-testability/index.md) and crucial for reliable unit tests.
 
 ### How It Works Behind the Scenes
 

@@ -8,7 +8,7 @@ description: Understanding test doubles and Suites' approach to testing
 
 ## Introduction
 
-When writing unit tests, we often need to replace real dependencies with simpler objects that we can control. These replacements are called "test doubles" (think stunt doubles in movies). While there are several types of test doubles in testing literature, Suites takes an opinionated approach to help you write more maintainable tests.
+When writing unit tests, we often need to replace real dependencies with simpler objects that we can control. These replacements are called "test doubles" (think stunt doubles in movies). This is especially crucial for dependencies that perform I/O or have complex internal logic, which should be [isolated behind clear boundaries](../design-for-testability/boundaries-interactions.md). While there are several types of test doubles in testing literature, Suites takes an opinionated approach to help you write more maintainable tests.
 
 ## Origins in Testing Theory
 
@@ -37,9 +37,9 @@ When you see `Mocked<UserRepository>` in Suites, it refers to a complete replace
 
 ## Suites' Philosophy on Test Doubles
 
-In Suites, we believe that the best unit tests focus on behavior and outcomes rather than implementation details. This belief shapes our approach to test doubles:
+In Suites, we believe that the best unit tests focus on behavior and outcomes rather than implementation details. This belief shapes our approach to test doubles and is strongly supported by [designing for testability](../design-for-testability/index.md) from the outset:
 
-1. We generate **mocks** (collections of stubs) for dependencies in solitary tests
+1. We generate **mocks** (collections of stubs) for dependencies in solitary tests. This is most effective when dependencies are [injected via constructors](../design-for-testability/dependencies-side-effects.md#constructor-only-injection) and units have [clear responsibilities](../design-for-testability/unit-clarity-responsibility.md).
 2. We use **real implementations** with [sociable tests](/docs/developer-guide/unit-tests/sociable) for testing interactions
 3. We discourage interaction verification with stubs as it often leads to brittle tests
 

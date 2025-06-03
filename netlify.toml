@@ -1,9 +1,88 @@
+# Netlify Configuration File
+# Server-side redirects for old automock.dev paths to new suites.dev paths
+
+# Core redirects from old automock.dev structure
 [[redirects]]
-from = "/api-reference"
-to = "/docs"
-status = 301
+  from = "/docs/api-reference"
+  to = "/docs/developer-guide/unit-tests/suites-api"
+  status = 301
+  force = true
 
 [[redirects]]
-from = "/docs/getting-started/change-log"
-to = "/docs/overview/migrating-from-automock"
-status = 301
+  from = "/docs/extras/deep-mocking"
+  to = "/docs/developer-guide/unit-tests/test-doubles"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/docs/guides"
+  to = "/docs/developer-guide"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/docs/unit-tests"
+  to = "/docs/developer-guide/unit-tests"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/docs/sociable-unit-tests"
+  to = "/docs/developer-guide/unit-tests/sociable"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/docs/get-started/installation"
+  to = "/docs/overview/installation"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/docs/adapters/identifiers"
+  to = "/docs/developer-guide/adapters/identifiers"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/docs/adapters/intro"
+  to = "/docs/developer-guide/adapters"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/docs/migrating"
+  to = "/docs/overview/migrating-from-automock"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/api-reference/api/testbedbuilder-api"
+  to = "/docs/developer-guide/unit-tests/suites-api"
+  status = 301
+  force = true
+
+# Additional likely redirects from automock.dev
+[[redirects]]
+  from = "/docs/overview/depdency-injection-and-automock"
+  to = "/docs/overview/what-is-suites"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/docs/fundamentals"
+  to = "/docs/developer-guide/unit-tests/fundamentals"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/docs/mocking"
+  to = "/docs/developer-guide/unit-tests/test-doubles"
+  status = 301
+  force = true
+
+# Handle trailing slash variations
+[[redirects]]
+  from = "/docs/*/"
+  to = "/docs/:splat"
+  status = 301

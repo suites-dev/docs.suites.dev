@@ -6,7 +6,7 @@ title: Suites Testing API
 # Suites Testing API
 
 Suites provides a comprehensive and flexible API for setting up and managing unit tests. Whether you're writing solitary
-unit tests or sociable unit tests, Suites simplifies the process with a consistent and semantic interface.
+unit tests or sociable unit tests, Suites simplifies the process with a consistent and semantic interface. The effectiveness of this API is maximized when your application code adheres to [sound design principles for testability](../design-for-testability/index.md).
 
 ## Terminology Clarification
 
@@ -19,7 +19,7 @@ In Suites, we use the following terminology:
 ## Solitary Unit Tests
 
 Solitary unit tests focus on testing a single unit of work in complete isolation from its dependencies. In Suites,
-the `TestBed.solitary()` method is used to create a test environment where all dependencies are automatically mocked.
+the `TestBed.solitary()` method is used to create a test environment where all dependencies are automatically mocked. This is particularly effective when units have [clear responsibilities and limited dependencies](../design-for-testability/unit-clarity-responsibility.md) and properly [isolate I/O operations](../design-for-testability/boundaries-interactions.md).
 
 ### Example Setup
 
@@ -46,7 +46,7 @@ For a detailed guide on solitary unit tests, refer to [Solitary Unit Tests](/doc
 ## Sociable Unit Tests
 
 Sociable unit tests involve testing a unit of work in the context of its interactions with real implementations of its
-immediate dependencies. The `TestBed.sociable()` method is used to set up such tests.
+immediate dependencies. The `TestBed.sociable()` method is used to set up such tests. For this to be effective, the "real" [exposed dependencies should ideally be pure, stateless, and independently tested](../design-for-testability/code-structure-simplicity.md#pure-functions-when-possible).
 
 > 💡 When using `TestBed.sociable()`, there must be at least one invocation of the `.expose()` method.
 
@@ -145,7 +145,7 @@ mocked dependencies within the test context.
 ### Using `unitRef.get()`
 
 The `unitRef.get()` method allows you to retrieve mocked instances of the dependencies within the testing environment. It's
-particularly useful when you want to configure the behavior of stubbed methods or verify method calls. Here's a basic
+particularly useful when you want to configure the behavior of stubbed methods or verify method calls. This relies on dependencies being provided via [constructor injection](../design-for-testability/dependencies-side-effects.md#constructor-only-injection), which Suites uses to identify and manage them. Here's a basic
 usage example:
 
 ```typescript
