@@ -1,0 +1,70 @@
+.heroBanner {
+    padding: 6rem 0;
+    text-align: center;
+    background-color: transparent;
+    color: var(--theme-text);
+    box-shadow: none;
+    border: none;
+}
+
+.title {
+    font-size: 4rem;
+    color: var(--ifm-color-primary);
+    font-weight: 700;
+    text-shadow: none;
+    letter-spacing: -1px;
+}
+
+.subtitle {
+    color: var(--theme-text);
+    font-size: 1.5rem;
+    font-weight: 400;
+    max-width: 50em;
+    margin: 0 auto;
+    line-height: 1.8rem;
+}
+
+.button {
+    font-size: 1.2rem;
+    padding: 10px 30px;
+    border: 2px solid var(--ifm-color-primary);
+    transition: background 0.3s, transform 0.3s;
+}
+
+.button:hover {
+    background-color: var(--ifm-color-primary-light);
+    transform: translateY(-3px);
+}
+
+.docs {
+    padding: 4rem 0;
+    background-color: transparent;
+    color: var(--theme-text);
+    box-shadow: none;
+    border: none;
+}
+
+.docs h1 {
+    font-size: 3.5rem;
+    color: var(--ifm-color-primary);
+    font-weight: 700;
+    text-shadow: none;
+    letter-spacing: -1px;
+}
+
+.docs p {
+    color: var(--theme-text);
+    font-size: 1.2rem;
+    font-weight: 400;
+    max-width: 60em;
+    margin: 0 auto;
+    line-height: 1.8rem;
+}
+
+.codeBlock {
+    margin: 2rem auto;
+    padding: 1rem;
+    background-color: var(--theme-card-bg);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+} 

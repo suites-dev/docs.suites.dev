@@ -15,25 +15,21 @@ function HomepageHeader() {
         </div>
         <div className={'row'}>
           <p className={styles.subtitle}>
-            A unit testing framework for dependency injection that automates mocking, simplifies test setup, 
-            and enables developers to build comprehensive and reliable test suites.
+            Master unit testing for dependency injection. Suites automates mocking and simplifies test setup, 
+            so you can build reliable and comprehensive test suites, faster.
           </p>
         </div>
-        <div className={'row'} style={{ maxWidth: '600px', margin: '20px auto' }}>
-          <div className={'col'}>
+        <div className={styles.buttons}>
             <Link
-              className={`${styles.button} button button--outline button--primary`}
+            className={`button button--outline button--primary ${styles.button}`}
               to="/docs">
-              Read the Docs
+            <i className="fas fa-book-open"></i> Read the Docs
             </Link>
-          </div>
-          <div className={'col'}>
             <Link
-              className={`${styles.button} button button--outline button--primary`}
+            className={`button button--outline button--primary ${styles.button}`}
               to="https://github.com/suites-dev/suites">
-              Source Code
+            <i className="fas fa-code"></i> Source Code
             </Link>
-          </div>
         </div>
       </div>
     </header>
@@ -42,12 +38,16 @@ function HomepageHeader() {
 
 export default function Home(): JSX.Element {
   return (
-    <Layout>
+    <div className={styles.homePage}>
+      <Layout 
+        wrapperClassName={styles.homeWrapper}
+        noFooter={true}>
       <Head>
         <title>Suites | Unit Testing Framework for Dependency Injection</title>
         <meta name="description" content="Suites automates mocking and simplifies test setup for dependency injection frameworks like NestJS and InversifyJS, reducing boilerplate code." />
       </Head>
       <HomepageHeader/>
     </Layout>
+    </div>
   );
 }

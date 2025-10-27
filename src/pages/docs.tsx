@@ -1,165 +1,151 @@
 import React from 'react';
-import { ExploreLink, HomepageFeatures } from '@site/src/components/HomepageFeatures';
 import Layout from '@theme/Layout';
-import styles from './index.module.css';
 import CodeBlock from '@theme/CodeBlock';
 import Link from '@docusaurus/Link';
 import Head from '@docusaurus/Head';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBook, faBolt, faLayerGroup, faCode } from '@fortawesome/free-solid-svg-icons';
+import styles from './docs.module.css';
 
-function MainPage() {
-  return (
-    <div className={`container ${styles.docs}`}>
-      <div className={'row'} style={{ padding: '10px' }}>
-        <h1>Welcome to Suites</h1>
-        <p>
-          <strong>
-            Suites is a <a href="/docs/overview/what-is-suites#suites-as-a-meta-framework">progressive, flexible
-            unit-testing framework</a> aimed at elevating the software testing experience within backend systems working
-            with dependency injection frameworks.
-          </strong>
-        </p>
-        <p>
-          Suites provides a unified testing experience that combines best practices, industry standards, and a wide
-          range
-          of testing tools to help developers create robust, maintainable, and scalable test suites, thereby ensuring
-          the
-          development of high-quality software.
-        </p>
-
-        <HomepageFeatures />
-      </div>
-
-      <div className={'row'} style={{ marginTop: 50 }}>
-        <h2>Supported Mocking Libraries and Dependency Injection Frameworks</h2>
-        <p>
-          Suites works seamlessly with popular mocking libraries and dependency injection frameworks.
-          This means that you can leverage the full power of these libraries and frameworks while enjoying the
-          convenience and flexibility that Suites provides.
-        </p>
-        <Libraries />
-      </div>
-
-      <div className={'row'} style={{ marginTop: '50px', padding: '0 20px' }}>
-        <h2>Fluent and Convenient API for Unit Testing</h2>
-        <p>
-          <Link to="/docs/developer-guide/unit-tests/suites-api">Suites offers a fluent, convenient, and semantic
-            API</Link> that makes writing tests a pleasure. The intuitive design of the API ensures that you can quickly
-          set up your tests and focus on verifying the behavior of your application.
-        </p>
-
-        <div className={styles.codeBlock}>
-          <CodeBlock language="typescript" title="user.service.spec.ts" className={styles.codeBlock}>
-            {`import { TestBed } from '@suites/unit';
-import type { Mocked } from '@suites/unit';
-
-describe('User Service Unit Spec', () => {
-  let underTest: UserService; // 🧪 Declare the unit under test
-  let userApi: Mocked<UserApi>; // 🎭 Declare a mocked dependency
-
-  beforeAll(async () => {
-    // 🚀 Create an isolated test env for the unit (under test) + auto generated mock objects
-    const { unit, unitRef } = await TestBed.solitary(UserService).compile();
-
-    underTest = unit;
-    
-    // 🔍 Retrieve a dependency (mock) from the unit
-    userApi = unitRef.get(UserApi);
-  });
-
-  // ✅ Test test test
-  it('should generate a random user and save to the database', async () => {
-    userApi.getRandom.mockResolvedValue({id: 1, name: 'John'} as User);
-    await underTest.generateRandomUser();
-    expect(database.saveUser).toHaveBeenCalledWith(userFixture);
-  });
-}`}
-          </CodeBlock>
-          <ExploreLink/>
-        </div>
-      </div>
-
-      <div className={'row'} style={{ marginTop: 20 }}>
-        <h2>Getting Started</h2>
-        <p>
-          Ready to get started with Suites? Check out the <Link to="/docs/overview/">documentation overview</Link> to
-          learn more about
-          Suites and how you can use it to improve your testing experience.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-export default function HomePage() {
-  return (
-    <Layout>
-      <Head>
-        <title>Welcome | Suites Documentation</title>
-      </Head>
-      <MainPage/>
-    </Layout>
-  );
-}
-
-
-interface LibraryItem {
-  title: string;
-  link: string;
-  img: string;
-  name: string;
-}
-
-const libraries: LibraryItem[] = [
-  {
-    title: 'Jest',
-    link: 'https://jestjs.io/',
-    img: '/img/jest-logo.png',
-    name: 'Jest'
-  },
-  {
-    title: 'Sinon',
-    link: 'https://sinonjs.org/',
-    img: '/img/sinon-logo.png',
-    name: 'Sinon'
-  },
-  {
-    title: 'Vitest',
-    link: 'https://vitest.io/',
-    img: '/img/vitest-logo.png',
-    name: 'Vitest'
-  },
-  {
-    title: 'NestJS',
-    link: 'https://docs.nestjs.com',
-    img: '/img/nestjs-logo.png',
-    name: 'NestJS'
-  },
-  {
-    title: 'Inversify',
-    link: 'https://inversify.io/',
-    img: '/img/inversify-logo.png',
-    name: 'Inversify'
-  },
+const libraries = [
+  { name: 'Jest', logo: '/img/jest-logo.png', url: 'https://jestjs.io/' },
+  { name: 'Sinon', logo: '/img/sinon-logo.png', url: 'https://sinonjs.org/' },
+  { name: 'Vitest', logo: '/img/vitest-logo.png', url: 'https://vitest.dev/' },
+  { name: 'NestJS', logo: '/img/nestjs-logo.png', url: 'https://nestjs.com/' },
+  { name: 'Inversify', logo: '/img/inversify-logo.png', url: 'https://inversify.io/' },
 ];
 
-function Library({title, name, img, link}: LibraryItem) {
+export default function DocsPage() {
   return (
-    <Link href={link} title={name} className={styles.libraryLink}>
-      <img src={img} alt={title} className={styles.libraryImage}/>
-    </Link>
-  );
-}
+    <Layout wrapperClassName={styles.pageWithGradient}>
+      <Head>
+        <title>Documentation | Suites</title>
+        <meta name="description" content="Explore the official documentation for Suites, a progressive unit-testing framework for dependency injection." />
+      </Head>
+      <main className={styles.docsPage}>
+        <header className={styles.header}>
+          <h1>A Modern Approach to Unit Testing</h1>
+          <p>
+            Suites is a progressive framework that elevates the testing experience 
+            by automating mocks and simplifying setup for dependency injection systems.
+          </p>
+        </header>
 
-function Libraries(): JSX.Element {
-  return (
-    <div className={`container ${styles.libraries}`}>
-      <div className="row" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
-        {libraries.map((props, idx) => (
-          <div key={idx} className={`col col--2 ${styles.library}`} style={{ display: 'flex', justifyContent: 'center' }}>
-            <Library key={idx} {...props} />
+        <section className={styles.alternatingSection}>
+          <div className={styles.textColumn}>
+            <div className={styles.eyebrow}>Productivity</div>
+            <h2>Zero-Setup, Automatic Mocking</h2>
+            <p>
+              Say goodbye to manual mocking. Suites automatically generates mocks 
+              for all your dependencies, letting you focus on writing meaningful tests, 
+              not boilerplate.
+            </p>
+            <Link className={styles.ctaCard} to="/docs/overview/quickstart">
+              <FontAwesomeIcon icon={faBolt} className={styles.ctaIcon} />
+              <div className={styles.ctaText}>
+                <strong>Learn about Mocking</strong>
+                <span>Learn more →</span>
+              </div>
+            </Link>
           </div>
-        ))}
-      </div>
-    </div>
+          <div className={styles.visualColumn}>
+            <CodeBlock language="typescript" title="user.service.spec.ts" className={styles.codeBlock}>
+{`// No manual mocks needed!
+// Just compile the testbed for your class.
+const { unit, unitRef } = await TestBed
+  .solitary(UserService)
+  .compile();
+
+// Retrieve any dependency as a fully-typed mock.
+const userApi = unitRef.get(UserApi);
+
+// Focus on the test logic.
+userApi.get.mockResolvedValue({ name: 'John' });`}
+            </CodeBlock>
+          </div>
+        </section>
+        
+        <section className={styles.alternatingSection}>
+          <div className={styles.textColumn}>
+            <div className={styles.eyebrow}>Flexibility</div>
+            <h2>Flexible and Scalable by Design</h2>
+            <p>
+              Whether you're working on a small microservice or a large-scale 
+              monolith, Suites' flexible architecture adapts to your needs, 
+              ensuring your test suites remain maintainable as your project grows.
+            </p>
+            <Link className={styles.ctaCard} to="/docs/developer-guide/unit-tests/sociable">
+               <FontAwesomeIcon icon={faLayerGroup} className={styles.ctaIcon} />
+               <div className={styles.ctaText}>
+                <strong>Explore Test Strategies</strong>
+                <span>Learn more →</span>
+              </div>
+            </Link>
+          </div>
+          <div className={styles.visualColumn}>
+             <CodeBlock language="typescript" title="Test different scenarios" className={styles.codeBlock}>
+{`// Test a class in complete isolation
+TestBed.solitary(OrderService).compile();
+
+// Or, test how it integrates with a real dependency
+TestBed.sociable(OrderService)
+  .expose(PaymentProcessor) // Use the real class
+  .compile();`}
+            </CodeBlock>
+          </div>
+        </section>
+
+        <section className={styles.alternatingSection}>
+          <div className={styles.textColumn}>
+            <div className={styles.eyebrow}>API Design</div>
+            <h2>An Intuitive, Fluent API</h2>
+            <p>
+              Suites provides a clean and semantic API that makes writing tests a pleasure. 
+              The intuitive design of the TestBed builder keeps your test code readable and maintainable.
+            </p>
+            <Link className={styles.ctaCard} to="/docs/developer-guide/unit-tests/suites-api">
+               <FontAwesomeIcon icon={faCode} className={styles.ctaIcon} />
+              <div className={styles.ctaText}>
+                <strong>Browse the API Reference</strong>
+                <span>Learn more →</span>
+              </div>
+            </Link>
+          </div>
+          <div className={styles.visualColumn}>
+             <CodeBlock language="typescript" title="Readable test setup" className={styles.codeBlock}>
+{`const { unit, unitRef } = await TestBed
+  .solitary(ComplexService)
+  .mock(Logger) // Override with a custom mock
+  .provide({
+    // Provide custom values or configurations
+    token: 'API_KEY', 
+    value: 'test-api-key' 
+  })
+  .compile();`}
+            </CodeBlock>
+          </div>
+        </section>
+
+        <section className={styles.librariesSection}>
+          <h2>Seamless Integration</h2>
+          <p>Works with the tools you already know and love.</p>
+          <div className={styles.libraries}>
+            {libraries.map((lib) => (
+              <Link href={lib.url} title={lib.name} key={lib.name}>
+                <img src={lib.logo} alt={lib.name} className={styles.libraryLogo} />
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section className={styles.finalCta}>
+            <h2>Ready to Dive In?</h2>
+            <p>Explore our quick start guide and begin writing better tests in minutes.</p>
+            <Link className={'button button--primary button--lg'} to="/docs/overview/quickstart" style={{marginTop: '1rem'}}>
+                <FontAwesomeIcon icon={faBook} style={{marginRight: '0.75rem'}}/> Get Started
+            </Link>
+        </section>
+      </main>
+    </Layout>
   );
 }

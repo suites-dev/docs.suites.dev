@@ -3,63 +3,151 @@
  * and scoped locally.
  */
 
+/* Homepage wrapper and layout styles */
+.homePage {
+    background-image: linear-gradient(180deg, #1c1c1e 50%, #2a1a1e 100%);
+    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.homeWrapper {
+    background-color: transparent;
+    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Hide footer on homepage */
+.homeWrapper :global(.footer),
+.homePage :global(.footer),
+.homePage :global(footer) {
+    display: none !important;
+}
+
+/* Dark navbar for homepage - stronger selectors */
+.homePage :global(.navbar),
+.homePage :global(.navbar--fixed-top) {
+    background-color: transparent !important;
+    border-bottom: none !important;
+    backdrop-filter: blur(10px);
+    box-shadow: none !important;
+}
+
+.homePage :global(.navbar__inner) {
+    background-color: transparent !important;
+}
+
+.homePage :global(.navbar__brand),
+.homePage :global(.navbar__brand:hover) {
+    color: #fff !important;
+}
+
+.homePage :global(.navbar__item),
+.homePage :global(.navbar__item > a) {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.homePage :global(.navbar__link),
+.homePage :global(.navbar__item .navbar__link) {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.homePage :global(.navbar__link:hover),
+.homePage :global(.navbar__item .navbar__link:hover) {
+    color: var(--ifm-color-primary) !important;
+}
+
+.homePage :global(.navbar__toggle) {
+    color: #fff !important;
+}
+
+/* Ensure the Academy link glow still works on dark background */
+.homePage :global(.header-academy-link) {
+    color: var(--ifm-color-primary) !important;
+}
+
+/* Dark mode toggle button */
+.homePage :global(.navbar .react-toggle) {
+    opacity: 1 !important;
+}
+
+.homePage :global(.navbar .react-toggle-track) {
+    background-color: rgba(255, 255, 255, 0.3) !important;
+}
+
 .heroBanner {
     font-family: 'Inter', sans-serif;
-    padding: 4rem 0;
+    padding: 2rem;
     text-align: center;
     position: relative;
     overflow: hidden;
-    height: 48rem;
-    color: #2f2f2f;
-    background-color: #242526;
+    height: calc(100vh - 60px); /* 60px is navbar height */
+    color: #fff;
+    background-color: transparent; /* A slightly softer black */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 @media screen and (max-width: 996px) {
     .heroBanner {
-        padding: 2rem;
+        padding: 4rem 1rem;
     }
 }
 
 .title {
-    font-family: 'Inter', sans-serif;
-    font-size: 3.35rem;
+    font-family: 'Barlow', sans-serif;
+    font-size: 5rem;
     color: rgba(239, 71, 121, 1);
-    font-weight: bold;
+    font-weight: 700;
     width: 100%;
-    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    letter-spacing: -1.75px;
+    text-shadow: 0 0 5px rgba(239, 71, 121, 0.25);
+    letter-spacing: -2px;
+    margin-bottom: 1.5rem;
 }
 
 .subtitle {
-    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    color: rgba(253, 245, 248, 0.88);
+    text-shadow: none;
+    color: rgba(253, 245, 248, 0.8);
     font-family: 'Inter', sans-serif;
-    font-size: 1.2rem;
-    font-weight: 500;
-    max-width: 40em;
-    margin: 0 auto;
-    line-height: 2.25rem;
+    font-size: 1.45rem;
+    font-weight: 400;
+    max-width: 45em;
+    margin: 0 auto 3rem auto;
+    line-height: 1.8;
 }
 
 .buttons {
-    max-width: 50% !important;
-    font-family: 'Inter', sans-serif;
-    margin-top: 50px;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
 .button {
+    margin: 1rem;
     font-family: 'Inter', sans-serif;
-    font-size: 1.15rem;
-    padding: 8px 24px;
-    width: 12em;
-    margin: 10px;
-    border: 3px solid rgba(239, 71, 121, 1);
+    font-size: 1.1rem;
+    padding: 12px 24px;
+    min-width: 220px;
+    border: 2px solid rgba(239, 71, 121, 1);
+    color: var(--ifm-color-primary) !important;
+    background-color: transparent;
+    border-radius: 8px;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
 }
 
 .button:hover {
-    transition: background 0.3s;
-    text-decoration: none;
-    color: #2f2f2f;
+    background-color: rgba(239, 71, 121, 0.1);
+    color: #fff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(239, 71, 121, 0.2);
 }
 
 .logo {
@@ -68,18 +156,40 @@
 
 .docs {
     margin: 0 auto;
-    max-width: 1272px;
-    padding: 60px 16px 24px;
+    max-width: 1100px;
+    padding: 5rem 0 3rem 0;
     font-family: 'Inter', sans-serif;
+    background: none;
+    box-shadow: none;
+    border: none;
 }
 
 .docs h1 {
-    font-size: 3rem;
+    font-size: 3.2rem;
+    color: var(--ifm-color-primary);
+    font-weight: 800;
+    text-shadow: none;
+    letter-spacing: -1px;
+    margin-bottom: 1.5rem;
+}
+
+.docs p {
+    color: var(--theme-text);
+    font-size: 1.2rem;
+    font-weight: 400;
+    max-width: 60em;
+    margin: 0 auto 1.5rem auto;
+    line-height: 2rem;
 }
 
 .codeBlock {
     max-width: 100%;
-    margin: 0 auto;
+    margin: 2.5rem auto;
+    padding: 1.5rem;
+    background: var(--theme-section-bg);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid var(--theme-border);
 }
 
 .libraries {

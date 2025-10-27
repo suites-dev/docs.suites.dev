@@ -21,6 +21,13 @@ const config: Config = {
         href: 'https://fonts.googleapis.com',
       },
     },
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'stylesheet',
+        href: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css',
+      },
+    },
   ],
   i18n: {
     defaultLocale: 'en',
@@ -40,7 +47,11 @@ const config: Config = {
           ],
         },
         theme: {
-          customCss: require.resolve('./src/css/custom.css'),
+          customCss: [
+            require.resolve('./src/css/custom.css'),
+            require.resolve('./src/css/academy-doc-layout.css'),
+            require.resolve('./src/css/academy-doc-content.css'),
+          ],
         },
         blog: false,
         gtag: {
@@ -120,7 +131,16 @@ const config: Config = {
           return undefined;
         },
       },
-    ]
+    ],
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'academy',
+        path: 'academy',
+        routeBasePath: 'academy',
+        sidebarPath: require.resolve('./config/sidebarsAcademy.js'),
+      },
+    ],
   ],
   themeConfig: {
     metadata: [
@@ -177,6 +197,12 @@ const config: Config = {
           label: 'Unit Testing',
         },
         {
+          to: '/academy',
+          position: 'right',
+          html: '<i class="fas fa-graduation-cap"></i> Suites Academy',
+          className: 'header-academy-link',
+        },
+        {
           href: 'https://github.com/suites-dev/suites',
           position: 'right',
           className: 'header-github-link',
@@ -187,4 +213,4 @@ const config: Config = {
   },
 };
 
-export default config;
+export default config; 

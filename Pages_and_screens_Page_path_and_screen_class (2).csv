@@ -1,0 +1,63 @@
+# ----------------------------------------
+# Pages and screens: Page path and screen class
+# Account: Suites
+# Property: Suites Website
+# ----------------------------------------
+# 
+# All Users
+# Start date: 20250303
+# End date: 20250531
+Page path and screen class,Views,Active users,Views per active user,Average engagement time per active user,Event count,Key events,Total revenue
+/docs,722,236,3.059322033898305,30.27542372881356,1037,0,0
+/docs/developer-guide/unit-tests/,646,197,3.279187817258883,13.944162436548224,763,0,0
+/docs/developer-guide/unit-tests/solitary,639,163,3.920245398773006,41.2760736196319,778,0,0
+/,637,305,2.088524590163934,9.37049180327869,1638,0,0
+/docs/overview/quickstart,482,150,3.2133333333333334,33.24666666666667,569,0,0
+/docs/developer-guide/unit-tests/sociable,468,126,3.7142857142857144,62.13492063492063,583,0,0
+/docs/developer-guide/unit-tests/test-doubles,376,117,3.213675213675214,56.52991452991453,449,0,0
+/docs/developer-guide/unit-tests/fundamentals,368,128,2.875,30.265625,401,0,0
+/docs/developer-guide/,366,155,2.361290322580645,16.309677419354838,521,0,0
+/docs/overview/quickstart/,318,169,1.8816568047337279,19.059171597633135,847,0,0
+/docs/developer-guide/unit-tests/suites-api,313,100,3.13,68.29,373,0,0
+/docs/developer-guide/adapters/,273,106,2.5754716981132075,26.660377358490567,319,0,0
+/docs/overview/,258,123,2.097560975609756,27.170731707317074,479,0,0
+/docs/developer-guide/adapters/identifiers,255,75,3.4,35.373333333333335,297,0,0
+/docs/overview/installation,253,83,3.0481927710843375,41.30120481927711,298,0,0
+/docs/,236,156,1.5128205128205128,14.833333333333334,840,0,0
+/docs/overview/problems-solved,228,86,2.6511627906976742,26.651162790697676,253,0,0
+/docs/overview/migrating-from-automock,222,90,2.466666666666667,29.11111111111111,255,0,0
+/docs/developer-guide/unit-tests/suites-api/,166,92,1.8043478260869565,30.869565217391305,481,0,0
+/docs/overview/installation/,165,78,2.1153846153846154,44.243589743589745,460,0,0
+/docs/developer-guide/unit-tests/sociable/,123,74,1.662162162162162,24.027027027027028,390,0,0
+/docs/overview/what-is-suites,120,46,2.608695652173913,16.608695652173914,132,0,0
+/docs/overview/migrating-from-automock/,75,53,1.4150943396226414,29.735849056603772,244,0,0
+/docs/developer-guide/unit-tests/solitary/,72,36,2,15,182,0,0
+/docs/developer-guide/adapters/inversifyjs,67,33,2.0303030303030303,20.939393939393938,79,0,0
+/docs/developer-guide/unit-tests/test-doubles/,45,19,2.3684210526315788,9.263157894736842,158,0,0
+/docs/overview/problems-solved/,40,28,1.4285714285714286,13.464285714285714,99,0,0
+/docs/developer-guide/adapters/identifiers/,23,14,1.6428571428571428,22.714285714285715,54,0,0
+/docs/api-reference,21,19,1.105263157894737,0.631578947368421,85,0,0
+/docs/overview/examples,18,15,1.2,1,67,0,0
+/docs/developer-guide/unit-tests/fundamentals/,16,13,1.2307692307692308,5.3076923076923075,42,0,0
+/docs/developer-guide/adapters/inversifyjs/,15,8,1.875,8.625,35,0,0
+/docs/developer-guide/unit-tests,12,6,2,2.6666666666666665,14,0,0
+/docs/unit-tests,12,6,2,15.5,13,0,0
+/docs/guides,11,6,1.8333333333333333,58.5,14,0,0
+/docs/overview/what-is-suites/,11,8,1.375,9.75,21,0,0
+/docs/extras/deep-mocking/,10,6,1.6666666666666667,8.5,35,0,0
+/docs/developer-guide/adapters,9,4,2.25,8.25,9,0,0
+/docs/overview/depdency-injection-and-automock/,6,4,1.5,3.75,21,0,0
+/docs/overview/depdency-injection-and-automock,5,2,2.5,4.5,14,0,0
+/docs/overview/examples/,4,4,1,2,19,0,0
+/docs/adapters/identifiers/,3,3,1,1.3333333333333333,14,0,0
+/docs/adapters/intro/,3,3,1,0.3333333333333333,12,0,0
+/docs/migrating/,3,2,1.5,4.5,13,0,0
+/docs/adapters/identifiers,2,1,2,2,8,0,0
+/docs/developer-guide,2,1,2,68,2,0,0
+/docs/sociable-unit-tests,2,1,2,44,2,0,0
+/search/,2,1,2,0,7,0,0
+/api-reference/api/testbedbuilder-api,1,1,1,1,3,0,0
+/docs/get-started/installation,1,1,1,83,1,0,0
+/docs/robots,1,1,1,3,3,0,0
+/robot,1,1,1,1,3,0,0
+/robots,1,1,1,1,3,0,0

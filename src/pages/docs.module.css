@@ -1,0 +1,271 @@
+/* suites.dev/src/pages/docs.module.css */
+
+.pageWithGradient {
+    background-image: linear-gradient(160deg, #1c1c1e 0%, #2a1a1e 100%);
+}
+
+/* Dark theme for the page */
+:global(html[data-theme='dark']) .docsPage {
+    background-color: transparent;
+}
+
+.docsPage {
+    padding: 4rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: transparent;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 6rem;
+}
+
+.header h1 {
+    font-family: 'Barlow', sans-serif;
+    font-size: 4.5rem;
+    font-weight: 800;
+    color: var(--ifm-color-primary);
+    margin-bottom: 1.5rem;
+    letter-spacing: -2px;
+}
+
+:global(html[data-theme='dark']) .header p {
+     color: #aeb8c4;
+}
+.header p {
+    font-size: 1.5rem;
+    color: var(--ifm-color-gray-dark);
+    max-width: 55ch;
+    margin: 0 auto;
+    line-height: 1.7;
+}
+
+.alternatingSection {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: stretch;
+    margin-bottom: 6rem;
+}
+
+.alternatingSection:last-of-type {
+    margin-bottom: 4rem;
+}
+
+/* Reverse order for even-numbered sections */
+.alternatingSection:nth-child(even) .textColumn {
+    order: 2;
+}
+
+.textColumn {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.eyebrow {
+    color: var(--ifm-color-primary);
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    letter-spacing: 0.5px;
+    justify-content: center;
+}
+
+.textColumn h2 {
+    font-family: 'Barlow', sans-serif;
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    line-height: 1.3;
+}
+
+:global(html[data-theme='dark']) .textColumn h2 {
+    color: #fff;
+}
+
+.textColumn p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #aeb8c4;
+    margin-bottom: 2rem;
+}
+
+:global(html[data-theme='light']) .textColumn p {
+     color: var(--ifm-color-gray-dark);
+}
+
+.ctaCard {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background-color: #2a2a2e;
+    border: 1px solid #3c3c3c;
+    border-radius: 12px;
+    padding: 1.25rem;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.ctaCard:hover {
+    background-color: #313135;
+    border-color: #555;
+    transform: translateY(-2px);
+    text-decoration: none;
+}
+
+.ctaIcon {
+    font-size: 1.25rem;
+    color: var(--ifm-color-primary);
+    background-color: rgba(239, 71, 121, 0.1);
+    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ctaText {
+    display: flex;
+    flex-direction: column;
+}
+
+.ctaText strong {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 0.25rem;
+}
+
+.ctaText span {
+    color: #aeb8c4;
+    font-weight: 500;
+}
+
+.visualColumn {
+    border: 1px solid #3c3c3c;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: transparent;
+}
+
+/* Style the title bar of the code block */
+.visualColumn :global(div[class*="codeBlockTitle_"]) {
+    background-color: #36363a; /* Lighter grey for the title */
+    padding: 0.75rem 1.25rem;
+    color: #d1d5db;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+}
+
+/* Style the main code area */
+.visualColumn :global(pre) {
+    background-color: #2a2a2e; /* The darker background */
+    margin: 0 !important;
+    padding: 1.25rem;
+    border-radius: 0 !important;
+    flex-grow: 1; /* Make it fill the space */
+}
+
+.codeBlock {
+    margin: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background-color: transparent !important;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.finalCta {
+    text-align: center;
+    background-color: transparent;
+    padding: 4rem 2rem;
+    border-radius: 16px;
+    margin-top: 4rem;
+    border: 1px solid #3c3c3c;
+}
+
+.finalCta h2 {
+    font-family: 'Barlow', sans-serif;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #fff;
+}
+
+:global(html[data-theme='dark']) .finalCta p {
+    color: #aeb8c4;
+}
+
+.finalCta p {
+    font-size: 1.2rem;
+    color: var(--ifm-color-gray-dark);
+    margin-bottom: 2rem;
+}
+
+.librariesSection {
+    text-align: center;
+    padding: 4rem 0;
+}
+
+.librariesSection h2 {
+    font-family: 'Barlow', sans-serif;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.libraries {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+}
+
+.libraryLogo {
+    height: 35px;
+    opacity: 0.6;
+    transition: all 0.3s ease;
+    filter: grayscale(100%);
+}
+
+.libraryLogo:hover {
+    opacity: 1;
+    filter: grayscale(0%);
+    transform: scale(1.05);
+}
+
+@media (max-width: 996px) {
+    .alternatingSection {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .alternatingSection:nth-child(even) .textColumn {
+        order: 1;
+    }
+    
+    .visualColumn {
+        margin-top: 2rem;
+    }
+    
+    .header h1 {
+        font-size: 3.5rem;
+    }
+
+    .header p {
+        font-size: 1.25rem;
+    }
+
+    .textColumn h2 {
+        font-size: 2.2rem;
+    }
+} 

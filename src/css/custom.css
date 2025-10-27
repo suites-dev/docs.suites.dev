@@ -11,345 +11,368 @@
 @import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&family=Inter:wght@100..900&display=swap');
 
 :root {
-  /* Primary Colors */
-  --ifm-color-primary: rgba(239,71,121,1); /* Bright Pink */
-  --ifm-color-primary-light: #FF9EBB; /* Light Pink */
-  --ifm-color-primary-dark: #750e2d; /* Dark Pink */
+    /* Primary Colors */
+    --ifm-color-primary: rgba(239,71,121,1); /* Bright Pink */
+    --ifm-color-primary-light: #FF9EBB; /* Light Pink */
+    --ifm-color-primary-dark: #750e2d; /* Dark Pink */
 
-  /* Complementary and Neutral Shades */
-  --ifm-color-accent: #522E38; /* Deep Mauve, works as a darker, neutral complement */
-  --ifm-color-secondary: #FFC2D4; /* Soft Pink, lighter and less saturated */
-  --ifm-background-color: #ffffff; /* Very Light Pink, ideal for backgrounds */
-  --ifm-background-color-dark: #602437; /* Deep Reddish Brown, good for dark mode backgrounds or accents */
+    /* Complementary and Neutral Shades */
+    --ifm-color-accent: #522E38; /* Deep Mauve, works as a darker, neutral complement */
+    --ifm-color-secondary: #FFC2D4; /* Soft Pink, lighter and less saturated */
+    --ifm-background-color: #ffffff; /* Very Light Pink, ideal for backgrounds */
+    --ifm-background-color-dark: #602437; /* Deep Reddish Brown, good for dark mode backgrounds or accents */
 
-  /* Utility Colors */
-  --ifm-color-success: #52c41a; /* A fresh green for success messages, not from pink range but provides contrast */
-  --ifm-color-error: #f5222d; /* Vivid red for errors, enhancing visibility */
-  --ifm-color-warning: #faad14; /* Bright yellow for warnings, stands out in the pink context */
-  --ifm-color-info: #1890ff; /* Blue, for informational messages, contrasts well with pink */
+    /* Utility Colors */
+    --ifm-color-success: #52c41a; /* A fresh green for success messages, not from pink range but provides contrast */
+    --ifm-color-error: #f5222d; /* Vivid red for errors, enhancing visibility */
+    --ifm-color-warning: #faad14; /* Bright yellow for warnings, stands out in the pink context */
+    --ifm-color-info: #1890ff; /* Blue, for informational messages, contrasts well with pink */
 
-  /* Neutral Grays (useful for typography, borders, etc.) */
-  --ifm-color-gray: #8A2846; /* This is a grayish pink, quite muted */
-  --ifm-color-gray-dark: rgb(86, 90, 98); /* Dark gray, close to charcoal */
-  --ifm-color-gray-darker: #262b34ff; /* Even darker, great for high contrast elements */
-  --ifm-color-gray-light: #f2f4f4ff; /* Light gray for background contrasts and space */
+    /* Neutral Grays (useful for typography, borders, etc.) */
+    --ifm-color-gray: #8A2846; /* This is a grayish pink, quite muted */
+    --ifm-color-gray-dark: rgb(86, 90, 98); /* Dark gray, close to charcoal */
+    --ifm-color-gray-darker: #262b34ff; /* Even darker, great for high contrast elements */
+    --ifm-color-gray-light: #f2f4f4ff; /* Light gray for background contrasts and space */
 
-  /* Theme colors (light mode default) */
-  --theme-background: #ffffff;
-  --theme-text: #333333;
-  --theme-border: rgba(0, 0, 0, 0.1);
-  --theme-section-bg: #f8f9fa;
-  --theme-section-border: var(--ifm-color-primary);
-  --theme-card-bg: rgba(253, 245, 248, 0.4);
-  --theme-card-hover-shadow: rgba(0, 0, 0, 0.05);
-  --theme-card-text: var(--ifm-color-gray-dark);
+    /* Theme colors (light mode default) */
+    --theme-background: #ffffff;
+    --theme-text: #333333;
+    --theme-border: rgba(0, 0, 0, 0.1);
+    --theme-section-bg: #f8f9fa;
+    --theme-section-border: var(--ifm-color-primary);
+    --theme-card-bg: rgba(253, 245, 248, 0.4);
+    --theme-card-hover-shadow: rgba(0, 0, 0, 0.05);
+    --theme-card-text: var(--ifm-color-gray-dark);
 
-  /* Set color scheme support */
-  color-scheme: light dark;
+    /* Set color scheme support */
+    color-scheme: light dark;
 }
 
 /* Dark mode colors */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --theme-background: #1a1a1a;
-    --theme-text: #e6e6e6;
-    --theme-border: rgba(255, 255, 255, 0.1);
-    --theme-section-bg: #2d2d2d;
-    --theme-section-border: var(--ifm-color-primary);
-    --theme-card-bg: rgba(45, 45, 45, 0.7);
-    --theme-card-hover-shadow: rgba(0, 0, 0, 0.2);
-    --theme-card-text: #c4c4c4;
+    :root {
+        --theme-background: #1a1a1a;
+        --theme-text: #e6e6e6;
+        --theme-border: rgba(255, 255, 255, 0.1);
+        --theme-section-bg: #2d2d2d;
+        --theme-section-border: var(--ifm-color-primary);
+        --theme-card-bg: rgba(45, 45, 45, 0.7);
+        --theme-card-hover-shadow: rgba(0, 0, 0, 0.2);
+        --theme-card-text: #c4c4c4;
 
-    /* Override docusaurus dark mode colors */
-    --ifm-background-color: var(--theme-background);
-    --ifm-font-color-base: var(--theme-text);
-  }
+        /* Override docusaurus dark mode colors */
+        --ifm-background-color: var(--theme-background);
+        --ifm-font-color-base: var(--theme-text);
+    }
 }
 
 html {
-  position: relative;
-  min-height: 450px;
-  background-color: var(--theme-background);
-  color: var(--theme-text);
+    position: relative;
+    min-height: 450px;
+    background-color: var(--theme-background);
+    color: var(--theme-text);
 }
 
 body {
-  font-family: "Inter", sans-serif;
-  font-size: 17px;
-  font-weight: 400;
-  -webkit-font-smoothing: antialiased;
-  background-color: var(--theme-background);
-  color: var(--theme-text);
+    font-family: "Inter", sans-serif;
+    font-size: 17px;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    background-color: var(--theme-background);
+    color: var(--theme-text);
 }
 
 * {
-  outline: 0 !important;
+    outline: 0 !important;
 }
 
 a:hover {
-  text-decoration: none;
+    text-decoration: none;
 }
 
 /* Custom link state styling */
 main a {
-  color: var(--ifm-color-primary);
-  text-decoration: none;
-  transition: all 0.2s ease;
+    color: var(--ifm-color-primary);
+    text-decoration: none;
+    transition: all 0.2s ease;
 }
 
 main a:hover {
-  text-decoration: underline;
+    text-decoration: underline;
 }
 
 /* Fix for the active link state (when clicked) - only for content */
 main a:active {
-  color: var(--ifm-color-primary) !important; /* Keep original color */
-  text-decoration: underline !important; /* Add underline for visual feedback */
+    color: var(--ifm-color-primary) !important; /* Keep original color */
+    text-decoration: underline !important; /* Add underline for visual feedback */
 }
 
 /* Documentation links */
 .markdown a {
-  color: var(--ifm-color-primary);
-  font-weight: 500;
+    color: var(--ifm-color-primary);
+    font-weight: 500;
 }
 
 .markdown a:active {
-  color: var(--ifm-color-primary) !important;
-  text-decoration: underline !important;
+    color: var(--ifm-color-primary) !important;
+    text-decoration: underline !important;
 }
 
 /* Table of contents links */
 .table-of-contents__link:active {
-  color: var(--ifm-color-primary) !important;
-  text-decoration: underline !important;
+    color: var(--ifm-color-primary) !important;
+    text-decoration: underline !important;
 }
 
 /* Sidebar menu links - excluding from active state color change */
 .menu__link:active {
-  text-decoration: underline !important;
+    text-decoration: underline !important;
 }
 
 /* Fix admonition/info cube links and borders */
 .alert {
-  border: none !important;
-  border-radius: 0;
-  border-left-width: 6px !important;
-  border-left-style: solid !important;
-  box-shadow: none;
+    border: none !important;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px var(--theme-card-hover-shadow);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
 }
 
 .alert a {
-  color: #ffffff !important;
-  font-weight: 600;
-  text-decoration: underline;
+    color: #ffffff !important;
+    font-weight: 600;
+    text-decoration: underline;
 }
 
 .alert a:hover {
-  opacity: 0.8;
+    opacity: 0.8;
 }
 
 /* Specific alert type styling */
 .alert--info {
-  border-left-color: var(--ifm-color-info) !important;
+    border-left-color: var(--ifm-color-info) !important;
+    background-color: var(--theme-card-bg);
+    border-left-width: 6px !important;
+    border-left-style: solid !important;
 }
 
 .alert--success {
-  border-left-color: var(--ifm-color-success) !important;
+    border-left-color: var(--ifm-color-success) !important;
+    background-color: var(--theme-card-bg);
+    border-left-width: 6px !important;
+    border-left-style: solid !important;
 }
 
 .alert--warning {
-  border-left-color: var(--ifm-color-warning) !important;
+    border-left-color: var(--ifm-color-warning) !important;
+    background-color: var(--theme-card-bg);
+    border-left-width: 6px !important;
+    border-left-style: solid !important;
 }
 
 .alert--danger {
-  border-left-color: var(--ifm-color-error) !important;
+    border-left-color: var(--ifm-color-error) !important;
+    background-color: var(--theme-card-bg);
+    border-left-width: 6px !important;
+    border-left-style: solid !important;
 }
 
 .next-steps-section h2 {
-  font-family: "Barlow", sans-serif;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-  color: var(--theme-text);
+    font-family: "Barlow", sans-serif;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: var(--theme-text);
 }
 
 .next-steps-section ul {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
-  list-style: none;
-  padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    list-style: none;
+    padding: 0;
 }
 
 .next-steps-section ul li {
-  background: var(--theme-card-bg);
-  border: 1px solid var(--theme-border);
-  border-radius: 8px;
-  padding: 1.25rem;
-  transition: all 0.2s ease;
+    background-color: var(--theme-card-bg);
+    border: 1px solid var(--theme-border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 0;
+    box-shadow: 0 2px 6px var(--theme-card-hover-shadow);
+    transition: all 0.2s ease;
 }
 
 .next-steps-section ul li:hover {
-  border-color: var(--ifm-color-primary-light);
-  box-shadow: 0 4px 12px var(--theme-card-hover-shadow);
-  transform: translateY(-2px);
+    border-color: var(--ifm-color-primary-light);
+    box-shadow: 0 4px 12px var(--theme-card-hover-shadow);
+    transform: translateY(-2px);
 }
 
 .next-steps-section ul li a {
-  display: block;
-  font-weight: 500;
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
-  color: var(--ifm-color-primary);
+    display: block;
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: var(--ifm-color-primary);
 }
 
 .next-steps-section ul li p {
-  color: var(--theme-card-text);
-  font-size: 0.95rem;
-  margin: 0;
+    color: var(--theme-card-text);
+    font-size: 0.95rem;
+    margin: 0;
 }
 
 /* In This Section component for index pages */
 .in-this-section {
-  margin: 2rem 0 3rem;
-  padding: 1.5rem 2rem;
-  background-color: var(--theme-section-bg);
-  border-radius: 12px;
-  border-left: 4px solid var(--theme-section-border);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    background-color: var(--theme-card-bg);
+    border: 1px solid var(--theme-border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    box-shadow: 0 2px 6px var(--theme-card-hover-shadow);
+    border-left: 4px solid var(--theme-section-border) !important;
+}
+
+.in-this-section:hover {
+    border-color: var(--ifm-color-primary-light);
+    box-shadow: 0 4px 12px var(--theme-card-hover-shadow);
+    transform: translateY(-2px);
+    border-left-color: var(--ifm-color-primary-light) !important;
 }
 
 .in-this-section h3 {
-  margin-top: 0;
-  margin-bottom: 1.5rem;
-  font-size: 1.35rem;
-  font-weight: 600;
-  color: var(--theme-text);
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--theme-text);
 }
 
 .in-this-section ul {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
-  margin: 0;
-  padding-left: 0;
-  list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
 }
 
 .in-this-section ul li {
-  position: relative;
-  padding-left: 1.5rem;
-  padding-bottom: 0.5rem;
-  color: var(--theme-text);
-  font-size: 1.05rem;
+    position: relative;
+    padding-left: 1.5rem;
+    padding-bottom: 0.5rem;
+    color: var(--theme-text);
+    font-size: 1.05rem;
 }
 
 .in-this-section ul li::before {
-  content: '›';
-  position: absolute;
-  left: 0;
-  top: 0;
-  color: var(--ifm-color-primary);
-  font-weight: bold;
-  font-size: 1.4rem;
+    content: '›';
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--ifm-color-primary);
+    font-weight: bold;
+    font-size: 1.4rem;
 }
 
 .in-this-section strong {
-  color: var(--theme-text);
-  font-weight: 600;
+    color: var(--theme-text);
+    font-weight: 600;
 }
 
 /* Replace generic h2:last-of-type selector with a specific class */
 .section-divider {
-  margin-top: 3rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--theme-border);
-  color: var(--theme-text);
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--theme-border);
+    color: var(--theme-text);
 }
 
 /* Update related selectors to use the new class */
 .section-divider + ul {
-  padding-left: 0;
+    padding-left: 0;
 }
 
 .section-divider + ul li {
-  list-style: none;
-  margin-bottom: 0.75rem;
-  color: var(--theme-text);
+    list-style: none;
+    margin-bottom: 0.75rem;
+    color: var(--theme-text);
 }
 
 .section-divider + ul li a {
-  font-weight: 500;
-  color: var(--ifm-color-primary);
+    font-weight: 500;
+    color: var(--ifm-color-primary);
 }
 
+/* Container with responsive design */
 .container {
-  margin-right: auto;
-  margin-left: auto;
-  padding-left: 10px;
-  padding-right: 10px;
+    margin-right: auto;
+    margin-left: auto;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 @media (min-width: 768px) {
-  .container {
-    width: 750px;
-  }
+    .container {
+        width: 750px;
+    }
 }
 
 @media (min-width: 992px) {
-  .container {
-    width: 970px;
-  }
+    .container {
+        width: 970px;
+    }
 }
 
 @media (min-width: 1200px) {
-  .container {
-    width: 1170px;
-  }
+    .container {
+        width: 1400px;
+    }
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-weight: 700;
-  margin-top: 0;
-  margin-bottom: 20px;
-  color: var(--theme-text);
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: var(--theme-text);
 }
 
 h1, h2 {
-  font-family: "Barlow", sans-serif;
+    font-family: "Barlow", sans-serif;
 }
 
 code[class*="language-"],
 pre[class*="language-"] {
-  font-family: "Inconsolata", monospace;
-  font-size: 1em;
-  font-weight: 500;
-  text-align: left;
-  word-spacing: normal;
-  word-break: normal;
-  word-wrap: normal;
-  line-height: 1.5;
-  -moz-tab-size: 4;
-  -o-tab-size: 4;
-  tab-size: 4;
+    font-family: "Inconsolata", monospace;
+    font-size: 1em;
+    font-weight: 500;
+    text-align: left;
+    word-spacing: normal;
+    word-break: normal;
+    word-wrap: normal;
+    line-height: 1.5;
+    -moz-tab-size: 4;
+    -o-tab-size: 4;
+    tab-size: 4;
 
-  -webkit-hyphens: none;
-  -moz-hyphens: none;
-  -ms-hyphens: none;
-  hyphens: none;
+    -webkit-hyphens: none;
+    -moz-hyphens: none;
+    -ms-hyphens: none;
+    hyphens: none;
 
-  @media print {
-    text-shadow: none;
-  }
+    @media print {
+        text-shadow: none;
+    }
 }
 
 /* code blocks */
 pre > code {
-  font-family: "Inconsolata", monospace;
-  border-top-left-radius: unset;
-  border-top-right-radius: unset;
-  overflow: hidden;
-  font-weight: 500;
-  border: 1px solid hsla(0,0%,100%,.05);
+    font-family: "Inconsolata", monospace;
+    border-top-left-radius: unset;
+    border-top-right-radius: unset;
+    overflow: hidden;
+    font-weight: 500;
+    border: 1px solid hsla(0,0%,100%,.05);
 }
 
 code .theme-code-block-highlighted-line {
@@ -357,73 +380,233 @@ code .theme-code-block-highlighted-line {
 }
 
 div[class*="codeBlockTitle_"] {
-  font-family: "Inter", sans-serif;
-  color: rgb(153 161 179/1);
-  background-color: rgb(35 39 47/1);
-  border: 1px solid hsla(0,0%,100%,.05);
-  border-bottom: none;
+    font-family: "Inter", sans-serif;
+    color: rgb(153 161 179/1);
+    background-color: rgb(35 39 47/1);
+    border: 1px solid hsla(0,0%,100%,.05);
+    border-bottom: none;
 }
 
 .theme-doc-breadcrumbs {
-  font-family: "Inter", sans-serif;
+    font-family: "Inter", sans-serif;
 }
 
 .docs-introduction {
-  width: 60%;
-  margin: 0 auto;
+    width: 60%;
+    margin: 0 auto;
 }
 
 .header-github-link:hover {
-  opacity: 0.6;
+    opacity: 0.6;
 }
 
 .header-github-link:before {
-  content: '';
-  width: 24px;
-  height: 24px;
-  display: flex;
-  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12'/%3E%3C/svg%3E")
-  no-repeat;
+    content: '';
+    width: 24px;
+    height: 24px;
+    display: flex;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12'/%3E%3C/svg%3E")
+    no-repeat;
 }
 
 html[data-theme='dark'] .header-github-link:before {
-  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='white' d='M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12'/%3E%3C/svg%3E")
-  no-repeat;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='white' d='M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12'/%3E%3C/svg%3E")
+    no-repeat;
 }
 
 /* Add a manual theme toggler, add this if you want a button to override system preference */
 .theme-toggle-button {
-  margin-left: 0.5rem;
-  padding: 0.4rem;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s;
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
+    margin-left: 0.5rem;
+    padding: 0.4rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
 }
 
 .theme-toggle-button:hover {
-  background-color: var(--theme-border);
+    background-color: var(--theme-border);
 }
 
 html[data-theme='dark'] .theme-toggle-button svg {
-  fill: #f5f5f5;
+    fill: #f5f5f5;
 }
 
 html[data-theme='light'] .theme-toggle-button svg {
-  fill: #2d2d2d;
+    fill: #2d2d2d;
 }
 
 /* Dark mode adjustments for components */
 @media (prefers-color-scheme: dark) {
-  .in-this-section {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  }
+    .in-this-section {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
 
-  .alert a {
-    color: #ffffff !important;
-  }
+    .alert a {
+        color: #ffffff !important;
+    }
+}
+
+/* New Content Box Style */
+.content-box {
+    background-color: var(--theme-card-bg);
+    border: 1px solid var(--theme-border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 6px var(--theme-card-hover-shadow);
+    transition: all 0.2s ease;
+}
+
+.content-box:hover {
+    border-color: var(--ifm-color-primary-light);
+    box-shadow: 0 4px 12px var(--theme-card-hover-shadow);
+    transform: translateY(-2px);
+}
+
+.content-box h3,
+.content-box h4 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: var(--ifm-color-primary);
+    font-family: "Barlow", sans-serif;
+    font-weight: 600;
+}
+
+.content-box p,
+.content-box ul li,
+.content-box ol li {
+    color: var(--theme-card-text);
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+}
+
+.content-box a {
+    color: var(--ifm-color-primary);
+    font-weight: 500;
+}
+
+.content-box a:hover {
+    text-decoration: underline;
+}
+
+/* Cards container styling for "Choose Your Path" and similar sections */
+.cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.cards-container .card {
+    background-color: var(--theme-card-bg);
+    border: 1px solid var(--theme-border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 6px var(--theme-card-hover-shadow);
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.cards-container .card:hover {
+    border-color: var(--ifm-color-primary-light);
+    box-shadow: 0 4px 12px var(--theme-card-hover-shadow);
+    transform: translateY(-2px);
+}
+
+.cards-container .card h4 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: var(--ifm-color-primary);
+    font-family: "Barlow", sans-serif;
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+/* Updated styling for h3 elements in cards */
+.cards-container .card h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: var(--ifm-color-primary);
+    font-family: "Barlow", sans-serif;
+    font-weight: 600;
+    font-size: 1.6rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.cards-container .card h3 svg {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+}
+
+.cards-container .card p {
+    color: var(--theme-card-text);
+    font-size: 0.95rem;
+    margin: 0;
+    flex-grow: 1;
+}
+
+.cards-container .card a {
+    color: var(--ifm-color-primary);
+    font-weight: 500;
+}
+
+.cards-container .card a:hover {
+    text-decoration: underline;
+}
+
+/* Add Font Awesome arrows to card links */
+.cards-container .card a::after {
+    content: '\f054'; /* Font Awesome arrow-right (same as academy) */
+    font-family: "Font Awesome 6 Free" !important;
+    font-weight: 900 !important;
+    transition: transform 0.3s ease;
+    font-size: 0.8rem;
+    margin-left: 0.5rem;
+}
+
+.cards-container .card a:hover::after {
+    transform: translateX(4px);
+}
+
+/* Add Font Awesome arrows to card buttons (for academy cards) */
+.cards-container .card .button::after {
+    content: '\f054'; /* Font Awesome chevron-right */
+    font-family: "Font Awesome 6 Free" !important;
+    font-weight: 900 !important;
+    transition: transform 0.3s ease;
+    font-size: 0.8rem;
+    margin-left: 0.5rem;
+}
+
+.cards-container .card .button:hover::after {
+    transform: translateX(4px);
+}
+
+.header-academy-link {
+    color: var(--ifm-color-primary);
+    text-shadow: 0 0 3px rgba(239,71,121,0.2);
+    filter: drop-shadow(0 0 1px rgba(239,71,121,0.2));
+    font-weight: 700;
+    transition: text-shadow 0.2s, filter 0.2s;
+}
+
+.header-academy-link i {
+    margin-right: 0.1em;
+    text-shadow: 0 0 2px rgba(239,71,121,0.3);
+    filter: drop-shadow(0 0 1px rgba(239,71,121,0.2));
+}
+
+.header-academy-link:hover {
+    text-shadow: 0 0 5px rgba(239,71,121,0.4);
+    filter: drop-shadow(0 0 2px rgba(239,71,121,0.3));
 }

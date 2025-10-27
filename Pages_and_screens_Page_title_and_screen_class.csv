@@ -1,0 +1,52 @@
+# ----------------------------------------
+# Pages and screens: Page title and screen class
+# Account: Suites
+# Property: Suites Website
+# ----------------------------------------
+# 
+# All Users
+# Start date: 20250303
+# End date: 20250531
+Page title and screen class,Views,Active users,Views per active user,Average engagement time per active user,Event count,Key events,Total revenue
+Welcome | Suites Documentation,953,333,2.8618618618618616,26.375375375375377,1867,0,0
+Quick Start | Suites Documentation,802,272,2.948529411764706,30.702205882352942,1416,0,0
+Unit Testing | Suites Documentation,660,200,3.3,14.44,779,0,0
+Suites Testing API | Suites Documentation,480,167,2.874251497005988,56.83233532934132,853,0,0
+Solitary Unit Tests | Suites Documentation,442,116,3.810344827586207,44.31896551724138,595,0,0
+Suites | Unit Testing Framework for Dependency Injection,436,220,1.981818181818182,12.277272727272727,1092,0,0
+Installation | Suites Documentation,417,130,3.207692307692308,52.292307692307695,754,0,0
+Fundamentals of Unit Testing | Suites Documentation,382,133,2.8721804511278197,28.954887218045112,441,0,0
+Sociable Unit Tests | Suites Documentation,376,114,3.2982456140350878,54.20175438596491,629,0,0
+Developer Guide | Suites Documentation,372,155,2.4,16.690322580645162,526,0,0
+Migrating from Automock | Suites Documentation,297,124,2.3951612903225805,33.37096774193548,499,0,0
+Dependency Injection Adapters | Suites Documentation,279,110,2.536363636363636,24.80909090909091,324,0,0
+Identifiers & Injection Tokens | Suites Documentation,267,79,3.3797468354430378,37.30379746835443,338,0,0
+What Problems Does Suites Solve? | Suites Documentation,266,107,2.485981308411215,23.411214953271028,351,0,0
+Solitary Unit Test Example | Suites Documentation,265,69,3.8405797101449277,29.782608695652176,360,0,0
+Overview | Suites Documentation,253,123,2.0569105691056913,26.869918699186993,471,0,0
+Test Doubles | Suites Documentation,230,71,3.23943661971831,63.83098591549296,306,0,0
+Sociable Unit Test Example | Suites Documentation,212,69,3.072463768115942,50.98550724637681,336,0,0
+Suites | A Testing Meta-Framework,200,92,2.1739130434782608,7.217391304347826,541,0,0
+"Mocks, Stubs, and Spies | Suites Documentation",196,59,3.3220338983050848,41.03389830508475,307,0,0
+What is Suites? | Suites Documentation,126,53,2.3773584905660377,15.09433962264151,147,0,0
+InversifyJS Identifiers | Suites Documentation,82,37,2.2162162162162162,21.89189189189189,114,0,0
+Page Not Found | Suites Documentation,75,57,1.3157894736842106,0.05263157894736842,254,0,0
+Suites Documentation,38,55,0.6909090909090909,9.381818181818181,95,0,0
+标识符 & 注入令牌 |套件文档 --- Identifiers & Injection Tokens | Suites Documentation,11,1,11,23,12,0,0
+Search the documentation | Suites Documentation,2,1,2,0,7,0,0
+从 Automock 迁移 |套件文档 --- Migrating from Automock | Suites Documentation,2,1,2,70,2,0,0
+孤立单元测试 |套件文档 --- Solitary Unit Tests | Suites Documentation,2,1,2,44,3,0,0
+API 测试套件 |文档套件 --- Suites Testing API | Suites Documentation,1,1,1,14,3,0,0
+Suites 解决了什么问题？|Suites 文档 --- What Problems Does Suites Solve? | Suites Documentation,1,1,1,0,1,0,0
+单元测试 |套件文档 --- Unit Testing | Suites Documentation,1,1,1,0,1,0,0
+测试替身 |套件文档 --- Test Doubles | Suites Documentation,1,1,1,0,1,0,0
+설치 | Suite 문서,1,2,0.5,15,2,0,0
+Adaptadores de inyección de dependencias | Documentación de Suites,0,1,0,60,1,0,0
+Identificadores y tokens de inyección | Documentación de Suites,0,1,0,28,1,0,0
+Inicio rápido | Documentación de suites,0,0,0,0,2,0,0
+Instalación | Documentación de Suites,0,1,0,216,2,0,0
+Suites Testing API | Suites 문서,0,1,0,98,1,0,0
+依存性注入アダプター |スイートのドキュメンテーション,0,1,0,33,1,0,0
+单独单元测试 | 套件文档,0,1,0,4,1,0,0
+欢迎光临 |套件文档 --- Welcome | Suites Documentation,0,1,0,33,2,0,0
+社交单元测试 | 套件文档,0,1,0,16,1,0,0

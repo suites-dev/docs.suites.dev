@@ -1,0 +1,460 @@
+/* Academy Document Layout Styles - Aligned with academy.module.css */
+
+/* Academy floating background animations */
+/*html.plugin-docs.plugin-id-academy body::before {*/
+/*  content: '';*/
+/*  position: fixed;*/
+/*  width: 500px;*/
+/*  height: 500px;*/
+/*  top: -10%;*/
+/*  left: -5%;*/
+/*  border-radius: 50%;*/
+/*  background: rgba(239, 71, 121, 0.15);*/
+/*  filter: blur(80px);*/
+/*  z-index: -2;*/
+/*  pointer-events: none;*/
+/*  animation: academyFloat1 20s ease-in-out infinite;*/
+/*}*/
+
+/*html.plugin-docs.plugin-id-academy body::after {*/
+/*  content: '';*/
+/*  position: fixed;*/
+/*  width: 600px;*/
+/*  height: 600px;*/
+/*  bottom: -10%;*/
+/*  right: -10%;*/
+/*  border-radius: 50%;*/
+/*  background: rgba(239, 71, 121, 0.10);*/
+/*  filter: blur(80px);*/
+/*  z-index: -2;*/
+/*  pointer-events: none;*/
+/*  animation: academyFloat2 25s ease-in-out infinite;*/
+/*}*/
+
+@keyframes academyFloat1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(80px, -60px) scale(1.2); }
+  66% { transform: translate(-60px, 40px) scale(0.85); }
+}
+
+@keyframes academyFloat2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-80px, -50px) scale(1.25); }
+  66% { transform: translate(60px, 80px) scale(0.9); }
+}
+
+html.plugin-docs.plugin-id-academy .main-wrapper {
+  padding-top: 0;
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+  background: #1a1a1c;
+  background-image: linear-gradient(135deg, #1a1a1c 0%, #2a1a2a 50%);
+  overflow-x: hidden;
+  height: 100%;
+  color: #f5f5f7;
+}
+
+html.plugin-docs.plugin-id-academy .container {
+  position: relative;
+  z-index: 1;
+  max-width: 1400px;
+}
+
+html.plugin-docs.plugin-id-academy .row {
+  margin: 0;
+}
+
+html.plugin-docs.plugin-id-academy .col {
+  padding: 0;
+}
+
+html.plugin-docs.plugin-id-academy .navbar--fixed-top,
+html.plugin-docs.plugin-id-academy .footer {
+  display: none;
+}
+
+/* Academy-themed main content container */
+html.plugin-docs.plugin-id-academy .docMainContainer_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage-Layout-Main-styles-module {
+  background: linear-gradient(135deg, rgba(44, 44, 46, 0.95), rgba(44, 44, 46, 0.9));
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  margin: 20px;
+  padding: 3rem;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(239, 71, 121, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Academy content gradient accent */
+html.plugin-docs.plugin-id-academy .docMainContainer_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage-Layout-Main-styles-module::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #ef4779, #ff8fab, #ef4779);
+  border-radius: 16px 16px 0 0;
+}
+
+/* Academy Typography - aligned with academy.module.css */
+html.plugin-docs.plugin-id-academy .markdown h1 {
+  color: #ef4779;
+  text-shadow: 0 0 10px rgba(239, 71, 121, 0.3), 0 0 20px rgba(239, 71, 121, 0.2);
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 2rem;
+  letter-spacing: -0.02em;
+  border-bottom: none;
+  font-family: "Barlow", sans-serif;
+}
+
+html.plugin-docs.plugin-id-academy .markdown h2 {
+  color: #f5f5f7;
+  border-bottom: 2px solid rgba(239, 71, 121, 0.5);
+  padding-bottom: 0.5rem;
+  margin-top: 3rem;
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  font-weight: 700;
+  font-family: "Barlow", sans-serif;
+}
+
+html.plugin-docs.plugin-id-academy .markdown h3,
+html.plugin-docs.plugin-id-academy .markdown h4,
+html.plugin-docs.plugin-id-academy .markdown h5,
+html.plugin-docs.plugin-id-academy .markdown h6 {
+  color: #f5f5f7;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  font-family: "Barlow", sans-serif;
+}
+
+html.plugin-docs.plugin-id-academy .markdown p,
+html.plugin-docs.plugin-id-academy .markdown li {
+  color: #d1d5db;
+  font-size: 1.125rem;
+  line-height: 1.8;
+}
+
+html.plugin-docs.plugin-id-academy .markdown ul,
+html.plugin-docs.plugin-id-academy .markdown ol {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+html.plugin-docs.plugin-id-academy .markdown ul {
+  list-style: disc;
+  padding-left: 2rem;
+}
+
+html.plugin-docs.plugin-id-academy .markdown ul li::marker {
+  color: #ef4779;
+}
+
+html.plugin-docs.plugin-id-academy .markdown ol {
+  list-style: decimal;
+  padding-left: 2rem;
+}
+
+html.plugin-docs.plugin-id-academy .markdown ol li::marker {
+  color: #ef4779;
+  font-weight: 600;
+}
+
+html.plugin-docs.plugin-id-academy .markdown strong {
+  color: #ff8fab;
+  font-weight: 600;
+}
+
+html.plugin-docs.plugin-id-academy .markdown em {
+  color: #ff8fab;
+  font-style: italic;
+}
+
+/* Academy link styling */
+html.plugin-docs.plugin-id-academy .markdown a {
+  color: #ff8fab;
+  font-weight: 500;
+  text-decoration: none;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+html.plugin-docs.plugin-id-academy .markdown a:hover {
+  color: #ef4779;
+  text-shadow: 0 0 8px rgba(239, 71, 121, 0.6);
+}
+
+/* Academy code styling */
+html.plugin-docs.plugin-id-academy .markdown :not(pre) > code {
+  background-color: rgba(44, 44, 46, 0.8);
+  color: #ff8fab;
+  border: 1px solid rgba(239, 71, 121, 0.25);
+  border-radius: 4px;
+  padding: 0.2em 0.4em;
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+html.plugin-docs.plugin-id-academy .markdown pre {
+  background: linear-gradient(135deg, rgba(44, 44, 46, 0.95), rgba(34, 34, 36, 0.9));
+  border: 1px solid rgba(239, 71, 121, 0.25);
+  border-radius: 12px;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+html.plugin-docs.plugin-id-academy .markdown pre code {
+  background: transparent;
+  border: none;
+  color: #d1d5db;
+  padding: 0;
+  font-size: inherit;
+}
+
+/* Academy blockquotes */
+html.plugin-docs.plugin-id-academy .markdown blockquote {
+  border-left: 4px solid #ef4779;
+  background-color: rgba(239, 71, 121, 0.08);
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  border-radius: 0 12px 12px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+html.plugin-docs.plugin-id-academy .markdown blockquote p {
+  margin: 0;
+  color: #f5f5f7;
+  font-style: italic;
+}
+
+/* Academy table styling */
+html.plugin-docs.plugin-id-academy .markdown table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 2rem 0;
+  background: linear-gradient(135deg, rgba(44, 44, 46, 0.8), rgba(34, 34, 36, 0.7));
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+html.plugin-docs.plugin-id-academy .markdown th,
+html.plugin-docs.plugin-id-academy .markdown td {
+  border: 1px solid rgba(239, 71, 121, 0.25);
+  padding: 1rem;
+  text-align: left;
+}
+
+html.plugin-docs.plugin-id-academy .markdown th {
+  background: linear-gradient(135deg, rgba(239, 71, 121, 0.2), rgba(239, 71, 121, 0.15));
+  color: #f5f5f7;
+  font-weight: 700;
+  font-family: "Barlow", sans-serif;
+}
+
+html.plugin-docs.plugin-id-academy .markdown {
+  margin-right: 20px;
+}
+
+html.plugin-docs.plugin-id-academy .markdown td {
+  color: #d1d5db;
+}
+
+/* Academy alert styling - aligned with academy.module.css */
+html.plugin-docs.plugin-id-academy .markdown .alert {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  margin: 2rem 0;
+  border: none;
+  border-left: 4px solid transparent;
+  background: rgba(44, 44, 46, 0.8);
+  backdrop-filter: blur(10px);
+}
+
+html.plugin-docs.plugin-id-academy .markdown .alert:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+html.plugin-docs.plugin-id-academy .markdown .alert--tip,
+html.plugin-docs.plugin-id-academy .markdown .alert--info {
+  border-left-color: #ef4779;
+  background: rgba(239, 71, 121, 0.08);
+}
+
+html.plugin-docs.plugin-id-academy .markdown .alert--tip .alert__icon svg,
+html.plugin-docs.plugin-id-academy .markdown .alert--info .alert__icon svg {
+  fill: #ef4779;
+}
+
+html.plugin-docs.plugin-id-academy .markdown .alert--success {
+  border-left-color: #52c41a;
+  background: rgba(82, 196, 26, 0.08);
+}
+
+html.plugin-docs.plugin-id-academy .markdown .alert--warning {
+  border-left-color: #faad14;
+  background: rgba(250, 173, 20, 0.08);
+}
+
+html.plugin-docs.plugin-id-academy .markdown .alert--danger {
+  border-left-color: #f5222d;
+  background: rgba(245, 34, 45, 0.08);
+}
+
+/* Academy card styling for cards-container */
+html.plugin-docs.plugin-id-academy .cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+  margin: 3rem 0;
+  align-items: stretch;
+}
+
+html.plugin-docs.plugin-id-academy .cards-container .card {
+  background: linear-gradient(135deg, rgba(44, 44, 46, 1.0), rgba(44, 44, 46, 0.9));
+  border: 1px solid rgba(239, 71, 121, 0.25);
+  border-radius: 12px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+html.plugin-docs.plugin-id-academy .cards-container .card:hover {
+  border-color: rgba(239, 71, 121, 0.5);
+  box-shadow: 0 8px 24px rgba(239, 71, 121, 0.2);
+  transform: translateY(-4px) scale(1.01);
+  background: linear-gradient(135deg, rgba(50, 50, 52, 1.0), rgba(48, 48, 50, 0.9));
+}
+
+html.plugin-docs.plugin-id-academy .cards-container .card__header {
+  min-height: auto;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid rgba(239, 71, 121, 0.3);
+}
+
+html.plugin-docs.plugin-id-academy .cards-container .card__header h3 {
+  font-family: "Barlow", sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  line-height: 1.3;
+  width: 100%;
+  color: #ef4779;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.15);
+  border-bottom: none;
+}
+
+html.plugin-docs.plugin-id-academy .cards-container .card__header h3 i {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  text-align: center;
+  color: #fff;
+  background-color: #ef4779;
+  border-radius: 50%;
+}
+
+html.plugin-docs.plugin-id-academy .cards-container .card__body {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding-top: 0;
+}
+
+html.plugin-docs.plugin-id-academy .cards-container .card__body p {
+  margin-bottom: 1.25rem;
+  color: #d1d5db;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+html.plugin-docs.plugin-id-academy .cards-container .card__footer {
+  margin-top: auto;
+  flex-shrink: 0;
+  padding-top: 1.5rem;
+}
+
+html.plugin-docs.plugin-id-academy .cards-container .card__footer a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #ff8fab;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-size: 1.05rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #ef4779;
+  border-radius: 6px;
+  background: transparent;
+}
+
+html.plugin-docs.plugin-id-academy .cards-container .card__footer a::after {
+  content: '\f061';
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  transition: transform 0.3s ease;
+  font-size: 1rem;
+  margin-left: 0.25rem;
+}
+
+html.plugin-docs.plugin-id-academy .cards-container .card__footer a:hover {
+  color: #ef4779;
+  background-color: rgba(239, 71, 121, 0.1);
+  border-color: #ff8fab;
+  text-shadow: 0 0 8px rgba(239, 71, 121, 0.6);
+}
+
+html.plugin-docs.plugin-id-academy .cards-container .card__footer a:hover::after {
+  transform: translateX(4px);
+}
+
+/* Academy responsive design */
+@media (max-width: 996px) {
+  html.plugin-docs.plugin-id-academy .markdown h1 {
+    font-size: 2.5rem;
+  }
+
+  html.plugin-docs.plugin-id-academy .markdown h2 {
+    font-size: 1.8rem;
+  }
+
+  html.plugin-docs.plugin-id-academy .markdown p,
+  html.plugin-docs.plugin-id-academy .markdown li {
+    font-size: 1rem;
+  }
+
+  html.plugin-docs.plugin-id-academy .cards-container {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  html.plugin-docs.plugin-id-academy .docMainContainer_node_modules-\@docusaurus-theme-classic-lib-theme-DocPage-Layout-Main-styles-module {
+    margin: 10px;
+    padding: 2rem;
+  }
+}
