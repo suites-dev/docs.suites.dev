@@ -298,6 +298,7 @@ export default function Home(): JSX.Element {
           name="description"
           content="Suites automates mocking and simplifies test setup for dependency injection frameworks like NestJS and InversifyJS, reducing boilerplate code."
         />
+        <script defer data-url="https://devhunt.org/tool/suites" src="https://cdn.jsdelivr.net/gh/sidiDev/devhunt-banner/indexV0.js"></script>
       </Head>
       <HomepageHeader />
     </Layout>
