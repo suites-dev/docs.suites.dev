@@ -577,6 +577,40 @@
     flex-direction: column;
 }
 
+/* Code examples tabs styles */
+.codeColumn :global(.tabs) {
+    margin-bottom: 1.5rem;
+}
+
+.codeColumn :global(.tabs__item) {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 8px 20px;
+    border-radius: 50px;
+    border: none;
+    background-color: rgba(55, 58, 64, 1);
+    color: rgba(230, 230, 230, 1);
+    transition: all 0.3s ease;
+    margin-right: 0.5rem;
+}
+
+.codeColumn :global(.tabs__item:hover) {
+    background-color: rgba(65, 68, 74, 1);
+    color: rgba(240, 240, 240, 1);
+}
+
+.codeColumn :global(.tabs__item--active) {
+    background-color: rgba(239, 71, 121, 1);
+    color: rgba(30, 30, 30, 1);
+    border: none;
+}
+
+.codeColumn :global(.tabs__item--active:hover) {
+    background-color: rgba(255, 85, 135, 1);
+    color: rgba(20, 20, 20, 1);
+}
+
 @media screen and (max-width: 996px) {
     .alternatingSection {
         grid-template-columns: 1fr;

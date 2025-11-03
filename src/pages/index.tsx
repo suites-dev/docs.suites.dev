@@ -4,6 +4,8 @@ import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
 import CodeBlock from "@theme/CodeBlock";
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
 import styles from "./index.module.css";
 import Head from "@docusaurus/Head";
 
@@ -95,12 +97,14 @@ function HomepageHeader() {
             </div>
           </div>
           <div className={styles.codeColumn}>
-            <CodeBlock
-              language="typescript"
-              className={styles.codeBlock}
-              showLineNumbers={false}
-            >
-              {`import { TestBed, type Mocked } from '@suites/unit';
+            <Tabs defaultValue="with-suites" groupId="suites-comparison">
+              <TabItem value="with-suites" label="With Suites">
+                <CodeBlock
+                  language="typescript"
+                  className={styles.codeBlock}
+                  showLineNumbers={false}
+                >
+                  {`import { TestBed, type Mocked } from '@suites/unit';
 
 describe('User Service', () => {
   let userService: UserService; // 🧪 The unit we are testing
@@ -122,7 +126,44 @@ describe('User Service', () => {
     expect(database.saveUser).toHaveBeenCalledWith(userFixture);
   });
 });`}
-            </CodeBlock>
+                </CodeBlock>
+              </TabItem>
+              <TabItem value="without-suites" label="Without Suites">
+                <CodeBlock
+                  language="typescript"
+                  className={styles.codeBlock}
+                  showLineNumbers={false}
+                >
+                  {`// ❌ Manual mock definition required
+jest.mock('./user-api');
+jest.mock('./database');
+
+import { UserService } from './user-service';
+import { UserApi } from './user-api';
+import { database } from './database';
+
+describe('User Service', () => {
+  let userService: UserService;
+  let userApi: jest.Mocked<UserApi>;
+
+  beforeAll(() => {
+    // ⚙️ Manually instantiate the class with mocked dependencies
+    userApi = new UserApi() as jest.Mocked<UserApi>;
+    userService = new UserService(userApi, database);
+  });
+
+  it('should generate a random user and save to the database', async () => {
+    // 🔧 Setup the mock behavior
+    userApi.getRandom = jest.fn().mockResolvedValue({id: 1, name: 'John'} as User);
+    (database.saveUser as jest.Mock) = jest.fn();
+    
+    await userService.generateRandomUser();
+    expect(database.saveUser).toHaveBeenCalledWith(userFixture);
+  });
+});`}
+                </CodeBlock>
+              </TabItem>
+            </Tabs>
           </div>
         </div>
         <div className={styles.featuresSection}>
