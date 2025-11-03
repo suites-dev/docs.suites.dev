@@ -21,21 +21,21 @@ function HomepageHeader() {
             <div className={styles.buttonGroup}>
               <Link
                 className={`${styles.button} ${styles.buttonPrimary} button button--primary`}
-                to="/docs/overview"
+                to="/docs/get-started/"
               >
                 Get Started
               </Link>
               <Link
                 className={`${styles.button} button button--outline button--primary`}
-                to="/docs/overview/why-suites"
+                to="/docs/get-started/why-suites"
               >
                 Why Suites?
               </Link>
               <Link
                 className={`${styles.button} button button--outline button--primary`}
-                to="/docs/developer-guide"
+                to="/docs/guides/"
               >
-                Learn
+                Guides
               </Link>
               <Link
                 className={`${styles.button} button button--outline button--primary`}
@@ -63,6 +63,7 @@ function HomepageHeader() {
                     className={styles.logoImage}
                   />
                   <span className={styles.logoName}>InversifyJS</span>
+                  <span className={styles.recommendedBadge}>Official</span>
                 </div>
                 <div className={styles.logoItem}>
                   <img
@@ -122,7 +123,7 @@ describe('User Service', () => {
     await userService.generateRandomUser();
     expect(database.saveUser).toHaveBeenCalledWith(userFixture);
   });
-});`}
+}`}
             </CodeBlock>
           </div>
         </div>
@@ -210,7 +211,7 @@ describe('User Service', () => {
             </p>
             <Link
               className={`${styles.button} button button--outline button--primary`}
-              to="/docs/developer-guide/unit-tests/test-doubles"
+              to="/docs/guides/test-doubles"
             >
               Learn about Mocking →
             </Link>
@@ -241,7 +242,7 @@ userApi.get.mockResolvedValue({ name: 'John' });`}
             </p>
             <Link
               className={`${styles.button} button button--outline button--primary`}
-              to="/docs/developer-guide/unit-tests/fundamentals"
+              to="/docs/guides/fundamentals"
             >
               Explore Test Strategies →
             </Link>
@@ -267,7 +268,7 @@ TestBed.sociable(OrderService)
             </p>
             <Link
               className={`${styles.button} button button--outline button--primary`}
-              to="/docs/developer-guide/unit-tests/suites-api"
+              to="/docs/api-reference/"
             >
               Browse the API Reference →
             </Link>

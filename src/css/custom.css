@@ -427,3 +427,36 @@ html[data-theme='light'] .theme-toggle-button svg {
     color: #ffffff !important;
   }
 }
+
+/* Version Badge Styles */
+.version-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  margin-left: 0.5rem;
+  border-radius: 4px;
+  vertical-align: middle;
+  white-space: nowrap;
+  font-family: "Inter", sans-serif;
+  letter-spacing: 0.025em;
+}
+
+.version-badge--new {
+  background-color: rgba(239, 71, 121, 0.15);
+  color: var(--ifm-color-primary);
+  border: 1px solid rgba(239, 71, 121, 0.3);
+}
+
+.version-badge--deprecated {
+  background-color: rgba(245, 34, 45, 0.15);
+  color: var(--ifm-color-error);
+  border: 1px solid rgba(245, 34, 45, 0.3);
+}
+
+h2 .version-badge,
+h3 .version-badge {
+  font-size: 0.65em;
+  position: relative;
+  top: -0.1em;
+}

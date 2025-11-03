@@ -13,6 +13,10 @@ const config: Config = {
   onBrokenMarkdownLinks: "warn",
   favicon: "img/favicon.png",
   projectName: "suites",
+  markdown: {
+    mermaid: true,
+  },
+  themes: ['@docusaurus/theme-mermaid'],
   headTags: [
     {
       tagName: "link",
@@ -47,6 +51,12 @@ const config: Config = {
           anonymizeIP: true,
         },
       },
+    ],
+  ],
+  plugins: [
+    [
+      "@docusaurus/plugin-client-redirects",
+      require("./config/redirects.config.js"),
     ],
   ],
   themeConfig: {
@@ -90,17 +100,17 @@ const config: Config = {
       },
       items: [
         {
-          to: "/docs/overview",
+          to: "/docs/get-started/",
           position: "left",
-          label: "Docs",
+          label: "Get Started",
         },
         {
-          to: "/docs/developer-guide",
+          to: "/docs/guides/",
           position: "left",
-          label: "Learn",
+          label: "Guides",
         },
         {
-          to: "/docs/developer-guide/unit-tests/suites-api",
+          to: "/docs/api-reference/",
           position: "left",
           label: "API Reference",
         },

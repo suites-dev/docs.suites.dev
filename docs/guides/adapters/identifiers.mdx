@@ -1,6 +1,7 @@
 ---
 sidebar_position: 2
 title: Identifiers & Injection Tokens
+description: Working with class and token-based dependency injection
 ---
 
 import Tabs from '@theme/Tabs';
@@ -44,10 +45,10 @@ Please refer to the specific adapter's documentation for detailed information.
 </Tabs>
 
 :::tip
-See the full installation guide [here](/docs/overview/installation)
+See the full installation guide [here](/docs/get-started/installation)
 :::
 
-## Class-based Injection 💡
+## Class-based Injection 
 
 Class-based injection is a fundamental concept in Dependency Injection frameworks. It uses TypeScript classes both as a blueprint for creating instances and as an identifier for resolving dependencies.
 
@@ -86,7 +87,7 @@ const { unit, unitRef } = await TestBed.solitary(UserService)
   .compile();
 ```
 
-## Token-based Injection 💡
+## Token-based Injection 
 
 Tokens (strings or symbols) serve as unique keys to fetch specific dependencies from the container. They're
 especially useful for distinguishing multiple instances of the same type or for interface-based dependencies.
@@ -232,16 +233,16 @@ const apiService = unitRef.get(ApiService); // Not forwardRef(() => ApiService)
 const apiService = unitRef.get(ApiService); // Not new LazyServiceIdentifer(() => ApiService)
 ```
 
-### Identifiers with Metadata 💡
+### Identifiers with Metadata 
 
 Suites allows for metadata inclusion alongside the primary identifier. Metadata provides additional context or
 qualifiers for identifiers, enabling more precise control over dependency resolution. For instance, a service might have
 multiple instances, each distinguished by specific metadata.
 
-Currently, only the InversifyJS adapter supports metadata. For more information, visit the [InversifyJS documentation](/docs/developer-guide/adapters/inversifyjs) page.
+Currently, only the InversifyJS adapter supports metadata. For more information, visit the [InversifyJS documentation](/docs/guides/adapters/inversifyjs) page.
 
 ## Next Steps
 
-- [**InversifyJS Guide**](/docs/developer-guide/adapters/inversifyjs) - Learn about advanced identifier patterns in InversifyJS
-- [**Unit Testing Fundamentals**](/docs/developer-guide/unit-tests/fundamentals) - Explore the core principles of unit testing with Suites
-- [**Test Doubles**](/docs/developer-guide/unit-tests/test-doubles) - Understand how to work with mocks, stubs, and other test doubles
+- [**InversifyJS Guide**](/docs/guides/adapters/inversifyjs) - Learn about advanced identifier patterns in InversifyJS
+- [**Unit Testing Fundamentals**](/docs/guides/fundamentals) - Explore the core principles of unit testing with Suites
+- [**Test Doubles**](/docs/guides/test-doubles) - Understand how to work with mocks, stubs, and other test doubles
