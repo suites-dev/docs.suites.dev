@@ -27,7 +27,7 @@ function HomepageHeader() {
               </Link>
               <Link
                 className={`${styles.button} button button--outline button--primary`}
-                to="/docs/overview/problems-solved"
+                to="/docs/overview/why-suites"
               >
                 Why Suites?
               </Link>
