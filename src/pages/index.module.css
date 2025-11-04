@@ -372,7 +372,9 @@
 
 .codeColumn :global(.theme-code-block) {
     box-shadow: none;
-    border-radius: 14px
+    border-radius: 14px;
+    max-height: 500px;
+    overflow-y: auto;
 }
 
 .codeColumn :global(.theme-code-block) code {
@@ -575,6 +577,40 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+}
+
+/* Code examples tabs styles */
+.codeColumn :global(.tabs) {
+    margin-bottom: 1.5rem;
+}
+
+.codeColumn :global(.tabs__item) {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 50px;
+    border: none;
+    background-color: rgba(55, 58, 64, 1);
+    color: rgba(230, 230, 230, 1);
+    transition: all 0.3s ease;
+    margin-right: 0.5rem;
+}
+
+.codeColumn :global(.tabs__item:hover) {
+    background-color: rgba(65, 68, 74, 1);
+    color: rgba(240, 240, 240, 1);
+}
+
+.codeColumn :global(.tabs__item--active) {
+    background-color: rgba(200, 200, 200, 0.3);
+    color: rgba(255, 255, 255, 1);
+    border: none;
+}
+
+.codeColumn :global(.tabs__item--active:hover) {
+    background-color: rgba(200, 200, 200, 0.4);
+    color: rgba(255, 255, 255, 1);
 }
 
 @media screen and (max-width: 996px) {

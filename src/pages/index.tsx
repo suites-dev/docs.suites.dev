@@ -4,6 +4,8 @@ import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
 import CodeBlock from "@theme/CodeBlock";
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
 import styles from "./index.module.css";
 import Head from "@docusaurus/Head";
 
@@ -97,24 +99,28 @@ function HomepageHeader() {
             </div>
           </div>
           <div className={styles.codeColumn}>
-            <CodeBlock
-              language="typescript"
-              className={styles.codeBlock}
-              showLineNumbers={false}
-            >
-              {`import { TestBed, type Mocked } from '@suites/unit';
+            <Tabs defaultValue="with-suites" groupId="suites-comparison">
+              <TabItem value="with-suites" label="With Suites">
+                <CodeBlock
+                  language="typescript"
+                  className={styles.codeBlock}
+                  showLineNumbers={false}
+                >
+                  {`import { TestBed, type Mocked } from '@suites/unit';
 
 describe('User Service', () => {
   let userService: UserService; // 🧪 The unit we are testing
-  let userApi: Mocked<UserApi>; // 🎭 The dependency we are mocking
+  let userApi: Mocked<UserApi>; // 🎭 The dependencies we are mocking
+  let database: Mocked<Database>;
 
   beforeAll(async () => {
     // 🚀 Create an isolated test env for the unit
-    const testBed = await TestBed.solitary(UserService).compile();
+    const { unit, unitRef } = await TestBed.solitary(UserService).compile();
 
-    userService = testBed.unit;    
-    // 🔍 Retrieve the unit's dependency mock - automatically generated
-    userApi = testBed.unitRef.get(UserApi);
+    userService = unit;    
+    // 🔍 Retrieve the unit's dependency mocks - automatically generated
+    userApi = unitRef.get(UserApi);
+    database = unitRef.get(Database);
   });
 
   // ✅ Test test test
@@ -123,8 +129,49 @@ describe('User Service', () => {
     await userService.generateRandomUser();
     expect(database.saveUser).toHaveBeenCalledWith(userFixture);
   });
+});`}
+                </CodeBlock>
+              </TabItem>
+              <TabItem value="without-suites" label="Without Suites">
+                <CodeBlock
+                  language="typescript"
+                  className={styles.codeBlock}
+                  showLineNumbers={false}
+                >
+                  {`import { Test } from '@nestjs/testing';
+import { UserService } from './user-service';
+import { UserApi } from './user-api';
+import { Database } from './database';
+
+describe('User Service', () => {
+  let userService: UserService;
+  let userApi: jest.Mocked<UserApi>;
+  let database: jest.Mocked<Database>;
+
+  beforeAll(async () => {
+    // 🔧 Configure the testing module with all providers
+    const module = await Test.createTestingModule({
+      providers: [
+        UserService,
+        { provide: UserApi, useValue: { getRandom: jest.fn() } },
+        { provide: Database, useValue: { saveUser: jest.fn() } },
+      ],
+    }).compile();
+
+    userService = module.get<UserService>(UserService);
+    userApi = module.get(UserApi);
+    database = module.get(Database);
+  });
+
+  it('should generate a random user and save to the database', async () => {
+    userApi.getRandom.mockResolvedValue({id: 1, name: 'John'} as User);
+    await userService.generateRandomUser();
+    expect(database.saveUser).toHaveBeenCalledWith(userFixture);
+  });
 }`}
-            </CodeBlock>
+                </CodeBlock>
+              </TabItem>
+            </Tabs>
           </div>
         </div>
         <div className={styles.featuresSection}>
