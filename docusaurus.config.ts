@@ -115,6 +115,12 @@ const config: Config = {
           label: "API Reference",
         },
         {
+          href: "https://buymeacoffee.com/omermoradd",
+          position: "right",
+          label: "Sponsor",
+          className: "header-sponsor-link",
+        },
+        {
           to: "/docs/changelog",
           position: "left",
           label: "Changelog",

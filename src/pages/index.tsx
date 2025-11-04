@@ -15,8 +15,8 @@ function HomepageHeader() {
           <div className={styles.textColumn}>
             <h1 className={styles.title}>Suites</h1>
             <p className={styles.subtitle}>
-              The testing framework for reliable and scalable backend TypeScript
-              applications.
+              A unit-testing framework for TypeScript backend systems working
+              with dependency injection
             </p>
             <div className={styles.buttonGroup}>
               <Link
