@@ -108,15 +108,17 @@ function HomepageHeader() {
 
 describe('User Service', () => {
   let userService: UserService; // 🧪 The unit we are testing
-  let userApi: Mocked<UserApi>; // 🎭 The dependency we are mocking
+  let userApi: Mocked<UserApi>; // 🎭 The dependencies we are mocking
+  let database: Mocked<Database>;
 
   beforeAll(async () => {
     // 🚀 Create an isolated test env for the unit
-    const testBed = await TestBed.solitary(UserService).compile();
+    const { unit, unitRef } = await TestBed.solitary(UserService).compile();
 
-    userService = testBed.unit;    
-    // 🔍 Retrieve the unit's dependency mock - automatically generated
-    userApi = testBed.unitRef.get(UserApi);
+    userService = unit;    
+    // 🔍 Retrieve the unit's dependency mocks - automatically generated
+    userApi = unitRef.get(UserApi);
+    database = unitRef.get(Database);
   });
 
   // ✅ Test test test
@@ -134,29 +136,33 @@ describe('User Service', () => {
                   className={styles.codeBlock}
                   showLineNumbers={false}
                 >
-                  {`// ❌ Manual mock definition required
-jest.mock('./user-api');
-jest.mock('./database');
-
+                  {`import { Test } from '@nestjs/testing';
 import { UserService } from './user-service';
 import { UserApi } from './user-api';
-import { database } from './database';
+import { Database } from './database';
 
 describe('User Service', () => {
   let userService: UserService;
   let userApi: jest.Mocked<UserApi>;
+  let database: jest.Mocked<Database>;
 
-  beforeAll(() => {
-    // ⚙️ Manually instantiate the class with mocked dependencies
-    userApi = new UserApi() as jest.Mocked<UserApi>;
-    userService = new UserService(userApi, database);
+  beforeAll(async () => {
+    // 🔧 Configure the testing module with all providers
+    const module = await Test.createTestingModule({
+      providers: [
+        UserService,
+        { provide: UserApi, useValue: { getRandom: jest.fn() } },
+        { provide: Database, useValue: { saveUser: jest.fn() } },
+      ],
+    }).compile();
+
+    userService = module.get<UserService>(UserService);
+    userApi = module.get(UserApi);
+    database = module.get(Database);
   });
 
   it('should generate a random user and save to the database', async () => {
-    // 🔧 Setup the mock behavior
-    userApi.getRandom = jest.fn().mockResolvedValue({id: 1, name: 'John'} as User);
-    (database.saveUser as jest.Mock) = jest.fn();
-    
+    userApi.getRandom.mockResolvedValue({id: 1, name: 'John'} as User);
     await userService.generateRandomUser();
     expect(database.saveUser).toHaveBeenCalledWith(userFixture);
   });
