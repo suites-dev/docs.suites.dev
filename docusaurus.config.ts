@@ -105,6 +105,12 @@ const config: Config = {
           label: "API Reference",
         },
         {
+          href: "https://buymeacoffee.com/omermoradd",
+          position: "right",
+          label: "Sponsor",
+          className: "header-sponsor-link",
+        },
+        {
           href: "https://github.com/suites-dev/suites",
           position: "right",
           className: "header-github-link",
