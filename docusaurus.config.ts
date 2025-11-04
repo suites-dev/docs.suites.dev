@@ -115,6 +115,11 @@ const config: Config = {
           label: "API Reference",
         },
         {
+          to: "/docs/changelog",
+          position: "left",
+          label: "Changelog",
+        },
+        {
           href: "https://github.com/suites-dev/suites",
           position: "right",
           className: "header-github-link",
