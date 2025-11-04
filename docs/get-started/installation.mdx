@@ -1,8 +1,19 @@
 ---
 sidebar_position: 3
 title: Installation
-description: Learn how to install and configure Suites to enhance your unit testing process across various DI frameworks and testing libraries.
+description: Learn how to install and configure Suites to enhance your unit testing process across various DI frameworksand testing libraries.
 ---
+
+## Prerequisites
+
+:::warning Node.js Version Requirement
+Suites v4.0.0+ requires **Node.js 20 or higher**.
+:::
+
+- Node.js 20 or higher
+- TypeScript project with decorators enabled
+- A dependency injection framework (NestJS or InversifyJS)
+- A testing library (Jest, Vitest, or Sinon)
 
 ## Setup Suites in a New or Existing Project
 
@@ -10,7 +21,7 @@ This section provides instructions for installing Suites and highlights importan
 details for setting up unit testing with your DI framework.
 
 :::info
-:bulb: You can find complete setup examples in the [Suites Examples](https://github.com/suites-dev/examples) repository
+You can find complete setup examples in the [Suites Examples](https://github.com/suites-dev/examples) repository
 :::
 
 First, install Suites' main package:
@@ -37,22 +48,22 @@ $ npm i reflect-metadata
 Suites will automatically detect the installed adapters and configure itself accordingly.
 
 ## Supported Libraries
+
 ### Available Dependency Injection Adapters:
-  * `@suites/di.nestjs`
-  * `@suites/di.inversify`
-  * _`@suites/di.tsyringe`_ (WIP)
+
+- `@suites/di.nestjs`
+- `@suites/di.inversify`
 
 ### Available Mocking Libraries Adapters:
-  * `@suites/doubles.jest`
-  * `@suites/doubles.sinon`
-  * `@suites/doubles.vitest`
-  * _`@suites/doubles.bun`_ (WIP)
-  * _`@suites/doubles.deno`_ (WIP)
-  * _`@suites/doubles.node`_ Vanilla (WIP)
+
+- `@suites/doubles.jest`
+- `@suites/doubles.sinon`
+- `@suites/doubles.vitest`
 
 After installation, no additional configuration for the test runner is needed.
 
 ## Setting Up `tsconfig.json`
+
 In order to use Suites, you need to enable the [`emitDecoratorMetadata`](https://www.typescriptlang.org/tsconfig#emitDecoratorMetadata) and [`experimentalDecorators`](https://www.typescriptlang.org/tsconfig#experimentalDecorators) options in your `tsconfig.json` file.
 This configuration is necessary for Suites to reflect class dependencies and to work with dependency injection frameworks.
 
@@ -65,6 +76,10 @@ This configuration is necessary for Suites to reflect class dependencies and to 
 }
 ```
 
+:::tip NodeNext Module Resolution
+Suites v4.0.0+ fully supports `"module": "NodeNext"` in your `tsconfig.json`, providing better ESM compatibility and modern module resolution.
+:::
+
 ## Type Reference Configuration
 
 To ensure type safety and maintain a clean API, Suites requires setting up type references for your mocking library. This approach enables importing all utilities from `@suites/unit` while maintaining proper type information.
@@ -73,17 +88,29 @@ To ensure type safety and maintain a clean API, Suites requires setting up type 
 
 1. **Create a `global.d.ts` file** in your project's root directory (or the location specified as `rootDir` in your `tsconfig.json`).
 
-2. **Add the reference type** for your chosen mocking library:
+2. **Add reference types** for your mocking library AND DI framework:
 
 ```typescript title="global.d.ts"
-/// <reference types="@suites/doubles.jest/unit" />  // For Jest
+// Mocking library (choose one)
+/// <reference types="@suites/doubles.jest/unit" />
 // OR
-/// <reference types="@suites/doubles.sinon/unit" /> // For Sinon
+/// <reference types="@suites/doubles.sinon/unit" />
 // OR
-/// <reference types="@suites/doubles.vitest/unit" /> // For Vitest
+/// <reference types="@suites/doubles.vitest/unit" />
+
+// DI framework (choose one)
+/// <reference types="@suites/di.nestjs" />
+// OR
+/// <reference types="@suites/di.inversify" />
 ```
 
-This configuration ensures your project correctly recognizes the types provided by Suites (like the `Mocked<T>` type) without needing to import them from library-specific modules. It aligns with Suites' philosophy of reducing coupling and providing a unified API.
+**Example for Jest + NestJS:**
+```typescript title="global.d.ts"
+/// <reference types="@suites/doubles.jest/unit" />
+/// <reference types="@suites/di.nestjs" />
+```
+
+This configuration ensures your project correctly recognizes the types provided by Suites (like the `Mocked<T>` type) without needing to import them from library-specific modules.
 
 ## Monorepo Support
 
@@ -123,21 +150,20 @@ $ npm install --save-dev unplugin-swc @swc/core
 ```
 
 ```typescript title="vitest.config.ts"
-import swc from 'unplugin-swc';
-import { defineConfig } from 'vitest/config';
+import swc from "unplugin-swc";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-  test: { globals: true, root: './' },
-  plugins: [
-    swc.vite({ module: { type: 'es6' } }),
-  ],
+  test: { globals: true, root: "./" },
+  plugins: [swc.vite({ module: { type: "es6" } })],
 });
 ```
 
 <div class="next-steps-section">
 
 ## What's Next?
+
 After installing Suites, you can start writing your first test.
-Check out the [Developer Guide](/docs/developer-guide) to learn how to write your first test using Suites.
+Check out the [Quick Start](/docs/get-started/quickstart) guide to write your first test, or explore the [Guides](/docs/guides/) section for testing patterns.
 
 </div>

@@ -1,6 +1,6 @@
 ---
-sidebar_position: 7
-title: Migrating from Automock
+sidebar_position: 5
+title: From Automock
 description: Migrating from Automock to Suites
 ---
 
@@ -47,12 +47,12 @@ Change all imports from Automock packages to the unified Suites import:
 
 ```typescript
 // Before
-import { TestBed } from '@automock/jest';
+import { TestBed } from "@automock/jest";
 // OR
-import { TestBed } from '@automock/sinon';
+import { TestBed } from "@automock/sinon";
 
 // After
-import { TestBed, Mocked } from '@suites/unit';
+import { TestBed, Mocked } from "@suites/unit";
 ```
 
 ### Step 3: Update TestBed API Calls
@@ -76,7 +76,7 @@ Update any mock implementation code to use the new syntax:
 TestBed.create(UserService)
   .mock(UserRepository)
   .using({
-    getUserById: () => Promise.resolve({ id: 1, name: 'John' })
+    getUserById: () => Promise.resolve({ id: 1, name: "John" }),
   })
   .compile();
 
@@ -84,15 +84,15 @@ TestBed.create(UserService)
 await TestBed.solitary(UserService)
   .mock(UserRepository)
   .final({
-    getUserById: () => Promise.resolve({ id: 1, name: 'John' })
+    getUserById: () => Promise.resolve({ id: 1, name: "John" }),
   })
   .compile();
 
 // OR using .impl() for more flexibility
 await TestBed.solitary(UserService)
   .mock(UserRepository)
-  .impl(stubFn => ({
-    getUserById: stubFn().mockResolvedValue({ id: 1, name: 'John' })
+  .impl((stubFn) => ({
+    getUserById: stubFn().mockResolvedValue({ id: 1, name: "John" }),
   }))
   .compile();
 ```
@@ -127,10 +127,11 @@ Instead of importing from `@automock/jest` or `@automock/sinon`, now import from
 allowing for deep mocks of properties within the class.
 
 **API Changes in TestBed**:
- - `.mock.using` is now `.mock.impl` and `.mock.final`.
- - `.mock.impl` provides runtime stubs within the callback, eliminating the need for library-specific mock functions
-    like `jest.fn()` or `sinon.stub()`.
- - `.mock.final` is similar but without stubs and cannot be retrieved from the unit reference.
+
+- `.mock.using` is now `.mock.impl` and `.mock.final`.
+- `.mock.impl` provides runtime stubs within the callback, eliminating the need for library-specific mock functions
+  like `jest.fn()` or `sinon.stub()`.
+- `.mock.final` is similar but without stubs and cannot be retrieved from the unit reference.
 
 ### New Features
 
@@ -150,12 +151,12 @@ If you encounter type errors with mocked dependencies, make sure you're using th
 
 ```typescript
 // Before
-import { UserRepository } from './user.repository';
+import { UserRepository } from "./user.repository";
 let userRepo: jest.Mocked<UserRepository>;
 
 // After
-import { Mocked } from '@suites/unit';
-import { UserRepository } from './user.repository';
+import { Mocked } from "@suites/unit";
+import { UserRepository } from "./user.repository";
 let userRepo: Mocked<UserRepository>;
 ```
 
@@ -168,4 +169,3 @@ If you're seeing errors about missing dependencies, ensure you've installed all 
 The release history and NPM packages under the `@automock` scope will be preserved for historical reference. However, all new features and improvements will be released under the `@suites` scope.
 
 For more information, see the [Suites release notes](https://github.com/suites-dev/suites/releases).
-  

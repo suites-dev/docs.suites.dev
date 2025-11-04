@@ -1,9 +1,10 @@
 ---
 sidebar_position: 3
 title: InversifyJS Identifiers
+description: InversifyJS-specific features and patterns
 ---
 
-# Working with InversifyJS Identifiers 🧠
+# Working with InversifyJS Identifiers 
 
 InversifyJS has unique concepts like different binding types and custom decorators that affect how you work with dependency injection. This guide covers InversifyJS-specific features and how Suites integrates with them.
 
@@ -18,7 +19,7 @@ InversifyJS has unique concepts like different binding types and custom decorato
 
 </div>
 
-## Multi-Inject Tokens 💡
+## Multi-Inject Tokens 
 
 For scenarios where multiple implementations of a dependency are required, InversifyJS provides the `@multiInject` decorator.
 
@@ -33,13 +34,13 @@ export class Samurai {
 }
 ```
 
-In Suites, the `@multiInject` decorator works the same as the `@inject` decorator. See [Token-based injection](/docs/developer-guide/adapters/identifiers?suites-adapter=inverisfyjs#token-based-injection) for more details.
+In Suites, the `@multiInject` decorator works the same as the `@inject` decorator. See [Token-based injection](/docs/guides/adapters/identifiers?suites-adapter=inverisfyjs#token-based-injection) for more details.
 
 :::tip Learn More
 Read more about [multi-injection](https://github.com/inversify/InversifyJS/blob/master/wiki/multi_injection.md) in the InversifyJS documentation.
 :::
 
-## Handling Metadata with InversifyJS 🧠
+## Handling Metadata with InversifyJS 
 
 InversifyJS supports various types of metadata to provide additional context for dependency resolution. Suites supports these metadata patterns to give you full control over your test doubles.
 
@@ -107,7 +108,7 @@ await TestBed.solitary(Samurai)
 Read more about [named bindings](https://github.com/inversify/InversifyJS/blob/master/wiki/named_bindings.md) in the InversifyJS documentation.
 :::
 
-### Custom Tag Decorators 💡
+### Custom Tag Decorators 
 
 InversifyJS supports custom tag decorators for advanced dependency injection patterns:
 
@@ -185,7 +186,7 @@ await TestBed.solitary(Something)
   .compile();
 ```
 
-## Additional Considerations 💡
+## Additional Considerations 
 
 ### Injection Token Priority
 
@@ -207,8 +208,8 @@ You can resolve dependencies using only the base identifier (class or injection 
 
 ## Next Steps
 
-- [**Identifiers & Injection Tokens**](/docs/developer-guide/adapters/identifiers) - Learn about the different types of dependency identifiers
-- [**Unit Testing Fundamentals**](/docs/developer-guide/unit-tests/fundamentals) - Explore the core principles of unit testing with Suites
-- [**Writing Your First Test**](/docs/overview/quickstart) - Get hands-on with creating tests using Suites
+- [**Identifiers & Injection Tokens**](/docs/guides/adapters/identifiers) - Learn about the different types of dependency identifiers
+- [**Unit Testing Fundamentals**](/docs/guides/fundamentals) - Explore the core principles of unit testing with Suites
+- [**Writing Your First Test**](/docs/get-started/quickstart) - Get hands-on with creating tests using Suites
 
 

@@ -31,7 +31,7 @@ const FeatureList: FeatureItem[] = [
     ),
     icon: faAreaChart,
     link: {
-      ref: "/docs/developer-guide/",
+      ref: "/docs/guides/",
       text: "Developer Guide",
     },
   },
@@ -47,7 +47,7 @@ const FeatureList: FeatureItem[] = [
     ),
     icon: faArrowUpWideShort,
     link: {
-      ref: "/docs/overview",
+      ref: "/docs/get-started/",
       text: "Getting Started",
     },
   },
@@ -97,7 +97,7 @@ export function ExploreLink(): JSX.Element {
     <div className={styles.buttons}>
       &nbsp;&nbsp;
       <a
-        href="/docs/overview/quickstart"
+        href="/docs/get-started/quickstart"
         className="button button--outline button--primary"
       >
         Quick Start &nbsp;
