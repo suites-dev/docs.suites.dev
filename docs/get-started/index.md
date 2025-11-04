@@ -12,7 +12,7 @@ Welcome to Suites! This section will help you get up and running quickly.
 
 ## In This Section
 
-- [**Why Suites**](/docs/get-started/why-suites) - Compare with manual mocking and understand the benefits
+- [**Why Suites?**](/docs/get-started/why-suites) - Compare with manual mocking and understand the benefits
 - [**Quick Start**](/docs/get-started/quickstart) - Write your first test in 5 minutes
 - [**Installation**](/docs/get-started/installation) - Install and configure Suites in your project
 
@@ -22,7 +22,7 @@ Welcome to Suites! This section will help you get up and running quickly.
 
 If you're new to Suites:
 
-1. **[Why Suites](/docs/get-started/why-suites)** - Understand the benefits
+1. **[Why Suites?](/docs/get-started/why-suites)** - Understand the benefits
 2. **[Quick Start](/docs/get-started/quickstart)** - Write your first test
 3. **[Installation](/docs/get-started/installation)** - Set up your project
 4. **[Guides](/docs/guides/)** - Learn testing patterns

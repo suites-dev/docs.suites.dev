@@ -1,425 +1,49 @@
 ---
-sidebar_position: 1
-title: Why Suites
-description: Automated dependency mocking for TypeScript DI applications
+sidebar_position: 4
+title: Why Suites?
+description: Learn why Suites is essential for testing TypeScript backends with dependency injection
 ---
 
 # Why Suites?
 
-**Suites reduces testing boilerplate by 80% for TypeScript applications using dependency injection.**
-
-## The Problem: Testing DI Applications Is Painful
-
-If you're using NestJS, InversifyJS, or any dependency injection framework, you know this pain:
-
-### Pain #1: Manual Mock Setup Hell
-
-Every test file requires the same tedious setup:
-
-```typescript
-describe('PaymentService', () => {
-  let paymentService: PaymentService;
-  let mockRepository: jest.Mocked<PaymentRepository>;
-  let mockGateway: jest.Mocked<PaymentGateway>;
-  let mockLogger: jest.Mocked<Logger>;
-  let mockEmailService: jest.Mocked<EmailService>;
-  let mockAnalytics: jest.Mocked<AnalyticsService>;
-
-  beforeEach(() => {
-    // Manually create every mock...
-    mockRepository = {
-      findById: jest.fn(),
-      save: jest.fn(),
-      delete: jest.fn(),
-      update: jest.fn(),
-      findAll: jest.fn(),
-    } as any;
-
-    mockGateway = {
-      charge: jest.fn(),
-      refund: jest.fn(),
-      authorize: jest.fn(),
-      capture: jest.fn(),
-    } as any;
-
-    mockLogger = {
-      log: jest.fn(),
-      error: jest.fn(),
-      warn: jest.fn(),
-      debug: jest.fn(),
-    } as any;
-
-    mockEmailService = {
-      send: jest.fn(),
-      validate: jest.fn(),
-      template: jest.fn(),
-    } as any;
-
-    mockAnalytics = {
-      track: jest.fn(),
-      identify: jest.fn(),
-    } as any;
-
-    // Manually wire everything together...
-    paymentService = new PaymentService(
-      mockRepository,
-      mockGateway,
-      mockLogger,
-      mockEmailService,
-      mockAnalytics
-    );
-  });
-
-  it('should process payment', async () => {
-    // Finally, your actual test...
-    mockRepository.findById.mockResolvedValue(testUser);
-    mockGateway.charge.mockResolvedValue({ status: 'success' });
-
-    await paymentService.process('user-123', 50);
-
-    expect(mockRepository.save).toHaveBeenCalled();
-  });
-});
-```
-
-**50+ lines of boilerplate before you even write a test.**
-
-### Pain #2: Type Safety Requires Manual Casts
-
-Notice all the `as any` casts? You're bypassing TypeScript's safety:
-
-```typescript
-const mockRepo = {
-  findById: jest.fn(),
-  // Typo in method name? TypeScript won't catch it!
-  savve: jest.fn(),  // ← Should be "save"
-} as any;  // ← Hiding the error
-```
-
-Production code breaks, but tests pass. False sense of security.
-
-### Pain #3: Maintenance Nightmare
-
-Add one dependency to your constructor?
-
-```typescript
-@Injectable()
-class PaymentService {
-  constructor(
-    private repository: PaymentRepository,
-    private gateway: PaymentGateway,
-    private logger: Logger,
-    private emailService: EmailService,
-    private analytics: AnalyticsService,
-    private auditLog: AuditLogService,  // ← New dependency!
-  ) {}
-}
-```
-
-Now update **every test file**:
-- Create `mockAuditLog`
-- List all its methods
-- Add it to the constructor
-- Add type cast
-
-**Across dozens or hundreds of test files.**
-
-### Pain #4: DI Framework Loses Its Benefits
+Large, critical codebases require **quality assurance at the unit level** - but achieving it is harder than it sounds. Unit testing in modern TypeScript backends involves extensive mocking, which makes the process **expensive, slow**, and often skews the **value-to-effort ratio**. Dependency injection only compounds the complexity, turning what should be a simple test into a maze of wiring, stubs, and setup code.
 
-The whole point of dependency injection is automatic wiring. But in tests?
+Teams usually face these issues:
 
-```typescript
-// Production: DI framework handles everything ✅
-@Injectable()
-class PaymentService { ... }
-
-// Tests: Back to manual wiring ❌
-const service = new PaymentService(dep1, dep2, dep3, dep4, dep5);
-```
-
-You lose:
-- Automatic dependency resolution
-- Token-based injection
-- Decorator metadata
-- Scoped instances
+**Manual mocks are fragile:** backend teams spend an enormous amount of time manually mocking dependencies. These mocks are often **not typed**, which means they break silently during refactors. When a dependency’s interface changes, the issue is then missed at compile time, and the test fails on execution.
 
-## The Solution: Virtual DI Container
+**Missing implementations cause cryptic errors:** manually written mocks tend to be incomplete. Developers often miss implementing certain dependency methods, leading to **undefined return values** or **nonsensical test errors**, even when the unit’s logic is perfectly correct. This erodes confidence in the test suite and wastes time debugging the wrong problem.
 
-Suites introduces the [**Virtual DI Container**](/docs/guides/virtual-di-container) - a revolutionary approach that:
+**Naïve auto-mocking isn’t safe:** some attempt to solve the boilerplate involved with mocking by using automatic mocking, but they are not type-aware. They allow calling non-existent methods, creating **silently broken tests**. This issue is 10x worse with LLM hallucinations. The result is a false sense of coverage and dangerous gaps in verification.
 
-1. **Reads your DI metadata** (decorators, tokens, types)
-2. **Creates a minimal test environment** (only what you need)
-3. **Auto-generates type-safe mocks** for all dependencies
-4. **Wires everything together** automatically
-
-### Same Test, With Suites
-
-```typescript
-describe('PaymentService', () => {
-  let paymentService: PaymentService;
-  let mockRepository: Mocked<PaymentRepository>;
-  let mockGateway: Mocked<PaymentGateway>;
-
-  beforeAll(async () => {
-    const { unit, unitRef } = await TestBed.solitary(PaymentService).compile();
-    paymentService = unit;
-    mockRepository = unitRef.get(PaymentRepository);
-    mockGateway = unitRef.get(PaymentGateway);
-  });
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it('should process payment', async () => {
-    mockRepository.findById.mockResolvedValue(testUser);
-    mockGateway.charge.mockResolvedValue({ status: 'success' });
-
-    await paymentService.process('user-123', 50);
-
-    expect(mockRepository.save).toHaveBeenCalled();
-  });
-});
-```
-
-**From 50+ lines to 5 lines. That's an 80%+ reduction.**
-
-## What Makes Suites Different
-
-### 1. Automatic Mock Generation
-
-```typescript
-// Suites analyzes your class:
-@Injectable()
-class PaymentService {
-  constructor(
-    private repository: PaymentRepository,    // ← Auto-mocked
-    private gateway: PaymentGateway,          // ← Auto-mocked
-    @Inject('LOGGER') private logger: Logger  // ← Auto-mocked
-  ) {}
-}
+**Too much boilerplate, creating cognitive load and loss of intent:** each engineer ends up writing mocks differently, wiring up dependencies manually, and repeating the same setup logic across hundreds of tests. This boilerplate hides test intention and slows down development. It also introduces inconsistency and cognitive overhead - especially when onboarding new engineers or integrating with AI-assisted coding tools.
 
-// And creates all mocks automatically:
-const { unit, unitRef } = await TestBed.solitary(PaymentService).compile();
+**Inconsistent Testing Practices Across Teams:** Different teams often develop their own approaches to testing DI-based applications, leading to inconsistent practices, varied code quality, and challenges when developers switch between projects.
 
-// Type-safe access to any dependency:
-const repo = unitRef.get(PaymentRepository);
-const gateway = unitRef.get(PaymentGateway);
-const logger = unitRef.get('LOGGER');
-```
+**Steep learning curve for new developers:** New team members often struggle to understand complex testing setups, especially when working with dependency injection frameworks. This learning curve slows down onboarding and can lead to poor testing practices.
 
-No manual mock creation. No type casts. Full type safety.
+**LLMs get confused with noisy context:** manually written test setup is verbose and overloaded with boilerplate - every mock, dependency, and initialization adds lines of code that obscure test intent. This verbosity confuses coding assistants (e.g. Claude Code, Cursor) when they try to read and understand existing tests. Moreover, when these tools attempt to generate tests, the excessive boilerplate makes it harder for them to produce correct and complete setups, leading to inconsistent or invalid code.
 
-### 2. Zero-Config Type Safety
+**LLMs need clear feedback to self-correct:** even when LLMs successfully generate test code, the feedback loop that follows is often poor. Because manually written mocks frequently produce cryptic or misleading runtime errors (from missing implementations, undefined returns, to silent method mismatches) LLMs can’t interpret what went wrong, leading to infinite loops and burn of tokens.
 
-```typescript
-const repository = unitRef.get(PaymentRepository);
+### How does Suites solve it?
 
-// ✅ TypeScript knows all methods
-repository.findById.mockResolvedValue(user);
-repository.save.mockResolvedValue();
+Suites provides an **opinionated, declarative API** for unit testing TypeScript backends that use dependency injection. Instead of writing mocks by hand, you simply wrap your unit with a single function, and Suites automatically builds a correct, type-safe test environment.
 
-// ❌ Compile-time error: method doesn't exist
-repository.savve.mockResolvedValue();  // Typo caught!
-```
+**Type-Safe Mocks:** Suites generates **fully typed mocks**, bound to your implementation. This ensures that refactors don’t break tests silently. You can only call existing dependency methods, and every mock interaction is validated at compile time.
 
-### 3. Constructor Changes? No Problem.
+**Smart Mock Tracking:** Every mock is aware of which dependency it represents. Suites automatically tracks and verifies mock usage, eliminating false negatives and providing clear error messages when tests fail.
 
-Add a new dependency:
+**Declarative API:** By describing your unit’s dependencies declaratively, Suites removes the need for repetitive wiring and setup. Tests become shorter, intention-revealing, and much easier to maintain.
 
-```typescript
-@Injectable()
-class PaymentService {
-  constructor(
-    private repository: PaymentRepository,
-    private gateway: PaymentGateway,
-    private auditLog: AuditLogService,  // ← New!
-  ) {}
-}
-```
+**DI and Test Library Integration:** Suites integrates seamlessly with popular DI frameworks like **NestJS** and **InversifyJS**, and testing libraries such as **Jest**, **Vitest**, and **Sinon** - working out of the box in existing projects.
 
-Your tests still work. Zero changes needed. Suites auto-mocks the new dependency.
+**AI-Friendly by Design:** Because Suites eliminates boilerplate and enforces type safety, LLMs can now generate **correct unit tests in a single pass**. Suites reduces the amount of context needed to reason about dependencies, allowing AI-assisted tools to understand, modify, and maintain tests accurately.
 
-### 4. Token Injections: Natural Boundaries
+**Standardized Testing Across Teams**: Suites provides a standardized, opinionated approach to testing that works consistently across different DI frameworks. This creates a unified testing experience for all teams while allowing flexibility in implementation details.
 
-Dependencies injected via tokens are **automatically mocked**, ensuring tests never touch external systems:
+**Intuitive Onboarding and Testing Model**: With its intuitive API and consistent patterns, Suites reduces the learning curve for new developers. The clear separation between solitary and sociable testing approaches provides a straightforward mental model that's easy to grasp.
 
-```typescript
-@Injectable()
-class PaymentService {
-  constructor(
-    private validator: PaymentValidator,      // Class (test mode decides)
-    @Inject('DATABASE') private db: Database, // ← ALWAYS mocked
-    @Inject('STRIPE') private stripe: Stripe  // ← ALWAYS mocked
-  ) {}
-}
-```
+### In Summary
 
-**Your tests never touch:**
-- Databases
-- HTTP APIs
-- File systems
-- Message queues
-- External services
-
-Even in sociable tests, token injections create **natural test boundaries**.
-
-### 5. Two Testing Modes: Solitary & Sociable
-
-**Solitary:** Complete isolation (all dependencies mocked)
-
-```typescript
-await TestBed.solitary(OrderService).compile();
-// OrderService + all mocks
-```
-
-**Sociable:** Mix real business logic with mocked I/O
-
-```typescript
-await TestBed.sociable(OrderService)
-  .boundaries([ComplexTaxEngine])  // Avoid only this
-  .compile();
-// Real PriceCalculator + OrderValidator
-// Mocked TaxEngine + all token dependencies
-```
-
-Test realistic scenarios without spinning up databases.
-
-### 6. Fail-Fast Prevents False Positives
-
-```typescript
-const repo = unitRef.get(PaymentRepository);
-
-// Forgot to configure the mock?
-const result = await paymentService.process('123', 50);
-
-// v3.x: Returns undefined silently → test passes incorrectly ❌
-// v4.x: Throws immediately → catches the mistake ✅
-```
-
-No more "lying tests" that pass when they should fail.
-
-### 7. AI-Ready Format
-
-Concise, type-safe syntax means AI coding agents write correct tests in a single pass:
-
-```typescript
-// AI agents (Claude Code, Cursor, etc.) can generate this easily:
-const { unit, unitRef } = await TestBed.solitary(UserService).compile();
-const mockRepo = unitRef.get(UserRepository);
-mockRepo.findById.mockResolvedValue(testUser);
-```
-
-No hallucinated method names. No missing mocks. Just working tests.
-
-## Real-World Impact
-
-### Before Suites
-- **Test setup:** 25-50+ lines per file
-- **Time per test file:** 10-15 minutes (writing boilerplate)
-- **Maintenance:** Update constructor → update all tests
-- **Type safety:** Manual casts everywhere
-- **False positives:** Common (undefined returns)
-
-### After Suites
-- **Test setup:** 3-5 lines per file
-- **Time per test file:** 2-3 minutes (focus on logic)
-- **Maintenance:** Constructor changes? Tests still work
-- **Type safety:** Automatic, zero config
-- **False positives:** Prevented by fail-fast
-
-**Result:** Teams spend 80% less time on test setup and maintenance.
-
-## When to Use Suites
-
-### Perfect For
-
-✅ **NestJS applications** - First-class support
-✅ **InversifyJS applications** - Full feature parity
-✅ **Classes with 3+ dependencies** - Maximum benefit
-✅ **Type-safe testing** - Without manual effort
-✅ **Fast test execution** - No full container initialization
-✅ **Solitary and sociable tests** - Flexible testing strategies
-
-### Not Needed For
-
-❌ **Plain functions** - Manual mocks are fine
-❌ **1-2 dependencies** - Boilerplate minimal
-❌ **Non-DI applications** - No metadata to leverage
-
-## What's New in v4.0.0
-
-### `.boundaries()` Mode: The Future of Sociable Testing
-
-Instead of listing what to keep real (`.expose()`), list what to **avoid**:
-
-```typescript
-// Old way (.expose): Whitelist real dependencies
-await TestBed.sociable(OrderService)
-  .expose(PriceCalculator)
-  .expose(OrderValidator)
-  .expose(InventoryChecker)
-  .compile();
-
-// New way (.boundaries): Blacklist complex dependencies
-await TestBed.sociable(OrderService)
-  .boundaries([ComplexTaxEngine])  // Only avoid this
-  .compile();
-```
-
-**Benefits:**
-- **Future-proof:** New dependencies automatically tested
-- **Simpler:** List only what to avoid
-- **Safer:** Default to real (catches regressions)
-
-### Fail-Fast Enabled by Default
-
-Prevents "lying tests" by throwing errors for unconfigured mocks:
-
-```typescript
-// Forgot to mock a method that gets called?
-mockRepo.findById.mockResolvedValue(user);
-// Oops, forgot to mock .save()
-
-await service.process();
-// v4.0.0: Throws immediately ✅
-// v3.x: Returns undefined → test passes incorrectly ❌
-```
-
-See [Fail-Fast Behavior](/docs/api-reference/fail-fast) for details.
-
-## How It Works: Under the Hood
-
-Suites' [**Virtual DI Container**](/docs/guides/virtual-di-container) analyzes your DI framework's metadata:
-
-```mermaid
-flowchart LR
-    A[Your Class] --> B[Read DI Metadata]
-    B --> C[Analyze Dependencies]
-    C --> D[Create Virtual Container]
-    D --> E[Auto-Generate Mocks]
-    E --> F[Wire Everything]
-    F --> G[Return unit + unitRef]
-```
-
-**Key insight:** Instead of initializing your entire application (slow, brittle), Suites creates a **minimal test environment** with only what you need.
-
-Learn more: [Virtual DI Container](/docs/guides/virtual-di-container)
-
-## Framework Support
-
-Suites provides adapters for popular DI frameworks:
-
-- **NestJS** - `@suites/unit.nestjs`
-- **InversifyJS** - `@suites/unit.inversify`
-
-Same API across frameworks. Write tests once, switch frameworks without rewriting tests.
-
-## Next Steps
-
-Ready to eliminate testing boilerplate?
-
-- **[Installation](/docs/get-started/installation)** - Set up Suites in 2 minutes
-- **[Quick Start](/docs/get-started/quickstart)** - Write your first test
-- **[API Reference](/docs/api-reference/)** - Deep dive into features
-- **[Virtual DI Container](/docs/guides/virtual-di-container)** - Understand the core innovation
+Suites replaces thousands of lines of brittle, manual test setup with a single, declarative call - giving backend teams confidence in their tests, improving refactor safety, and enabling both developers and AI tools to write and maintain reliable test suites effortlessly.

@@ -49,7 +49,7 @@ it("processes payment", async () => {
   // To fix this:
   //   - Use .expose(PaymentGateway) to make it real
   //   - Or use .mock(PaymentGateway).impl(...) for custom mock behavior
-  //   - Use .disableFailFast() to restore v3.x behavior (not recommended)
+  //   - Use `.failFast({ enabled: false })` to restore v3.x behavior (not recommended)
   //
   // Learn more: https://suites.dev/docs/v4-migration
 });
@@ -75,30 +75,30 @@ const { unit } = await TestBed.solitary(Service).compile();
 
 ### Disabling Fail-Fast
 
-Use `.disableFailFast()` for backward compatibility:
+Use `.failFast({ enabled: false })` for backward compatibility:
 
 ```typescript
 const { unit } = await TestBed.solitary(Service)
-  .disableFailFast()  // Return to v3.x behavior
+  `.failFast({ enabled: false })`  // Return to v3.x behavior
   .compile();
 // Unconfigured methods return undefined
 ```
 
 :::caution Deprecated
-`.disableFailFast()` is deprecated and will be removed in v5.0.0. It's only intended as a migration helper.
+`.failFast({ enabled: false })` is deprecated and will be removed in v5.0.0. It's only intended as a migration helper.
 :::
 
 ## Migration Strategies
 
 ### Option 1: Temporary Fix (Not Recommended)
 
-Add `.disableFailFast()` to restore v3.x behavior:
+Add `.failFast({ enabled: false })` to restore v3.x behavior:
 
 ```typescript
 // Quick fix to make tests pass
 const { unit } = await TestBed.sociable(Service)
   .expose(RealDependency)
-  .disableFailFast()  // ⚠️ Temporary only!
+  `.failFast({ enabled: false })`  // ⚠️ Temporary only!
   .compile();
 ```
 
@@ -207,8 +207,8 @@ const { unit } = await TestBed.sociable(Service)
 1. **Configure used methods**: Only mock methods your test actually calls
 2. **Use .boundaries() for test scope**: List classes to avoid (complex logic tested elsewhere, legacy code, third-party SDKs)
 3. **Tokens are auto-mocked**: Token-injected dependencies (`@Inject('DB')`) are automatically mocked
-4. **Migrate gradually**: Use `.disableFailFast()` temporarily
-5. **Remove .disableFailFast()**: Complete migration before v5.0.0
+4. **Migrate gradually**: Use `.failFast({ enabled: false })` temporarily
+5. **Remove `.failFast({ enabled: false })`**: Complete migration before v5.0.0
 
 ## See Also
 

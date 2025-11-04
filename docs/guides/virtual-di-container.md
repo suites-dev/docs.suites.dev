@@ -32,8 +32,8 @@ Suites reads your class's DI metadata and auto-generates only the mocks needed:
 @Injectable()
 class UserService {
   constructor(
-    private userApi: UserApi,
-    private database: Database
+    private readonly userApi: UserApi,
+    private readonly database: Database
   ) {}
 
   async generateRandomUser(): Promise<number> {

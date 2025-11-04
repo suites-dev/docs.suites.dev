@@ -27,8 +27,8 @@ Testing `UserService` which depends on `UserApi` and `Database`:
 @Injectable()
 class UserService {
   constructor(
-    private userApi: UserApi,
-    private database: Database
+    private readonly userApi: UserApi,
+    private readonly database: Database
   ) {}
 
   async generateRandomUser(): Promise<number> {
@@ -84,7 +84,7 @@ describe('UserService Tests', () => {
 The `Mocked<T>` type ensures all methods are properly typed as stubs. See [Types](/docs/api-reference/types) for details.
 :::
 
-**Automatic Mocking of Dependencies**
+### Automatic Mocking of Dependencies
 
 When using `TestBed.solitary()`, all dependencies are automatically mocked. Each method becomes a stub with no predefined responses. Configure stub responses in your tests as needed.
 
