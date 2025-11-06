@@ -48,6 +48,29 @@ Enabled by default. Throws `DependencyNotConfiguredError` on unconfigured depend
 
 See [Fail-Fast Behavior](/docs/api-reference/fail-fast) for details and migration strategies.
 
+### Installation
+
+```bash
+# Core package (beta)
+npm install @suites/unit@beta
+
+# DI adapters (alpha - no boundaries/fail-fast changes)
+npm install @suites/di.nestjs@alpha
+# or
+npm install @suites/di.inversify@alpha
+
+# Doubles adapters (beta)
+npm install @suites/doubles.jest@beta
+# or
+npm install @suites/doubles.vitest@beta
+# or
+npm install @suites/doubles.sinon@beta
+```
+
+:::tip Why Different Versions?
+`@suites/unit` and doubles adapters are on **beta** (boundaries + fail-fast features). DI adapters remain on **alpha** - they're installed separately and don't contain the new testing logic.
+:::
+
 **Breaking Changes:**
 - Node 20+ required (was 16+)
 - InversifyJS v7 required (was v6)
