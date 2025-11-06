@@ -13,7 +13,7 @@ API reference for setting up and managing unit tests with Suites.
 ## Core APIs
 
 - [**TestBed.solitary()**](/docs/api-reference/testbed-solitary) - Create isolated unit tests where all dependencies are automatically mocked
-- [**TestBed.sociable()**](/docs/api-reference/testbed-sociable) - Test business logic interactions with `.boundaries()` <span class="version-badge version-badge--new">v4.0.0+</span> or `.expose()`
+- [**TestBed.sociable()**](/docs/api-reference/testbed-sociable) - Test business logic interactions with `.collaborate()` + `.exclude()` <span class="version-badge version-badge--new">v4.0.0+</span> or `.expose()`
 - [**Mock Configuration**](/docs/api-reference/mock-configuration) - Configure mock behavior with `.mock().final()` and `.mock().impl()`
 - [**mock() and stub()**](/docs/api-reference/mock) - Create standalone mocks outside TestBed
 - [**UnitReference**](/docs/api-reference/unit-reference) - Access mocked dependencies in tests
@@ -31,9 +31,10 @@ const { unit, unitRef } = await TestBed.solitary(UserService).compile();
 
 ### Creating a Sociable Test
 ```typescript
-// Recommended: boundaries (v4.0.0+)
+// Recommended: collaborate + exclude (v4.0.0+)
 const { unit, unitRef } = await TestBed.sociable(UserService)
-  .boundaries([ComplexService])  // List what to avoid
+  .collaborate()
+  .exclude([ComplexService])  // Exclude from collaboration
   .compile();
 
 // Alternative: expose

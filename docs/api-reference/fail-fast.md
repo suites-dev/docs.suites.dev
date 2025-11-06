@@ -120,14 +120,15 @@ const logger = unitRef.get(Logger);
 logger.log.mockReturnValue(undefined);
 ```
 
-### Option 3: Use .boundaries() (Best for Sociable)
+### Option 3: Use .collaborate() + .exclude() (Best for Sociable)
 
-Switch to boundaries pattern for cleaner configuration:
+Switch to collaborate pattern for cleaner configuration:
 
 ```typescript
 // Instead of configuring many real dependencies
 const { unit } = await TestBed.sociable(OrderService)
-  .boundaries([ComplexTaxEngine])  // Avoid complex logic
+  .collaborate()
+  .exclude([ComplexTaxEngine])  // Exclude from collaboration
   .compile();
 
 // Note: Token-injected deps (DATABASE, HTTP) are auto-mocked
@@ -158,20 +159,21 @@ await TestBed.sociable(PaymentService)
 - Unconfigured mocks throw immediately
 - Bug caught at test time ✅
 
-### Less Critical in Boundaries Mode
+### Less Critical in Collaborate Mode
 
-With `.boundaries()`, the default is **everything real**:
+With `.collaborate()`, the default is **everything real**:
 
 ```typescript
 await TestBed.sociable(OrderService)
-  .boundaries([ComplexMLService])  // Avoid complex logic
+  .collaborate()
+  .exclude([ComplexMLService])  // Exclude from collaboration
   .compile();
 
 // All other deps try to instantiate as real
 // If deps missing → natural constructor failure (already caught)
 ```
 
-Fail-fast still helps, but boundaries mode naturally fails if dependencies are misconfigured.
+Fail-fast still helps, but collaborate mode naturally fails if dependencies are misconfigured.
 
 ## Differences Between Test Types
 
@@ -194,9 +196,10 @@ const { unit } = await TestBed.sociable(Service)
   .expose(RealService)
   .compile();
 
-// Boundaries mode: Default is real → natural failures
+// Collaborate mode: Default is real → natural failures
 const { unit } = await TestBed.sociable(Service)
-  .boundaries([ComplexService])
+  .collaborate()
+  .exclude([ComplexService])
   .compile();
 ```
 
@@ -205,13 +208,13 @@ const { unit } = await TestBed.sociable(Service)
 ## Best Practices
 
 1. **Configure used methods**: Only mock methods your test actually calls
-2. **Use .boundaries() for test scope**: List classes to avoid (complex logic tested elsewhere, legacy code, third-party SDKs)
+2. **Use .collaborate() + .exclude() for test scope**: Exclude classes you want to avoid (complex logic tested elsewhere, legacy code, third-party SDKs)
 3. **Tokens are auto-mocked**: Token-injected dependencies (`@Inject('DB')`) are automatically mocked
 4. **Migrate gradually**: Use `.failFast({ enabled: false })` temporarily
 5. **Remove `.failFast({ enabled: false })`**: Complete migration before v5.0.0
 
 ## See Also
 
-- [TestBed.sociable()](/docs/api-reference/testbed-sociable) - Sociable test configuration (includes `.expose()` and `.boundaries()`)
+- [TestBed.sociable()](/docs/api-reference/testbed-sociable) - Sociable test configuration (includes `.expose()` and `.collaborate() + .exclude()`)
 - [Mock Configuration](/docs/api-reference/mock-configuration) - Configuring mock behavior
 - [Migration Guide](/docs/migration-guides/from-automock) - Migrating to Suites

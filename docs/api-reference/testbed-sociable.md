@@ -30,17 +30,17 @@ TestBed.sociable<T>(ClassUnderTest: Type<T>): SociableTestBuilder<T>
 
 `SociableTestBuilder<T>` with two configuration modes:
 
-### .boundaries() <span class="version-badge version-badge--new">v4.0.0+</span>
+### .collaborate() + .exclude() <span class="version-badge version-badge--new">v4.0.0+</span>
 
-Recommended approach. List classes to avoid - everything else runs real.
+Recommended approach. Enable natural collaboration, then exclude specific classes.
 
 ```typescript
-boundaries(): SociableTestBuilder<T>
-boundaries(dependencies: Type[]): SociableTestBuilder<T>
+collaborate(): SociableTestBuilderInCollaborateMode<T>
+exclude(dependencies: [Type, ...Type[]]): SociableTestBuilderInCollaborateMode<T>
 ```
 
 :::tip Token Auto-Mocking
-Token-injected dependencies are automatically mocked. Use .boundaries() for class dependencies you want to avoid.
+Token-injected dependencies are automatically mocked. Use `.exclude()` for class dependencies you want to opt-out of collaboration.
 :::
 
 ### .expose() - Alternative
@@ -57,17 +57,18 @@ Both methods only accept class constructors, not tokens.
 
 ## Examples
 
-### Using .boundaries()
+### Using .collaborate() + .exclude()
 
 ```typescript
 const { unit, unitRef } = await TestBed.sociable(OrderService)
-  .boundaries([ComplexTaxEngine])  // Avoid complex logic
+  .collaborate()
+  .exclude([ComplexTaxEngine])  // Exclude from collaboration
   .compile();
 
-// Can retrieve boundaries (mocked)
+// Can retrieve excluded dependencies (mocked)
 const taxEngine = unitRef.get(ComplexTaxEngine);
 
-// Cannot retrieve real dependencies
+// Cannot retrieve collaborating dependencies
 // const calculator = unitRef.get(PriceCalculator);  // ERROR - it's real
 ```
 
@@ -87,11 +88,11 @@ const database = unitRef.get(Database);
 
 ## What's Retrievable
 
-**Boundaries mode:**
-- ✅ Classes in .boundaries() array (mocked)
+**Collaborate mode:**
+- ✅ Classes in .exclude() array (mocked)
 - ✅ Tokens (auto-mocked)
 - ✅ Explicitly mocked dependencies
-- ❌ Real dependencies (auto-exposed, leaf classes)
+- ❌ Collaborating dependencies (real, auto-exposed)
 
 **Expose mode:**
 - ✅ Non-exposed dependencies (mocked)
@@ -101,15 +102,14 @@ const database = unitRef.get(Database);
 
 ## Mode Comparison
 
-| Aspect | .boundaries() | .expose() |
-|--------|---------------|-----------|
-| Default | Everything real | Everything mocked |
-| You list | What to avoid | What to keep |
+| Aspect | .collaborate() + .exclude() | .expose() |
+|--------|----------------------------|-----------|
+| Default | Everything collaborates | Everything mocked |
+| You list | What to exclude | What to keep |
 | Use when | Many deps should be real | Few deps should be real |
-| Future-proof | ✅ New deps auto-tested | ⚠️ New deps ignored |
+| Refactoring-stable | ✅ New deps auto-collaborate | ⚠️ New deps ignored |
 
-**Example:** eight `.expose()` calls vs one `.boundaries()` call achieves the same outcome. See [Sociable Guide]
-(/docs/guides/sociable) for the comparison.
+**Example:** eight `.expose()` calls vs one `.collaborate()` call achieves the same outcome. See [Sociable Guide](/docs/guides/sociable) for the comparison.
 
 ## See Also
 

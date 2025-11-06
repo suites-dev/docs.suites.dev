@@ -96,14 +96,14 @@ By auto-mocking these, Suites ensures **sociable tests are still unit tests** - 
 ```typescript
 // Even in sociable mode with many real classes
 await TestBed.sociable(OrderService)
-  .boundaries()  // Everything real!
+  .collaborate()  // Everything collaborates!
   .compile();
 
 // But @Inject('DATABASE') is still auto-mocked
 // Tests run fast, never hit real database
 ```
 
-This creates **natural test boundaries** without manual configuration.
+This creates **natural separation** between business logic (real) and external I/O (mocked) without manual configuration.
 
 ## Benefits
 
@@ -122,5 +122,5 @@ See [Adapters](/docs/guides/adapters) for framework-specific details.
 ## Next Steps
 
 - [Solitary Unit Tests](/docs/guides/solitary) - Using the virtual container in isolation mode
-- [Sociable Unit Tests](/docs/guides/sociable) - Using with boundaries/expose modes
+- [Sociable Unit Tests](/docs/guides/sociable) - Using with collaborate/exclude and expose modes
 - [API Reference](/docs/api-reference/) - Technical details

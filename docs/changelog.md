@@ -9,7 +9,7 @@ description: Release notes and version history for Suites
 ## v4.0.0-beta.0 (Current - Testing)
 
 :::warning Beta Release
-v4.0.0 is in beta for testing. Applies alpha infrastructure improvements **plus** boundaries mode and fail-fast behavior. All functionality will be backported to v3.1.0 soon.
+v4.0.0 is in beta for testing. Applies alpha infrastructure improvements **plus** collaborate/exclude API and fail-fast behavior. All functionality will be backported to v3.1.0 soon.
 :::
 
 **From Alpha:**
@@ -21,22 +21,30 @@ v4.0.0 is in beta for testing. Applies alpha infrastructure improvements **plus*
 
 **New in Beta:**
 
-**`.boundaries()` API**
-Blacklist strategy for sociable tests. List classes to avoid - everything else runs real.
+**`.collaborate()` + `.exclude()` API**
+Natural collaboration strategy for sociable tests. Enable collaboration, then exclude specific classes.
 
 ```typescript
 TestBed.sociable(OrderService)
-  .boundaries([ComplexTaxEngine])  // Avoid complex logic
+  .collaborate()
+  .exclude([ComplexTaxEngine])  // Exclude from collaboration
   .compile();
 ```
 
-**Why boundaries:**
-- Simpler when most deps should be real
-- Future-proof: new dependencies auto-tested
-- Leaf classes (no dependencies) automatically real
+**Why collaborate + exclude:**
+- **Refactoring stable**: Adding dependencies doesn't break tests
+- **Natural mental model**: Think collaboration, not avoidance
+- **Future-proof**: New dependencies auto-collaborate
+- **Clear intent**: "Exclude" is more intuitive than "boundaries"
 - Tokens always auto-mocked (databases, HTTP)
 
-See [TestBed.sociable()](/docs/api-reference/testbed-sociable) for complete API details.
+**The refactoring stability advantage:**
+
+When you add new dependencies to your production code (e.g., adding a `Logger` or `ValidationService`), tests using `.collaborate()` continue to work because new dependencies automatically join the collaboration. You only need to `.exclude()` specific expensive or external services.
+
+This is more stable than "leaf-based" strategies where adding intermediate dependencies can break tests because the graph structure changed.
+
+See [TestBed.sociable()](/docs/api-reference/testbed-sociable) for complete API details and [Sociable Tests Guide](/docs/guides/sociable) for examples.
 
 **Fail-Fast Behavior**
 Enabled by default. Throws `DependencyNotConfiguredError` on unconfigured dependencies. Prevents false positives.
@@ -54,7 +62,7 @@ See [Fail-Fast Behavior](/docs/api-reference/fail-fast) for details and migratio
 # Core package (beta)
 npm install @suites/unit@beta
 
-# DI adapters (alpha - no boundaries/fail-fast changes)
+# DI adapters (alpha - no collaborate/exclude or fail-fast changes)
 npm install @suites/di.nestjs@alpha
 # or
 npm install @suites/di.inversify@alpha
@@ -68,7 +76,7 @@ npm install @suites/doubles.sinon@beta
 ```
 
 :::tip Why Different Versions?
-`@suites/unit` and doubles adapters are on **beta** (boundaries + fail-fast features). DI adapters remain on **alpha** - they're installed separately and don't contain the new testing logic.
+`@suites/unit` and doubles adapters are on **beta** (collaborate/exclude + fail-fast features). DI adapters remain on **alpha** - they're installed separately and don't contain the new testing logic.
 :::
 
 **Breaking Changes:**
@@ -89,7 +97,7 @@ All v4.0.0 features will be backported to v3.1.0 with no breaking changes. This 
 :::
 
 **What's coming:**
-- `.boundaries()` API (opt-in)
+- `.collaborate()` + `.exclude()` API (opt-in)
 - Fail-fast behavior (disabled by default, opt-in with <code>.failFast(\{ enabled: true \})</code>)
 - Enhanced type safety
 - Performance improvements
