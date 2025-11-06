@@ -342,19 +342,28 @@ article h6,
 
 article h1,
 .markdown h1 {
-  font-size: 2.25rem !important;
+  font-size: 2.5rem !important;
   margin-top: 0 !important;
+  line-height: 1.2 !important;
 }
 
 article h2,
 .markdown h2 {
-  font-size: 1.875rem !important;
+  font-size: 2rem !important;
   font-family: "Barlow", sans-serif !important;
+  line-height: 1.3 !important;
 }
 
 article h3,
 .markdown h3 {
-  font-size: 1.5rem !important;
+  font-size: 1.625rem !important;
+  line-height: 1.4 !important;
+}
+
+article h4,
+.markdown h4 {
+  font-size: 1.25rem !important;
+  line-height: 1.4 !important;
 }
 
 article p,
@@ -392,6 +401,26 @@ article li,
   font-weight: 700 !important;
   margin-bottom: 1.25rem !important;
   margin-top: 2rem !important;
+}
+
+.theme-doc-markdown h1 {
+  font-size: 2.5rem !important;
+  line-height: 1.2 !important;
+}
+
+.theme-doc-markdown h2 {
+  font-size: 2rem !important;
+  line-height: 1.3 !important;
+}
+
+.theme-doc-markdown h3 {
+  font-size: 1.625rem !important;
+  line-height: 1.4 !important;
+}
+
+.theme-doc-markdown h4 {
+  font-size: 1.25rem !important;
+  line-height: 1.4 !important;
 }
 
 code[class*="language-"],
