@@ -7,7 +7,7 @@ description: Learn how to install and configure Suites to enhance your unit test
 ## Prerequisites
 
 :::warning Node.js Version Requirement
-Suites v4.0.0+ requires **Node.js 20 or higher**.
+Suites v4.0.0+ requires **Node.js 20 or higher**. Check your version with `node --version`.
 :::
 
 - Node.js 20 or higher
@@ -15,29 +15,26 @@ Suites v4.0.0+ requires **Node.js 20 or higher**.
 - A dependency injection framework (NestJS or InversifyJS)
 - A testing library (Jest, Vitest, or Sinon)
 
-## Setup Suites in a New or Existing Project
+## Installation
 
-This section provides instructions for installing Suites and highlights important compatibility and configuration
-details for setting up unit testing with your DI framework.
-
-:::info
-You can find complete setup examples in the [Suites Examples](https://github.com/suites-dev/examples) repository
+:::tip Testing Beta?
+For v4.0.0 beta with boundaries and fail-fast features, see [Changelog](/docs/changelog) for beta installation instructions.
 :::
 
-First, install Suites' main package:
+Install Suites' core package:
 
 ```bash
-$ npm i -D @suites/unit
+npm install -D @suites/unit
 ```
 
-Then, to integrate Suites with your dependency injection framework and preferred testing library, install the corresponding
-adapters for your project.
-
-For example, to use Suites with Jest and NestJS you would run (alongside `@suites/unit` core package):
+Install the adapters for your DI framework and testing library:
 
 ```bash
-$ npm i -D @suites/doubles.jest @suites/di.nestjs
+# Example: Jest + NestJS
+npm install -D @suites/doubles.jest @suites/di.nestjs
 ```
+
+Complete setup examples available in the [Suites Examples](https://github.com/suites-dev/examples) repository.
 
 Lastly, make sure `reflect-metadata` is also installed in your project, not as a dev dependency ([Why?](https://www.typescriptlang.org/docs/handbook/decorators.html#metadata)):
 
@@ -161,9 +158,9 @@ export default defineConfig({
 
 <div class="next-steps-section">
 
-## What's Next?
+  ## What's Next?
 
-After installing Suites, you can start writing your first test.
-Check out the [Quick Start](/docs/get-started/quickstart) guide to write your first test, or explore the [Guides](/docs/guides/) section for testing patterns.
+  After installing Suites, you can start writing your first test.
+  Check out the [Quick Start](/docs/get-started/quickstart) guide to write your first test, or explore the [Guides](/docs/guides/) section for testing patterns.
 
 </div>
