@@ -110,7 +110,7 @@ Test one class in complete isolation. All dependencies are mocked.
 See [Solitary Unit Tests](/docs/guides/solitary) for examples and usage.
 
 **Sociable Tests**
-Test multiple business logic classes together. Use `.boundaries()` to list classes you want to avoid.
+Test multiple business logic classes together. Use `.collaborate()` + `.exclude()` to enable natural collaboration and exclude specific classes.
 
 See [Sociable Unit Tests](/docs/guides/sociable) for examples and usage.
 

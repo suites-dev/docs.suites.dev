@@ -47,14 +47,14 @@ class UserService {
 
 Two ways to configure sociable tests:
 
-**Option A: .boundaries() <span class="version-badge version-badge--new">v4.0.0+</span>** - List what to avoid, everything else is real
+**Option A: .collaborate() + .exclude() <span class="version-badge version-badge--new">v4.0.0+</span>** - Natural collaboration, opt-out specific classes \
 **Option B: .expose()** - List what's real, everything else is mocked
 
-#### Step 2a: Using .boundaries() (Recommended)
+#### Step 2a: Using .collaborate() + .exclude() (Recommended)
 
-To test `UserService` with a real `UserApi`, list only what you DON'T want to test:
+To test `UserService` with real dependencies collaborating naturally:
 
-```typescript title="user.service.spec.ts (boundaries mode)" {1,14} showLineNumbers
+```typescript title="user.service.spec.ts (collaborate mode)" {1,14} showLineNumbers
 import { TestBed, Mocked } from '@suites/unit';
 import { UserService } from './user.service';
 import { HttpService, Database } from './services';
@@ -66,14 +66,14 @@ describe('UserService Integration Tests', () => {
   let httpService: Mocked<HttpService>;
 
   beforeAll(async () => {
-    // No boundaries needed - UserApi becomes real automatically!
+    // All dependencies collaborate naturally - UserApi becomes real!
     const { unit, unitRef } = await TestBed.sociable(UserService)
-      .boundaries()  // No boundaries - all business logic is real
+      .collaborate()  // Enable natural collaboration
       .compile();
 
     userService = unit;
 
-    // Retrieve the mocked dependencies
+    // Retrieve the mocked dependencies (tokens are auto-mocked)
     database = unitRef.get(Database);
     httpService = unitRef.get(HttpService);
   });
@@ -93,32 +93,33 @@ describe('UserService Integration Tests', () => {
 ```
 
 **What happens here:**
-- **UserApi**: Real (automatically, since not in boundaries array)
-- **Database**: Mocked (automatically)
-- **HttpService**: Mocked (automatically)
+- **UserApi**: Real (collaborates naturally with UserService)
+- **Database**: Mocked (token injection, auto-mocked)
+- **HttpService**: Mocked (token injection, auto-mocked)
 
-**Benefits:** Simpler configuration, future-proof.
+**Benefits:** Natural collaboration, refactoring-stable, future-proof.
 
-#### Boundaries with Specific Classes
+#### Excluding Specific Classes from Collaboration
 
-When avoiding specific business logic classes:
+When you need to exclude expensive or external dependencies:
 
 ```typescript
 const { unit, unitRef } = await TestBed.sociable(OrderService)
-  .boundaries([ComplexTaxEngine])  // Avoid complex tax logic
+  .collaborate()
+  .exclude([ComplexTaxEngine])  // Exclude complex tax logic from collaboration
   .compile();
 
-// ComplexTaxEngine is in boundaries - it's mocked
+// ComplexTaxEngine is excluded - it's mocked
 const taxEngine = unitRef.get(ComplexTaxEngine);
 taxEngine.calculate.mockReturnValue(100);
 
 await unit.processOrder(order);
 
-// Verify interactions with the boundary
+// Verify interactions with excluded dependency
 expect(taxEngine.calculate).toHaveBeenCalledWith(order.total);
 ```
 
-**Key point:** Classes in `.boundaries()` are mocked. You can configure them and verify their interactions - they act as controlled boundary points in your test.
+**Key point:** Classes in `.exclude()` are mocked and retrievable. Everything else collaborates naturally with real implementations.
 
 #### Step 2b: Using .expose() (Alternative)
 
@@ -179,7 +180,7 @@ Mock configuration works the same in both modes. You can define behavior for moc
 ```typescript title="Configuring mocks before compilation"
 beforeAll(async () => {
   const { unit, unitRef } = await TestBed.sociable(UserService)
-    .boundaries()  // All business logic real
+    .collaborate()  // All business logic collaborates
     .mock(Database)  // Configure specific mock behavior
     .final({
       saveUser: async () => 42  // Fixed return value
@@ -214,19 +215,41 @@ Even though sociable tests let you test real interactions, they should still foc
 
 **2. Choose the Right Mode**
 
-**.boundaries() works best when:**
+**.collaborate() + .exclude() works best when:**
 - Services have many business logic dependencies
 - You want new dependencies tested automatically
-- You need future-proof tests
+- You need refactoring-stable, future-proof tests
+- You only need to exclude a few expensive/external classes
 
 **.expose() works best when:**
 - You want to test 2-3 specific class interactions
 - You need fine-grained control over what's real
-- You prefer explicit configuration
+- You prefer explicit whitelisting configuration
 
 **3. Complementary to Solitary Tests**
 
 Sociable tests complement solitary tests - they don't replace them. Use solitary tests for detailed behavior verification and sociable tests for validating interactions.
+
+**4. Refactoring Stability**
+
+The `.collaborate() + .exclude()` API provides superior refactoring stability compared to other approaches:
+
+```typescript
+// With .collaborate() + .exclude()
+TestBed.sociable(OrderService)
+  .collaborate()
+  .exclude([ExpensiveMLService])  // Only exclude what's expensive
+  .compile();
+
+// ✅ Adding new dependencies? Test still works!
+// New deps automatically join collaboration
+```
+
+**Why this matters:**
+
+When you add new dependencies to your production code (e.g., adding a `Logger`), tests using `.collaborate()` continue to work because new dependencies automatically participate in natural collaboration. You only exclude specific expensive or external services.
+
+This is more stable than "leaf-based" or "whitelist" strategies where adding dependencies can break tests because they weren't in your configuration list.
 
 ## What's Next?
 
