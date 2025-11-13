@@ -34,36 +34,22 @@
   --ifm-color-gray-darker: #262b34ff; /* Even darker, great for high contrast elements */
   --ifm-color-gray-light: #f2f4f4ff; /* Light gray for background contrasts and space */
 
-  /* Theme colors (light mode default) */
-  --theme-background: #ffffff;
-  --theme-text: #333333;
-  --theme-border: rgba(0, 0, 0, 0.1);
-  --theme-section-bg: #f8f9fa;
+  /* Force dark mode theme colors */
+  --theme-background: #1a1a1a;
+  --theme-text: #e6e6e6;
+  --theme-border: rgba(255, 255, 255, 0.1);
+  --theme-section-bg: #2d2d2d;
   --theme-section-border: var(--ifm-color-primary);
-  --theme-card-bg: rgba(253, 245, 248, 0.4);
-  --theme-card-hover-shadow: rgba(0, 0, 0, 0.05);
-  --theme-card-text: var(--ifm-color-gray-dark);
+  --theme-card-bg: rgba(45, 45, 45, 0.7);
+  --theme-card-hover-shadow: rgba(0, 0, 0, 0.2);
+  --theme-card-text: #c4c4c4;
 
-  /* Set color scheme support */
-  color-scheme: light dark;
-}
+  /* Override docusaurus colors to force dark mode */
+  --ifm-background-color: #1a1a1a;
+  --ifm-font-color-base: #e6e6e6;
 
-/* Dark mode colors */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --theme-background: #1a1a1a;
-    --theme-text: #e6e6e6;
-    --theme-border: rgba(255, 255, 255, 0.1);
-    --theme-section-bg: #2d2d2d;
-    --theme-section-border: var(--ifm-color-primary);
-    --theme-card-bg: rgba(45, 45, 45, 0.7);
-    --theme-card-hover-shadow: rgba(0, 0, 0, 0.2);
-    --theme-card-text: #c4c4c4;
-
-    /* Override docusaurus dark mode colors */
-    --ifm-background-color: var(--theme-background);
-    --ifm-font-color-base: var(--theme-text);
-  }
+  /* Force dark color scheme only */
+  color-scheme: dark;
 }
 
 html {
@@ -461,23 +447,18 @@ html[data-theme='dark'] .header-github-link:before {
   background-color: var(--theme-border);
 }
 
+/* Dark mode is always enabled */
 html[data-theme='dark'] .theme-toggle-button svg {
   fill: #f5f5f5;
 }
 
-html[data-theme='light'] .theme-toggle-button svg {
-  fill: #2d2d2d;
+/* Dark mode styling (always applied) */
+.in-this-section {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-/* Dark mode adjustments for components */
-@media (prefers-color-scheme: dark) {
-  .in-this-section {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  }
-
-  .alert a {
-    color: #ffffff !important;
-  }
+.alert a {
+  color: #ffffff !important;
 }
 
 /* Version Badge Styles */

@@ -471,9 +471,6 @@
     font-weight: 700;
     margin-bottom: 1.5rem;
     line-height: 1.3;
-}
-
-:global(html[data-theme='dark']) .alternatingSection .textColumn h2 {
     color: #fff;
 }
 
@@ -482,10 +479,6 @@
     line-height: 1.8;
     color: #aeb8c4;
     margin-bottom: 2rem;
-}
-
-:global(html[data-theme='light']) .alternatingSection .textColumn p {
-     color: var(--ifm-color-gray-dark);
 }
 
 .alternatingSection .textColumn .button {
