@@ -151,5 +151,27 @@ module.exports = {
       to: '/docs/get-started/why-suites',
     },
 
+    // ============================================
+    // GOOGLE SEARCH CONSOLE 404s (Found Nov 2025)
+    // ============================================
+
+    // Old examples page
+    {
+      from: '/docs/overview/examples',
+      to: '/docs/get-started/quickstart',
+    },
+
+    // Extras/identical-injections (old advanced topic)
+    {
+      from: ['/docs/extras/identical-injections', '/docs/extras/identical-injections/'],
+      to: '/docs/guides/adapters/identifiers',
+    },
+
+    // Old category page
+    {
+      from: '/docs/category/di-framework-adapters',
+      to: '/docs/guides/adapters/',
+    },
+
   ],
 };
