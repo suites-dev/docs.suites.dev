@@ -1,57 +1,93 @@
 ---
 sidebar_position: 3
 title: Installation
-description: Learn how to install and configure Suites to enhance your unit testing process across various DI frameworksand testing libraries.
+description: Learn how to install and configure Suites to enhance your unit testing process across frameworks implementing IoC and various testing libraries.
 ---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 ## Prerequisites
 
-:::warning Node.js Version Requirement
-Suites v4.0.0+ requires **Node.js 20 or higher**. Check your version with `node --version`.
-:::
-
-- Node.js 20 or higher
+- Node 16 or higher
 - TypeScript project with decorators enabled
-- A dependency injection framework (NestJS or InversifyJS)
-- A testing library (Jest, Vitest, or Sinon)
+- A framework implementing IoC ([NestJS](https://nestjs.com/), [InversifyJS](https://inversify.io/)), or plain
+TypeScript classes (manually)
+- A testing library ([Jest](https://jestjs.io/), [Vitest](https://vitest.dev/), or [Sinon](https://sinonjs.org/))
 
 ## Installation
 
-:::tip Testing Beta?
-For v4.0.0 beta with boundaries and fail-fast features, see [Changelog](/docs/changelog) for beta installation instructions.
-:::
-
-Install Suites' core package:
+Install the core package:
 
 ```bash
 npm install -D @suites/unit
 ```
 
-Install the adapters for your DI framework and testing library:
+Install the adapters for your framework and testing library:
 
-```bash
-# Example: Jest + NestJS
-npm install -D @suites/doubles.jest @suites/di.nestjs
-```
+<Tabs groupId="package-manager">
+  <TabItem value="npm" label="npm" default>
+    ```bash
+    # Install NestJS dependencies
+    npm install @nestjs/common @nestjs/core reflect-metadata
 
-Complete setup examples available in the [Suites Examples](https://github.com/suites-dev/examples) repository.
+    # Install Suites core and adapters
+    npm install --save-dev @suites/unit @suites/di.nestjs @suites/doubles.jest
 
-Lastly, make sure `reflect-metadata` is also installed in your project, not as a dev dependency ([Why?](https://www.typescriptlang.org/docs/handbook/decorators.html#metadata)):
+    # Install TypeScript and Jest
+    npm install --save-dev ts-jest @types/jest jest typescript
+    ```
+  </TabItem>
+  <TabItem value="pnpm" label="pnpm">
+    ```bash
+    # Install NestJS dependencies
+    pnpm add @nestjs/common @nestjs/core reflect-metadata
 
-```bash
-$ npm i reflect-metadata
-```
+    # Install Suites core and adapters
+    pnpm add -D @suites/unit @suites/di.nestjs @suites/doubles.jest
 
-Suites will automatically detect the installed adapters and configure itself accordingly.
+    # Install TypeScript and Jest
+    pnpm add -D ts-jest @types/jest jest typescript
+    ```
+  </TabItem>
+  <TabItem value="yarn" label="yarn">
+    ```bash
+    # Install NestJS dependencies
+    yarn add @nestjs/common @nestjs/core reflect-metadata
 
-## Supported Libraries
+    # Install Suites core and adapters
+    yarn add -D @suites/unit @suites/di.nestjs @suites/doubles.jest
 
-### Available Dependency Injection Adapters:
+    # Install TypeScript and Jest
+    yarn add -D ts-jest @types/jest jest typescript
+    ```
+  </TabItem>
+</Tabs>
 
-- `@suites/di.nestjs`
-- `@suites/di.inversify`
+This installs three packages:
+- `@suites/unit` - Core TestBed API
+- `@suites/di.nestjs` - NestJS adapter for reading DI metadata
+- `@suites/doubles.jest` - Jest integration for creating type-safe mocks
 
-### Available Mocking Libraries Adapters:
+**Suites will automatically detect the installed adapters and configure itself accordingly.**
+
+:::info Why reflect-metadata?
+`reflect-metadata` is required as a runtime dependency (not dev dependency) because TypeScript's decorator metadata is only emitted at compile time.
+Learn more in the [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/decorators.html#metadata).
+:::
+
+## Supported Libraries (Adapters)
+
+### Framework Adapters:
+
+- `@suites/di.nestjs` - [NestJS](https://nestjs.com/) dependency injection
+- `@suites/di.inversify` - [InversifyJS](https://inversify.io/) dependency injection
+
+:::info Coming Soon
+TestBed.manual for functional composition and other IoC implementations beyond dependency injection
+:::
+
+### Available Mocking Libraries:
 
 - `@suites/doubles.jest`
 - `@suites/doubles.sinon`
@@ -61,8 +97,8 @@ After installation, no additional configuration for the test runner is needed.
 
 ## Setting Up `tsconfig.json`
 
-In order to use Suites, you need to enable the [`emitDecoratorMetadata`](https://www.typescriptlang.org/tsconfig#emitDecoratorMetadata) and [`experimentalDecorators`](https://www.typescriptlang.org/tsconfig#experimentalDecorators) options in your `tsconfig.json` file.
-This configuration is necessary for Suites to reflect class dependencies and to work with dependency injection frameworks.
+To use Suites, enable the [`emitDecoratorMetadata`](https://www.typescriptlang.org/tsconfig#emitDecoratorMetadata) and [`experimentalDecorators`](https://www.typescriptlang.org/tsconfig#experimentalDecorators) options in the `tsconfig.json` file.
+This configuration is necessary for Suites to reflect class dependencies and constructor metadata.
 
 ```json title="tsconfig.json"
 {
@@ -73,86 +109,80 @@ This configuration is necessary for Suites to reflect class dependencies and to 
 }
 ```
 
-:::tip NodeNext Module Resolution
-Suites v4.0.0+ fully supports `"module": "NodeNext"` in your `tsconfig.json`, providing better ESM compatibility and modern module resolution.
-:::
-
 ## Type Reference Configuration
 
 To ensure type safety and maintain a clean API, Suites requires setting up type references for your mocking library. This approach enables importing all utilities from `@suites/unit` while maintaining proper type information.
 
 ### Setting Up Type References
 
-1. **Create a `global.d.ts` file** in your project's root directory (or the location specified as `rootDir` in your `tsconfig.json`).
+1. **Create a `global.d.ts` file** in the project root directory (or the location specified as `rootDir` in the `tsconfig.json`).
 
-2. **Add reference types** for your mocking library AND DI framework:
+2. **Add reference types** for the mocking library and dependency injection framework:
 
 ```typescript title="global.d.ts"
 // Mocking library (choose one)
-/// <reference types="@suites/doubles.jest/unit" />
+/// <reference types='@suites/doubles.jest/unit' />
+/// <reference types='@suites/di.nestjs/types' />
 // OR
-/// <reference types="@suites/doubles.sinon/unit" />
+/// <reference types='@suites/doubles.sinon/unit' />
+/// <reference types='@suites/di.inversify/types' />
 // OR
-/// <reference types="@suites/doubles.vitest/unit" />
-
-// DI framework (choose one)
-/// <reference types="@suites/di.nestjs" />
-// OR
-/// <reference types="@suites/di.inversify" />
+/// <reference types='@suites/doubles.vitest/unit' />
+/// <reference types='@suites/di.nestjs/types' />
 ```
 
 **Example for Jest + NestJS:**
-```typescript title="global.d.ts"
-/// <reference types="@suites/doubles.jest/unit" />
-/// <reference types="@suites/di.nestjs" />
+```typescript title='global.d.ts'
+/// <reference types='@suites/doubles.jest/unit' />
+/// <reference types='@suites/di.nestjs/types' />
 ```
 
-This configuration ensures your project correctly recognizes the types provided by Suites (like the `Mocked<T>` type) without needing to import them from library-specific modules.
+This configuration ensures the project correctly recognizes the types provided by Suites (like the `Mocked<T>` type) without needing to import them from library-specific modules.
 
 ## Monorepo Support
 
-Suites is fully compatible with monorepo setups, accommodating projects that use different mocking or DI frameworks.
+Suites is fully compatible with monorepo setups, accommodating projects that use different testing frameworks.
 
 ### Recommended Setups
 
 When using Suites in a monorepo, consider the following setups:
 
-**Using the same mocking and DI framework across all workspaces** \
+**Using the same mocking and dependency injection framework across all workspaces** \
 Install the corresponding adapter under the root directory of your monorepo.
 Suites will automatically detect the adapter and configure itself accordingly.
 
 **Using different frameworks across workspaces** \
-Install the corresponding adapter in each workspace separately. Make sure to configure your package manager's hoisting settings
+Install the corresponding adapter in each workspace separately. Configure the package manager's hoisting settings
 to enable Suites to detect the adapter in each workspace.
 
 :::note
 Some package managers may have limitations with dependency hoisting that can affect using different DI or mocking libraries
-across workspaces. Please refer to your package manager's documentation for specific guidance on dependency hoisting.
+across workspaces. Refer to the package manager's documentation for specific guidance on dependency hoisting.
 :::
 
 ## For Vitest Users
 
 When integrating Suites with Vitest, additional configuration is required. Vitest typically uses [`esbuild`](https://esbuild.github.io/) for
-TypeScript interpretation, which doesn't support `emitDecoratorMetadata` - a feature extensively used by Suites for
+TypeScript interpretation, which does not support `emitDecoratorMetadata` - a feature extensively used by Suites for
 reflecting class dependencies. To overcome this, switch to using [`@swc/core`](https://swc.rs/docs/usage/core) via a
 plugin, which supports `emitDecoratorMetadata`. For detailed guidance, see the [Vitest documentation](https://vitest.dev/).
 
 Here is an example of how to configure Suites with Vitest:
 
-First, install the `unplugin-swc` and `@swc/core` packages and add it to your `vitest.config.ts` file as a plugin.
+First, install the `unplugin-swc` and `@swc/core` packages and add it to the `vitest.config.ts` file as a plugin.
 This will enable `@swc/core` to interpret TypeScript files and support `emitDecoratorMetadata`.
 
 ```bash
 $ npm install --save-dev unplugin-swc @swc/core
 ```
 
-```typescript title="vitest.config.ts"
-import swc from "unplugin-swc";
-import { defineConfig } from "vitest/config";
+```typescript title='vitest.config.ts'
+import swc from 'unplugin-swc';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
-  test: { globals: true, root: "./" },
-  plugins: [swc.vite({ module: { type: "es6" } })],
+  test: { globals: true, root: './' },
+  plugins: [swc.vite({ module: { type: 'es6' } })],
 });
 ```
 
@@ -160,7 +190,7 @@ export default defineConfig({
 
   ## What's Next?
 
-  After installing Suites, you can start writing your first test.
-  Check out the [Quick Start](/docs/get-started/quickstart) guide to write your first test, or explore the [Guides](/docs/guides/) section for testing patterns.
+  After installing Suites, the first test can be written.
+  Check out the [Quick Start](/docs/get-started/quickstart) guide to write the first test, or explore the [Guides](/docs/guides/) section for testing patterns.
 
 </div>

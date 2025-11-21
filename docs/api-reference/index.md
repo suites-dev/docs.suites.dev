@@ -13,12 +13,11 @@ API reference for setting up and managing unit tests with Suites.
 ## Core APIs
 
 - [**TestBed.solitary()**](/docs/api-reference/testbed-solitary) - Create isolated unit tests where all dependencies are automatically mocked
-- [**TestBed.sociable()**](/docs/api-reference/testbed-sociable) - Test business logic interactions with `.boundaries()` <span class="version-badge version-badge--new">v4.0.0+</span> or `.expose()`
+- [**TestBed.sociable()**](/docs/api-reference/testbed-sociable) - Test business logic interactions, keep specific dependencies real
 - [**Mock Configuration**](/docs/api-reference/mock-configuration) - Configure mock behavior with `.mock().final()` and `.mock().impl()`
-- [**mock() and stub()**](/docs/api-reference/mock) - Create standalone mocks outside TestBed
+- [**mock() and stub()**](/docs/api-reference/mock) - Create standalone mocks outside `TestBed` API
 - [**UnitReference**](/docs/api-reference/unit-reference) - Access mocked dependencies in tests
 - [**Types**](/docs/api-reference/types) - TypeScript type definitions
-- [**Fail-Fast Behavior**](/docs/api-reference/fail-fast) <span class="version-badge version-badge--new">v4.0.0+</span> - Prevent false positives
 
 </div>
 
@@ -31,14 +30,8 @@ const { unit, unitRef } = await TestBed.solitary(UserService).compile();
 
 ### Creating a Sociable Test
 ```typescript
-// Recommended: boundaries (v4.0.0+)
 const { unit, unitRef } = await TestBed.sociable(UserService)
-  .boundaries([ComplexService])  // List what to avoid
-  .compile();
-
-// Alternative: expose
-const { unit, unitRef } = await TestBed.sociable(UserService)
-  .expose(UserApi)  // List what to keep
+  .expose(UserApi)  // Keep UserApi real
   .compile();
 ```
 
@@ -47,7 +40,7 @@ const { unit, unitRef } = await TestBed.sociable(UserService)
 // Final configuration (immutable)
 await TestBed.solitary(UserService)
   .mock(UserApi)
-  .final({ getRandom: async () => ({ id: 1, name: "John" }) })
+  .final({ getRandom: async () => ({ id: 1, name: 'John' }) })
   .compile();
 
 // Flexible configuration
@@ -59,7 +52,7 @@ await TestBed.solitary(UserService)
 
 ### Creating Standalone Mocks
 ```typescript
-import { mock, stub } from "@suites/unit";
+import { mock, stub } from '@suites/unit';
 
 // Mock a full class
 const userRepo = mock<UserRepository>();
@@ -70,7 +63,7 @@ const stubFn = stub();
 stubFn.mockReturnValue(42);
 ```
 
-## Terminology
+## Quick Terminology
 
 - **Mock**: A complete replacement of a dependency class where each method has been replaced with a stub
 - **Stub**: An individual method replacement that provides predefined responses

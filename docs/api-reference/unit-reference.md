@@ -6,7 +6,8 @@ description: Access mocked dependencies in your tests
 
 # UnitReference
 
-The `UnitReference` object provides access to mocked dependencies within your test environment. It's returned by both `TestBed.solitary()` and `TestBed.sociable()` after compilation.
+The `UnitReference` object provides access to mocked dependencies within the test environment. It's returned by both
+`TestBed.solitary()` and `TestBed.sociable()` after compilation.
 
 ## Interface
 
@@ -50,7 +51,7 @@ const database = unitRef.get(Database);
 const logger = unitRef.get(Logger);
 
 // Configure mock behavior
-database.findUser.mockResolvedValue({ id: 1, name: "John" });
+database.findUser.mockResolvedValue({ id: 1, name: 'John' });
 logger.log.mockReturnValue(undefined);
 ```
 
@@ -75,11 +76,10 @@ const payment = unitRef.get(PaymentService);
 ### Using with Injection Tokens
 
 ```typescript
-// InversifyJS example
 const TYPES = {
-  Database: Symbol.for("Database"),
-  Logger: Symbol.for("Logger"),
-  Cache: Symbol.for("Cache")
+  Database: Symbol.for('Database'),
+  Logger: Symbol.for('Logger'),
+  Cache: Symbol.for('Cache')
 };
 
 @injectable()
@@ -105,130 +105,47 @@ const cache = unitRef.get(TYPES.Cache);
 // Some frameworks use string tokens
 const { unitRef } = await TestBed.solitary(ConfigService).compile();
 
-const apiUrl = unitRef.get("API_URL");
-const dbConfig = unitRef.get("DATABASE_CONFIG");
+const apiUrl = unitRef.get<string>('API_URL');
+const dbConfig = unitRef.get<DatabaseConfig>('DATABASE_CONFIG');
 ```
 
 ## Important Limitations
 
 ### Cannot Retrieve Exposed Classes in Sociable Tests
 
-When using `TestBed.sociable()` with `.expose()`, exposed classes cannot be retrieved:
+When using `TestBed.sociable()` with `.expose()`, exposed classes are treated as real implementations, not mocks.
+Because `unitRef` is designed exclusively for accessing mocked dependencies, you cannot retrieve a real instance from
+it.
 
 ```typescript
 const { unitRef } = await TestBed.sociable(PaymentService)
   .expose(TaxCalculator)  // Real implementation
   .compile();
 
-// ❌ This will throw an error
+// ❌ This will throw an error because TaxCalculator is a real instance
 const calculator = unitRef.get(TaxCalculator);
 
-// ✅ Only non-exposed dependencies can be retrieved
+// ✅ Only non-exposed (mocked) dependencies can be retrieved
 const database = unitRef.get(Database);
 ```
 
 ### Cannot Retrieve Dependencies with .mock().final()
 
-Dependencies configured with `.mock().final()` cannot be retrieved:
+Dependencies configured with `.mock().final()` are immutable and sealed upon compilation. This is a design choice to ensure that their behavior remains fixed throughout the test. As they are not intended to be modified or inspected after compilation, they cannot be retrieved via `unitRef`. If you need to access or modify a mock during your tests, use `.mock().impl()` instead.
 
 ```typescript
 const { unitRef } = await TestBed.solitary(UserService)
   .mock(Database)
-  .final({ find: async () => [] })
+  .final({ find: async () => [] }) // Immutable mock
   .compile();
 
-// ❌ This will throw an error
+// ❌ This will throw an error because the mock is final
 const database = unitRef.get(Database);
-```
-
-## Common Patterns
-
-### Configuring Multiple Mocks
-
-```typescript
-describe("OrderService", () => {
-  let service: OrderService;
-  let inventory: Mocked<InventoryService>;
-  let payment: Mocked<PaymentService>;
-  let shipping: Mocked<ShippingService>;
-
-  beforeAll(async () => {
-    const { unit, unitRef } = await TestBed.solitary(OrderService).compile();
-
-    service = unit;
-    inventory = unitRef.get(InventoryService);
-    payment = unitRef.get(PaymentService);
-    shipping = unitRef.get(ShippingService);
-  });
-
-  beforeEach(() => {
-    // Reset all mocks before each test
-    jest.clearAllMocks();
-  });
-
-  it("should process order", async () => {
-    inventory.checkStock.mockResolvedValue(true);
-    payment.charge.mockResolvedValue({ status: "success" });
-    shipping.schedule.mockResolvedValue({ trackingId: "123" });
-
-    const result = await service.processOrder(order);
-
-    expect(inventory.checkStock).toHaveBeenCalledWith(order.items);
-    expect(payment.charge).toHaveBeenCalledWith(order.total);
-    expect(shipping.schedule).toHaveBeenCalled();
-  });
-});
-```
-
-### Dynamic Mock Behavior
-
-```typescript
-const database = unitRef.get(Database);
-
-// Different responses per call
-database.find
-  .mockResolvedValueOnce([])  // First call returns empty
-  .mockResolvedValueOnce([{ id: 1 }])  // Second call returns data
-  .mockRejectedValueOnce(new Error("Connection lost"));  // Third call fails
-
-// Conditional responses
-database.find.mockImplementation(async (query) => {
-  if (query.id === "invalid") {
-    throw new Error("Not found");
-  }
-  return { id: query.id, name: "Test" };
-});
-```
-
-### Verifying Mock Calls
-
-```typescript
-const logger = unitRef.get(Logger);
-const emailService = unitRef.get(EmailService);
-
-// Perform action
-await service.notifyUser(userId, message);
-
-// Verify calls
-expect(logger.info).toHaveBeenCalledWith(`Notifying user ${userId}`);
-expect(emailService.send).toHaveBeenCalledWith(
-  expect.objectContaining({
-    to: userId,
-    subject: expect.stringContaining("Notification"),
-    body: message
-  })
-);
-
-// Verify call order
-expect(logger.info).toHaveBeenCalledBefore(emailService.send);
-
-// Verify number of calls
-expect(emailService.send).toHaveBeenCalledTimes(1);
 ```
 
 ## Type Safety
 
-The `Mocked<T>` type ensures type safety for your mocks:
+The `Mocked<T>` type ensures type safety for your mocks (See more in [Types Reference](/docs/api-reference/types):
 
 ```typescript
 interface UserRepository {
@@ -278,12 +195,12 @@ const db = unitRef.get(Database); // ❌ Error
 ### "Token not found"
 ```typescript
 // Problem: Using wrong token
-const logger = unitRef.get("Logger"); // ❌ String doesn't match
+const logger = unitRef.get('LoggerToken'); // ❌ String doesn't match
 
 // Solution: Use the exact token used in injection
 const logger = unitRef.get(LoggerService); // ✅ Correct class
 // or
-const logger = unitRef.get(TYPES.Logger); // ✅ Correct symbol
+const logger = unitRef.get<Logger>('LoggerToken'); // ✅ Correct symbol
 ```
 
 ## See Also

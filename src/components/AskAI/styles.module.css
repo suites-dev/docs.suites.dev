@@ -1,0 +1,207 @@
+.askAIButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.askAIButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.askAIButton:active {
+  transform: translateY(0);
+}
+
+.askAIButton.navbar {
+  margin-left: 12px;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.askAIButton.doc {
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+.askAIButtonFloating {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 24px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+}
+
+.askAIButtonFloating:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.icon {
+  font-size: 18px;
+}
+
+.text {
+  font-weight: 500;
+}
+
+/* Dark mode adjustments */
+[data-theme='dark'] .askAIButton,
+[data-theme='dark'] .askAIButtonFloating {
+  background: linear-gradient(135deg, #ef4779 0%, #f06292 100%);
+  box-shadow: 0 2px 8px rgba(239, 71, 121, 0.3);
+}
+
+[data-theme='dark'] .askAIButton:hover,
+[data-theme='dark'] .askAIButtonFloating:hover {
+  background: linear-gradient(135deg, #f06292 0%, #ef4779 100%);
+  box-shadow: 0 4px 12px rgba(239, 71, 121, 0.5);
+}
+
+/* Container for button and options */
+.askAIContainer {
+  position: relative;
+  display: inline-block;
+}
+
+/* When container is fixed positioned (for floating button) */
+.askAIContainer:has(.askAIButtonFloating) {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+}
+
+/* Options menu for floating button */
+.optionsMenu {
+  position: absolute;
+  bottom: calc(100% + 16px);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  background: var(--ifm-background-surface-color);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  min-width: 140px;
+  animation: slideUp 0.2s ease;
+  z-index: 1001;
+}
+
+/* Options menu for inline button */
+.optionsMenuInline {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  background: var(--ifm-background-surface-color);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  min-width: 140px;
+  animation: slideDown 0.2s ease;
+  z-index: 10;
+}
+
+.optionButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: transparent;
+  color: var(--ifm-font-color-base);
+  border: 1px solid var(--ifm-border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.optionButton:hover {
+  background: var(--ifm-color-primary-lightest);
+  border-color: var(--ifm-color-primary);
+  transform: translateX(2px);
+}
+
+.optionIcon {
+  font-size: 16px;
+}
+
+/* Animations */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .askAIButtonFloating {
+    bottom: 16px;
+    right: 16px;
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  .askAIButtonFloating .text {
+    display: none;
+  }
+
+  .askAIButtonFloating {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border-radius: 50%;
+    justify-content: center;
+  }
+
+  .askAIButtonFloating .icon {
+    margin: 0;
+  }
+
+  .optionsMenu {
+    bottom: calc(100% + 4px);
+    right: -20px;
+  }
+}

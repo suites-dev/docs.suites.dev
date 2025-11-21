@@ -52,7 +52,6 @@
 .worksWithTitle {
     font-family: 'Inter', sans-serif;
     font-size: 0.9rem;
-    font-weight: 600;
     color: rgba(253, 245, 248, 0.6);
     letter-spacing: 1px;
     margin-top: 1.5rem;
@@ -98,6 +97,13 @@
     border-radius: 10px;
     letter-spacing: 0.3px;
     margin-top: 0.25rem;
+    transition: all 0.3s ease;
+}
+
+.logoItem:hover .recommendedBadge {
+    color: rgba(253, 245, 248, 0.9);
+    background-color: rgba(253, 245, 248, 0.15);
+    border-color: rgba(253, 245, 248, 0.4);
 }
 
 .logoName {
@@ -220,63 +226,63 @@
         padding: 2rem 1rem;
         min-height: auto;
     }
-    
+
     .heroContent {
         flex-direction: column;
         gap: 2rem;
     }
-    
+
     .textColumn {
         text-align: center;
         max-width: 100%;
     }
-    
+
     .codeColumn {
         max-width: 100%;
         width: 100%;
     }
-    
+
     .buttonGroup {
         justify-content: center;
     }
-    
+
     .button {
         font-size: 0.9rem;
         padding: 8px 16px;
     }
-    
+
     .worksWithSection {
         text-align: center;
     }
-    
+
     .logoGrid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 1.5rem;
         justify-items: center;
     }
-    
+
     .logoItem {
         min-height: auto;
     }
-    
+
     .featuresGrid {
         grid-template-columns: 1fr;
         gap: 1.5rem;
     }
-    
+
     .featureItem {
         padding: 1.5rem;
     }
-    
+
     .featureTitle {
         font-size: 1.1rem;
     }
-    
+
     .featureDescription {
         font-size: 0.9rem;
     }
-    
+
     .trustedByGrid {
         gap: 2rem;
     }
@@ -615,7 +621,7 @@
     .alternatingSection:nth-child(even) .textColumn {
         order: 1;
     }
-    
+
     .visualColumn {
         margin-top: 2rem;
     }

@@ -1,235 +1,324 @@
 ---
 sidebar_position: 3
 title: Sociable Unit Tests
-description: Testing real component interactions with Suites
+description: Testing real component (class) interactions with Suites
 ---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 # Sociable Unit Tests
 
-## Introduction
+> **What this covers:** Testing real component (class) interactions while controlling external dependencies with Suites \
+> **Time to read:** ~15 minutes \
+> **Prerequisites:** [Unit Testing Fundamentals](/docs/guides/fundamentals), [Solitary Unit Tests](./solitary.md), [Test Doubles](./test-doubles.md) \
+> **Best for:** Verifying components (classes) work together correctly, catching integration bugs while maintaining test speed 
 
-Sociable unit tests focus on testing a component with its real dependencies while still controlling external boundaries. This approach ensures that you verify how components actually interact in a controlled environment, providing more realistic validation than solitary tests.
+Sociable unit tests verify how components interact with real dependencies while mocking external I/O. This approach catches integration bugs that solitary tests miss, ensuring components work together correctly.
 
-:::tip Sociable Tests Are Still Unit Tests
-Even with multiple real classes, sociable tests remain **unit tests** because external I/O (databases, HTTP, caches) are injected via tokens (`@Inject('DATABASE')`) which are **automatically mocked**. You're testing business logic interactions, not actual I/O.
+:::info Important: Sociable Are Still Unit Tests
+Sociable tests are **unit tests**, not integration tests. They mock external I/O (databases, APIs, file systems) to stay
+fast and side-effect-free. The "integration bugs" they catch are issues in how business logic components interact with
+each other - not issues with real external systems. \
+For the distinction, see [Unit Testing Fundamentals: Quick Reference](/docs/guides/fundamentals#quick-reference).
 :::
 
-:::note When to use sociable tests
-Sociable tests are ideal when:
-- You need to verify interactions between business logic components
-- You want to test integration points between several classes
-- You're testing behaviors that emerge from component collaboration
-- You want to refactor internal implementation without breaking tests
-:::
+## Overview
 
-In contrast to [solitary unit tests](/docs/guides/solitary), which replace all dependencies with mocks, sociable tests use real implementations for selected dependencies to verify genuine interactions.
+This tutorial walks you through:
+1. Setting up your first sociable test with real dependencies
+2. Handling external dependencies and I/O operations
+3. Scaling with multiple dependencies using `.expose()`
+4. Choosing configuration patterns (pre vs post compilation)
+5. Common patterns and decision frameworks
 
-## Step-by-Step Example
+## Step 1: Set Up the First Sociable Test
 
-Testing `UserService` with real `UserApi` to verify their interaction:
+This example tests a `UserService` that depends on an `EmailValidator`.
 
-```typescript
+### 1.1 Create the Services
+
+```typescript title="src/services/email-validator.ts"
 @Injectable()
-class UserService {
-  constructor(
-    private userApi: UserApi,
-    private database: Database
-  ) {}
-
-  async generateRandomUser(): Promise<number> {
-    const user = await this.userApi.getRandom();
-    return this.database.saveUser(user);
+export class EmailValidator {
+  isValid(email: string): boolean {
+    return email.includes('@') && email.includes('.');
   }
 }
 ```
 
-### Choose Your Approach
+```typescript title="src/services/user.service.ts"
+@Injectable()
+export class UserService {
+  constructor(private validator: EmailValidator) {}
 
-Two ways to configure sociable tests:
+  createUser(email: string) {
+    if (!this.validator.isValid(email)) {
+      throw new Error('Invalid email');
+    }
+    return { email };
+  }
+}
+```
 
-**Option A: .boundaries() <span class="version-badge version-badge--new">v4.0.0+</span>** - List what to avoid, everything else is real
-**Option B: .expose()** - List what's real, everything else is mocked
+### 1.2 Write the Sociable Test
 
-#### Step 2a: Using .boundaries() (Recommended)
+The `.expose()` method makes `EmailValidator` use its real implementation instead of a mock.
 
-To test `UserService` with a real `UserApi`, list only what you DON'T want to test:
+```typescript title="src/services/user.service.spec.ts"
+import { TestBed } from '@suites/unit';
+import { UserService, EmailValidator } from './services';
 
-```typescript title="user.service.spec.ts (boundaries mode)" {1,14} showLineNumbers
-import { TestBed, Mocked } from '@suites/unit';
-import { UserService } from './user.service';
-import { HttpService, Database } from './services';
-import { User } from './types';
-
-describe('UserService Integration Tests', () => {
+describe('UserService', () => {
   let userService: UserService;
-  let database: Mocked<Database>;
-  let httpService: Mocked<HttpService>;
 
   beforeAll(async () => {
-    // No boundaries needed - UserApi becomes real automatically!
-    const { unit, unitRef } = await TestBed.sociable(UserService)
-      .boundaries()  // No boundaries - all business logic is real
+    const { unit } = await TestBed.sociable(UserService)
+      .expose(EmailValidator)  // Use real EmailValidator
       .compile();
 
     userService = unit;
-
-    // Retrieve the mocked dependencies
-    database = unitRef.get(Database);
-    httpService = unitRef.get(HttpService);
   });
 
-  it('should generate a random user and save to the database', async () => {
-    // Configure the mocked dependencies
-    const userFixture: User = { id: 1, name: 'John' };
-    httpService.get.mockResolvedValue({ data: userFixture });
-    database.saveUser.mockResolvedValue(42);
+  it('validates email using real logic', () => {
+    const result = userService.createUser('test@example.com');
+    expect(result.email).toBe('test@example.com');
+  });
 
-    // UserApi runs with real logic, using mocked HttpService
-    const result = await userService.generateRandomUser();
+  it('rejects invalid email', () => {
+    expect(() => userService.createUser('invalid'))
+      .toThrow('Invalid email');
+  });
+});
+```
+The real `EmailValidator` runs its actual validation logic. If the validator has a bug, this test catches it.
 
-    expect(result).toBe(42);
+## Step 2: Handle External Dependencies
+
+Most services need external I/O like databases. This example extends the previous one.
+
+### 2.1 Add Database Dependency
+
+```typescript title="src/services/user.service.ts"
+@Injectable()
+export class UserService {
+  constructor(
+    private validator: EmailValidator,
+    @Inject('DATABASE') private db: DatabaseClient  // Token injection
+  ) {}
+
+  async createUser(email: string) {
+    if (!this.validator.isValid(email)) {
+      throw new Error('Invalid email');
+    }
+    return this.db.users.save({ email });
+  }
+}
+```
+
+### 2.2 Test with Mocked I/O
+
+Token-injected dependencies are automatically mocked.
+
+```typescript title="src/services/user.service.spec.ts"
+import { TestBed, Mocked } from '@suites/unit';
+
+describe('UserService', () => {
+  let userService: UserService;
+  let database: Mocked<DatabaseClient>;
+
+  beforeAll(async () => {
+    const { unit, unitRef } = await TestBed.sociable(UserService)
+      .expose(EmailValidator)
+      .compile();
+
+    userService = unit;
+    database = unitRef.get<DatabaseClient>('DATABASE');
+  });
+
+  it('saves valid user', async () => {
+    database.users.save.mockResolvedValue({ id: 1, email: 'test@example.com' });
+
+    const result = await userService.createUser('test@example.com');
+
+    expect(result.id).toBe(1);
+    expect(database.users.save).toHaveBeenCalledWith({ email: 'test@example.com' });
   });
 });
 ```
 
-**What happens here:**
-- **UserApi**: Real (automatically, since not in boundaries array)
-- **Database**: Mocked (automatically)
-- **HttpService**: Mocked (automatically)
+:::info Token Injections Are Always Mocked
+External packages use `@Inject('TOKEN')` because they're not `@Injectable()` classes.
+These token-injected dependencies are **always mocked**, even in sociable tests.
+See [Virtual Test Container: Token Injections](./virtual-test-container#token-injections-are-natural-boundaries) for the complete explanation.
+:::
 
-**Benefits:** Simpler configuration, future-proof.
+## Step 3: Scale with Multiple Dependencies
 
-#### Boundaries with Specific Classes
+As services grow, two approaches exist for handling multiple dependencies.
 
-When avoiding specific business logic classes:
+### 3.1 Service with Many Dependencies
 
-```typescript
-const { unit, unitRef } = await TestBed.sociable(OrderService)
-  .boundaries([ComplexTaxEngine])  // Avoid complex tax logic
-  .compile();
+```typescript title="src/services/order.service.ts"
+@Injectable()
+export class OrderService {
+  constructor(
+    private pricingService: PricingService,
+    private taxCalculator: TaxCalculator,
+    private inventoryChecker: InventoryChecker,
+    private discountEngine: DiscountEngine,
+    @Inject('DATABASE') private db: DatabaseClient,
+    @Inject('EMAIL_SERVICE') private email: EmailClient
+  ) {}
 
-// ComplexTaxEngine is in boundaries - it's mocked
-const taxEngine = unitRef.get(ComplexTaxEngine);
-taxEngine.calculate.mockReturnValue(100);
+  async processOrder(items: OrderItem[], region: string) {
+    const subtotal = this.pricingService.calculateTotal(items);
+    const tax = this.taxCalculator.calculateTax(subtotal, region);
+    const total = subtotal + tax;
 
-await unit.processOrder(order);
+    const order = await this.db.orders.create({ items, subtotal, tax, total });
+    await this.email.send({ to: order.customerEmail, template: 'order-confirmation' });
 
-// Verify interactions with the boundary
-expect(taxEngine.calculate).toHaveBeenCalledWith(order.total);
+    return order;
+  }
+}
 ```
 
-**Key point:** Classes in `.boundaries()` are mocked. You can configure them and verify their interactions - they act as controlled boundary points in your test.
+### 3.2 Using `.expose()`
 
-#### Step 2b: Using .expose() (Alternative)
+List each dependency that should be real.
 
-The same test using expose mode (explicit whitelist):
-
-```typescript title="user.service.spec.ts (expose mode)" {1,10-11,16,22-23} showLineNumbers
-import { TestBed, Mocked } from '@suites/unit';
-import { UserService } from './user.service';
-import { UserApi, HttpService, Database } from './services';
-import { User } from './types';
-
-describe('UserService Integration Tests', () => {
-  let userService: UserService;
-
-  // userApi is NOT Mocked since it will be a real instance
-  let database: Mocked<Database>; // A mock with stubbed methods
-  let httpService: Mocked<HttpService>; // A mock with stubbed methods
+```typescript title="src/services/order.service.spec.ts"
+describe('OrderService', () => {
+  let orderService: OrderService;
+  let database: Mocked<DatabaseClient>;
 
   beforeAll(async () => {
-    // Explicitly list what should be real
-    const { unit, unitRef } = await TestBed.sociable(UserService)
-      .expose(UserApi) // UserApi will be a real implementation
+    const { unit, unitRef } = await TestBed.sociable(OrderService)
+      .expose(PricingService)      // Explicitly make real
+      .expose(TaxCalculator)       // Explicitly make real
+      .expose(InventoryChecker)    // Explicitly make real
+      .expose(DiscountEngine)      // Explicitly make real
       .compile();
 
-    userService = unit;
-
-    // Retrieve the mock instances (note: you can't retrieve UserApi)
-    database = unitRef.get(Database);
-    httpService = unitRef.get(HttpService);
+    orderService = unit;
+    database = unitRef.get<DatabaseClient>('DATABASE');
   });
 
-  it('should generate a random user and save to the database', async () => {
-    // Configure the stubbed methods of the mocked dependencies
-    const userFixture: User = { id: 1, name: 'John' };
-    httpService.get.mockResolvedValue({ data: userFixture });
-    database.saveUser.mockResolvedValue(42);
+  it('processes order with real calculations', async () => {
+    const items = [{ price: 10, quantity: 6 }];
+    database.orders.create.mockResolvedValue({ id: 123 });
 
-    // Test the behavior that emerges from the real interaction between UserService and UserApi
-    const result = await userService.generateRandomUser();
+    await orderService.processOrder(items, 'US');
 
-    // Verify the result is what we expect
-    expect(result).toBe(42);
+    // All exposed services run real code
+    expect(database.orders.create).toHaveBeenCalledWith({
+      items,
+      subtotal: 54,    // Real discount calculation
+      tax: 4.32,       // Real tax calculation
+      total: 58.32
+    });
   });
 });
 ```
 
-**What happens here:**
-- **UserApi**: Real (explicitly exposed)
-- **Database**: Mocked (default in expose mode)
-- **HttpService**: Mocked (default in expose mode)
+:::tip Understanding the Control Boundary
+TestBed can only control **explicit dependencies** (constructor-injected), not implicit ones (direct imports).
+:::
 
-**When to use:** Fine-grained control when you only want specific classes real.
+## Step 4: Choose Configuration Patterns
 
-### Step 3: Configuring Mock Behavior
+Choose between configuring mocks before or after compilation.
 
-Mock configuration works the same in both modes. You can define behavior for mocked dependencies before compilation:
+<Tabs>
+<TabItem value="pre" label="Pre-compilation" default>
 
-```typescript title="Configuring mocks before compilation"
+:bulb: **Set fixed mock values for all tests in the suite.** Best for Default values, shared test data, reducing boilerplate
+
+```typescript title="src/services/user.service.spec.ts"
 beforeAll(async () => {
   const { unit, unitRef } = await TestBed.sociable(UserService)
-    .boundaries()  // All business logic real
-    .mock(Database)  // Configure specific mock behavior
+    .expose(EmailValidator)
+    .mock('DATABASE')
     .final({
-      saveUser: async () => 42  // Fixed return value
+      users: {
+        save: async () => ({ id: 42, email: 'test@example.com' })
+      }
     })
     .compile();
 
   userService = unit;
-  httpService = unitRef.get(HttpService);
+  // Database always returns the same value
+});
+
+it('creates user', async () => {
+  const result = await userService.createUser('test@example.com');
+  expect(result.id).toBe(42);  // Always 42
 });
 ```
+</TabItem>
+<TabItem value="post" label="Post-compilation">
 
-You can also configure mocks after compilation:
+:bulb: **Configure mocks differently for each test.** Best for Test-specific scenarios, error cases, varying responses
 
-```typescript
-it('should handle specific scenarios', async () => {
-  // Configure mock behavior per test
-  httpService.get.mockResolvedValue({ data: specificUser });
-  database.saveUser.mockResolvedValue(99);
+```typescript title="src/services/user.service.spec.ts"
+beforeAll(async () => {
+  const { unit, unitRef } = await TestBed.sociable(UserService)
+    .expose(EmailValidator)
+    .compile();
 
-  const result = await userService.generateRandomUser();
-  expect(result).toBe(99);
+  userService = unit;
+  database = unitRef.get<DatabaseClient>('DATABASE');
+});
+
+it('handles save error', async () => {
+  // Configure for this specific test
+  database.users.save.mockRejectedValue(new Error('Connection failed'));
+
+  await expect(userService.createUser('test@example.com'))
+    .rejects.toThrow('Connection failed');
+});
+
+it('handles successful save', async () => {
+  // Different configuration for different test
+  database.users.save.mockResolvedValue({ id: 99 });
+
+  const result = await userService.createUser('test@example.com');
+  expect(result.id).toBe(99);
 });
 ```
+</TabItem>
+</Tabs>
 
-## Important Considerations
+## Decision Framework
 
-When using sociable tests, keep the following points in mind:
+```mermaid
+flowchart LR
+    A[Dependency] --> B{External I/O?}
+    B -->|Yes| C[@Inject TOKEN<br/>Auto-mocked]
+    B -->|No| D{Business logic<br/>to test?}
+    D -->|Yes| E[.expose Class<br/>Runs real]
+    D -->|No| F[Leave mocked<br/>default]
+```
 
-**1. Focus on Outcomes, Not Implementations**
+## Summary
 
-Even though sociable tests let you test real interactions, they should still focus on testing the outcomes (return values, state changes) rather than implementation details.
+Sociable tests complement solitary tests by verifying component interactions:
 
-**2. Choose the Right Mode**
+- **Solitary tests:** Verify individual class behavior in isolation
+- **Sociable tests:** Verify components work together correctly
 
-**.boundaries() works best when:**
-- Services have many business logic dependencies
-- You want new dependencies tested automatically
-- You need future-proof tests
+### Takeaways
 
-**.expose() works best when:**
-- You want to test 2-3 specific class interactions
-- You need fine-grained control over what's real
-- You prefer explicit configuration
+- **Sociable tests** verify how components interact using real dependencies for business logic
+- **External I/O** is always mocked using token injection (`@Inject('TOKEN')`)
+- **Use `.expose()`** to explicitly list which dependencies should use real implementations
+- **Configuration** can be done pre-compilation (fixed values) or post-compilation (test-specific)
+- **Decision tree**: External I/O → token injection, business logic → expose, everything else stays mocked
 
-**3. Complementary to Solitary Tests**
+## Next Steps
 
-Sociable tests complement solitary tests - they don't replace them. Use solitary tests for detailed behavior verification and sociable tests for validating interactions.
+After understanding sociable testing, explore these resources for deeper knowledge:
 
-## What's Next?
-
-Combining solitary and sociable tests covers both independent behavior and component interactions.
-
-For more detailed information about configuring mocks and test environments, see the [Suites API](/docs/api-reference/) documentation.
+- **[Test Doubles](./test-doubles.md)**: Core concepts of mocking and stubbing
+- **[Virtual Test Container](./virtual-test-container.md)**: How TestBed manages dependencies

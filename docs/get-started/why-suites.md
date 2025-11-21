@@ -1,598 +1,280 @@
 ---
-sidebar_position: 4
+sidebar_position: 2
 title: Why Suites?
-description: Learn why Suites is essential for testing TypeScript backends with dependency injection
+description: Eliminate boilerplate in dependency injection testing. Suites provides type-safe test doubles and automatic mocking for TypeScript applications following the IoC principle.
 ---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 # Why Suites?
 
-Large, critical codebases require **quality assurance at the unit level** - but achieving it is harder than it sounds. Unit testing in modern TypeScript backends involves extensive mocking, which makes the process **expensive, slow**, and often skews the **value-to-effort ratio**. Dependency injection only compounds the complexity, turning what should be a simple test into a maze of wiring, stubs, and setup code.
+Unit testing TypeScript applications with complex dependencies is **expensive and slow**. Whether using dependency injection containers, plain constructor injection, or functional composition, manual mocking creates brittle tests, cryptic errors, and mountains of boilerplate that bury test intent. Teams waste weeks debugging broken test doubles, onboarding junior developers, and maintaining inconsistent unit testing patterns across projects.
 
-Teams usually face these issues:
+## The Core Problem
 
-**Manual mocks are fragile:** backend teams spend an enormous amount of time manually mocking dependencies. These mocks are often **not typed**, which means they break silently during refactors. When a dependency's interface changes, the issue is then missed at compile time, and the test fails on execution.
+Manual mock setup in IoC and DI patterns creates three critical failures:
+* **Silent breakage** (untyped mocks)
+* **Cryptic runtime errors** (missing implementations)
+* **Excessive boilerplate** (many lines per test)
 
-<p>
-<details>
-<summary>Example</summary>
+## The Quick Win
 
-```typescript
-Test.createTestingModule({
-  providers: [
-    UserService,
-    {
-      provide: UserRepository,
-      useValue: {
-        findById: jest.fn().mockResolvedValue({ id: 1, name: "John" }),
-        // 🚨 Issue: If UserRepository adds a required method 'findByEmail',
-        // this mock won't implement it and TypeScript won't complain
-      },
-    },
-  ],
-}).compile();
-```
+Here's what Suites removes:
 
-</details>
-</p>
+<Tabs>
+<TabItem value="manual" label="Manual" default>
 
-**Missing implementations cause cryptic errors:** manually written mocks tend to be incomplete. Developers often miss implementing certain dependency methods, leading to **undefined return values** or **nonsensical test errors**, even when the unit's logic is perfectly correct. This erodes confidence in the test suite and wastes time debugging the wrong problem.
-
-<p>
-<details>
-<summary>Example</summary>
-
-```typescript
-const module = await Test.createTestingModule({
-  providers: [
-    UserService,
-    {
-      provide: EmailService,
-      useValue: {
-        send: jest.fn().mockResolvedValue(true),
-        // 🚨 Issue: Missing 'validate' method that UserService actually calls
-      },
-    },
-  ],
-}).compile();
-
-test("should create user", async () => {
-  const service = module.get<UserService>(UserService);
-  await service.createUser({ email: "test@example.com" });
-  // Test fails with: "TypeError: mockEmailService.validate is not a function"
-  // Debugging this wastes time - the UserService logic is correct!
-});
-```
-
-</details>
-</p>
-
-**Naïve auto-mocking isn't safe:** some attempt to solve the boilerplate involved with mocking by using automatic mocking, but they are not type-aware. They allow calling non-existent methods, creating **silently broken tests**. This issue is 10x worse with LLM hallucinations. The result is a false sense of coverage and dangerous gaps in verification.
-
-<p>
-<details>
-<summary>Example</summary>
-
-```typescript
-const module = await Test.createTestingModule({
-  providers: [TransactionService],
-})
-  .useMocker(createMock) // NestJS auto-mocking
-  .compile();
-
-test("should process payment", async () => {
-  const service = module.get<TransactionService>(TransactionService);
-  const gateway = module.get<PaymentGateway>(PaymentGateway);
-
-  // 🚨 Issue: 'processPaymentWithRetry' doesn't exist on PaymentGateway
-  // but TypeScript doesn't catch it because the mock is typed as 'any'
-  await gateway.processPaymentWithRetry({ amount: 100 }); // Typo in method name!
-
-  expect(gateway.charge).toHaveBeenCalled(); // False positive - wrong method was called
-  // Test passes but verifies nothing - dangerous silent failure!
-});
-```
-
-</details>
-</p>
-
-**Too much boilerplate, creating cognitive load and loss of intent:** each engineer ends up writing mocks differently, wiring up dependencies manually, and repeating the same setup logic across hundreds of tests. This boilerplate hides test intention and slows down development. It also introduces inconsistency and cognitive overhead - especially when onboarding new engineers or integrating with AI-assisted coding tools.
-
-<p>
-<details>
-<summary>Example</summary>
-
-```typescript
-describe("OrderService", () => {
-  let orderService: OrderService;
-  let mockInventoryService: jest.Mocked<InventoryService>;
-  let mockPaymentService: jest.Mocked<PaymentService>;
-  let mockNotificationService: jest.Mocked<NotificationService>;
-  let mockAuditLogger: jest.Mocked<AuditLogger>;
-
-  beforeEach(async () => {
-    // 🚨 Issue: 30+ lines of setup before the actual test logic
-    mockInventoryService = {
-      checkStock: jest.fn(),
-      reserveItems: jest.fn(),
-      releaseItems: jest.fn(),
-    } as any;
-
-    mockPaymentService = {
-      authorize: jest.fn(),
-      capture: jest.fn(),
-      refund: jest.fn(),
-    } as any;
-
-    mockNotificationService = {
-      sendEmail: jest.fn(),
-      sendSMS: jest.fn(),
-    } as any;
-
-    mockAuditLogger = {
-      log: jest.fn(),
-    } as any;
-
-    const module = await Test.createTestingModule({
-      providers: [
-        OrderService,
-        { provide: InventoryService, useValue: mockInventoryService },
-        { provide: PaymentService, useValue: mockPaymentService },
-        { provide: NotificationService, useValue: mockNotificationService },
-        { provide: AuditLogger, useValue: mockAuditLogger },
-      ],
-    }).compile();
-
-    orderService = module.get<OrderService>(OrderService);
-  });
-
-  // Where is the actual test? Hard to find the signal in the noise!
-  test("should place order", async () => {
-    mockInventoryService.checkStock.mockResolvedValue(true);
-    // ... more mock setup ...
-    await orderService.placeOrder({ items: [] });
-  });
-});
-```
-
-</details>
-</p>
-
-**Inconsistent Testing Practices Across Teams:** Different teams often develop their own approaches to testing DI-based applications, leading to inconsistent practices, varied code quality, and challenges when developers switch between projects.
-
-<p>
-<details>
-<summary>Example</summary>
-
-```typescript
-// ❌ Team A's approach - manual mocks with Test.createTestingModule
-const mockDb = { query: jest.fn() };
-const module = await Test.createTestingModule({
-  providers: [DataService, { provide: Database, useValue: mockDb }],
-}).compile();
-
-// ❌ Team B's approach (different project, same company) - useFactory pattern
-const module = await Test.createTestingModule({
-  providers: [
-    DataService,
-    { provide: Database, useFactory: () => ({ query: jest.fn() }) },
-  ],
-}).compile();
-
-// ❌ Team C's approach (yet another pattern) - custom providers with useClass
-@Injectable()
-class MockDatabase {
-  query = jest.fn();
+```typescript showLineNumbers
+// ❌ Before: many lines defining mock classes, no DI benefits
+class MockInventoryService {
+  checkStock = jest.fn();
+  reserveStock = jest.fn();
+  releaseStock = jest.fn();
+  // ... 5 more methods
 }
+
+class MockPaymentService {
+  authorize = jest.fn();
+  capture = jest.fn();
+  refund = jest.fn();
+  // ... 5 more methods
+}
+
+const mockInventory = new MockInventoryService();
+const mockPayment = new MockPaymentService();
+const orderService = new OrderService(mockInventory, mockPayment, /* ... */);
+```
+
+</TabItem>
+<TabItem value="nestjs" label="NestJS">
+
+```typescript
+// ❌ Before: many lines of manual setup, no type safety
+let mockInventory: any = { checkStock: jest.fn(), /* ... */ };
+let mockPayment: any = { authorize: jest.fn(), /* ... */ };
+
 const module = await Test.createTestingModule({
-  providers: [DataService, { provide: Database, useClass: MockDatabase }],
+  providers: [
+    OrderService,
+    { provide: InventoryService, useValue: mockInventory },
+    { provide: PaymentService, useValue: mockPayment },
+    // ... wire up every dependency manually
+  ],
 }).compile();
 
-// 🚨 Issue: Developers switching teams must learn new patterns each time
-// Even within NestJS, there's no standard way to mock dependencies
+orderService = module.get<OrderService>(OrderService);
 ```
 
-</details>
-</p>
-
-**Steep learning curve for new developers:** New team members often struggle to understand complex testing setups, especially when working with dependency injection frameworks. This learning curve slows down onboarding and can lead to poor testing practices.
-
-<p>
-<details>
-<summary>Example</summary>
+</TabItem>
+<TabItem value="inversify" label="InversifyJS">
 
 ```typescript
-// ❌ New developer's confusion with DI testing
-describe("UserController", () => {
-  let controller: UserController;
+// ❌ Before: many lines of manual setup, no type safety
+let container = new Container();
+let mockInventory: any = { checkStock: jest.fn(), /* ... */ };
+let mockPayment: any = { authorize: jest.fn(), /* ... */ };
 
-  beforeEach(async () => {
-    // 🚨 Issue: New dev asks - "What is Test.createTestingModule?"
-    const module = await Test.createTestingModule({
-      controllers: [UserController],
-      providers: [
-        {
-          provide: UserService,
-          useValue: {
-            /* mock */
-          },
-        },
-        // "Why do I need to provide every dependency manually?"
-        // "What's the difference between useValue, useClass, useFactory?"
-      ],
-    }).compile();
+container.bind<InventoryService>(TYPES.InventoryService)
+  .toConstantValue(mockInventory);
+container.bind<PaymentService>(TYPES.PaymentService)
+  .toConstantValue(mockPayment);
+container.bind<OrderService>(TYPES.OrderService).toSelf();
 
-    controller = module.get<UserController>(UserController);
-    // "Why module.get? Can't I just new UserController()?"
+orderService = container.get<OrderService>(TYPES.OrderService);
+```
+
+</TabItem>
+</Tabs>
+
+
+**After: One line, fully typed (works for all frameworks):**
+
+```typescript
+const { unit, unitRef } = await TestBed.solitary(OrderService).compile();
+
+orderService = unit;
+inventoryService = unitRef.get(InventoryService); // Fully typed!
+```
+
+## The Problems with Manual Dependency Injection Testing
+
+### 1. Manual Mocks Break Silently During Refactors
+
+Backend teams waste hours writing untyped mocks. TypeScript errors on incomplete mocks force developers to cast to 'any', which breaks silently when dependencies change or methods are missing.
+
+<details>
+<summary>Show example</summary>
+
+```typescript
+// Developers cast to 'any' to bypass TypeScript errors
+const mockRepo = {
+  findById: jest.fn().mockResolvedValue({ id: 1, name: 'John' })
+} as any; // or unknown - ⚠️ silences all type checks
+
+const service = new UserService(mockRepo);
+
+// Later, UserRepository adds 'findByEmail' method...
+// TypeScript won't catch this - mock is typed as 'any'
+await service.getUserByEmail('test@example.com');
+// Runtime error: "TypeError: userRepository.findByEmail is not a function"
+```
+</details>
+
+### 2. Excessive Boilerplate Obscures Test Intent and Confuses LLMs
+
+Each test requires 30+ lines of mock setup. This cognitive load slows development, confuses junior developers, and makes AI assistants struggle to generate correct tests. When tests fail with cryptic errors, LLMs cannot self-correct, burning tokens without progress.
+
+**LLM token cost and context engineering:** Manual mocking forces AI agents to hold 40+ lines of boilerplate per test in context. With Suites' single canonical pattern (`TestBed.solitary()`), one example teaches the entire API, which reducing context consumption by 95% while improving accuracy.
+
+<details>
+<summary>Show example</summary>
+
+```typescript
+describe('Order Service Unit Spec', () => {
+  beforeEach(() => {
+    mockInventory = { checkStock: jest.fn(), /* 7 more methods */ } as any;
+    mockPayment = { authorize: jest.fn(), /* 8 more methods */ } as unknown as jest.Mocked<...>;
+    mockNotification = { sendEmail: jest.fn(), /* 5 more */ } as any;
+    // ... repeat for 5 more services
+    orderService = new OrderService(mockInventory, mockPayment, mockNotification);
   });
 
-  // Junior dev spends hours understanding the setup, not writing tests
+  // Where's the test? Buried in boilerplate.
 });
+```
+</details>
+
+### 3. Inconsistent Patterns Across Teams
+
+Different teams use different testing approaches (manual instantiation, mock classes, container registration patterns). Developers switching projects must relearn patterns every time. No standard emerges, even within the same organization.
+
+<details>
+<summary>Show example</summary>
+
+```typescript
+// Team A: manual object mocks
+const mockDb = { query: jest.fn() };
+
+// Team B: mock class instances
+class MockDatabase { query = jest.fn(); }
+
+// Team C: container registration
+const container = new Container();
+container.register(Database, { useValue: { query: jest.fn() } });
+
+// Developers switching teams must learn new patterns each time
 ```
 
 </details>
-</p>
 
-**LLMs get confused with noisy context:** manually written test setup is verbose and overloaded with boilerplate - every mock, dependency, and initialization adds lines of code that obscure test intent. This verbosity confuses coding assistants (e.g. Claude Code, Cursor) when they try to read and understand existing tests. Moreover, when these tools attempt to generate tests, the excessive boilerplate makes it harder for them to produce correct and complete setups, leading to inconsistent or invalid code.
+## How Suites Solves It
 
-<p>
-<details>
-<summary>Example</summary>
+Suites provides a **declarative API** that removes manual mocking entirely. One function call creates a fully-typed, isolated unit testing environment with type-safe test doubles. No boilerplate, no cryptic errors, no silent failures.
 
-```typescript
-// ❌ LLM sees 50+ lines of boilerplate, struggles to find the intent
-describe("ReportGenerator", () => {
-  let generator: ReportGenerator;
-  let mockDbConnection: any;
-  let mockCacheService: any;
-  let mockFileService: any;
-  let mockTemplateEngine: any;
-  let mockEmailService: any;
+:::tip Current Testing Options
 
-  beforeEach(async () => {
-    mockDbConnection = {
-      query: jest.fn(),
-      connect: jest.fn(),
-      disconnect: jest.fn(),
-      /* ... 7 more methods */
-    };
-    mockCacheService = {
-      get: jest.fn(),
-      set: jest.fn(),
-      delete: jest.fn(),
-      /* ... 5 more methods */
-    };
-    mockFileService = {
-      read: jest.fn(),
-      write: jest.fn(),
-      delete: jest.fn(),
-      /* ... 9 more methods */
-    };
-    mockTemplateEngine = {
-      compile: jest.fn(),
-      render: jest.fn(),
-      registerHelper: jest.fn(),
-      /* ... 12 more methods */
-    };
-    mockEmailService = {
-      send: jest.fn(),
-      validate: jest.fn(),
-      /* ... 8 more methods */
-    };
+**Using dependency injection frameworks?**
+`TestBed` provides automatic mock injection and reference tracking - the best testing experience.
 
-    const module = await Test.createTestingModule({
-      providers: [
-        ReportGenerator,
-        { provide: DbConnection, useValue: mockDbConnection },
-        { provide: CacheService, useValue: mockCacheService },
-        { provide: FileService, useValue: mockFileService },
-        { provide: TemplateEngine, useValue: mockTemplateEngine },
-        { provide: EmailService, useValue: mockEmailService },
-      ],
-    }).compile();
+**Not using dependency injection?**
+Use `mock()` and `stub()` for type-safe mocking. Works with any TypeScript code, but requires manual dependency wiring
+and reference tracking. See [mock() and stub() utilities](/docs/api-reference/mock).
 
-    generator = module.get<ReportGenerator>(ReportGenerator);
-  });
+**Declarative API for any IoC (not only DI)**
+`TestBed.manual` (coming Q2 2025) will bring automatic injection and reference tracking to functional composition and factory patterns.
+:::
 
-  // 🚨 Issue: LLM loses track of what the test actually verifies
-  // Too much noise-to-signal ratio makes it hard to understand intent
-  test("should generate monthly report", async () => {
-    // The actual test logic is buried under 60+ lines of setup
-  });
-});
-```
+```typescript title="order.service.spec.ts" {1,9,11-13}
+import { TestBed, type Mocked } from '@suites/unit';
 
-</details>
-</p>
-
-**LLMs need clear feedback to self-correct:** even when LLMs successfully generate test code, the feedback loop that follows is often poor. Because manually written mocks frequently produce cryptic or misleading runtime errors (from missing implementations, undefined returns, to silent method mismatches) LLMs can't interpret what went wrong, leading to infinite loops and burn of tokens.
-
-<p>
-<details>
-<summary>Example</summary>
-
-```typescript
-// ❌ Cryptic error breaks LLM's ability to self-correct
-import { Test } from "@nestjs/testing";
-
-test("should process transaction", async () => {
-  const mockPaymentProcessor = {
-    process: jest.fn().mockResolvedValue({ success: true }),
-  };
-
-  const module = await Test.createTestingModule({
-    providers: [
-      TransactionService,
-      { provide: PaymentProcessor, useValue: mockPaymentProcessor },
-    ],
-  }).compile();
-
-  const service = module.get<TransactionService>(TransactionService);
-  await service.executeTransaction({ amount: 100 });
-
-  // Runtime error: "Cannot read property 'validate' of undefined"
-  // 🚨 Issue: LLM can't determine:
-  //   - Is 'validate' missing from the mock?
-  //   - Is it a typo in the implementation?
-  //   - Is it called on a different object?
-  // Result: LLM makes random changes, burning tokens without progress
-});
-```
-
-</details>
-</p>
-
-### How does Suites solve it?
-
-Suites provides an **opinionated, declarative API** for unit testing TypeScript backends that use dependency injection. Instead of writing mocks by hand, you simply wrap your unit with a single function, and Suites automatically builds a correct, type-safe test environment.
-
-**Type-Safe Mocks:** Suites generates **fully typed mocks**, bound to your implementation. This ensures that refactors don't break tests silently. You can only call existing dependency methods, and every mock interaction is validated at compile time.
-
-<p>
-<details>
-<summary>Example</summary>
-
-```typescript
-describe("UserService", () => {
-  let userService: UserService;
-  let userRepository: Mocked<UserRepository>;
+describe('Order Service Sociable Unit Spec', () => {
+  let orderService: OrderService;
+  let inventoryService: Mocked<InventoryService>;
+  let paymentService: Mocked<PaymentService>;
 
   beforeAll(async () => {
-    const { unit, unitRef } = await TestBed.solitary(UserService).compile();
-    userService = unit;
-    userRepository = unitRef.get(UserRepository);
+    const { unit, unitRef } = await TestBed.solitary(OrderService).compile();
+
+    orderService = unit;
+    inventoryService = unitRef.get(InventoryService);
+    paymentService = unitRef.get(PaymentService);
+    // All dependencies auto-mocked and fully typed!
   });
 
-  test("should find user by id", async () => {
-    userRepository.findById.mockResolvedValue({ id: 1, name: "John" });
-
-    const user = await userService.getUser(1);
+  test('should place order', async () => {
+    // Test intent is immediately clear
+    inventoryService.checkStock.mockResolvedValue(true);
+    await orderService.placeOrder({ items: ['item1'] });
 
     // TypeScript validates at compile time:
-    // ✅ userRepository.findById exists and has correct signature
-    // ❌ userRepository.nonExistentMethod would be a compile error
-    expect(user.name).toBe("John");
+    // ✅ inventoryService.checkStock exists
+    // ❌ inventoryService.nonExistentMethod is a compile error
   });
 });
 ```
 
-</details>
-</p>
+**What Suites provides:**
 
-**Smart Mock Tracking:** Every mock is aware of which dependency it represents. Suites automatically tracks and verifies mock usage, eliminating false negatives and providing clear error messages when tests fail.
+- **Type Safety**: Compile-time validation prevents silent test failures during refactors.
+- **Zero Boilerplate**: One line replaces dozens of lines of manual mock setup.
+- **Clear Errors**: Pinpoints exact dependency failures, eliminating cryptic messages.
+- **Framework Agnostic**: Consistent API across NestJS, InversifyJS, and other DI containers with Jest, Vitest, and Sinon.
+- **AI-Friendly**: Single canonical pattern reduces token count for LLMs. One `TestBed.solitary()` example teaches the entire API, unlike 40+ lines of manual setup requiring exhaustive edge-case documentation.
+- **Standardized**: Enforces consistent testing patterns across all projects and teams.
 
-<p>
-<details>
-<summary>Example</summary>
+### Framework Support
+
+Suites works seamlessly with frameworks implementing IoC using the same clean API.
+
+<Tabs>
+<TabItem value="nestjs" label="NestJS" default>
 
 ```typescript
-describe("OrderService", () => {
-  let orderService: OrderService;
-  let inventoryService: Mocked<InventoryService>;
-  let paymentService: Mocked<PaymentService>;
+import { Injectable } from '@nestjs/common';
 
-  beforeAll(async () => {
-    const { unit, unitRef } = await TestBed.solitary(OrderService).compile();
-    orderService = unit;
-    inventoryService = unitRef.get(InventoryService);
-    paymentService = unitRef.get(PaymentService);
-  });
+@Injectable()
+class PaymentService {
+  constructor(private gateway: PaymentGateway) {}
+}
 
-  test("should process order", async () => {
-    inventoryService.checkStock.mockResolvedValue(true);
-    paymentService.charge.mockResolvedValue({ success: true });
-
-    await orderService.placeOrder({ items: ["item1"] });
-
-    // Suites knows exactly which dependency was called
-    expect(inventoryService.checkStock).toHaveBeenCalledWith(["item1"]);
-    // Clear error if assertion fails: "Expected InventoryService.checkStock to be called with..."
-  });
-});
+const { unit, unitRef } = await TestBed.solitary(PaymentService).compile();
 ```
-
-</details>
-</p>
-
-**Declarative API:** By describing your unit's dependencies declaratively, Suites removes the need for repetitive wiring and setup. Tests become shorter, intention-revealing, and much easier to maintain.
-
-<p>
-<details>
-<summary>Example</summary>
+</TabItem>
+<TabItem value="inversify" label="InversifyJS">
 
 ```typescript
-describe("OrderService", () => {
-  let orderService: OrderService;
-  let inventoryService: Mocked<InventoryService>;
-  let paymentService: Mocked<PaymentService>;
-  let notificationService: Mocked<NotificationService>;
-  let auditLogger: Mocked<AuditLogger>;
+import { injectable } from 'inversify';
 
-  beforeAll(async () => {
-    // One declarative call replaces 30+ lines of manual mock setup
-    const { unit, unitRef } = await TestBed.solitary(OrderService).compile();
-
-    orderService = unit;
-    inventoryService = unitRef.get(InventoryService);
-    paymentService = unitRef.get(PaymentService);
-    notificationService = unitRef.get(NotificationService);
-    auditLogger = unitRef.get(AuditLogger);
-    // All dependencies are automatically mocked and typed!
-  });
-
-  test("should place order", async () => {
-    // Test intent is immediately clear - no noise!
-    inventoryService.checkStock.mockResolvedValue(true);
-    await orderService.placeOrder({ items: [] });
-  });
-});
-```
-
-</details>
-</p>
-
-**DI and Test Library Integration:** Suites integrates seamlessly with popular DI frameworks like **NestJS** and **InversifyJS**, and testing libraries such as **Jest**, **Vitest**, and **Sinon** - working out of the box in existing projects.
-
-<p>
-<details>
-<summary>Example</summary>
-
-```typescript
-describe("UserController (NestJS)", () => {
-  let controller: UserController;
-  let userService: Mocked<UserService>;
-
-  beforeAll(async () => {
-    const { unit, unitRef } = await TestBed.solitary(UserController).compile();
-    controller = unit;
-    userService = unitRef.get(UserService);
-  });
-
-  // Works seamlessly with your existing NestJS setup!
-});
-
-// ✅ Also works with InversifyJS
 @injectable()
 class PaymentService {
   constructor(private gateway: PaymentGateway) {}
 }
 
-describe("PaymentService (InversifyJS)", () => {
-  let service: PaymentService;
-  let gateway: Mocked<PaymentGateway>;
-
-  beforeAll(async () => {
-    const { unit, unitRef } = await TestBed.solitary(PaymentService).compile();
-    service = unit;
-    gateway = unitRef.get(PaymentGateway);
-  });
-
-  // InversifyJS decorators are automatically recognized!
-});
+const { unit, unitRef } = await TestBed.solitary(PaymentService).compile();
 ```
-
-</details>
-</p>
-
-**AI-Friendly by Design:** Because Suites eliminates boilerplate and enforces type safety, LLMs can now generate **correct unit tests in a single pass**. Suites reduces the amount of context needed to reason about dependencies, allowing AI-assisted tools to understand, modify, and maintain tests accurately.
-
-<p>
-<details>
-<summary>Example</summary>
+</TabItem>
+<TabItem value="injection-js">
 
 ```typescript
-// ✅ LLMs can easily understand and generate Suites tests
-import { TestBed, Mocked } from "@suites/unit";
+import { injectable } from 'injection-js';
 
-describe("ReportGenerator", () => {
-  let generator: ReportGenerator;
-  let dbConnection: Mocked<DatabaseConnection>;
-  let templateEngine: Mocked<TemplateEngine>;
+@Injectable()
+class PaymentService {
+  constructor(private gateway: PaymentGateway) {}
+}
 
-  beforeAll(async () => {
-    // Clean, minimal setup - LLM instantly understands the structure
-    const { unit, unitRef } = await TestBed.solitary(ReportGenerator).compile();
-    generator = unit;
-    dbConnection = unitRef.get(DatabaseConnection);
-    templateEngine = unitRef.get(TemplateEngine);
-  });
-
-  test("should generate monthly report", async () => {
-    // Clear intent - no noise obscuring the test logic
-    dbConnection.query.mockResolvedValue([{ id: 1, revenue: 1000 }]);
-    templateEngine.render.mockResolvedValue("<html>Report</html>");
-
-    const report = await generator.generateMonthlyReport("2024-01");
-
-    expect(report).toContain("Report");
-    // LLM can easily understand what's being tested and why
-    // Type errors are caught at compile time, giving LLM clear feedback
-  });
-});
+const { unit, unitRef } = await TestBed.solitary(PaymentService).compile();
 ```
+</TabItem>
+</Tabs>
 
-</details>
-</p>
+Same API, same patterns across frameworks. All utilities are exported from a single entry point: `@suites/unit`
 
-**Standardized Testing Across Teams**: Suites provides a standardized, opinionated approach to testing that works consistently across different DI frameworks. This creates a unified testing experience for all teams while allowing flexibility in implementation details.
+## In Summary
 
-<p>
-<details>
-<summary>Example</summary>
+Suites replaces thousands of lines of brittle, manual test setup with a single, declarative call. Backend teams gain
+confidence in their unit testing, improve refactor safety with solitary and sociable unit tests, and enable both
+developers and AI tools to write and maintain reliable test suites.
 
-```typescript
-// ✅ Same pattern across all teams and projects
-// Team A (NestJS project)
-const { unit, unitRef } = await TestBed.solitary(ServiceA).compile();
-
-// Team B (InversifyJS project)
-const { unit, unitRef } = await TestBed.solitary(ServiceB).compile();
-
-// Team C (Plain TypeScript with DI)
-const { unit, unitRef } = await TestBed.solitary(ServiceC).compile();
-
-// All teams use the same testing pattern!
-// Developers switching teams instantly understand the test structure
-// Code reviews are consistent across the entire organization
-```
-
-</details>
-</p>
-
-**Intuitive Onboarding and Testing Model**: With its intuitive API and consistent patterns, Suites reduces the learning curve for new developers. The clear separation between solitary and sociable testing approaches provides a straightforward mental model that's easy to grasp.
-
-<p>
-<details>
-<summary>Example</summary>
-
-```typescript
-describe("UserController", () => {
-  let controller: UserController;
-  let userService: Mocked<UserService>;
-
-  beforeAll(async () => {
-    // Junior dev thinks: "TestBed creates my test environment"
-    // "solitary() means I'm testing UserController in isolation"
-    // "compile() builds everything I need"
-    const { unit, unitRef } = await TestBed.solitary(UserController).compile();
-
-    controller = unit; // "This is my unit under test"
-    userService = unitRef.get(UserService); // "This is a mock of the dependency"
-  });
-
-  test("should get user", async () => {
-    // Clear, predictable pattern - easy to learn and remember
-    userService.findById.mockResolvedValue({ id: 1, name: "John" });
-    const result = await controller.getUser(1);
-    expect(result.name).toBe("John");
-  });
-
-  // New dev is productive on day one, not day ten!
-});
-```
-
-</details>
-</p>
-
-### In Summary
-
-Suites replaces thousands of lines of brittle, manual test setup with a single, declarative call - giving backend teams confidence in their tests, improving refactor safety, and enabling both developers and AI tools to write and maintain reliable test suites effortlessly.
+**Ready to try it?** Check out the [Quick Start](/docs/get-started/quickstart) guide to write the first test in 5 minutes.

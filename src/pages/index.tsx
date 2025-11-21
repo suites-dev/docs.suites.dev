@@ -8,6 +8,7 @@ import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 import styles from "./index.module.css";
 import Head from "@docusaurus/Head";
+import { FaGithub } from "react-icons/fa";
 
 function HomepageHeader() {
   return (
@@ -17,8 +18,8 @@ function HomepageHeader() {
           <div className={styles.textColumn}>
             <h1 className={styles.title}>Suites</h1>
             <p className={styles.subtitle}>
-              A unit-testing framework for TypeScript backend systems working
-              with dependency injection
+              <strong>A unit-testing framework for TypeScript backends working
+                with inversion of control and dependency injection</strong>
             </p>
             <div className={styles.buttonGroup}>
               <Link
@@ -43,13 +44,19 @@ function HomepageHeader() {
                 className={`${styles.button} button button--outline button--primary`}
                 to="https://github.com/suites-dev/suites"
               >
-                View on GitHub
+                <FaGithub style={{ marginRight: '8px', verticalAlign: 'middle', position: 'relative', top: '-1px' }} />
+                GitHub
               </Link>
             </div>
             <div className={styles.worksWithSection}>
               <p className={styles.worksWithTitle}>Works with projects using</p>
               <div className={styles.logoGrid}>
-                <div className={styles.logoItem}>
+                <a
+                  href="https://docs.nestjs.com/recipes/suites"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.logoItem}
+                >
                   <img
                     src="/img/nestjs-logo.png"
                     alt="NestJS"
@@ -57,8 +64,13 @@ function HomepageHeader() {
                   />
                   <span className={styles.logoName}>NestJS</span>
                   <span className={styles.recommendedBadge}>Official</span>
-                </div>
-                <div className={styles.logoItem}>
+                </a>
+                <a
+                  href="https://inversify.io/docs/ecosystem/suites/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.logoItem}
+                >
                   <img
                     src="/img/inversify-logo.png"
                     alt="InversifyJS"
@@ -66,7 +78,7 @@ function HomepageHeader() {
                   />
                   <span className={styles.logoName}>InversifyJS</span>
                   <span className={styles.recommendedBadge}>Official</span>
-                </div>
+                </a>
                 <div className={styles.logoItem}>
                   <img
                     src="/img/vitest-logo.png"
@@ -109,16 +121,16 @@ function HomepageHeader() {
                   {`import { TestBed, type Mocked } from '@suites/unit';
 
 describe('User Service', () => {
-  let userService: UserService; // 🧪 The unit we are testing
-  let userApi: Mocked<UserApi>; // 🎭 The dependencies we are mocking
+  let userService: UserService; // The unit we are testing
+  let userApi: Mocked<UserApi>; // The dependencies we are mocking
   let database: Mocked<Database>;
 
   beforeAll(async () => {
-    // 🚀 Create an isolated test env for the unit
+    // Create an isolated test env for the unit
     const { unit, unitRef } = await TestBed.solitary(UserService).compile();
 
     userService = unit;    
-    // 🔍 Retrieve the unit's dependency mocks - automatically generated
+    // Retrieve the unit's dependency mocks - automatically generated
     userApi = unitRef.get(UserApi);
     database = unitRef.get(Database);
   });
@@ -138,29 +150,32 @@ describe('User Service', () => {
                   className={styles.codeBlock}
                   showLineNumbers={false}
                 >
-                  {`import { Test } from '@nestjs/testing';
+                  {`// THE MANUAL WAY
+// (Similar complexity exists in NestJS, InversifyJS, etc.)
+
 import { UserService } from './user-service';
 import { UserApi } from './user-api';
 import { Database } from './database';
 
 describe('User Service', () => {
   let userService: UserService;
-  let userApi: jest.Mocked<UserApi>;
-  let database: jest.Mocked<Database>;
+  let userApi: any; // ❌ Lost type safety!
+  let database: any;
 
   beforeAll(async () => {
-    // 🔧 Configure the testing module with all providers
-    const module = await Test.createTestingModule({
-      providers: [
-        UserService,
-        { provide: UserApi, useValue: { getRandom: jest.fn() } },
-        { provide: Database, useValue: { saveUser: jest.fn() } },
-      ],
-    }).compile();
+    // 🔧 Manually create mocks for each dependency
+    userApi = {
+      getRandom: jest.fn(),
+      // Missing methods? Who knows? No compile-time checks!
+    };
 
-    userService = module.get<UserService>(UserService);
-    userApi = module.get(UserApi);
-    database = module.get(Database);
+    database = {
+      saveUser: jest.fn(),
+      // What other methods exist? ¯\\_(ツ)_/¯
+    };
+
+    // Manual wiring - boilerplate for every test
+    userService = new UserService(userApi, database);
   });
 
   it('should generate a random user and save to the database', async () => {
@@ -180,42 +195,39 @@ describe('User Service', () => {
               <div className={styles.featureEmoji}>👩‍💻</div>
               <h3 className={styles.featureTitle}>Declarative</h3>
               <p className={styles.featureDescription}>
-                An opinionated declarative API: wrap your unit with a single
-                call and receive a correct test environment for testing the
-                unit. No more manual mocking and wiring up dependencies.
+                One function call creates fully-typed, isolated test environments.
+                Suites auto-generates all mocks and wires dependencies automatically.
+                No manual setup, no type casts, no boilerplate.
               </p>
             </div>
             <div className={styles.featureItem}>
               <div className={styles.featureEmoji}>✅</div>
               <h3 className={styles.featureTitle}>Type-Safe</h3>
               <p className={styles.featureDescription}>
-                Create type-safe mocks, bound to the implementation and allows
-                calling only the correct dependency methods. No more broken
-                tests after refactors and no more silent failures.
+                Generate type-safe mocks bound to implementations. Eliminate broken
+                tests after refactors, silent runtime failures, and manual type casting.
               </p>
             </div>
             <div className={styles.featureItem}>
-              <div className={styles.featureEmoji}>🕵️‍♂️</div>
-              <h3 className={styles.featureTitle}>Smart Mock Tracking</h3>
+              <div className={styles.featureEmoji}>🔄</div>
+              <h3 className={styles.featureTitle}>Refactoring Confidence</h3>
               <p className={styles.featureDescription}>
-                Automatically track all dependency methods used during your
-                tests and get notified if a mocked dependency method has no
-                return value or missing mock implementation
+                Change constructors, add dependencies, refactor classes - tests
+                adapt automatically. Skip manual mock updates. Catch breaking
+                changes at compile time, not runtime.
               </p>
             </div>
             <div className={styles.featureItem}>
               <div className={styles.featureEmoji}>✨</div>
               <h3 className={styles.featureTitle}>AI Ready</h3>
               <p className={styles.featureDescription}>
-                With the concise, type safe, and fail-fast format of Suites
-                tests, coding agents (like Claude Code and Cursor) are able to
-                write correct tests in a single pass.
+                One canonical pattern teaches AI agents the entire API. Coding agents like Claude Code and Cursor write correct tests in a single pass with 95% less context consumption compared to manual mocking patterns.
               </p>
             </div>
           </div>
         </div>
         <div className={styles.trustedBySection}>
-          <p className={styles.trustedByTitle}>Trusted by</p>
+          <p className={styles.trustedByTitle}>Used by</p>
           <div className={styles.trustedByGrid}>
             <div className={styles.trustedByItem}>
               <img
@@ -250,11 +262,62 @@ describe('User Service', () => {
 
         <section className={styles.alternatingSection}>
           <div className={styles.textColumn}>
-            <h2>Zero-Setup, Automatic Mocking</h2>
+            <h2>One Testing Pattern for Entire Organization</h2>
             <p>
-              Say goodbye to manual mocking. Suites automatically generates
-              mocks for all your dependencies, letting you focus on writing
-              meaningful tests, not boilerplate.
+              Stop relearning test patterns on every project. Suites provides a consistent, standardized approach that works identically across NestJS, InversifyJS, and any DI framework, giving teams a unified testing experience.
+            </p>
+            <Link
+              className={`${styles.button} button button--outline button--primary`}
+              to="/docs/guides/framework-support"
+            >
+              See Framework Support →
+            </Link>
+          </div>
+          <CodeBlock language="typescript" className={styles.codeBlock}>
+            {`// Same pattern works everywhere
+// NestJS, InversifyJS, TSyringe...
+
+TestBed.solitary(OrderService).compile();
+
+// Or test with real dependencies
+TestBed.sociable(OrderService)
+  .expose(PaymentProcessor)
+  .compile();`}
+          </CodeBlock>
+        </section>
+
+        <section className={styles.alternatingSection}>
+          <div className={styles.textColumn}>
+            <h2>Tests That Reveal Intent, Not Boilerplate</h2>
+            <p>
+              Suites' declarative API removes 90% of test setup code. No more scrolling through mock wiring, logic is front and center. New team members write tests on day one, not day ten.
+            </p>
+            <Link
+              className={`${styles.button} button button--outline button--primary`}
+              to="/docs/get-started/quickstart"
+            >
+              See Quick Start →
+            </Link>
+          </div>
+          <CodeBlock language="typescript" className={styles.codeBlock}>
+            {`// One line creates the entire test environment
+const { unit, unitRef } = await TestBed
+  .solitary(UserService)
+  .compile();
+
+// Just test the logic
+const userApi = unitRef.get(UserApi);
+userApi.getRandom.mockResolvedValue(user);
+await unit.generateRandomUser();`}
+          </CodeBlock>
+        </section>
+
+        <section className={styles.alternatingSection}>
+          <div className={styles.textColumn}>
+            <h2>Type-Safe, Automatic Mocking</h2>
+            <p>
+              No more debugging broken mocks. Suites automatically generates fully-typed mocks bound to implementation. Catch errors at compile time, not runtime.
+              Refactor with confidence while mocks stay valid when dependencies change.
             </p>
             <Link
               className={`${styles.button} button button--outline button--primary`}
@@ -265,71 +328,42 @@ describe('User Service', () => {
           </div>
           <CodeBlock language="typescript" className={styles.codeBlock}>
             {`// No manual mocks needed!
-// Just compile the testbed for your class.
 const { unit, unitRef } = await TestBed
   .solitary(UserService)
   .compile();
 
-// Retrieve any dependency as a fully-typed mock.
+// Fully-typed mocks, automatically generated
 const userApi = unitRef.get(UserApi);
 
-// Focus on the test logic.
 userApi.get.mockResolvedValue({ name: 'John' });`}
           </CodeBlock>
         </section>
 
         <section className={styles.alternatingSection}>
           <div className={styles.textColumn}>
-            <h2>Flexible and Scalable by Design</h2>
+            <h2>Built for AI-First Development</h2>
             <p>
-              Whether you're working on a small microservice or a large-scale
-              monolith, Suites' flexible architecture adapts to your needs,
-              ensuring your test suites remain maintainable as your project
-              grows.
+              Manual mocking forces AI agents to hold 40+ lines of boilerplate per test in context. Suites provides one canonical pattern that reduces token consumption by 95%. AI coding assistants like Claude Code, Cursor, and GitHub Copilot generate accurate tests in a single pass without burning tokens on repetitive setup code.
             </p>
             <Link
               className={`${styles.button} button button--outline button--primary`}
-              to="/docs/guides/fundamentals"
+              to="/docs/get-started/why-suites#4-excessive-boilerplate-obscures-test-intent-and-confuses-ellms"
             >
-              Explore Test Strategies →
+              Suites and AI →
             </Link>
           </div>
           <CodeBlock language="typescript" className={styles.codeBlock}>
-            {`// Test a class in complete isolation
-TestBed.solitary(OrderService).compile();
+            {`// Manual: 40+ lines per test in AI context
+// class MockUserApi { getRandom = jest.fn(); ... }
+// class MockDatabase { saveUser = jest.fn(); ... }
+// const userService = new UserService(mockUserApi, mockDb);
 
-// Or, test how it integrates with a real dependency
-TestBed.sociable(OrderService)
-  .expose(PaymentProcessor) // Use the real class
-  .compile();`}
-          </CodeBlock>
-        </section>
+// Suites: Single canonical pattern
+const { unit, unitRef } = await TestBed
+  .solitary(UserService)
+  .compile();
 
-        <section className={styles.alternatingSection}>
-          <div className={styles.textColumn}>
-            <h2>An Intuitive, Fluent API</h2>
-            <p>
-              Suites provides a clean and semantic API that makes writing tests
-              a pleasure. The intuitive design of the TestBed builder keeps your
-              test code readable and maintainable.
-            </p>
-            <Link
-              className={`${styles.button} button button--outline button--primary`}
-              to="/docs/api-reference/"
-            >
-              Browse the API Reference →
-            </Link>
-          </div>
-          <CodeBlock language="typescript" className={styles.codeBlock}>
-            {`const { unit, unitRef } = await TestBed
-  .solitary(ComplexService)
-  .mock(Logger) // Override with a custom mock
-  .final({
-    // Provide custom values or configurations
-    token: 'API_KEY', 
-    value: 'test-api-key' 
-  })
-  .compile();`}
+// AI agents learn the entire API from one example`}
           </CodeBlock>
         </section>
       </div>

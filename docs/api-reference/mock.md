@@ -1,48 +1,63 @@
 ---
 sidebar_position: 5
 title: mock() and stub()
-description: Create standalone mocks and stubs outside TestBed
+description: Create type-safe mocks and stubs for any TypeScript code. Works without dependency injection frameworks.
 ---
 
 # mock() and stub()
 
-Standalone utility functions for creating mocks outside of TestBed.
+Standalone utility functions for creating type-safe mocks. Works with any TypeScript code, with or without dependency injection frameworks.
 
-:::info Adapter-Specific
-These functions are provided by your installed doubles adapter:
-- `@suites/doubles.jest` (Jest)
-- `@suites/doubles.vitest` (Vitest)
-- `@suites/doubles.sinon` (Sinon)
+:::info Mock and Stub Functions Are Adapter-Specific
+These functions are provided by your installed doubles adapter: `@suites/doubles.jest` (Jest), `@suites/doubles.vitest`
+(Vitest) and `@suites/doubles.sinon` (Sinon).
+:::
 
-Import from `@suites/unit` - Suites automatically maps to the correct adapter based on your test runner.
+## When to Use
+
+Use `mock()` and `stub()` functions when:
+- Testing code **without dependency injection frameworks**
+- Creating standalone test doubles outside of `TestBed`
+- Testing plain TypeScript classes, functions, or modules
+- You're comfortable with **manual dependency wiring**
+
+:::note Trade-off: Manual vs Automatic Mocking
+`mock()` provides type-safe mocking for any TypeScript code **but requires you to manually wire dependencies and track
+mock references**. `TestBed` automates this but currently requires dependency injection frameworks. `TestBed.manual`
+(coming Q2 2025) will bring automatic features to all patterns.
 :::
 
 ## mock()
 
-Creates a fully mocked instance with auto-generated stub methods.
+Creates a fully mocked instance with auto-generated stub methods. This standalone function creates mocks manually,
+outside of `TestBed`.
 
 ### Signature
 
 ```typescript
-function mock<T>(mockImplementation?: DeepPartial<T>): Mocked<T>
+function mock<T>(mockImplementation: DeepPartial<T> = {}): Mocked<T>
 ```
 
 ### Parameters
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
+| Parameter            | Type             | Description                                               |
+|----------------------|------------------|-----------------------------------------------------------|
 | `mockImplementation` | `DeepPartial<T>` | Optional partial implementation to pre-configure the mock |
 
 ### Returns
 
 `Mocked<T>` - A deeply mocked instance where all methods are automatically stubbed.
 
+:::note
+See [Types](/docs/api-reference/types#mockedt) for more about the `Mocked<T>` type.
+:::
+
 ### How It Works
 
 `mock()` returns a Proxy that intercepts property access. When you access a method for the first time, it automatically creates a stub function (`jest.fn()`, `vi.fn()`, or `sinon.stub()` depending on your adapter).
 
 ```typescript
-import { mock } from "@suites/unit";
+import { mock } from '@suites/unit';
 
 const userRepo = mock<UserRepository>();
 
@@ -57,7 +72,7 @@ userRepo.database.connect.mockResolvedValue(true);
 ### Basic Usage
 
 ```typescript
-import { mock } from "@suites/unit";
+import { mock } from '@suites/unit';
 
 interface PaymentGateway {
   charge(amount: number): Promise<{ status: string }>;
@@ -77,6 +92,42 @@ const result = await gateway.charge(100);
 expect(result.status).toBe("success");
 expect(gateway.charge).toHaveBeenCalledWith(100);
 ```
+
+### Manual Testing (Non-DI)
+
+`mock()` works with plain TypeScript classes, no decorators or DI containers required:
+
+```typescript
+// Plain TypeScript class (no @Injectable decorator)
+class UserService {
+  constructor(
+    private repository: UserRepository,
+    private logger: Logger
+  ) {}
+
+  async getUser(id: number): Promise<User> {
+    this.logger.log(`Fetching user ${id}`);
+    return this.repository.findById(id);
+  }
+}
+
+// Create mocks
+const mockRepository = mock<UserRepository>();
+const mockLogger = mock<Logger>();
+
+// Manual wiring - you track the mock references
+const userService = new UserService(mockRepository, mockLogger);
+
+// Configure mock behavior
+mockRepository.findById.mockResolvedValue({ id: 1, name: "John" });
+
+// Test the service
+const user = await userService.getUser(1);
+expect(user.name).toBe("John");
+expect(mockLogger.log).toHaveBeenCalledWith("Fetching user 1");
+```
+
+**Note:** You manually wire dependencies and track mock references (`mockRepository`, `mockLogger`). With `TestBed`, this happens automatically.
 
 ### With Pre-Configuration
 
@@ -122,39 +173,6 @@ db.users.save.mockResolvedValue(undefined);
 db.users.delete.mockResolvedValue(true);
 db.orders.create.mockResolvedValue(testOrder);
 db.orders.list.mockResolvedValue([testOrder]);
-```
-
-### When to Use mock()
-
-**Use `mock()` for:**
-- ✅ Classes that aren't TestBed dependencies
-- ✅ Utility functions or helpers
-- ✅ Testing standalone services without DI
-- ✅ Manual test setup scenarios
-
-**Use TestBed for:**
-- ✅ Mocking all dependencies of a DI class automatically
-- ✅ Type-safe dependency injection testing
-- ✅ Reducing boilerplate in DI applications
-
-### Comparison: mock() vs TestBed
-
-```typescript
-// Using mock(): Manual creation and wiring
-const userRepo = mock<UserRepository>();
-const emailService = mock<EmailService>();
-const logger = mock<Logger>();
-
-userRepo.findById.mockResolvedValue(testUser);
-emailService.send.mockResolvedValue({ messageId: "123" });
-
-const service = new UserService(userRepo, emailService, logger);  // Manual wiring
-
-// Using TestBed: Automatic
-const { unit, unitRef } = await TestBed.solitary(UserService).compile();
-const userRepo = unitRef.get(UserRepository);  // Auto-wired, auto-mocked
-
-userRepo.findById.mockResolvedValue(testUser);
 ```
 
 ## stub()
@@ -247,30 +265,14 @@ expect(calculator.calculate(100)).toBe(110);
 expect(taxRateStub).toHaveBeenCalled();
 ```
 
-### Use in .mock().impl()
-
-`stub()` is commonly used in TestBed mock configuration:
-
-```typescript
-const { unit, unitRef } = await TestBed.solitary(PaymentService)
-  .mock(PaymentGateway)
-  .impl(stubFn => ({
-    charge: stubFn().mockResolvedValue({ status: "success" }),
-    refund: stubFn().mockResolvedValue(undefined),
-  }))
-  .compile();
-```
-
-In this context, `stubFn` is equivalent to `stub()`.
-
 ### Difference from mock()
 
-| Feature | `stub()` | `mock()` |
-|---------|----------|----------|
-| Creates | Single function | Full object with methods |
-| Use case | Function mocking | Object/interface mocking |
-| Nesting | N/A | Auto-generates nested properties |
-| Pre-config | Via `.mockReturnValue()` etc. | Via partial object |
+| Feature    | `stub()`                      | `mock()`                         |
+|------------|-------------------------------|----------------------------------|
+| Creates    | Single function               | Full object with methods         |
+| Use case   | Function mocking              | Object/interface mocking         |
+| Nesting    | N/A                           | Auto-generates nested properties |
+| Pre-config | Via `.mockReturnValue()` etc. | Via partial object               |
 
 ```typescript
 // stub(): Single function
@@ -283,84 +285,7 @@ obj.method1.mockReturnValue(42);
 obj.method2.mockReturnValue(100);
 ```
 
-## Adapter Differences
-
-### Jest
-
-```typescript
-import { mock, stub } from "@suites/unit";
-
-const obj = mock<MyService>();
-obj.method.mockResolvedValue(result);  // Jest API
-
-const fn = stub();
-fn.mockReturnValue(42);  // jest.fn()
-```
-
-### Vitest
-
-```typescript
-import { mock, stub } from "@suites/unit";
-
-const obj = mock<MyService>();
-obj.method.mockResolvedValue(result);  // Vitest API (compatible with Jest)
-
-const fn = stub();
-fn.mockReturnValue(42);  // vi.fn()
-```
-
-### Sinon
-
-```typescript
-import { mock, stub } from "@suites/unit";
-
-const obj = mock<MyService>();
-obj.method.resolves(result);  // Sinon API
-
-const fn = stub();
-fn.returns(42);  // sinon.stub()
-```
-
-:::tip Consistent API
-While underlying implementations differ, Suites provides a consistent `mock()` and `stub()` API. The returned mocks use your framework's native API for configuration.
-:::
-
-## Complete Example
-
-```typescript
-import { mock, stub } from "@suites/unit";
-
-describe("PaymentProcessor", () => {
-  it("should process payment with mocked dependencies", async () => {
-    // Mock full objects
-    const gateway = mock<PaymentGateway>();
-    const logger = mock<Logger>();
-
-    // Mock functions
-    const validateFn = stub().mockReturnValue(true);
-
-    // Configure mocks
-    gateway.charge.mockResolvedValue({ status: "success", id: "txn-123" });
-    logger.info.mockReturnValue(undefined);
-
-    // Create service with mocked dependencies
-    const processor = new PaymentProcessor(gateway, logger, validateFn);
-
-    // Test
-    const result = await processor.process({ amount: 100, card: testCard });
-
-    // Verify
-    expect(result.status).toBe("success");
-    expect(validateFn).toHaveBeenCalledWith(testCard);
-    expect(gateway.charge).toHaveBeenCalledWith(100);
-    expect(logger.info).toHaveBeenCalledWith(
-      expect.stringContaining("Payment processed")
-    );
-  });
-});
-```
-
-## Related
+## See Also
 
 - [Types](/docs/api-reference/types#mocked) - `Mocked<T>` type definition
 - [TestBed.solitary()](/docs/api-reference/testbed-solitary) - Automatic dependency mocking

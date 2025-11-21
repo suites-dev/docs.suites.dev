@@ -5,27 +5,36 @@ description: Everything you need to start using Suites in minutes
 ---
 
 # Get Started
-
-Welcome to Suites! This section will help you get up and running quickly.
+Learn how to install Suites, configure the testing environment, and write the first automated test suite.
 
 <div class="in-this-section">
 
 ## In This Section
-
-- [**Why Suites?**](/docs/get-started/why-suites) - Compare with manual mocking and understand the benefits
-- [**Quick Start**](/docs/get-started/quickstart) - Write your first test in 5 minutes
-- [**Installation**](/docs/get-started/installation) - Install and configure Suites in your project
-
+- [**Why Suites?**](/docs/get-started/why-suites) - Compare with manual mocking and explore what Suites provides
+- [**Installation**](/docs/get-started/installation) - Install and configure Suites
+- [**Quick Start**](/docs/get-started/quickstart) - Write the first test in 5 minutes
 </div>
+
+## Prerequisites
+
+The following requirements must be met:
+
+- **Framework** - NestJS, InversifyJS, or plain TypeScript classes with constructor injection
+- **Testing library** - Jest, Vitest, or Sinon
+
+:::tip Framework Flexibility
+Suites supports the IoC principle through multiple implementations.
+
+Currently: dependency injection frameworks (NestJS, InversifyJS) via TestBed, or any TypeScript code via `mock()`/`stub()`.
+:::
+
 
 ## Recommended Path
 
-If you're new to Suites:
+For those new to Suites:
 
-1. **[Why Suites?](/docs/get-started/why-suites)** - Understand the benefits
-2. **[Quick Start](/docs/get-started/quickstart)** - Write your first test
-3. **[Installation](/docs/get-started/installation)** - Set up your project
+1. **[Why Suites?](/docs/get-started/why-suites)** - Explore what Suites provides
+2. **[Installation](/docs/get-started/installation)** - Set up the environment
+3. **[Quick Start](/docs/get-started/quickstart)** - Write the first test
 4. **[Guides](/docs/guides/)** - Learn testing patterns
-
-Ready to begin? Start with [Why Suites](/docs/get-started/why-suites) to see if Suites is right for your project.
 
