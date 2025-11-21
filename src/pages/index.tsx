@@ -352,7 +352,7 @@ userApi.get.mockResolvedValue({ name: 'John' });`}
             </p>
             <Link
               className={`${styles.button} button button--outline button--primary`}
-              to="/docs/get-started/why-suites#4-excessive-boilerplate-obscures-test-intent-and-confuses-ellms"
+              to="/docs/get-started/why-suites#the-problems-with-manual-dependency-injection-testing"
             >
               Suites and AI →
             </Link>
