@@ -1,126 +1,124 @@
 ---
 sidebar_position: 6
 title: Changelog
-description: Release notes and version history for Suites
+description: Version history and release notes for Suites
 ---
 
 # Changelog
 
-## v4.0.0-beta.0 (Current - Testing)
+All notable changes to Suites are documented here. For the complete version history, visit our [GitHub Releases](https://github.com/suites-dev/suites/releases).
 
-:::warning Beta Release
-v4.0.0 is in beta for testing. Applies alpha infrastructure improvements **plus** boundaries mode and fail-fast behavior. All functionality will be backported to v3.1.0 soon.
-:::
+---
 
-**From Alpha:**
-- Type augmentation fixes for modern TypeScript
-- NodeNext compatibility
-- Node 20, 22, 24 support
-- InversifyJS v7 support
-- Dual CJS/ESM builds
+## January 2, 2025
 
-**New in Beta:**
+### 🐛 Bug Fixes in v3.0.1
 
-**`.boundaries()` API**
-Blacklist strategy for sociable tests. List classes to avoid - everything else runs real.
+We've released a patch update addressing several dependency and type resolution issues reported by the community.
 
+**What's Fixed:**
+- ✅ Resolved `reflect-metadata` peer dependency conflicts affecting InversifyJS and NestJS adapters
+- ✅ Fixed missing return statement when instantiating exposed classes
+- ✅ Corrected InversifyJS interface imports to properly use type imports
+- ✅ Cleaned up redundant imports across Jest, Vitest, and Sinon packages
+
+This release ensures smoother integration with popular DI frameworks and reduces TypeScript configuration friction.
+
+[View full release notes →](https://github.com/suites-dev/suites/releases/tag/v3.0.1)
+
+---
+
+## July 13, 2024
+
+### 🎉 Suites v3.0.0
+
+We're incredibly excited to announce **Suites v3.0.0**, marking the official evolution from Automock to Suites. This
+major release represents a significant milestone in the project's journey.
+
+#### 📜 From Automock to Suites
+
+Suites was previously known as **Automock** through version `2.x`. Starting with version `3.0.0`, the project has been
+rebranded to Suites while maintaining the same powerful foundations and principles. Automock will continue to receive
+critical bug fixes, but all new features and development efforts are now focused on Suites.
+
+#### ⚡ What's New
+
+**Sociable Testing Support**
 ```typescript
-TestBed.sociable(OrderService)
-  .boundaries([ComplexTaxEngine])  // Avoid complex logic
-  .compile();
+// New .sociable() method for flexible unit testing
+const { unit } = await TestBed.solitary(UserService).compile();
+const { unit } = await TestBed.sociable(UserService).compile();
 ```
 
-**Why boundaries:**
-- Simpler when most deps should be real
-- Future-proof: new dependencies auto-tested
-- Leaf classes (no dependencies) automatically real
-- Tokens always auto-mocked (databases, HTTP)
+**Modern Framework Support**
+- 🧪 Official Vitest adapter for Vue and React ecosystems
+- 📦 Full ES Module (ESM) support
+- 🔄 Unified imports through `@suites/unit` regardless of test framework
 
-See [TestBed.sociable()](/docs/api-reference/testbed-sociable) for complete API details.
-
-**Fail-Fast Behavior**
-Enabled by default. Throws `DependencyNotConfiguredError` on unconfigured dependencies. Prevents false positives.
-
-**Migration helper:**
+**Enhanced Type Safety**
 ```typescript
-.failFast({ enabled: false })  // Restore v3.x behavior (deprecated)
+// New Mocked type with deep property mocking
+const mockRepo: Mocked<UserRepository> = unitRef.get(UserRepository);
 ```
 
-See [Fail-Fast Behavior](/docs/api-reference/fail-fast) for details and migration strategies.
+#### 💥 Breaking Changes
 
-### Installation
+This is a major version with important API changes:
 
-```bash
-# Core package (beta)
-npm install @suites/unit@beta
+**Async Compilation Required**
+```typescript
+// ❌ Old (v2.x)
+const { unit } = TestBed.create(UserService).compile();
 
-# DI adapters (alpha - no boundaries/fail-fast changes)
-npm install @suites/di.nestjs@alpha
-# or
-npm install @suites/di.inversify@alpha
-
-# Doubles adapters (beta)
-npm install @suites/doubles.jest@beta
-# or
-npm install @suites/doubles.vitest@beta
-# or
-npm install @suites/doubles.sinon@beta
+// ✅ New (v3.x)
+const { unit } = await TestBed.solitary(UserService).compile();
 ```
 
-:::tip Why Different Versions?
-`@suites/unit` and doubles adapters are on **beta** (boundaries + fail-fast features). DI adapters remain on **alpha** - they're installed separately and don't contain the new testing logic.
-:::
+**Method Renaming**
+- `TestBed.create()` → `TestBed.solitary()`
+- `.mock.using()` → `.mock.impl()`
 
-**Breaking Changes:**
-- Node 20+ required (was 16+)
-- InversifyJS v7 required (was v6)
-- Manual `global.d.ts` setup needed (postinstall scripts removed)
+**Migration Support**
 
-See [Installation Guide](/docs/get-started/installation) for setup instructions.
+We've prepared comprehensive migration guides to help you upgrade smoothly:
+- [Migration from Automock →](/docs/migration-guides/from-automock)
+- Migration tool development in progress
 
-[Full Beta Release Notes →](https://github.com/suites-dev/suites/releases/tag/4.0.0-beta.0)
-
----
-
-## Upcoming: v3.1.0
-
-:::info Coming Soon
-All v4.0.0 features will be backported to v3.1.0 with no breaking changes. This allows gradual adoption of new features.
-:::
-
-**What's coming:**
-- `.boundaries()` API (opt-in)
-- Fail-fast behavior (disabled by default, opt-in with <code>.failFast(\{ enabled: true \})</code>)
-- Enhanced type safety
-- Performance improvements
-
-**Migration preparation:** v3.1.0 will have fail-fast **disabled by default** but available via <code>.failFast(\{ enabled: true \})</code>. This lets you test and prepare for v4.0.0 where it becomes the default.
-
-**Timeline:** Testing in alpha, release soon.
+[View full release notes →](https://github.com/suites-dev/suites/releases/tag/v3.0.0)
 
 ---
 
-## Current Stable: v3.0.x
+## Earlier History: Automock (2022-2023)
 
-The current production-ready version. Includes:
-- TestBed.solitary() and TestBed.sociable()
-- .expose() for sociable tests
-- .mock().final() and .mock().impl()
-- NestJS and InversifyJS support
-- Jest, Vitest, and Sinon adapters
+Before becoming Suites at `v3.0.0`, the project was developed as **Automock** from `v1.0.0` through `v2.x`. During this period, the foundational architecture was established:
 
-See [Migration Guide](/docs/migration-guides/from-automock) if upgrading from Automock.
+- **`v2.1.0`** (Dec 2023) — InversifyJS adapter support
+- **`v2.0.0`** (Nov 2022) — Native mocking implementation, Node.js v16+ requirement
+- **`v1.x series`** (2022) — Property injection support, enhanced dependency resolution
+
+The transition to Suites represented a rebranding and modernization while preserving the core testing philosophy and architectural foundations built during the Automock era.
+
+[View complete Automock release history →](https://github.com/suites-dev/suites/releases?q=v2&expanded=true)
 
 ---
 
-## Complete Version History
+## Version Support
 
-For detailed release notes, breaking changes, and migration guides:
+| Version           | Status                 | Released  | Support Until |
+|-------------------|------------------------|-----------|---------------|
+| `v3.0.x`          | 🟢 Stable              | July 2024 | June 2026     |
+| `v2.x` (Automock) | ⚠️ Critical fixes only | Nov 2022  | June 2025     |
 
-**[View All Releases on GitHub →](https://github.com/suites-dev/suites/releases)**
+**Support Policy:**
+- Stable versions receive security patches and critical bug fixes
+- Migration guides provided for all major version upgrades
+- Community support available through [GitHub Discussions](https://github.com/suites-dev/suites/discussions)
 
-Includes:
-- Detailed changelogs
-- Breaking change guides
-- Migration instructions
-- Bug fixes and improvements
+## Get Involved
+
+We're grateful to our growing community of contributors and users. Your feedback shapes Suites' development.
+
+- 🐛 [Report issues](https://github.com/suites-dev/suites/issues)
+- 💡 [Request features](https://github.com/suites-dev/suites/discussions)
+- 📖 [Improve documentation](https://github.com/suites-dev/suites.dev)
+- ⭐ [Star us on GitHub](https://github.com/suites-dev/suites)

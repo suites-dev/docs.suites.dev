@@ -121,11 +121,6 @@ const config: Config = {
           className: "header-sponsor-link",
         },
         {
-          to: "/docs/changelog",
-          position: "left",
-          label: "Changelog",
-        },
-        {
           href: "https://github.com/suites-dev/suites",
           position: "right",
           className: "header-github-link",

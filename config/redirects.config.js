@@ -67,34 +67,6 @@ module.exports = {
       to: '/docs/guides/sociable',
     },
 
-    // Identifiers (1,365 views)
-    {
-      from: '/docs/developer-guide/adapters/identifiers',
-      to: '/docs/guides/adapters/identifiers',
-    },
-    {
-      from: '/docs/learn/adapters/identifiers',
-      to: '/docs/guides/adapters/identifiers',
-    },
-    {
-      from: '/docs/adapters/identifiers',
-      to: '/docs/guides/adapters/identifiers',
-    },
-
-    // InversifyJS (367 views)
-    {
-      from: '/docs/developer-guide/adapters/inversifyjs',
-      to: '/docs/guides/adapters/inversifyjs',
-    },
-    {
-      from: '/docs/learn/adapters/inversifyjs',
-      to: '/docs/guides/adapters/inversifyjs',
-    },
-    {
-      from: '/docs/adapters/inversifyjs',
-      to: '/docs/guides/adapters/inversifyjs',
-    },
-
     // ============================================
     // HIGH PRIORITY REDIRECTS
     // ============================================

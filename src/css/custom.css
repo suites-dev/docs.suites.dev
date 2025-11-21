@@ -19,7 +19,6 @@
   /* Complementary and Neutral Shades */
   --ifm-color-accent: #522E38; /* Deep Mauve, works as a darker, neutral complement */
   --ifm-color-secondary: #FFC2D4; /* Soft Pink, lighter and less saturated */
-  --ifm-background-color: #ffffff; /* Very Light Pink, ideal for backgrounds */
   --ifm-background-color-dark: #602437; /* Deep Reddish Brown, good for dark mode backgrounds or accents */
 
   /* Utility Colors */
@@ -492,4 +491,37 @@ h3 .version-badge {
   font-size: 0.65em;
   position: relative;
   top: -0.1em;
+}
+
+/* Documentation metadata blockquote - subtle styling for guide page metadata */
+.theme-doc-markdown article > blockquote:first-of-type,
+article.markdown > blockquote:first-of-type,
+.markdown > blockquote:first-of-type {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+  border-left: 3px solid rgba(239, 71, 121, 0.4) !important;
+  border-radius: 2px !important;
+  padding: 1.25rem 1.5rem !important;
+  margin: 2rem 0 !important;
+  font-size: 1rem !important;
+  line-height: 1.9 !important;
+}
+
+.theme-doc-markdown article > blockquote:first-of-type p,
+article.markdown > blockquote:first-of-type p,
+.markdown > blockquote:first-of-type p {
+  margin: 0 !important;
+  color: #c4c4c4 !important;
+}
+
+.theme-doc-markdown article > blockquote:first-of-type strong,
+article.markdown > blockquote:first-of-type strong,
+.markdown > blockquote:first-of-type strong {
+  color: var(--ifm-color-gray-light) !important;
+  font-weight: 500 !important;
+}
+
+.theme-doc-markdown article > blockquote:first-of-type a,
+article.markdown > blockquote:first-of-type a,
+.markdown > blockquote:first-of-type a {
+  color: var(--ifm-color-secondary) !important;
 }

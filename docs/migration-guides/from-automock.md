@@ -6,10 +6,13 @@ description: Migrating from Automock to Suites
 
 ## Introduction
 
-As technology and development practices evolve, so do the tools that support them. Building on the strong
-foundation laid by Automock, we are excited to introduce its successor: Suites.
-This evolution marks a significant milestone in our journey to enhance and expand the capabilities of our testing tools
-to better meet the needs of modern software development.
+Suites succeeds Automock as the actively developed testing framework. Automock stopped at version `2.1.0` and receives
+critical fixes only. All new development continues in Suites, starting from version In `3.0.0`.
+
+This guide covers the migration process from Automock to Suites, including dependency updates, API changes, and new
+features.
+
+For detailed setup instructions, see the [Installation Guide](/docs/get-started/installation).
 
 ## The Shift from Automock
 
@@ -19,12 +22,14 @@ and better support. Automock will continue to receive critical fixes for version
 ## Migration Guide
 
 :::info
-**A migration tool is coming soon to assist Automock users in migrating to Suites! 🙌**
+**Automated Migration:** Codemods to automate the migration process are under development and planned for release in Q1 2025.
 :::
 
 ### Step 1: Update Dependencies
 
-Replace your Automock dependencies with their Suites equivalents:
+Replace Automock dependencies with Suites equivalents.
+
+See [Installation Guide](/docs/get-started/installation) for detailed adapter information:
 
 ```bash
 # Remove Automock packages
@@ -47,24 +52,30 @@ Change all imports from Automock packages to the unified Suites import:
 
 ```typescript
 // Before
-import { TestBed } from "@automock/jest";
+import { TestBed } from '@automock/jest';
 // OR
-import { TestBed } from "@automock/sinon";
+import { TestBed } from '@automock/sinon';
 
 // After
-import { TestBed, Mocked } from "@suites/unit";
+import { TestBed, type Mocked } from '@suites/unit';
 ```
 
 ### Step 3: Update TestBed API Calls
 
-Update your TestBed API calls to match the new syntax:
+Update TestBed API calls to match the new syntax. The `beforeAll` or `beforeEach` callback must be `async`:
 
 ```typescript
 // Before
-const { unit } = TestBed.create(Service).compile();
+beforeAll(() => {
+  const { unit } = TestBed.create(Service).compile();
+});
+```
 
+```typescript
 // After
-const { unit } = await TestBed.solitary(Service).compile();
+beforeAll(async () => {
+  const { unit } = await TestBed.solitary(Service).compile();
+});
 ```
 
 ### Step 4: Update Mock Implementation
@@ -76,7 +87,7 @@ Update any mock implementation code to use the new syntax:
 TestBed.create(UserService)
   .mock(UserRepository)
   .using({
-    getUserById: () => Promise.resolve({ id: 1, name: "John" }),
+    getUserById: () => Promise.resolve({ id: 1, name: 'John' }),
   })
   .compile();
 
@@ -84,7 +95,7 @@ TestBed.create(UserService)
 await TestBed.solitary(UserService)
   .mock(UserRepository)
   .final({
-    getUserById: () => Promise.resolve({ id: 1, name: "John" }),
+    getUserById: () => Promise.resolve({ id: 1, name: 'John' }),
   })
   .compile();
 
@@ -92,12 +103,12 @@ await TestBed.solitary(UserService)
 await TestBed.solitary(UserService)
   .mock(UserRepository)
   .impl((stubFn) => ({
-    getUserById: stubFn().mockResolvedValue({ id: 1, name: "John" }),
+    getUserById: stubFn().mockResolvedValue({ id: 1, name: 'John' }),
   }))
   .compile();
 ```
 
-## Key Changes from Automock to Suites
+## Major Changes from Automock to Suites
 
 ### Versioning
 
@@ -111,19 +122,21 @@ await TestBed.solitary(UserService)
 ```typescript
 // Before
 const { unit } = TestBed.create(Service).compile();
+```
 
+```typescript
 // After
 const { unit } = await TestBed.solitary(Service).compile();
 ```
 
-**`TestBed.create()` is now `TestBed.solitary()`**: This change supports the distinction between solitary and sociable testing approaches.
+**`TestBed.create()` is now `TestBed.solitary()`**: This change supports the distinction between solitary and sociable testing approaches. See [Solitary API](/docs/api-reference/testbed-solitary).
 
-**New `.sociable()` method**: Added to the TestBed API for testing with real implementations of select dependencies.
+* **New `.sociable()` method**: Added to the TestBed API for testing with real implementations of select dependencies. See [Sociable API](/docs/api-reference/testbed-sociable).
 
-**Unified TestBed import**: TestBed is now exported from `@suites/unit` regardless of the installed adapters.
+* **Unified TestBed import**: TestBed is now exported from `@suites/unit` regardless of the installed adapters.
 Instead of importing from `@automock/jest` or `@automock/sinon`, now import from `@suites/unit`.
 
-**Mocked type**: The new `Mocked<T>` type from `@suites/unit` provides deep partial mock capabilities,
+* **Mocked type**: The new `Mocked<T>` type from `@suites/unit` provides deep partial mock capabilities,
 allowing for deep mocks of properties within the class.
 
 **API Changes in TestBed**:
@@ -133,36 +146,44 @@ allowing for deep mocks of properties within the class.
   like `jest.fn()` or `sinon.stub()`.
 - `.mock.final` is similar but without stubs and cannot be retrieved from the unit reference.
 
+See [Mock Configuration API](/docs/api-reference/mock-configuration) for complete details.
+
 ### New Features
 
 - **Support for Vitest and ESM**: Suites now supports Vitest and ECMAScript Modules (ESM).
-- **Sociable Unit Testing**: Test with real implementations of selected dependencies.
-- **Enhanced Type Safety**: Improved TypeScript support with the `Mocked<T>` type.
+- **Sociable Unit Testing**: Test with real implementations of selected dependencies. See [Sociable Unit Tests](/docs/guides/sociable).
+- **Enhanced Type Safety**: Improved TypeScript support with the `Mocked<T>` type. See [Types API](/docs/api-reference/types).
 
 ## Troubleshooting Common Migration Issues
 
 ### Async/Await Errors
 
-If you see errors like `TypeError: Cannot read properties of undefined (reading 'get')`, ensure you're using `await` with `TestBed.solitary().compile()`.
+Errors like `TypeError: Cannot read properties of undefined (reading 'get')` indicate missing `await` with `TestBed.solitary().compile()`.
 
 ### Type Errors with Mocked
 
-If you encounter type errors with mocked dependencies, make sure you're using the new `Mocked<T>` type from `@suites/unit`:
+Type errors with mocked dependencies require using the new `Mocked<T>` type from `@suites/unit`.
+
+See [Types API Reference](/docs/api-reference/types) for details:
 
 ```typescript
 // Before
-import { UserRepository } from "./user.repository";
+import { UserRepository } from './user.repository';
 let userRepo: jest.Mocked<UserRepository>;
+```
 
+```typescript
 // After
-import { Mocked } from "@suites/unit";
-import { UserRepository } from "./user.repository";
+import { Mocked } from '@suites/unit';
+import { UserRepository } from './user.repository';
 let userRepo: Mocked<UserRepository>;
 ```
 
 ### Missing Dependencies
 
-If you're seeing errors about missing dependencies, ensure you've installed all the necessary adapter packages for your setup.
+Errors about missing dependencies indicate that adapter packages need installation.
+
+See [Installation Guide](/docs/get-started/installation#supported-libraries-adapters) for the complete list of adapters.
 
 ## Historical Releases and NPM Packages
 

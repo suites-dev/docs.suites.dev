@@ -9,69 +9,46 @@ description: Test business logic interactions with real and mocked dependencies
 Creates a test environment that mixes real implementations with mocked dependencies for testing interactions between business logic classes.
 
 :::info Sociable Tests Are Still Unit Tests
-Token-injected dependencies (`@Inject('PRISMA')`, `@Inject('HTTP_CLIENT')`) are automatically mocked. Tests never reach external systems.
-
-See [Sociable Unit Tests Guide](/docs/guides/sociable) for concepts and when to use.
+Even with multiple real classes, sociable tests remain unit tests because external I/O (databases, HTTP, caches) are
+injected via tokens (`@Inject('DATABASE')`) which are automatically mocked. You're testing business logic interactions,
+not actual I/O.  See the [Sociable Unit Tests Guide](/docs/guides/sociable) for concepts.
 :::
 
 ## Signature
 
 ```typescript
-TestBed.sociable<T>(ClassUnderTest: Type<T>): SociableTestBuilder<T>
+TestBed.sociable<T>(targetClass: Type<T>): SociableTestBuilder<T>
 ```
 
 ## Parameters
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| ClassUnderTest | `Type<T>` | The class constructor to test |
+| Parameter   | Type      | Description                   |
+|-------------|-----------|-------------------------------|
+| targetClass | `Type<T>` | The class constructor to test |
 
 ## Returns
 
-`SociableTestBuilder<T>` with two configuration modes:
+`SociableTestBuilder<T>` with the following configuration method:
 
-### .boundaries() <span class="version-badge version-badge--new">v4.0.0+</span>
+- **`.expose()`** - List classes to keep real. Everything else is mocked.
+- **`.mock(dependency)`** - Configure specific mock behavior before compilation
+- **`.compile()`** - Finalizes configuration and creates the test environment
 
-Recommended approach. List classes to avoid - everything else runs real.
-
-```typescript
-boundaries(): SociableTestBuilder<T>
-boundaries(dependencies: Type[]): SociableTestBuilder<T>
-```
-
-:::tip Token Auto-Mocking
-Token-injected dependencies are automatically mocked. Use .boundaries() for class dependencies you want to avoid.
-:::
-
-### .expose() - Alternative
-
-List classes to keep real. Everything else is mocked.
+### The `.expose()` Method
 
 ```typescript
 expose<D>(dependency: Type<D>): SociableTestBuilder<T>
 ```
 
-:::warning Classes Only
-Both methods only accept class constructors, not tokens.
-:::
+* `.expose()` only accepts class constructors, not tokens. Tokens represent abstractions (interfaces, types) following
+the Dependency Inversion Principle - there is no concrete implementation to "expose". Additionally, tokens typically
+represent external I/O (databases, HTTP clients) and are always mocked to keep sociable tests fast and side-effect-free.
 
-## Examples
+* `.expose()` method only controls explicit, injected dependencies. Implicit dependencies (direct imports) are not
+intercepted by `TestBed` and will execute as normal. Read more about 
+[explicit vs implicit dependencies](/docs/guides/collaborations-and-dependencies)
 
-### Using .boundaries()
-
-```typescript
-const { unit, unitRef } = await TestBed.sociable(OrderService)
-  .boundaries([ComplexTaxEngine])  // Avoid complex logic
-  .compile();
-
-// Can retrieve boundaries (mocked)
-const taxEngine = unitRef.get(ComplexTaxEngine);
-
-// Cannot retrieve real dependencies
-// const calculator = unitRef.get(PriceCalculator);  // ERROR - it's real
-```
-
-### Using .expose()
+## Example
 
 ```typescript
 const { unit, unitRef } = await TestBed.sociable(UserService)
@@ -87,33 +64,15 @@ const database = unitRef.get(Database);
 
 ## What's Retrievable
 
-**Boundaries mode:**
-- ✅ Classes in .boundaries() array (mocked)
+**With `.expose()`:**
+- ✅ Non-exposed dependencies (mocked by default)
 - ✅ Tokens (auto-mocked)
 - ✅ Explicitly mocked dependencies
-- ❌ Real dependencies (auto-exposed, leaf classes)
-
-**Expose mode:**
-- ✅ Non-exposed dependencies (mocked)
-- ✅ Tokens (auto-mocked)
-- ✅ Explicitly mocked dependencies
-- ❌ Exposed dependencies (real)
-
-## Mode Comparison
-
-| Aspect | .boundaries() | .expose() |
-|--------|---------------|-----------|
-| Default | Everything real | Everything mocked |
-| You list | What to avoid | What to keep |
-| Use when | Many deps should be real | Few deps should be real |
-| Future-proof | ✅ New deps auto-tested | ⚠️ New deps ignored |
-
-**Example:** eight `.expose()` calls vs one `.boundaries()` call achieves the same outcome. See [Sociable Guide]
-(/docs/guides/sociable) for the comparison.
+- ❌ Exposed dependencies (real, not retrievable)
 
 ## See Also
 
 - [Sociable Unit Tests Guide](/docs/guides/sociable) - When to use, concepts, detailed examples
+- [Understanding Collaborations and Dependencies](/docs/guides/collaborations-and-dependencies) - Explicit vs implicit dependencies, decision framework
 - [TestBed.solitary()](/docs/api-reference/testbed-solitary) - For fully isolated tests
 - [Mock Configuration](/docs/api-reference/mock-configuration) - Configuring mock behavior
-- [Fail-Fast](/docs/api-reference/fail-fast) - Configuration enforcement

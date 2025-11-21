@@ -31,105 +31,57 @@ service.repository.find.mockResolvedValue(testUser);
 service.repository.save.mockReturnValue(undefined);
 ```
 
-### `UnitReference`
+## How `Mocked<T>` Works: Module Augmentation
 
-Interface for accessing mocked dependencies.
+The `Mocked<T>` type is **always imported from `@suites/unit`**, never from adapter packages. Suites uses TypeScript's module augmentation to automatically provide the correct library-specific types.
+
+### Single Import Point
 
 ```typescript
-interface UnitReference {
-  get<T>(token: Type<T> | string | symbol): Mocked<T>;
+// ✅ Always import from @suites/unit
+import { Mocked } from '@suites/unit';
+
+// ❌ Never import from adapter packages
+// import { Mocked } from '@suites/doubles.jest';  // Wrong!
+```
+
+### Automatic Type Resolution
+
+When an adapter package (like `@suites/doubles.jest`) is installed, it automatically augments the `@suites/unit` module with library-specific types:
+
+```typescript
+// @suites/doubles.jest/unit.d.ts (internal - you never see this)
+declare module '@suites/unit' {
+  export type Mocked<T> = jest.Mocked<T>;  // Overrides base type
 }
 ```
 
-See [UnitReference](/docs/api-reference/unit-reference) for detailed usage.
+This means the same `Mocked<T>` import resolves to different concrete types based on which adapter is installed.
 
-See [`mock()` and `stub()`](/docs/api-reference/mock) for creating standalone mocked instances.
-
-## Framework-Specific Mocked Types
-
-The `Mocked<T>` type maps to different underlying types based on your testing library:
-
-### Jest
-
-```typescript
-// Suites type
-Mocked<UserService>
-
-// Maps to Jest's type
-jest.Mocked<UserService>
-```
-
-### Vitest
-
-```typescript
-// Suites type
-Mocked<UserService>
-
-// In Vitest, it's just Mocked (not prefixed)
-Mocked<UserService>
-```
-
-### Sinon
-
-```typescript
-// Suites type
-Mocked<UserService>
-
-// Maps to Sinon's type
-SinonStubbedInstance<UserService>
-```
-
-:::tip
-You always import from `@suites/unit` regardless of testing library. Suites handles the type mapping automatically based on your installed adapters.
+:::tip Zero Configuration
+This works automatically when you install an adapter package. No manual configuration needed - TypeScript resolves the correct types based on your installed dependencies.
 :::
 
-## Type Safety Example
+### Why This Architecture Matters
+
+**Because Suites is framework agnostic**. The same test code works across Jest, Vitest, and Sinon without changes. Only the installed adapter package determines which library-specific types and methods are available.
+
+**Maintains Dependency Inversion**: The `@suites/unit` package never depends on adapter packages. Instead, adapters augment the base package - following proper dependency inversion principle.
 
 ```typescript
-interface EmailService {
-  send(to: string, subject: string, body: string): Promise<void>;
-}
+// This exact code works with any adapter installed
+describe('UserService', () => {
+  let service: UserService;
+  let database: Mocked<Database>;
 
-const emailService: Mocked<EmailService> = unitRef.get(EmailService);
+  beforeAll(async () => {
+    const { unit, unitRef } = await TestBed.solitary(UserService).compile();
+    service = unit;
 
-// TypeScript ensures correct signatures
-emailService.send.mockResolvedValue(undefined);  // ✅ Correct
-emailService.send.mockResolvedValue("wrong");    // ❌ Type error
-```
-
-
-## Common Type Errors and Solutions
-
-### "Type 'Mocked' is not generic"
-Ensure you're importing from the correct package:
-```typescript
-import { Mocked } from "@suites/unit";  // ✅ Correct
-import { Mocked } from "jest";          // ❌ Wrong
-```
-
-### "Cannot find name 'MockFunction'"
-The internal MockFunction type is aliased based on your testing library. Use `Mocked<T>` instead of trying to use MockFunction directly.
-
-### "Type instantiation is excessively deep"
-This can occur with very complex interfaces. Consider simplifying or breaking down the interface:
-```typescript
-// Instead of one massive interface
-interface ComplexService {
-  // 100+ methods
-}
-
-// Break it down
-interface UserMethods {
-  getUser(): User;
-  saveUser(user: User): void;
-}
-
-interface OrderMethods {
-  getOrder(): Order;
-  saveOrder(order: Order): void;
-}
-
-interface Service extends UserMethods, OrderMethods {}
+    // Return Mocked type corresponding to installed adapter
+    database = unitRef.get(Database); 
+  });
+});
 ```
 
 ## See Also
