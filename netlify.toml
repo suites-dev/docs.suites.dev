@@ -12,3 +12,8 @@ status = 301
 from = "/docs/getting-started/change-log"
 to = "/docs/migration-guides/from-automock"
 status = 301
+
+[[redirects]]
+from = "/docs/overview/migrating-from-automock"
+to = "/docs/migration-guides/from-automock"
+status = 301

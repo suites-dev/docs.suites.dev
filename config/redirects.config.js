@@ -100,6 +100,10 @@ module.exports = {
       from: '/docs/resources/migrating-from-automock',
       to: '/docs/migration-guides/from-automock',
     },
+    {
+      from: '/docs/overview/migrating-from-automock',
+      to: '/docs/migration-guides/from-automock',
+    },
 
     // What is Suites (567 views) - redirect to get-started
     {
