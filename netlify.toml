@@ -17,3 +17,8 @@ status = 301
 from = "/docs/overview/migrating-from-automock"
 to = "/docs/migration-guides/from-automock"
 status = 301
+
+[[redirects]]
+from = "/docs/developer-guide/unit-tests"
+to = "/docs/guides"
+status = 301

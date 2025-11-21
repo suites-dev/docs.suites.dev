@@ -127,5 +127,11 @@ module.exports = {
       to: '/docs/get-started/why-suites',
     },
 
+    // Developer Guide Unit Tests - redirect to guides
+    {
+      from: '/docs/developer-guide/unit-tests',
+      to: '/docs/guides/',
+    },
+
   ],
 };
