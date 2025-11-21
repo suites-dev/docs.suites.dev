@@ -9,6 +9,7 @@ import TabItem from "@theme/TabItem";
 import styles from "./index.module.css";
 import Head from "@docusaurus/Head";
 import { FaGithub } from "react-icons/fa";
+import { trackButtonClick } from "../utils/analytics";
 
 function HomepageHeader() {
   return (
@@ -25,24 +26,28 @@ function HomepageHeader() {
               <Link
                 className={`${styles.button} ${styles.buttonPrimary} button button--primary`}
                 to="/docs/get-started/"
+                onClick={() => trackButtonClick('get_started', 'homepage_hero')}
               >
                 Get Started
               </Link>
               <Link
                 className={`${styles.button} button button--outline button--primary`}
                 to="/docs/get-started/why-suites"
+                onClick={() => trackButtonClick('why_suites', 'homepage_hero')}
               >
                 Why Suites?
               </Link>
               <Link
                 className={`${styles.button} button button--outline button--primary`}
                 to="/docs/guides/"
+                onClick={() => trackButtonClick('guides', 'homepage_hero')}
               >
                 Guides
               </Link>
               <Link
                 className={`${styles.button} button button--outline button--primary`}
                 to="https://github.com/suites-dev/suites"
+                onClick={() => trackButtonClick('github', 'homepage_hero')}
               >
                 <FaGithub style={{ marginRight: '8px', verticalAlign: 'middle', position: 'relative', top: '-1px' }} />
                 GitHub
