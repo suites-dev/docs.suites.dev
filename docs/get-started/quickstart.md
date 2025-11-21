@@ -11,10 +11,10 @@ import TabItem from '@theme/TabItem';
 
 Write the first Suites test in 5 minutes. No manual mocks, no dependency injection configuration, no boilerplate.
 
-**What this covers:**
-* Solitary tests with automatic mocking
-* Sociable tests with real dependencies
-* Zero-config testing
+**What this guide covers:**
+  * Solitary tests with automatic mocking
+  * Sociable tests with real dependencies
+  * Zero-config testing
 
 :::info
 Complete source code for this example (and more) is available in the [Suites Examples repository](https://github.com/suites-dev/examples).

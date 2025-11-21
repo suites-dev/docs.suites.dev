@@ -273,7 +273,7 @@ describe('User Service', () => {
             </p>
             <Link
               className={`${styles.button} button button--outline button--primary`}
-              to="/docs/guides/framework-support"
+              to="/docs/get-started/why-suites#3-inconsistent-patterns-across-teams"
             >
               See Framework Support →
             </Link>
@@ -352,7 +352,7 @@ userApi.get.mockResolvedValue({ name: 'John' });`}
             </p>
             <Link
               className={`${styles.button} button button--outline button--primary`}
-              to="/docs/get-started/why-suites#the-problems-with-manual-dependency-injection-testing"
+              to="/docs/get-started/why-suites#2-excessive-boilerplate-obscures-test-intent-and-confuses-llms"
             >
               Suites and AI →
             </Link>
