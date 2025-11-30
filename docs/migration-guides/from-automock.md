@@ -1,8 +1,10 @@
 ---
 sidebar_position: 5
-title: From Automock
-description: Migrating from Automock to Suites
+title: Migrating from Automock
+description: Step-by-step guide to migrate from Automock to Suites. Covers dependency updates, API changes, and new features in v3.
 ---
+
+# Migrating from Automock to Suites
 
 ## Introduction
 
