@@ -1,18 +1,22 @@
 ---
-sidebar_position: 3
-title: Sociable Unit Tests
+sidebar_position: 4
+title: Sociable Unit Testing
 description: Testing real component (class) interactions with Suites
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Sociable Unit Tests
+# Sociable Unit Testing
 
 > **What this covers:** Testing real component (class) interactions while controlling external dependencies with Suites \
 > **Time to read:** ~15 minutes \
-> **Prerequisites:** [Unit Testing Fundamentals](/docs/guides/fundamentals), [Solitary Unit Tests](./solitary.md), [Test Doubles](./test-doubles.md) \
-> **Best for:** Verifying components (classes) work together correctly, catching integration bugs while maintaining test speed 
+> **Prerequisites:** [Unit Testing Fundamentals](/docs/guides/fundamentals), [Solitary Unit Tests](./solitary), [Test Doubles](./test-doubles) \
+> **Best for:** Verifying components (classes) work together correctly, catching integration bugs while maintaining test speed
+
+:::note About the term "sociable"
+"Sociable" unit testing refers to testing classes with their real collaborators, as defined by [Martin Fowler](https://martinfowler.com/bliki/UnitTest.html). This is unrelated to social media testing or social network testing.
+::: 
 
 Sociable unit tests verify how components interact with real dependencies while mocking external I/O. This approach catches integration bugs that solitary tests miss, ensuring components work together correctly.
 
@@ -150,7 +154,6 @@ describe('UserService', () => {
 :::info Token Injections Are Always Mocked
 External packages use `@Inject('TOKEN')` because they're not `@Injectable()` classes.
 These token-injected dependencies are **always mocked**, even in sociable tests.
-See [Virtual Test Container: Token Injections](./virtual-test-container#token-injections-are-natural-boundaries) for the complete explanation.
 :::
 
 ## Step 3: Scale with Multiple Dependencies
@@ -320,5 +323,5 @@ Sociable tests complement solitary tests by verifying component interactions:
 
 After understanding sociable testing, explore these resources for deeper knowledge:
 
-- **[Test Doubles](./test-doubles.md)**: Core concepts of mocking and stubbing
-- **[Virtual Test Container](./virtual-test-container.md)**: How TestBed manages dependencies
+- **[Test Doubles](./test-doubles)**: Core concepts of mocking and stubbing
+- **[Suites Examples Repository](https://github.com/suites-dev/examples)**: Working examples of sociable testing patterns

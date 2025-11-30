@@ -19,7 +19,7 @@ function HomepageHeader() {
           <div className={styles.textColumn}>
             <h1 className={styles.title}>Suites</h1>
             <p className={styles.subtitle}>
-              <strong>A unit-testing framework for TypeScript backends working
+              <strong>A unit testing framework for TypeScript backends working
                 with inversion of control and dependency injection</strong>
             </p>
             <div className={styles.buttonGroup}>
@@ -200,9 +200,8 @@ describe('User Service', () => {
               <div className={styles.featureEmoji}>👩‍💻</div>
               <h3 className={styles.featureTitle}>Declarative</h3>
               <p className={styles.featureDescription}>
-                One function call creates fully-typed, isolated test environments.
+                Suites' declarative API creates fully-typed, isolated test environments with a single declaration.
                 Suites auto-generates all mocks and wires dependencies automatically.
-                No manual setup, no type casts, no boilerplate.
               </p>
             </div>
             <div className={styles.featureItem}>
@@ -267,7 +266,7 @@ describe('User Service', () => {
 
         <section className={styles.alternatingSection}>
           <div className={styles.textColumn}>
-            <h2>One Testing Pattern for Entire Organization</h2>
+            <h2>Standardized Testing Across Teams</h2>
             <p>
               Stop relearning test patterns on every project. Suites provides a consistent, standardized approach that works identically across NestJS, InversifyJS, and any DI framework, giving teams a unified testing experience.
             </p>

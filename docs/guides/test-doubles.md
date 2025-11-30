@@ -1,10 +1,10 @@
 ---
-sidebar_position: 3
-title: Test Doubles
-description: Understanding test doubles in Suites
+sidebar_position: 5
+title: Test Doubles (Mocks and Stubs)
+description: Understanding test doubles in Suites like mocks and stubs
 ---
 
-# Test Doubles
+# Unit Testing Test Doubles
 
 > **What this covers:** Deep dive into test double concepts (stubs, mocks, spies, fakes) and when to use each \
 > **Time to read:** ~10 minutes \
@@ -185,8 +185,8 @@ See [Sociable Unit Tests](/docs/guides/sociable) for details.
 
 Explore related topics to deepen your understanding:
 
-- **[Solitary Unit Tests](./solitary.md)**: Test components in complete isolation using automatic mocking
-- **[Sociable Unit Tests](./sociable.md)**: Test multiple components together with controlled collaboration
+- **[Solitary Unit Tests](./solitary)**: Test components in complete isolation using automatic mocking
+- **[Sociable Unit Tests](./sociable)**: Test multiple components together with controlled collaboration
 
 ## Additional Resources
 
