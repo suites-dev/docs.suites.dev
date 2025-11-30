@@ -127,7 +127,7 @@ database.saveUser.mockResolvedValue(42);
 ```
 
 :::info How This Works
-See [Testing with Dependency Injection](/docs/guides/testing-with-dependency-injection) for how the virtual test container works under the hood.
+See [Virtual Test Container](/docs/guides/virtual-test-container) for how the virtual test container works under the hood.
 :::
 
 ## Step 3: Configure Mock Behavior

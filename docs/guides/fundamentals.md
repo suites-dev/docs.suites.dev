@@ -193,7 +193,6 @@ Suites follows Fowler's pragmatic approach: use test doubles when collaboration 
 
 Now that you understand the fundamentals of unit testing with Suites, explore specific testing approaches:
 
-- **[Testing with Dependency Injection](/docs/guides/testing-with-dependency-injection)**: Learn how virtual containers solve the DI testing challenge without initializing the entire application
 - **[Solitary Unit Testing](/docs/guides/solitary)**: Write tests with complete isolation using automatic mocking
 - **[Sociable Unit Testing](/docs/guides/sociable)**: Test multiple classes together with controlled collaboration
 - **[Test Doubles in Suites](/docs/guides/test-doubles)**: Learn about mocks, stubs, spies, and when to use each

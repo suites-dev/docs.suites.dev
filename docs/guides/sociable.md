@@ -154,8 +154,6 @@ describe('UserService', () => {
 :::info Token Injections Are Always Mocked
 External packages use `@Inject('TOKEN')` because they're not `@Injectable()` classes.
 These token-injected dependencies are **always mocked**, even in sociable tests.
-See [Testing with Dependency Injection: Token Injections](.
-/testing-with-dependency-injection#token-injections-as-natural-boundaries) for the complete explanation.
 :::
 
 ## Step 3: Scale with Multiple Dependencies
@@ -326,5 +324,4 @@ Sociable tests complement solitary tests by verifying component interactions:
 After understanding sociable testing, explore these resources for deeper knowledge:
 
 - **[Test Doubles](./test-doubles)**: Core concepts of mocking and stubbing
-- **[Testing with Dependency Injection](./testing-with-dependency-injection)**: How TestBed manages dependencies
 - **[Suites Examples Repository](https://github.com/suites-dev/examples)**: Working examples of sociable testing patterns

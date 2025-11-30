@@ -18,7 +18,7 @@ Practical guides for writing solitary and sociable unit tests with Suites. Learn
 - [**Solitary Unit Tests**](/docs/guides/solitary) - Testing components in complete isolation
 - [**Sociable Unit Tests**](/docs/guides/sociable) - Testing with real dependencies
 - [**Test Doubles**](/docs/guides/test-doubles) - Mocks, stubs, and spies
-- [**Testing with Dependency Injection**](/docs/guides/testing-with-dependency-injection) - Testing strategies for DI applications
+- [**Virtual Test Container**](/docs/guides/virtual-test-container) - How Suites creates test environments
 
 </div>
 
