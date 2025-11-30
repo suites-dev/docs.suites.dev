@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation } from '@docusaurus/router';
 import { FaRobot, FaComments } from 'react-icons/fa';
 import { SiOpenai } from 'react-icons/si';
+import { trackButtonClick } from '@site/src/utils/analytics';
 import styles from './styles.module.css';
 
 interface AskAIButtonProps {
@@ -41,6 +42,7 @@ export default function AskAIButton({
   };
 
   const handleAskChatGPT = () => {
+    trackButtonClick('Ask AI - ChatGPT', position);
     const prompt = buildPrompt();
     // ChatGPT supports the q parameter with optional model selection
     const chatGPTUrl = `https://chat.openai.com/?model=gpt-4o&q=${encodeURIComponent(prompt)}`;
@@ -49,6 +51,7 @@ export default function AskAIButton({
   };
 
   const handleAskClaude = () => {
+    trackButtonClick('Ask AI - Claude', position);
     const prompt = buildPrompt();
     // Claude uses the q parameter on the /new endpoint
     const claudeUrl = `https://claude.ai/new?q=${encodeURIComponent(prompt)}`;
