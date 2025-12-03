@@ -21,23 +21,17 @@ const sidebars = {
     {
       type: "html",
       value: `
-      <div style="margin-top: 2rem; padding: 1rem; border-radius: 8px; overflow: hidden; background: var(--theme-section-bg);">
+      <div style="margin-top: 1rem; padding: 1rem; border-radius: 8px; overflow: hidden; background: var(--theme-section-bg);">
         <h3 style="margin: 0 0 0.5rem 0; font-size: 1.1rem; font-weight: 600;">
           Using Suites?
         </h3>
         <p style="margin: 0; font-size: 0.9rem; line-height: 1.5;">
-          Share your experience with Suites! Let us know how you're using it and help
-          shape the future of the framework.
-        </p>
-        <p style="margin: 0; margin-top: 0.5rem; font-size: 0.9rem; line-height: 1.5;">
           <a
             href="https://github.com/suites-dev/suites/discussions/655"
             target="_blank"
             rel="noopener noreferrer"
             style="text-decoration: underline;"
-          >
-            Share your experience
-          </a>
+          >Share your experience</a> and help us shape the future of Suites
         </p>
       </div>
       `,
