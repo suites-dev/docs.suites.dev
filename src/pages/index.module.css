@@ -221,6 +221,27 @@
     filter: grayscale(0%);
 }
 
+.shareExperience {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 400;
+    color: rgba(253, 245, 248, 0.7);
+    margin-top: 2rem;
+    margin-bottom: 0;
+}
+
+.shareExperience a {
+    color: inherit;
+    text-decoration: underline;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.shareExperience a:hover {
+    color: rgba(253, 245, 248, 0.9);
+    text-decoration: underline;
+}
+
 @media screen and (max-width: 996px) {
     .heroBanner {
         padding: 2rem 1rem;

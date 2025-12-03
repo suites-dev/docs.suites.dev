@@ -19,37 +19,46 @@ function HomepageHeader() {
           <div className={styles.textColumn}>
             <h1 className={styles.title}>Suites</h1>
             <p className={styles.subtitle}>
-              <strong>A unit-testing framework for TypeScript backends working
-                with inversion of control and dependency injection</strong>
+              <strong>
+                A unit-testing framework for TypeScript backends working with
+                inversion of control and dependency injection
+              </strong>
             </p>
             <div className={styles.buttonGroup}>
               <Link
                 className={`${styles.button} ${styles.buttonPrimary} button button--primary`}
                 to="/docs/get-started/"
-                onClick={() => trackButtonClick('get_started', 'homepage_hero')}
+                onClick={() => trackButtonClick("get_started", "homepage_hero")}
               >
                 Get Started
               </Link>
               <Link
                 className={`${styles.button} button button--outline button--primary`}
                 to="/docs/get-started/why-suites"
-                onClick={() => trackButtonClick('why_suites', 'homepage_hero')}
+                onClick={() => trackButtonClick("why_suites", "homepage_hero")}
               >
                 Why Suites?
               </Link>
               <Link
                 className={`${styles.button} button button--outline button--primary`}
                 to="/docs/guides/"
-                onClick={() => trackButtonClick('guides', 'homepage_hero')}
+                onClick={() => trackButtonClick("guides", "homepage_hero")}
               >
                 Guides
               </Link>
               <Link
                 className={`${styles.button} button button--outline button--primary`}
                 to="https://github.com/suites-dev/suites"
-                onClick={() => trackButtonClick('github', 'homepage_hero')}
+                onClick={() => trackButtonClick("github", "homepage_hero")}
               >
-                <FaGithub style={{ marginRight: '8px', verticalAlign: 'middle', position: 'relative', top: '-1px' }} />
+                <FaGithub
+                  style={{
+                    marginRight: "8px",
+                    verticalAlign: "middle",
+                    position: "relative",
+                    top: "-1px",
+                  }}
+                />
                 GitHub
               </Link>
             </div>
@@ -200,17 +209,19 @@ describe('User Service', () => {
               <div className={styles.featureEmoji}>👩‍💻</div>
               <h3 className={styles.featureTitle}>Declarative</h3>
               <p className={styles.featureDescription}>
-                One function call creates fully-typed, isolated test environments.
-                Suites auto-generates all mocks and wires dependencies automatically.
-                No manual setup, no type casts, no boilerplate.
+                One function call creates fully-typed, isolated test
+                environments. Suites auto-generates all mocks and wires
+                dependencies automatically. No manual setup, no type casts, no
+                boilerplate.
               </p>
             </div>
             <div className={styles.featureItem}>
               <div className={styles.featureEmoji}>✅</div>
               <h3 className={styles.featureTitle}>Type-Safe</h3>
               <p className={styles.featureDescription}>
-                Generate type-safe mocks bound to implementations. Eliminate broken
-                tests after refactors, silent runtime failures, and manual type casting.
+                Generate type-safe mocks bound to implementations. Eliminate
+                broken tests after refactors, silent runtime failures, and
+                manual type casting.
               </p>
             </div>
             <div className={styles.featureItem}>
@@ -226,7 +237,10 @@ describe('User Service', () => {
               <div className={styles.featureEmoji}>✨</div>
               <h3 className={styles.featureTitle}>AI Ready</h3>
               <p className={styles.featureDescription}>
-                One canonical pattern teaches AI agents the entire API. Coding agents like Claude Code and Cursor write correct tests in a single pass with 95% less context consumption compared to manual mocking patterns.
+                One canonical pattern teaches AI agents the entire API. Coding
+                agents like Claude Code and Cursor write correct tests in a
+                single pass with 95% less context consumption compared to manual
+                mocking patterns.
               </p>
             </div>
           </div>
@@ -270,13 +284,27 @@ describe('User Service', () => {
               />
             </div>
           </div>
+          <p className={styles.shareExperience}>
+            Using Suites?{" "}
+            <a
+              href="https://github.com/suites-dev/suites/discussions/655"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Share your experience
+            </a>{" "}
+            and help us shape the future of Suites
+          </p>
         </div>
 
         <section className={styles.alternatingSection}>
           <div className={styles.textColumn}>
             <h2>One Testing Pattern for Entire Organization</h2>
             <p>
-              Stop relearning test patterns on every project. Suites provides a consistent, standardized approach that works identically across NestJS, InversifyJS, and any DI framework, giving teams a unified testing experience.
+              Stop relearning test patterns on every project. Suites provides a
+              consistent, standardized approach that works identically across
+              NestJS, InversifyJS, and any DI framework, giving teams a unified
+              testing experience.
             </p>
             <Link
               className={`${styles.button} button button--outline button--primary`}
@@ -302,7 +330,9 @@ TestBed.sociable(OrderService)
           <div className={styles.textColumn}>
             <h2>Tests That Reveal Intent, Not Boilerplate</h2>
             <p>
-              Suites' declarative API removes 90% of test setup code. No more scrolling through mock wiring, logic is front and center. New team members write tests on day one, not day ten.
+              Suites' declarative API removes 90% of test setup code. No more
+              scrolling through mock wiring, logic is front and center. New team
+              members write tests on day one, not day ten.
             </p>
             <Link
               className={`${styles.button} button button--outline button--primary`}
@@ -328,8 +358,10 @@ await unit.generateRandomUser();`}
           <div className={styles.textColumn}>
             <h2>Type-Safe, Automatic Mocking</h2>
             <p>
-              No more debugging broken mocks. Suites automatically generates fully-typed mocks bound to implementation. Catch errors at compile time, not runtime.
-              Refactor with confidence while mocks stay valid when dependencies change.
+              No more debugging broken mocks. Suites automatically generates
+              fully-typed mocks bound to implementation. Catch errors at compile
+              time, not runtime. Refactor with confidence while mocks stay valid
+              when dependencies change.
             </p>
             <Link
               className={`${styles.button} button button--outline button--primary`}
@@ -355,7 +387,11 @@ userApi.get.mockResolvedValue({ name: 'John' });`}
           <div className={styles.textColumn}>
             <h2>Built for AI-First Development</h2>
             <p>
-              Manual mocking forces AI agents to hold 40+ lines of boilerplate per test in context. Suites provides one canonical pattern that reduces token consumption by 95%. AI coding assistants like Claude Code, Cursor, and GitHub Copilot generate accurate tests in a single pass without burning tokens on repetitive setup code.
+              Manual mocking forces AI agents to hold 40+ lines of boilerplate
+              per test in context. Suites provides one canonical pattern that
+              reduces token consumption by 95%. AI coding assistants like Claude
+              Code, Cursor, and GitHub Copilot generate accurate tests in a
+              single pass without burning tokens on repetitive setup code.
             </p>
             <Link
               className={`${styles.button} button button--outline button--primary`}
