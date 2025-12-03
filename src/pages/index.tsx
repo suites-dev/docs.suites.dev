@@ -20,7 +20,7 @@ function HomepageHeader() {
             <h1 className={styles.title}>Suites</h1>
             <p className={styles.subtitle}>
               <strong>
-                A unit-testing framework for TypeScript backends working with
+                A unit testing framework for TypeScript backends working with
                 inversion of control and dependency injection
               </strong>
             </p>
