@@ -262,6 +262,13 @@ describe('User Service', () => {
                 className={styles.trustedByLogo}
               />
             </div>
+            <div className={styles.trustedByItem}>
+              <img
+                src="/img/vetric.svg"
+                alt="Vetric"
+                className={styles.trustedByLogo}
+              />
+            </div>
           </div>
         </div>
 
