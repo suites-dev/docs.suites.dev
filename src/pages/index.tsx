@@ -423,10 +423,10 @@ export default function Home(): JSX.Element {
   return (
     <Layout>
       <Head>
-        <title>Suites | Unit Testing Framework for Dependency Injection</title>
+        <title>Suites | Unit Testing Framework</title>
         <meta
           name="description"
-          content="Suites automates mocking and simplifies test setup for dependency injection frameworks like NestJS and InversifyJS, reducing boilerplate code."
+          content="Suites is a unit testing framework for TypeScript backends working with inversion of control and dependency injection"
         />
       </Head>
       <HomepageHeader />
