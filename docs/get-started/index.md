@@ -38,3 +38,7 @@ For those new to Suites:
 3. **[Quick Start](/docs/get-started/quickstart)** - Write the first test
 4. **[Guides](/docs/guides/)** - Learn testing patterns
 
+## Resources
+
+- **[Suites Examples Repository](https://github.com/suites-dev/examples)** - Complete working examples for all testing patterns
+

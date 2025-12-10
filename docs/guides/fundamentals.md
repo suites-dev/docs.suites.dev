@@ -12,8 +12,8 @@ description: Master unit testing fundamentals with the IoC principle. Learn soli
 > **Best for:** Understanding unit testing foundations and IoC testing patterns before diving into solitary and sociable testing
 
 Unit testing verifies software quality and maintainability. This guide covers essential unit testing concepts, IoC
-testing principles, and how Suites simplifies testing for applications using dependency injection, constructor
-injection (and soon functional composition patterns).
+testing principles, and how Suites simplifies testing component logic and interactions in applications using
+dependency injection, constructor injection.
 
 ## Overview
 
@@ -81,11 +81,6 @@ Suites supports the IoC principle through multiple implementations:
 - Plain TypeScript classes with constructor parameters (manually)
 - Standalone mocking with the `mock()` function (manually)
 
-**Coming Soon:**
-- Functional composition patterns with `TestBed.manual`
-- Module-based IoC patterns
-- Custom factory patterns
-
 ## "Units" in Class-Based Applications
 
 In class-based architectures following the IoC principle, a unit is typically a class:
@@ -120,10 +115,11 @@ Testing applications with IoC patterns presents several challenges:
 - No compile-time safety (`as any` / `as unknown as ..` hides bugs)
 
 **How Suites Solves It:**
+
 - Auto-generates all mocks and test doubles (no manual creation)
 - Auto-wires dependencies (no type casts)
 - Type-safe mocks (TypeScript catches mismatches)
-- One call creates complete test environment
+- One call creates a complete test environment
 - Single canonical pattern for AI agents (minimal token cost)
 
 ```typescript
@@ -142,28 +138,30 @@ consumption and improves generation accuracy.
 
 Suites offers different testing approaches based on architecture:
 
-| Feature               | `TestBed` (DI Only) | `mock()` / `stub()` | TestBed.manual (Soon) |
-|-----------------------|---------------------|---------------------|-----------------------|
-| Type Safety           | ✅                   | ✅                   | ✅                     |
-| Auto Mock Creation    | ✅                   | ❌ Manual            | ✅                     |
-| Auto Injection        | ✅                   | ❌ Manual            | ✅                     |
-| Reference Tracking    | ✅ `unitRef.get()`   | ❌ Manual variables  | ✅                     |
-| Requires DI Framework | ✅                   | ❌ Any TypeScript    | ❌ Any TypeScript      |
-| Works Today           | ✅                   | ✅                   | ❌ Coming Q1 2026      |
+| Feature               | `TestBed` (DI Only) | `mock()` / `stub()` |
+|-----------------------|---------------------|---------------------|
+| Type Safety           | ✅                   | ✅                   |
+| Auto Mock Creation    | ✅                   | ❌ Manual            |
+| Auto Injection        | ✅                   | ❌ Manual            |
+| Reference Tracking    | ✅ `unitRef.get()`   | ❌ Manual variables  |
+| Requires DI Framework | ✅                   | ❌ Any TypeScript    |
+| Works Today           | ✅                   | ✅                   |
 
 **Choose based on project architecture:**
+
 - **Using Dependency Injection?** Use `TestBed` for the best testing experience
 - **Plain TypeScript?** Use `mock()` and `stub()` (manual wiring required)
-- **Want `TestBed` for non-DI?** Wait for `TestBed.manual` or use `mock()` today
 
 ## Types of Unit Tests in Suites
 
-Suites supports two approaches based on [Martin Fowler's distinction between solitary and sociable unit tests](https://martinfowler.com/bliki/UnitTest.html):
+Suites supports two approaches based
+on [Martin Fowler's distinction between solitary and sociable unit tests](https://martinfowler.com/bliki/UnitTest.html):
 
 * **Solitary Unit Tests** - Test one class in complete isolation. All collaborators are replaced with test doubles to ensure a fault in a dependency does not cause the primary class's tests to fail. \
 See [Solitary Unit Tests](/docs/guides/solitary) for examples and usage.
 
-* **Sociable Unit Tests** - Test multiple business logic classes together with their real collaborators. External I/O (databases, APIs, file systems) is replaced with test doubles to keep tests fast and deterministic. \
+* **Sociable Unit Tests** - Test multiple component classes together with their real collaborators. External I/O 
+  (databases, APIs, file systems) is replaced with test doubles (mocks and stubs) to keep tests fast and deterministic. \
 See [Sociable Unit Tests](/docs/guides/sociable) for examples and usage.
 
 Suites follows Fowler's pragmatic approach: use test doubles when collaboration is awkward (external services, I/O), but allow real collaborators when interactions are fast and stable.
@@ -189,13 +187,11 @@ Suites follows Fowler's pragmatic approach: use test doubles when collaboration 
 
 Now that you understand the fundamentals of unit testing with Suites, explore specific testing approaches:
 
-- **[Test Doubles in Suites](/docs/guides/test-doubles)**: Learn about mocks, stubs, spies, and when to use each
 - **[Solitary Unit Testing](/docs/guides/solitary)**: Write tests with complete isolation using automatic mocking
 - **[Sociable Unit Testing](/docs/guides/sociable)**: Test multiple classes together with controlled collaboration
+- **[Test Doubles in Suites](/docs/guides/test-doubles)**: Learn about mocks, stubs, spies, and when to use each
 
 ## Additional Resources
 
-
-- **[API Reference](/docs/api-reference)**: Complete API documentation for TestBed, mock(), and utilities
 - **[GitHub Discussions](https://github.com/suites-dev/suites/discussions)**: Ask questions and share experiences with the community
 - **[GitHub Issues](https://github.com/suites-dev/suites/issues)**: Report bugs or request features

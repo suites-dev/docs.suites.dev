@@ -23,8 +23,7 @@ Use `mock()` and `stub()` functions when:
 
 :::note Trade-off: Manual vs Automatic Mocking
 `mock()` provides type-safe mocking for any TypeScript code **but requires you to manually wire dependencies and track
-mock references**. `TestBed` automates this but currently requires dependency injection frameworks. `TestBed.manual`
-(coming Q2 2025) will bring automatic features to all patterns.
+mock references**. `TestBed` automates this but currently requires dependency injection frameworks.
 :::
 
 ## mock()
