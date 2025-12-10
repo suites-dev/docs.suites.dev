@@ -4,7 +4,7 @@ title: Testing in Isolation (Solitary)
 description: Testing in isolation with Suites
 ---
 
-# Testing Unit Isolation (Solitary)
+# Testing Unit In Isolation (Solitary Testing)
 
 > **What this covers:** Writing unit tests that isolate a single component (class) using automatic mocking \
 > **Time to read:** ~8 minutes \

@@ -7,7 +7,7 @@ description: Testing real component interactions with Suites
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Testing Components Together (Sociable)
+# Testing Components Together (Sociable Testing)
 
 > **What this covers:** Testing real component (class) interactions while controlling external dependencies \
 > **Time to read:** ~15 minutes \
@@ -149,7 +149,7 @@ Third-party packages use `@Inject('TOKEN')` because they're not `@Injectable()` 
 
 ## Step 3: Manage Multiple Dependencies
 
-As services grow, you need to manage more dependencies. Here's how to handle them.
+As services grow, you need to manage more dependencies. Here's how to handle them:
 
 ### 3.1 Service with Many Dependencies
 
@@ -313,7 +313,7 @@ Sociable tests work alongside solitary tests to provide comprehensive coverage:
 - **Solitary tests:** Verify individual class behavior in isolation
 - **Sociable tests:** Verify components work together correctly
 
-### Key Takeaways
+### Takeaways
 
 - Sociable tests verify how components interact using real implementations for business logic
 - External systems (I/O) are always mocked using token injection (`@Inject('TOKEN')`)

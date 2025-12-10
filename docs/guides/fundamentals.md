@@ -13,7 +13,7 @@ description: Master unit testing fundamentals with the IoC principle. Learn soli
 
 Unit testing verifies software quality and maintainability. This guide covers essential unit testing concepts, IoC
 testing principles, and how Suites simplifies testing component logic and interactions in applications using
-dependency injection, constructor injection.
+dependency injection.
 
 ## Overview
 

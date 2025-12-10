@@ -111,6 +111,11 @@ main a:active {
   font-weight: 500;
 }
 
+.markdown h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
 .markdown a:active {
   color: var(--ifm-color-primary) !important;
   text-decoration: underline !important;
@@ -375,7 +380,7 @@ code {
 code[class*="language-"],
 pre[class*="language-"] {
   font-family: var(--font-code);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 400;
   text-align: left;
   word-spacing: normal;

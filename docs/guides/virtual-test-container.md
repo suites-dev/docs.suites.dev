@@ -202,31 +202,6 @@ In this test, `OrderService`, `PriceCalculator`, and `TaxCalculator` are all rea
 
 This separation happens automatically. The Virtual Test Container uses token injection as a signal that something is an I/O boundary.
 
-## Characteristics
-
-The Virtual Test Container delivers several concrete benefits. Let's look at what this means in practice.
-
-**Speed:** The Virtual Test Container creates only the dependencies the test actually needs.
-
-The performance difference:
-- **Full IoC/DI container**: Initializes 500+ classes, takes 2-5 seconds
-- **Virtual container**: Creates 1-10 classes, takes 50-100ms
-
-Test suites run 20-40x faster. Instead of waiting several seconds for each test file to initialize, startup is near-instant. Over hundreds or thousands of tests, this compounds into substantial time savings.
-
-**Type Safety:** Tests receive full TypeScript support throughout.
-
-The Virtual Test Container generates mocks that maintain the original types. When calling `unitRef.get(UserApi)`, TypeScript knows the result is a `Mocked<UserApi>` with all the original methods available. No `as any` casts or type assertions that hide potential errors.
-
-**Automatic:** Mock creation and wiring happen without manual intervention.
-
-Write `TestBed.solitary(UserService).compile()` to create a fully configured test environment. When adding a new dependency to `UserService`, existing tests continue working without modification. The Virtual Test Container adapts to the class structure automatically.
-
-**Framework Agnostic:** The same concepts work across all supported dependency injection frameworks.
-
-Whether using NestJS, InversifyJS, or any other IoC framework, the Virtual Test Container provides consistent behavior. 
-Learn the pattern once and apply it everywhere.
-
 ## Next Steps
 
 Explore how to use the Virtual Test Container in different testing scenarios:
