@@ -10,7 +10,7 @@ API reference for setting up and managing unit tests with Suites.
 
 <div class="in-this-section">
 
-## Core APIs
+### Core APIs
 
 - [**TestBed.solitary()**](/docs/api-reference/testbed-solitary) - Create isolated unit tests where all dependencies are automatically mocked
 - [**TestBed.sociable()**](/docs/api-reference/testbed-sociable) - Test business logic interactions, keep specific dependencies real

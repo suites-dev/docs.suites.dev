@@ -9,7 +9,7 @@ Learn how to install Suites, configure the testing environment, and write the fi
 
 <div class="in-this-section">
 
-## In This Section
+### In This Section
 - [**Why Suites?**](/docs/get-started/why-suites) - Compare with manual mocking and explore what Suites provides
 - [**Installation**](/docs/get-started/installation) - Install and configure Suites
 - [**Quick Start**](/docs/get-started/quickstart) - Write the first test in 5 minutes

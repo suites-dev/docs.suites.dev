@@ -115,7 +115,7 @@
 }
 
 .pageHeader {
-    font-family: "Barlow", sans-serif;
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     /*background-image: url("../../../static/img/header.1af6756a.png");*/
     background-position: center top;
     background-size: cover;
@@ -186,9 +186,10 @@
 }
 
 .mainWrapper h1 {
-    font-family: "Barlow", sans-serif;
-    font-weight: 600;
-    font-size: 55px;
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 800;
+    font-size: 2.25rem;    /* 36px - Match Next.js h1 */
+    line-height: 1.111;
     margin-top: 20px;
     padding: 10px 0;
 }
@@ -199,7 +200,7 @@
 }
 
 .mainWrapper h4 {
-    font-family: "Barlow", sans-serif;
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     font-weight: 400;
     max-width: 650px;
     margin: 0;

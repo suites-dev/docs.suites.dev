@@ -12,7 +12,7 @@ Practical guides for writing solitary and sociable unit tests with Suites. Learn
 
 <div class="in-this-section">
 
-## In This Section
+### In This Section
 
 - [**Fundamentals of Unit Testing**](/docs/guides/fundamentals) - Core principles and best practices
 - [**Solitary Unit Tests**](/docs/guides/solitary) - Testing components in complete isolation
