@@ -1,36 +1,34 @@
 ---
-sidebar_position: 3
-title: Sociable Unit Tests
-description: Testing real component (class) interactions with Suites
+sidebar_position: 4
+title: Testing Components Together (Sociable)
+description: Testing real component interactions with Suites
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Sociable Unit Tests
+# Testing Components Together (Sociable Testing)
 
-> **What this covers:** Testing real component (class) interactions while controlling external dependencies with Suites \
+> **What this covers:** Testing real component (class) interactions while controlling external dependencies \
 > **Time to read:** ~15 minutes \
-> **Prerequisites:** [Unit Testing Fundamentals](/docs/guides/fundamentals), [Solitary Unit Tests](./solitary.md), [Test Doubles](./test-doubles.md) \
-> **Best for:** Verifying components (classes) work together correctly, catching integration bugs while maintaining test speed 
+> **Prerequisites:** [Unit Testing Fundamentals](/docs/guides/fundamentals), [Solitary Unit Tests](./solitary), [Test Doubles](./test-doubles) \
+> **Best for:** Verifying components (classes) work together correctly, catching integration bugs while maintaining test speed
 
-Sociable unit tests verify how components interact with real dependencies while mocking external I/O. This approach catches integration bugs that solitary tests miss, ensuring components work together correctly.
+Sociable unit tests verify how components interact with their real dependencies while keeping external I/O operations under control. This approach identifies bugs in how business logic components work together - bugs that solitary tests miss.
 
-:::info Important: Sociable Are Still Unit Tests
-Sociable tests are **unit tests**, not integration tests. They mock external I/O (databases, APIs, file systems) to stay
-fast and side-effect-free. The "integration bugs" they catch are issues in how business logic components interact with
-each other - not issues with real external systems. \
+## Sociable Tests Are Unit Tests
+
+Sociable tests are **unit tests**, not integration tests. They keep external I/O (databases, APIs, file systems) mocked to stay fast and side-effect-free. The integration bugs they catch are issues in how business logic components work with each other - not issues with real external systems. \
 For the distinction, see [Unit Testing Fundamentals: Quick Reference](/docs/guides/fundamentals#quick-reference).
-:::
 
 ## Overview
 
-This tutorial walks you through:
-1. Setting up your first sociable test with real dependencies
+This tutorial covers:
+1. Setting up a sociable test with real dependencies
 2. Handling external dependencies and I/O operations
-3. Scaling with multiple dependencies using `.expose()`
-4. Choosing configuration patterns (pre vs post compilation)
-5. Common patterns and decision frameworks
+3. Managing multiple dependencies using `.expose()`
+4. Choosing when to configure mocks (before vs after compilation)
+5. Using a decision framework to choose what to mock
 
 ## Step 1: Set Up the First Sociable Test
 
@@ -63,7 +61,7 @@ export class UserService {
 
 ### 1.2 Write the Sociable Test
 
-The `.expose()` method makes `EmailValidator` use its real implementation instead of a mock.
+The `.expose()` method tells Suites to use the real implementation instead of a mock.
 
 ```typescript title="src/services/user.service.spec.ts"
 import { TestBed } from '@suites/unit';
@@ -91,11 +89,11 @@ describe('UserService', () => {
   });
 });
 ```
-The real `EmailValidator` runs its actual validation logic. If the validator has a bug, this test catches it.
+The real `EmailValidator` runs its actual validation logic. If the validator has a bug, this test will detect it.
 
 ## Step 2: Handle External Dependencies
 
-Most services need external I/O like databases. This example extends the previous one.
+Most services interact with external systems like databases. This example extends the previous one.
 
 ### 2.1 Add Database Dependency
 
@@ -118,7 +116,7 @@ export class UserService {
 
 ### 2.2 Test with Mocked I/O
 
-Token-injected dependencies are automatically mocked.
+Dependencies injected using tokens are automatically mocked.
 
 ```typescript title="src/services/user.service.spec.ts"
 import { TestBed, Mocked } from '@suites/unit';
@@ -147,15 +145,11 @@ describe('UserService', () => {
 });
 ```
 
-:::info Token Injections Are Always Mocked
-External packages use `@Inject('TOKEN')` because they're not `@Injectable()` classes.
-These token-injected dependencies are **always mocked**, even in sociable tests.
-See [Virtual Test Container: Token Injections](./virtual-test-container#token-injections-are-natural-boundaries) for the complete explanation.
-:::
+Third-party packages use `@Inject('TOKEN')` because they're not `@Injectable()` classes. Dependencies injected this way are **always mocked** automatically.
 
-## Step 3: Scale with Multiple Dependencies
+## Step 3: Manage Multiple Dependencies
 
-As services grow, two approaches exist for handling multiple dependencies.
+As services grow, you need to manage more dependencies. Here's how to handle them:
 
 ### 3.1 Service with Many Dependencies
 
@@ -186,7 +180,7 @@ export class OrderService {
 
 ### 3.2 Using `.expose()`
 
-List each dependency that should be real.
+List each dependency that should use its real implementation.
 
 ```typescript title="src/services/order.service.spec.ts"
 describe('OrderService', () => {
@@ -195,10 +189,10 @@ describe('OrderService', () => {
 
   beforeAll(async () => {
     const { unit, unitRef } = await TestBed.sociable(OrderService)
-      .expose(PricingService)      // Explicitly make real
-      .expose(TaxCalculator)       // Explicitly make real
-      .expose(InventoryChecker)    // Explicitly make real
-      .expose(DiscountEngine)      // Explicitly make real
+      .expose(PricingService)      // Use real implementation
+      .expose(TaxCalculator)       // Use real implementation
+      .expose(InventoryChecker)    // Use real implementation
+      .expose(DiscountEngine)      // Use real implementation
       .compile();
 
     orderService = unit;
@@ -223,17 +217,19 @@ describe('OrderService', () => {
 ```
 
 :::tip Understanding the Control Boundary
-TestBed can only control **explicit dependencies** (constructor-injected), not implicit ones (direct imports).
+Suites can only control **explicit dependencies** (passed through constructors). It cannot control implicit dependencies (direct imports). For more, see [Test Doubles](/docs/guides/test-doubles).
 :::
 
-## Step 4: Choose Configuration Patterns
+## Step 4: Choose When to Configure Mocks
 
-Choose between configuring mocks before or after compilation.
+You can configure mocks before compilation (for consistent values) or after compilation (for test-specific scenarios).
 
 <Tabs>
-<TabItem value="pre" label="Pre-compilation" default>
+<TabItem value="pre" label="Before Compilation" default>
 
-:bulb: **Set fixed mock values for all tests in the suite.** Best for Default values, shared test data, reducing boilerplate
+**When to use:** Set default values that all tests in the suite need.
+
+**Best for:** Shared test data, reducing repetitive setup code
 
 ```typescript title="src/services/user.service.spec.ts"
 beforeAll(async () => {
@@ -257,9 +253,11 @@ it('creates user', async () => {
 });
 ```
 </TabItem>
-<TabItem value="post" label="Post-compilation">
+<TabItem value="post" label="After Compilation">
 
-:bulb: **Configure mocks differently for each test.** Best for Test-specific scenarios, error cases, varying responses
+**When to use:** Configure different behaviors for individual tests.
+
+**Best for:** Test-specific scenarios, error cases, varying responses
 
 ```typescript title="src/services/user.service.spec.ts"
 beforeAll(async () => {
@@ -292,33 +290,40 @@ it('handles successful save', async () => {
 
 ## Decision Framework
 
+Use this flowchart to decide how to handle each dependency:
+
 ```mermaid
 flowchart LR
     A[Dependency] --> B{External I/O?}
     B -->|Yes| C[@Inject TOKEN<br/>Auto-mocked]
     B -->|No| D{Business logic<br/>to test?}
-    D -->|Yes| E[.expose Class<br/>Runs real]
-    D -->|No| F[Leave mocked<br/>default]
+    D -->|Yes| E[.expose Class<br/>Uses real code]
+    D -->|No| F[Leave mocked<br/>default behavior]
 ```
+
+**Rules:**
+- **External I/O** (databases, APIs, file systems) → Use token injection → Auto-mocked
+- **Business logic** to test → Use `.expose()` → Runs real code
+- **Everything else** → Leave as default → Auto-mocked
 
 ## Summary
 
-Sociable tests complement solitary tests by verifying component interactions:
+Sociable tests work alongside solitary tests to provide comprehensive coverage:
 
 - **Solitary tests:** Verify individual class behavior in isolation
 - **Sociable tests:** Verify components work together correctly
 
 ### Takeaways
 
-- **Sociable tests** verify how components interact using real dependencies for business logic
-- **External I/O** is always mocked using token injection (`@Inject('TOKEN')`)
-- **Use `.expose()`** to explicitly list which dependencies should use real implementations
-- **Configuration** can be done pre-compilation (fixed values) or post-compilation (test-specific)
-- **Decision tree**: External I/O → token injection, business logic → expose, everything else stays mocked
+- Sociable tests verify how components interact using real implementations for business logic
+- External systems (I/O) are always mocked using token injection (`@Inject('TOKEN')`)
+- Use `.expose()` to specify which dependencies should use real implementations
+- Configure mocks before compilation for consistent values, or after for test-specific scenarios
+- Follow the decision tree: External I/O → token injection, business logic → expose, everything else stays mocked
 
 ## Next Steps
 
-After understanding sociable testing, explore these resources for deeper knowledge:
+After understanding sociable testing, explore these resources:
 
-- **[Test Doubles](./test-doubles.md)**: Core concepts of mocking and stubbing
-- **[Virtual Test Container](./virtual-test-container.md)**: How TestBed manages dependencies
+- **[Test Doubles](./test-doubles)**: Core concepts of mocking and stubbing
+- **[Suites Examples Repository](https://github.com/suites-dev/examples)**: Working examples of sociable testing patterns

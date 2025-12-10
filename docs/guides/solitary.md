@@ -1,14 +1,14 @@
 ---
-sidebar_position: 2
-title: Solitary Unit Tests
+sidebar_position: 3
+title: Testing in Isolation (Solitary)
 description: Testing in isolation with Suites
 ---
 
-# Solitary Unit Tests
+# Testing Unit In Isolation (Solitary Testing)
 
 > **What this covers:** Writing unit tests that isolate a single component (class) using automatic mocking \
 > **Time to read:** ~8 minutes \
-> **Prerequisites:** [Unit Testing Fundamentals](/docs/guides/fundamentals) \
+> **Prerequisites:** [Unit Testing Fundamentals](/docs/guides/fundamentals), [Test Doubles](./test-doubles) \
 > **Best for:** Testing component logic in complete isolation, controlling all inputs for predictable results
 
 Solitary unit tests evaluate a single unit of work in complete isolation from its external dependencies. These tests use
@@ -126,8 +126,8 @@ userApi.getRandom.mockResolvedValue({ id: 1, name: 'John' });
 database.saveUser.mockResolvedValue(42);
 ```
 
-:::info Suites Virtual Test Container
-See [Virtual Test Container](/docs/guides/virtual-test-container) for how this works under the hood.
+:::info How This Works
+See [Virtual Test Container](/docs/guides/virtual-test-container) for how the virtual test container works under the hood.
 :::
 
 ## Step 3: Configure Mock Behavior
@@ -170,6 +170,7 @@ For testing how components work together, explore different approaches:
 
 ## Additional Resources
 
+- **[Suites Examples Repository](https://github.com/suites-dev/examples)**: Working examples of solitary testing patterns
 - **[API Reference - TestBed.solitary](/docs/api-reference/testbed-solitary)**: Complete API documentation for TestBed.solitary()
 - **[API Reference - Mock Configuration](/docs/api-reference/mock-configuration)**: Advanced mock configuration options
 - **[API Reference - Types](/docs/api-reference/types)**: TypeScript type definitions including `Mocked<T>`

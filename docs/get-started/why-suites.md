@@ -170,7 +170,8 @@ container.register(Database, { useValue: { query: jest.fn() } });
 
 ## How Suites Solves It
 
-Suites provides a **declarative API** that removes manual mocking entirely. One function call creates a fully-typed, isolated unit testing environment with type-safe test doubles. No boilerplate, no cryptic errors, no silent failures.
+Suites provides a **declarative API** that removes manual mocking entirely. A single call creates a fully-typed,
+isolated unit testing environment with type-safe test doubles. No boilerplate, no cryptic errors, no silent failures.
 
 :::tip Current Testing Options
 
@@ -180,9 +181,6 @@ Suites provides a **declarative API** that removes manual mocking entirely. One 
 **Not using dependency injection?**
 Use `mock()` and `stub()` for type-safe mocking. Works with any TypeScript code, but requires manual dependency wiring
 and reference tracking. See [mock() and stub() utilities](/docs/api-reference/mock).
-
-**Declarative API for any IoC (not only DI)**
-`TestBed.manual` (coming Q2 2025) will bring automatic injection and reference tracking to functional composition and factory patterns.
 :::
 
 ```typescript title="order.service.spec.ts" {1,9,11-13}
@@ -216,12 +214,11 @@ describe('Order Service Sociable Unit Spec', () => {
 
 **What Suites provides:**
 
-- **Type Safety**: Compile-time validation prevents silent test failures during refactors.
+- **Type-Safe Refactoring**: Compile-time validation with mocks bound to implementations prevent silent test failures
+and let teams change constructors or add dependencies without breaking tests.
 - **Zero Boilerplate**: One line replaces dozens of lines of manual mock setup.
-- **Clear Errors**: Pinpoints exact dependency failures, eliminating cryptic messages.
-- **Framework Agnostic**: Consistent API across NestJS, InversifyJS, and other DI containers with Jest, Vitest, and Sinon.
+- **Standardized Testing Across Teams**: A single canonical API enforces consistent testing patterns across projects and frameworks, so every team shares the same approach.
 - **AI-Friendly**: Single canonical pattern reduces token count for LLMs. One `TestBed.solitary()` example teaches the entire API, unlike 40+ lines of manual setup requiring exhaustive edge-case documentation.
-- **Standardized**: Enforces consistent testing patterns across all projects and teams.
 
 ### Framework Support
 

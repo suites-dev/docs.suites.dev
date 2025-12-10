@@ -4,13 +4,20 @@
  * work well for content-centric websites.
  */
 
+/* Import Geist Mono font */
+@import url('https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/mono.css');
+
 /* You can override the default Infima variables here. */
-/*@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');*/
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,400;0,500;0,700;0,900;1,100;1,400;1,500;1,700;1,900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&family=Inter:wght@100..900&display=swap');
 
 :root {
+  /* Font Families - System Font Stack */
+  --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-heading: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-code: 'Geist Mono', Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
+
+  /* Override Infima font-size - larger to compensate for system fonts */
+  --ifm-font-size-base: 18px;
+
   /* Primary Colors */
   --ifm-color-primary: rgba(239,71,121,1); /* Bright Pink */
   --ifm-color-primary-light: #FF9EBB; /* Light Pink */
@@ -52,6 +59,7 @@
 }
 
 html {
+  font-size: 16px; /* Explicit root size for rem calculations - matches Next.js */
   position: relative;
   min-height: 450px;
   background-color: var(--theme-background);
@@ -59,9 +67,10 @@ html {
 }
 
 body {
-  font-family: "Inter", sans-serif;
-  font-size: 17px;
-  font-weight: 400;
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 450;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   background-color: var(--theme-background);
   color: var(--theme-text);
@@ -71,19 +80,23 @@ body {
   outline: 0 !important;
 }
 
-a:hover {
+/* Link styling - Next.js inspired */
+a {
+  font-weight: 500;
   text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3.5px;
+  text-decoration-thickness: 1.5px;
+  opacity: 0.9;
 }
 
 /* Custom link state styling */
 main a {
   color: var(--ifm-color-primary);
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-main a:hover {
-  text-decoration: underline;
 }
 
 /* Fix for the active link state (when clicked) - only for content */
@@ -96,6 +109,11 @@ main a:active {
 .markdown a {
   color: var(--ifm-color-primary);
   font-weight: 500;
+}
+
+.markdown h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
 .markdown a:active {
@@ -151,7 +169,7 @@ main a:active {
 }
 
 .next-steps-section h2 {
-  font-family: "Barlow", sans-serif;
+  font-family: var(--font-heading);
   font-weight: 600;
   margin-bottom: 1.5rem;
   color: var(--theme-text);
@@ -195,7 +213,7 @@ main a:active {
 
 /* In This Section component for index pages */
 .in-this-section {
-  margin: 2rem 0 3rem;
+  margin: 0.5rem 0 3rem;
   padding: 1.5rem 2rem;
   background-color: var(--theme-section-bg);
   border-radius: 12px;
@@ -206,8 +224,8 @@ main a:active {
 .in-this-section h3 {
   margin-top: 0;
   margin-bottom: 1.5rem;
-  font-size: 1.35rem;
-  font-weight: 600;
+  font-size: 1.5rem;
+  font-weight: 700;
   color: var(--theme-text);
 }
 
@@ -232,10 +250,11 @@ main a:active {
   content: '›';
   position: absolute;
   left: 0;
-  top: 0;
+  top: 0.05em;
   color: var(--ifm-color-primary);
   font-weight: bold;
   font-size: 1.4rem;
+  line-height: 1;
 }
 
 .in-this-section strong {
@@ -293,21 +312,76 @@ main a:active {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-weight: 700;
-  margin-top: 0;
-  margin-bottom: 20px;
+  font-family: var(--font-heading);
   color: var(--theme-text);
 }
 
-h1, h2 {
-  font-family: "Barlow", sans-serif;
+h1 {
+  font-size: 2.5rem;        /* 48px */
+  font-weight: 600;
+  line-height: 1.2;
+  margin-top: 0;
+  margin-bottom: 1rem;
 }
 
+h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.333;
+  margin-top: 1em;
+  margin-bottom: 0.75em;
+}
+
+h3 {
+  font-size: 1.25rem;     /* 20px */
+  font-weight: 500;
+  line-height: 1.6;
+  margin-top: 1.6em;
+  margin-bottom: 0.6em;
+}
+
+h4 {
+  font-size: 1rem;        /* 16px */
+  font-weight: 500;
+  line-height: 1.5;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+/* Lead text */
+.lead,
+p.lead {
+  font-size: 1.25rem;    /* 20px */
+  line-height: 1.6;
+  margin-top: 1.2em;
+  margin-bottom: 1.2em;
+}
+
+/* Paragraph spacing */
+p {
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+}
+
+/* Inline code styling */
+code {
+  font-family: var(--font-code), serif;
+  font-size: 15px;
+  font-weight: 400;
+  padding: .12em .25em;
+  line-height: 1.2;
+  border: 1px solid #3e3c3c;
+  border-radius: .375rem;
+  background: #2a2828;
+  color: #e6e6e6;
+}
+
+/* Code blocks */
 code[class*="language-"],
 pre[class*="language-"] {
-  font-family: "Inconsolata", monospace;
-  font-size: 1em;
-  font-weight: 500;
+  font-family: var(--font-code);
+  font-size: 16px;
+  font-weight: 400;
   text-align: left;
   word-spacing: normal;
   word-break: normal;
@@ -327,14 +401,28 @@ pre[class*="language-"] {
   }
 }
 
-/* code blocks */
 pre > code {
-  font-family: "Inconsolata", monospace;
+  font-family: var(--font-code);
+  font-size: 14px;
   border-top-left-radius: unset;
   border-top-right-radius: unset;
   overflow: hidden;
-  font-weight: 500;
+  font-weight: 400;
   border: 1px solid hsla(0,0%,100%,.05);
+  padding: 0;
+  background: transparent;
+}
+
+/* Keyboard keys */
+kbd {
+  font-family: var(--font-code);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 3px 6px;
+  border-radius: 5px;
+  border: 1px solid #3e3c3c;
+  background: #2a2828;
+  color: #e6e6e6;
 }
 
 code .theme-code-block-highlighted-line {
@@ -342,7 +430,7 @@ code .theme-code-block-highlighted-line {
 }
 
 div[class*="codeBlockTitle_"] {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   color: rgb(153 161 179/1);
   background-color: rgb(35 39 47/1);
   border: 1px solid hsla(0,0%,100%,.05);
@@ -350,7 +438,12 @@ div[class*="codeBlockTitle_"] {
 }
 
 .theme-doc-breadcrumbs {
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
+  margin-bottom: 2rem !important;
+}
+
+.breadcrumbsContainer {
+  margin-bottom: 2rem !important;
 }
 
 .docs-introduction {
@@ -470,7 +563,7 @@ html[data-theme='dark'] .theme-toggle-button svg {
   border-radius: 4px;
   vertical-align: middle;
   white-space: nowrap;
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-body);
   letter-spacing: 0.025em;
 }
 

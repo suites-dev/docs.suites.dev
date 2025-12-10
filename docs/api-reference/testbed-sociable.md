@@ -45,8 +45,7 @@ the Dependency Inversion Principle - there is no concrete implementation to "exp
 represent external I/O (databases, HTTP clients) and are always mocked to keep sociable tests fast and side-effect-free.
 
 * `.expose()` method only controls explicit, injected dependencies. Implicit dependencies (direct imports) are not
-intercepted by `TestBed` and will execute as normal. Read more about 
-[explicit vs implicit dependencies](/docs/guides/collaborations-and-dependencies)
+intercepted by `TestBed` and will execute as normal.
 
 ## Example
 
@@ -73,6 +72,5 @@ const database = unitRef.get(Database);
 ## See Also
 
 - [Sociable Unit Tests Guide](/docs/guides/sociable) - When to use, concepts, detailed examples
-- [Understanding Collaborations and Dependencies](/docs/guides/collaborations-and-dependencies) - Explicit vs implicit dependencies, decision framework
 - [TestBed.solitary()](/docs/api-reference/testbed-solitary) - For fully isolated tests
 - [Mock Configuration](/docs/api-reference/mock-configuration) - Configuring mock behavior

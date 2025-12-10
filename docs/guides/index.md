@@ -12,7 +12,7 @@ Practical guides for writing solitary and sociable unit tests with Suites. Learn
 
 <div class="in-this-section">
 
-## In This Section
+### In This Section
 
 - [**Fundamentals of Unit Testing**](/docs/guides/fundamentals) - Core principles and best practices
 - [**Solitary Unit Tests**](/docs/guides/solitary) - Testing components in complete isolation
@@ -24,6 +24,10 @@ Practical guides for writing solitary and sociable unit tests with Suites. Learn
 
 :::tip
 Start with [Fundamentals](/docs/guides/fundamentals), then [Solitary](/docs/guides/solitary) and [Sociable](/docs/guides/sociable) testing.
+:::
+
+:::tip Working Examples
+Browse the [Suites Examples repository](https://github.com/suites-dev/examples) for complete, runnable examples of solitary, sociable, and real-world testing patterns.
 :::
 
 

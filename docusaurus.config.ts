@@ -4,13 +4,12 @@ import { draculaThemeConfig } from "./config/prisma-theme.config";
 
 const config: Config = {
   title: "Suites Documentation",
-  tagline:
-    "A meta-framework that focuses on helping developers build solid test suites, eliminates boilerplate code, and improves their unit testing process",
+  tagline: "A unit testing framework for TypeScript backends working with inversion of control and dependency injection",
   organizationName: "suites-dev",
   url: "https://suites.dev",
   baseUrl: "/",
-  onBrokenLinks: "ignore",
-  onBrokenMarkdownLinks: "warn",
+  onBrokenLinks: "throw",
+  onBrokenMarkdownLinks: "throw",
   favicon: "img/favicon.png",
   projectName: "suites",
   markdown: {
@@ -64,28 +63,43 @@ const config: Config = {
       {
         name: "keywords",
         content:
-          "auto mocking, meta framework, jest, sinon, vitest, dependency injection, inversion of control, nestjs, inversifyjs",
+          "auto mocking, unit testing framework, jest, sinon, vitest, dependency injection, inversion of control, nestjs, inversifyjs, unit testing, test doubles, typescript testing, mock generation, test automation, solitary testing, sociable testing",
       },
       { name: "author", content: "Suites" },
+      { name: "robots", content: "index, follow" },
+      { name: "googlebot", content: "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" },
       {
-        property: "description",
-        content:
-          "A meta-framework that focuses on helping developers build solid test suites, eliminates boilerplate code, and improves their unit testing process.",
+        name: "description",
+        content: "A unit testing framework for TypeScript backends working with inversion of control and dependency injection",
       },
-      { property: "og:title", content: "Suites" },
+      { property: "og:title", content: "Suites - A Modern Unit Testing Framework" },
       {
         property: "og:description",
-        name: "description",
-        content:
-          "A meta-framework that focuses on helping developers build solid test suites, eliminates boilerplate code, and improves their unit testing process.",
+        content: "A unit testing framework for TypeScript backends working with inversion of control and dependency injection",
       },
       {
         property: "og:image",
-        name: "image",
         content: "https://suites.dev/img/banner.png",
       },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: "Suites - A Modern Unit Testing Framework" },
       { property: "og:url", content: "https://suites.dev" },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "Suites" },
+      { property: "og:locale", content: "en_US" },
+      // Twitter Card
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Suites - A Modern Unit Testing Framework" },
+      {
+        name: "twitter:description",
+        content: "A unit testing framework for TypeScript backends working with inversion of control and dependency injection",
+      },
+      { name: "twitter:image", content: "https://suites.dev/img/banner.png" },
+      { name: "twitter:image:alt", content: "A unit testing framework for TypeScript backends working with inversion of control and dependency injection" },
+      // Additional SEO
+      { name: "theme-color", content: "#1a1a1a" },
+      { name: "application-name", content: "Suites" },
     ],
     colorMode: {
       disableSwitch: true,

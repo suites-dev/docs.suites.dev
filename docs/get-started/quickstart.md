@@ -1,7 +1,7 @@
 ---
 sidebar_position: 4
 title: Quick Start
-description: Write your first test with Suites in 5 minutes
+description: Write your first unit test with Suites. Examples for using solitary and sociable testing patterns.
 ---
 
 import Tabs from '@theme/Tabs';
