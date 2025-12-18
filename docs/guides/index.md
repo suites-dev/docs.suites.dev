@@ -19,6 +19,7 @@ Practical guides for writing solitary and sociable unit tests with Suites. Learn
 - [**Sociable Unit Tests**](/docs/guides/sociable) - Testing with real dependencies
 - [**Test Doubles**](/docs/guides/test-doubles) - Mocks, stubs, and spies
 - [**Virtual Test Container**](/docs/guides/virtual-test-container) - How Suites creates test environments
+- [**Mocking ORMs**](/docs/guides/mocking-orm) - Mocking TypeORM, Prisma, and Drizzle
 
 </div>
 
