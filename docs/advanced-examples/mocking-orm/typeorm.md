@@ -1,5 +1,5 @@
 ---
-sidebar_position: 1
+sidebar_position: 9
 title: Mocking TypeORM
 description: How to mock TypeORM repositories and entity managers in your unit tests
 ---

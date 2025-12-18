@@ -8,7 +8,7 @@ description: How to mock TypeORM, Prisma, Drizzle, and MikroORM in your unit tes
 
 > **What this covers:** Mocking Object-Relational Mapping (ORM) libraries like TypeORM, Prisma, Drizzle, and MikroORM \
 > **Time to read:** ~12 minutes \
-> **Prerequisites:** [Unit Testing Fundamentals](/docs/guides/fundamentals), [Solitary Unit Tests](../solitary) \
+> **Prerequisites:** [Unit Testing Fundamentals](/docs/guides/fundamentals), [Solitary Unit Tests](/docs/guides/solitary) \
 > **Best for:** Testing services that interact with databases without hitting real database connections
 
 When testing services that interact with databases, you need to mock ORM clients to keep tests isolated. This guide shows you how to structure your code and write tests for popular ORMs: TypeORM, Prisma, Drizzle, and MikroORM.
@@ -54,6 +54,6 @@ Each ORM has its own guide with detailed examples:
 
 ## Next Steps
 
-- **[Solitary Unit Tests](../solitary)**: Learn more about testing in isolation
-- **[Sociable Unit Tests](../sociable)**: Test multiple components together
-- **[Test Doubles](../test-doubles)**: Understand mocks and stubs in depth
+- **[Solitary Unit Tests](/docs/guides/solitary)**: Learn more about testing in isolation
+- **[Sociable Unit Tests](/docs/guides/sociable)**: Test multiple components together
+- **[Test Doubles](/docs/guides/test-doubles)**: Understand mocks and stubs in depth
