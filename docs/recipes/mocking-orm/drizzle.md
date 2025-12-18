@@ -7,7 +7,7 @@ description: How to mock Drizzle database instances in your unit tests
 # Mocking Drizzle
 
 :::info Overview
-For an overview of the pattern and approach to mocking ORMs, see the [Mocking ORMs overview](/docs/advanced-examples/mocking-orm).
+For an overview of the pattern and approach to mocking ORMs, see the [Mocking ORMs overview](/docs/recipes/mocking-orm).
 :::
 
 :::tip Complete Examples
@@ -219,6 +219,6 @@ describe("UserService", () => {
 
 ## Next Steps
 
-- **[Mocking MikroORM](/docs/advanced-examples/mocking-orm/mikroorm)**: Learn how to mock MikroORM entity managers
+- **[Mocking MikroORM](/docs/recipes/mocking-orm/mikroorm)**: Learn how to mock MikroORM entity managers
 - **[Solitary Unit Tests](/docs/guides/solitary)**: Deep dive into testing in isolation
 - **[Test Doubles](/docs/guides/test-doubles)**: Understand mocks and stubs in depth

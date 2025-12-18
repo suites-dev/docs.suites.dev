@@ -7,7 +7,7 @@ description: How to mock MikroORM entity managers and repositories in your unit 
 # Mocking MikroORM
 
 :::info Overview
-For an overview of the pattern and approach to mocking ORMs, see the [Mocking ORMs overview](/docs/advanced-examples/mocking-orm).
+For an overview of the pattern and approach to mocking ORMs, see the [Mocking ORMs overview](/docs/recipes/mocking-orm).
 :::
 
 :::tip Complete Examples
@@ -208,6 +208,6 @@ describe("TransactionService", () => {
 
 ## Next Steps
 
-- **[Mocking TypeORM](/docs/advanced-examples/mocking-orm/typeorm)**: Learn how to mock TypeORM repositories
+- **[Mocking TypeORM](/docs/recipes/mocking-orm/typeorm)**: Learn how to mock TypeORM repositories
 - **[Solitary Unit Tests](/docs/guides/solitary)**: Deep dive into testing in isolation
 - **[Test Doubles](/docs/guides/test-doubles)**: Understand mocks and stubs in depth

@@ -7,7 +7,7 @@ description: How to mock TypeORM repositories and entity managers in your unit t
 # Mocking TypeORM
 
 :::info Overview
-For an overview of the pattern and approach to mocking ORMs, see the [Mocking ORMs overview](/docs/advanced-examples/mocking-orm).
+For an overview of the pattern and approach to mocking ORMs, see the [Mocking ORMs overview](/docs/recipes/mocking-orm).
 :::
 
 :::tip Complete Examples
@@ -202,6 +202,6 @@ describe("TransactionService", () => {
 
 ## Next Steps
 
-- **[Mocking Prisma](/docs/advanced-examples/mocking-orm/prisma)**: Learn how to mock Prisma client instances
+- **[Mocking Prisma](/docs/recipes/mocking-orm/prisma)**: Learn how to mock Prisma client instances
 - **[Solitary Unit Tests](/docs/guides/solitary)**: Deep dive into testing in isolation
 - **[Test Doubles](/docs/guides/test-doubles)**: Understand mocks and stubs in depth

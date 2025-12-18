@@ -1,15 +1,15 @@
 ---
 sidebar_position: 3
-title: Advanced Examples
+title: Recipes
 description: Real-world examples and patterns for testing with Suites
 ---
 
-# Advanced Examples
+# Recipes
 
-> **What this covers:** Advanced, real-world examples for testing with Suites across various technologies \
+> **What this covers:** Real-world examples for testing with Suites across various technologies \
 > **Best for:** Developers looking for practical patterns beyond core testing concepts
 
-This section contains advanced, real-world examples demonstrating how to use Suites with various technologies and frameworks. These examples go beyond the core testing concepts and show practical patterns for common scenarios.
+This section contains real-world examples demonstrating how to use Suites with various technologies and frameworks. These examples go beyond the core testing concepts and show practical patterns for common scenarios.
 
 ## Examples Repository
 
@@ -22,7 +22,7 @@ For complete, runnable code examples, browse the **[Suites Examples repository](
 
 ## Available Examples
 
-- **[Mocking ORMs](/docs/advanced-examples/mocking-orm)** - Learn how to mock TypeORM, Prisma, Drizzle, and MikroORM in your unit tests
+- **[Mocking ORMs](/docs/recipes/mocking-orm)** - Learn how to mock TypeORM, Prisma, Drizzle, and MikroORM in your unit tests
 
 ## Contributing Examples
 
