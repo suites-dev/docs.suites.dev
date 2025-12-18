@@ -18,10 +18,10 @@ When testing services that interact with databases, you need to mock ORM clients
 This guide covers:
 
 1. The pattern: Wrapping ORM clients in injectables
-2. [TypeORM](./typeorm): Mocking repositories and entity managers
-3. [Prisma](./prisma): Mocking Prisma client instances
-4. [Drizzle](./drizzle): Mocking Drizzle database instances
-5. [MikroORM](./mikroorm): Mocking entity managers and repositories
+2. [TypeORM](/docs/advanced-examples/mocking-orm/typeorm): Mocking repositories and entity managers
+3. [Prisma](/docs/advanced-examples/mocking-orm/prisma): Mocking Prisma client instances
+4. [Drizzle](/docs/advanced-examples/mocking-orm/drizzle): Mocking Drizzle database instances
+5. [MikroORM](/docs/advanced-examples/mocking-orm/mikroorm): Mocking entity managers and repositories
 
 ## The Pattern: Wrap ORM Clients with Injectables
 
@@ -38,10 +38,10 @@ ORMs typically provide clients or managers that you import directly. To make the
 
 Each ORM has its own guide with detailed examples:
 
-- **[TypeORM](./typeorm)** - Mocking TypeORM repositories and EntityManager
-- **[Prisma](./prisma)** - Mocking Prisma client instances
-- **[Drizzle](./drizzle)** - Mocking Drizzle database instances
-- **[MikroORM](./mikroorm)** - Mocking MikroORM EntityManager and repositories
+- **[TypeORM](/docs/advanced-examples/mocking-orm/typeorm)** - Mocking TypeORM repositories and EntityManager
+- **[Prisma](/docs/advanced-examples/mocking-orm/prisma)** - Mocking Prisma client instances
+- **[Drizzle](/docs/advanced-examples/mocking-orm/drizzle)** - Mocking Drizzle database instances
+- **[MikroORM](/docs/advanced-examples/mocking-orm/mikroorm)** - Mocking MikroORM EntityManager and repositories
 
 ## Summary
 

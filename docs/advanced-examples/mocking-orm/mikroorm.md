@@ -7,12 +7,12 @@ description: How to mock MikroORM entity managers and repositories in your unit 
 # Mocking MikroORM
 
 :::info Overview
-For an overview of the pattern and approach to mocking ORMs, see the [Mocking ORMs overview](../mocking-orm).
+For an overview of the pattern and approach to mocking ORMs, see the [Mocking ORMs overview](/docs/advanced-examples/mocking-orm).
 :::
 
 MikroORM uses entity managers and repositories to interact with the database. Wrap these in injectable classes.
 
-If you are using NestJS, you can follow the [NestJS MikroORM documentation](http://docs.nestjs.com/recipes/mikroorm).
+If you are using NestJS, you can follow the [NestJS MikroORM documentation](https://docs.nestjs.com/recipes/mikroorm).
 
 ## Step 1: Create an Injectable Repository
 
@@ -195,3 +195,15 @@ describe("TransactionService", () => {
 });
 ```
 
+## Summary
+
+- **Wrap MikroORM EntityManager** in injectable repository classes to make them mockable
+- **Use Suites** to automatically mock repository dependencies in your service tests
+- **EntityManager** can be injected directly for transactions and complex queries
+- **Keep repositories focused** on data access, separating concerns from business logic
+
+## Next Steps
+
+- **[Mocking TypeORM](/docs/advanced-examples/mocking-orm/typeorm)**: Learn how to mock TypeORM repositories
+- **[Solitary Unit Tests](/docs/guides/solitary)**: Deep dive into testing in isolation
+- **[Test Doubles](/docs/guides/test-doubles)**: Understand mocks and stubs in depth

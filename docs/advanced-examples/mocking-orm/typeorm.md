@@ -7,7 +7,7 @@ description: How to mock TypeORM repositories and entity managers in your unit t
 # Mocking TypeORM
 
 :::info Overview
-For an overview of the pattern and approach to mocking ORMs, see the [Mocking ORMs overview](../mocking-orm).
+For an overview of the pattern and approach to mocking ORMs, see the [Mocking ORMs overview](/docs/advanced-examples/mocking-orm).
 :::
 
 TypeORM uses repositories and entity managers to interact with the database. Wrap these in injectables.
@@ -189,3 +189,15 @@ describe("TransactionService", () => {
 });
 ```
 
+## Summary
+
+- **Wrap TypeORM repositories** in injectable classes to make them mockable
+- **Use Suites** to automatically mock repository dependencies in your service tests
+- **EntityManager** can be injected directly for transactions and complex queries
+- **Keep repositories focused** on data access, separating concerns from business logic
+
+## Next Steps
+
+- **[Mocking Prisma](/docs/advanced-examples/mocking-orm/prisma)**: Learn how to mock Prisma client instances
+- **[Solitary Unit Tests](/docs/guides/solitary)**: Deep dive into testing in isolation
+- **[Test Doubles](/docs/guides/test-doubles)**: Understand mocks and stubs in depth

@@ -7,7 +7,7 @@ description: How to mock Prisma client instances in your unit tests
 # Mocking Prisma
 
 :::info Overview
-For an overview of the pattern and approach to mocking ORMs, see the [Mocking ORMs overview](../mocking-orm).
+For an overview of the pattern and approach to mocking ORMs, see the [Mocking ORMs overview](/docs/advanced-examples/mocking-orm).
 :::
 
 Prisma uses a generated client that you typically import directly. Wrap it in an injectable class.
@@ -196,3 +196,15 @@ describe("UserService", () => {
 });
 ```
 
+## Summary
+
+- **Wrap Prisma client** in an injectable `PrismaService` class to make it mockable
+- **Create repository wrappers** for clean separation between data access and business logic
+- **Use Suites** to automatically mock repository dependencies in your service tests
+- **Direct client injection** is possible but requires more complex mock setup
+
+## Next Steps
+
+- **[Mocking Drizzle](/docs/advanced-examples/mocking-orm/drizzle)**: Learn how to mock Drizzle database instances
+- **[Solitary Unit Tests](/docs/guides/solitary)**: Deep dive into testing in isolation
+- **[Test Doubles](/docs/guides/test-doubles)**: Understand mocks and stubs in depth

@@ -7,7 +7,7 @@ description: How to mock Drizzle database instances in your unit tests
 # Mocking Drizzle
 
 :::info Overview
-For an overview of the pattern and approach to mocking ORMs, see the [Mocking ORMs overview](../mocking-orm).
+For an overview of the pattern and approach to mocking ORMs, see the [Mocking ORMs overview](/docs/advanced-examples/mocking-orm).
 :::
 
 Drizzle uses a database instance that you typically import directly. Wrap it in an injectable class.
@@ -206,3 +206,15 @@ describe("UserService", () => {
 });
 ```
 
+## Summary
+
+- **Wrap Drizzle database instance** in an injectable `DatabaseService` class to make it mockable
+- **Create repository wrappers** for clean separation between data access and business logic
+- **Use Suites** to automatically mock repository dependencies in your service tests
+- **Direct database injection** is possible but requires chained mock setup
+
+## Next Steps
+
+- **[Mocking MikroORM](/docs/advanced-examples/mocking-orm/mikroorm)**: Learn how to mock MikroORM entity managers
+- **[Solitary Unit Tests](/docs/guides/solitary)**: Deep dive into testing in isolation
+- **[Test Doubles](/docs/guides/test-doubles)**: Understand mocks and stubs in depth
