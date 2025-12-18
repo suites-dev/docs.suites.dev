@@ -202,6 +202,5 @@ describe("TransactionService", () => {
 
 ## Next Steps
 
-- **[Mocking Prisma](/docs/recipes/mocking-orm/prisma)**: Learn how to mock Prisma client instances
 - **[Solitary Unit Tests](/docs/guides/solitary)**: Deep dive into testing in isolation
 - **[Test Doubles](/docs/guides/test-doubles)**: Understand mocks and stubs in depth

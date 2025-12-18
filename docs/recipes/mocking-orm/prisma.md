@@ -209,6 +209,5 @@ describe("UserService", () => {
 
 ## Next Steps
 
-- **[Mocking Drizzle](/docs/recipes/mocking-orm/drizzle)**: Learn how to mock Drizzle database instances
 - **[Solitary Unit Tests](/docs/guides/solitary)**: Deep dive into testing in isolation
 - **[Test Doubles](/docs/guides/test-doubles)**: Understand mocks and stubs in depth

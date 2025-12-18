@@ -219,6 +219,5 @@ describe("UserService", () => {
 
 ## Next Steps
 
-- **[Mocking MikroORM](/docs/recipes/mocking-orm/mikroorm)**: Learn how to mock MikroORM entity managers
 - **[Solitary Unit Tests](/docs/guides/solitary)**: Deep dive into testing in isolation
 - **[Test Doubles](/docs/guides/test-doubles)**: Understand mocks and stubs in depth

@@ -208,6 +208,5 @@ describe("TransactionService", () => {
 
 ## Next Steps
 
-- **[Mocking TypeORM](/docs/recipes/mocking-orm/typeorm)**: Learn how to mock TypeORM repositories
 - **[Solitary Unit Tests](/docs/guides/solitary)**: Deep dive into testing in isolation
 - **[Test Doubles](/docs/guides/test-doubles)**: Understand mocks and stubs in depth
