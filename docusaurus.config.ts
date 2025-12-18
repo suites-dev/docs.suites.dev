@@ -124,6 +124,11 @@ const config: Config = {
           label: "Guides",
         },
         {
+          href: "https://github.com/suites-dev/examples",
+          position: "left",
+          label: "Examples",
+        },
+        {
           to: "/docs/api-reference/",
           position: "left",
           label: "API Reference",
