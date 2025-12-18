@@ -91,6 +91,10 @@ describe('UserService', () => {
 ```
 The real `EmailValidator` runs its actual validation logic. If the validator has a bug, this test will detect it.
 
+:::note Token-Based Injection Limitation
+`.expose()` only works with **class constructors**. If you're using token-based dependency injection (symbols or strings like InversifyJS), you cannot use `.expose()`. Instead, use [`.mock().final()` or `.mock().impl()`](/docs/guides/dependency-inversion) to provide concrete implementations for tokens.
+:::
+
 ## Step 2: Handle External Dependencies
 
 Most services interact with external systems like databases. This example extends the previous one.
@@ -325,5 +329,6 @@ Sociable tests work alongside solitary tests to provide comprehensive coverage:
 
 After understanding sociable testing, explore these resources:
 
+- **[Mocking Dependency Inversion](./dependency-inversion)**: Using `.mock().final()` and `.mock().impl()` with token-based DI (symbols, strings)
 - **[Test Doubles](./test-doubles)**: Core concepts of mocking and stubbing
 - **[Suites Examples Repository](https://github.com/suites-dev/examples)**: Working examples of sociable testing patterns
