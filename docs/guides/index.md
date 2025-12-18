@@ -17,6 +17,7 @@ Practical guides for writing solitary and sociable unit tests with Suites. Learn
 - [**Fundamentals of Unit Testing**](/docs/guides/fundamentals) - Core principles and best practices
 - [**Solitary Unit Tests**](/docs/guides/solitary) - Testing components in complete isolation
 - [**Sociable Unit Tests**](/docs/guides/sociable) - Testing with real dependencies
+- [**Mocking Dependency Inversion**](/docs/guides/dependency-inversion) - Using .mock().final() and .mock().impl() with token-based DI
 - [**Test Doubles**](/docs/guides/test-doubles) - Mocks, stubs, and spies
 - [**Virtual Test Container**](/docs/guides/virtual-test-container) - How Suites creates test environments
 
