@@ -10,6 +10,10 @@ description: How to mock Drizzle database instances in your unit tests
 For an overview of the pattern and approach to mocking ORMs, see the [Mocking ORMs overview](/docs/advanced-examples/mocking-orm).
 :::
 
+:::tip Complete Examples
+For complete, runnable Drizzle examples, see the [Drizzle examples](https://github.com/suites-dev/examples/tree/main/nestjs-jest-drizzle) in the Suites Examples repository.
+:::
+
 Drizzle uses a database instance that you typically import directly. Wrap it in an injectable class.
 
 ## Step 1: Create a Database Injectable

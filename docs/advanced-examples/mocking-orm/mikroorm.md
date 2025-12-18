@@ -10,6 +10,10 @@ description: How to mock MikroORM entity managers and repositories in your unit 
 For an overview of the pattern and approach to mocking ORMs, see the [Mocking ORMs overview](/docs/advanced-examples/mocking-orm).
 :::
 
+:::tip Complete Examples
+For complete, runnable MikroORM examples, see the [MikroORM examples](https://github.com/suites-dev/examples/tree/main/nestjs-jest-mikroorm) in the Suites Examples repository.
+:::
+
 MikroORM uses entity managers and repositories to interact with the database. Wrap these in injectable classes.
 
 If you are using NestJS, you can follow the [NestJS MikroORM documentation](https://docs.nestjs.com/recipes/mikroorm).

@@ -10,6 +10,10 @@ description: How to mock Prisma client instances in your unit tests
 For an overview of the pattern and approach to mocking ORMs, see the [Mocking ORMs overview](/docs/advanced-examples/mocking-orm).
 :::
 
+:::tip Complete Examples
+For complete, runnable Prisma examples, see the [Prisma examples](https://github.com/suites-dev/examples/tree/main/nestjs-jest-prisma) in the Suites Examples repository.
+:::
+
 Prisma uses a generated client that you typically import directly. Wrap it in an injectable class.
 
 If you are using NestJS, you can follow the [NestJS Prisma documentation](https://docs.nestjs.com/recipes/prisma).

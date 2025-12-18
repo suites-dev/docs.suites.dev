@@ -10,6 +10,10 @@ description: How to mock TypeORM repositories and entity managers in your unit t
 For an overview of the pattern and approach to mocking ORMs, see the [Mocking ORMs overview](/docs/advanced-examples/mocking-orm).
 :::
 
+:::tip Complete Examples
+For complete, runnable TypeORM examples, see the [TypeORM examples](https://github.com/suites-dev/examples/tree/main/nestjs-jest-typeorm) in the Suites Examples repository.
+:::
+
 TypeORM uses repositories and entity managers to interact with the database. Wrap these in injectables.
 
 If you are using NestJS, you can follow the [NestJS TypeORM documentation](https://docs.nestjs.com/recipes/sql-typeorm).
