@@ -1,15 +1,93 @@
+# ===========================================
+# CRITICAL REDIRECTS (High Traffic Pages)
+# ===========================================
+
 [[redirects]]
-from = "/api-reference"
-to = "/docs/get-started"
+from = "/docs/overview/quickstart"
+to = "/docs/get-started/quickstart"
 status = 301
 
 [[redirects]]
-from = "/docs"
-to = "/docs/get-started"
+from = "/docs/learn/get-started/quickstart"
+to = "/docs/get-started/quickstart"
 status = 301
 
 [[redirects]]
-from = "/docs/getting-started/change-log"
+from = "/docs/overview/installation"
+to = "/docs/get-started/installation"
+status = 301
+
+[[redirects]]
+from = "/docs/learn/get-started/installation"
+to = "/docs/get-started/installation"
+status = 301
+
+[[redirects]]
+from = "/docs/developer-guide/unit-tests/suites-api"
+to = "/docs/api-reference/"
+status = 301
+
+[[redirects]]
+from = "/docs/learn/unit-tests/suites-api"
+to = "/docs/api-reference/"
+status = 301
+
+[[redirects]]
+from = "/docs/api-reference/testbed-api"
+to = "/docs/api-reference/"
+status = 301
+
+[[redirects]]
+from = "/docs/developer-guide/unit-tests/solitary"
+to = "/docs/guides/solitary"
+status = 301
+
+[[redirects]]
+from = "/docs/learn/unit-tests/solitary"
+to = "/docs/guides/solitary"
+status = 301
+
+[[redirects]]
+from = "/docs/developer-guide/unit-tests/sociable"
+to = "/docs/guides/sociable"
+status = 301
+
+[[redirects]]
+from = "/docs/learn/unit-tests/sociable"
+to = "/docs/guides/sociable"
+status = 301
+
+[[redirects]]
+from = "/docs/developer-guide/unit-tests/test-doubles"
+to = "/docs/guides/test-doubles"
+status = 301
+
+[[redirects]]
+from = "/docs/learn/unit-tests/test-doubles"
+to = "/docs/guides/test-doubles"
+status = 301
+
+[[redirects]]
+from = "/docs/developer-guide/unit-tests/fundamentals"
+to = "/docs/guides/fundamentals"
+status = 301
+
+[[redirects]]
+from = "/docs/learn/unit-tests/fundamentals"
+to = "/docs/guides/fundamentals"
+status = 301
+
+# ===========================================
+# MIGRATION GUIDES
+# ===========================================
+
+[[redirects]]
+from = "/docs/migrating-from-automock"
+to = "/docs/migration-guides/from-automock"
+status = 301
+
+[[redirects]]
+from = "/docs/resources/migrating-from-automock"
 to = "/docs/migration-guides/from-automock"
 status = 301
 
@@ -19,6 +97,128 @@ to = "/docs/migration-guides/from-automock"
 status = 301
 
 [[redirects]]
+from = "/docs/getting-started/change-log"
+to = "/docs/migration-guides/from-automock"
+status = 301
+
+# ===========================================
+# OVERVIEW SECTION
+# ===========================================
+
+[[redirects]]
+from = "/docs/overview"
+to = "/docs/get-started/"
+status = 301
+
+[[redirects]]
+from = "/docs/overview/"
+to = "/docs/get-started/"
+status = 301
+
+[[redirects]]
+from = "/docs/overview/what-is-suites"
+to = "/docs/get-started/"
+status = 301
+
+[[redirects]]
+from = "/docs/overview/problems-solved"
+to = "/docs/get-started/why-suites"
+status = 301
+
+[[redirects]]
+from = "/docs/resources/problems-solved"
+to = "/docs/get-started/why-suites"
+status = 301
+
+[[redirects]]
+from = "/docs/overview/comparisons"
+to = "/docs/get-started/why-suites"
+status = 301
+
+[[redirects]]
+from = "/docs/overview/motivation"
+to = "/docs/get-started/why-suites"
+status = 301
+
+[[redirects]]
+from = "/docs/overview/depdency-injection-and-automock"
+to = "/docs/get-started/why-suites"
+status = 301
+
+[[redirects]]
+from = "/docs/overview/dependency-injection-and-automock"
+to = "/docs/get-started/why-suites"
+status = 301
+
+# ===========================================
+# DEVELOPER GUIDE
+# ===========================================
+
+[[redirects]]
 from = "/docs/developer-guide/unit-tests"
-to = "/docs/guides"
+to = "/docs/guides/"
+status = 301
+
+[[redirects]]
+from = "/docs/developer-guide/adapters/inversifyjs"
+to = "/docs/get-started/"
+status = 301
+
+[[redirects]]
+from = "/docs/developer-guide/adapters/identifiers"
+to = "/docs/get-started/"
+status = 301
+
+# ===========================================
+# OTHER OLD PATHS
+# ===========================================
+
+[[redirects]]
+from = "/api-reference"
+to = "/docs/api-reference/"
+status = 301
+
+[[redirects]]
+from = "/docs"
+to = "/docs/get-started/"
+status = 301
+
+[[redirects]]
+from = "/docs/"
+to = "/docs/get-started/"
+status = 301
+
+[[redirects]]
+from = "/docs/introduction/quick-example"
+to = "/docs/get-started/quickstart"
+status = 301
+
+[[redirects]]
+from = "/docs/core-concepts/dependency-injection"
+to = "/docs/get-started/why-suites"
+status = 301
+
+[[redirects]]
+from = "/docs/api-reference/fail-fast"
+to = "/docs/api-reference/"
+status = 301
+
+[[redirects]]
+from = "/docs/category/extras"
+to = "/docs/guides/"
+status = 301
+
+[[redirects]]
+from = "/docs/adapters/inversify"
+to = "/docs/get-started/"
+status = 301
+
+[[redirects]]
+from = "/docs/adapters/identifiers"
+to = "/docs/get-started/"
+status = 301
+
+[[redirects]]
+from = "/docs/guides/adapters/inversifyjs"
+to = "/docs/get-started/"
 status = 301

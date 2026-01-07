@@ -46,6 +46,10 @@ module.exports = {
       from: '/docs/learn/unit-tests/suites-api',
       to: '/docs/api-reference/',
     },
+    {
+      from: '/docs/api-reference/testbed-api',
+      to: '/docs/api-reference/',
+    },
 
     // Solitary Tests (1,251 views)
     {
@@ -105,6 +109,12 @@ module.exports = {
       to: '/docs/migration-guides/from-automock',
     },
 
+    // Overview section base (redirect to get-started)
+    {
+      from: '/docs/overview',
+      to: '/docs/get-started/',
+    },
+
     // What is Suites (567 views) - redirect to get-started
     {
       from: '/docs/overview/what-is-suites',
@@ -131,6 +141,78 @@ module.exports = {
     {
       from: '/docs/developer-guide/unit-tests',
       to: '/docs/guides/',
+    },
+
+    // ============================================
+    // ADDITIONAL REDIRECTS (From Netlify 502 logs)
+    // ============================================
+
+    // Docs base path
+    {
+      from: '/docs',
+      to: '/docs/get-started/',
+    },
+
+    // Introduction section (old structure)
+    {
+      from: '/docs/introduction/quick-example',
+      to: '/docs/get-started/quickstart',
+    },
+
+    // Overview motivation
+    {
+      from: '/docs/overview/motivation',
+      to: '/docs/get-started/why-suites',
+    },
+
+    // Overview dependency injection (including typo variant)
+    {
+      from: '/docs/overview/depdency-injection-and-automock',
+      to: '/docs/get-started/why-suites',
+    },
+    {
+      from: '/docs/overview/dependency-injection-and-automock',
+      to: '/docs/get-started/why-suites',
+    },
+
+    // Core concepts section (removed)
+    {
+      from: '/docs/core-concepts/dependency-injection',
+      to: '/docs/get-started/why-suites',
+    },
+
+    // API Reference fail-fast (removed)
+    {
+      from: '/docs/api-reference/fail-fast',
+      to: '/docs/api-reference/',
+    },
+
+    // Category pages
+    {
+      from: '/docs/category/extras',
+      to: '/docs/guides/',
+    },
+
+    // Adapters section (restructured - adapters now bundled)
+    {
+      from: '/docs/adapters/inversify',
+      to: '/docs/get-started/',
+    },
+    {
+      from: '/docs/adapters/identifiers',
+      to: '/docs/get-started/',
+    },
+    {
+      from: '/docs/developer-guide/adapters/inversifyjs',
+      to: '/docs/get-started/',
+    },
+    {
+      from: '/docs/developer-guide/adapters/identifiers',
+      to: '/docs/get-started/',
+    },
+    {
+      from: '/docs/guides/adapters/inversifyjs',
+      to: '/docs/get-started/',
     },
 
   ],
