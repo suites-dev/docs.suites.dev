@@ -6,6 +6,8 @@
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
     "build": "docusaurus build",
+    "algolia:reindex": "node scripts/algolia-reindex.mjs",
+    "algolia:sync-config": "node scripts/sync-algolia-config.mjs",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
