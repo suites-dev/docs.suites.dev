@@ -1,6 +1,6 @@
 ---
 sidebar_position: 2
-title: "Test Doubles in TypeScript: Mocks, Stubs, Spies, Fakes Explained"
+title: "Test Doubles in Suites: Mocks, Stubs, Spies, Fakes Explained"
 description: Test doubles are stand-ins for real dependencies in unit tests. This guide explains mocks, stubs, spies, and fakes, with TypeScript examples using Suites.
 keywords: [ test doubles, mocks, stubs, spies, fakes, mocks vs stubs, typescript testing, unit testing, martin fowler test doubles ]
 ---
