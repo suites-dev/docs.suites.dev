@@ -92,9 +92,9 @@ We've prepared comprehensive migration guides to help you upgrade smoothly:
 
 Before becoming Suites at `v3.0.0`, the project was developed as **Automock** from `v1.0.0` through `v2.x`. During this period, the foundational architecture was established:
 
-- **`v2.1.0`** (Dec 2023) — InversifyJS adapter support
-- **`v2.0.0`** (Nov 2022) — Native mocking implementation, Node.js v16+ requirement
-- **`v1.x series`** (2022) — Property injection support, enhanced dependency resolution
+- **`v2.1.0`** (Dec 2023): InversifyJS adapter support
+- **`v2.0.0`** (Nov 2022): Native mocking implementation, Node.js v16+ requirement
+- **`v1.x series`** (2022): Property injection support, enhanced dependency resolution
 
 The transition to Suites represented a rebranding and modernization while preserving the core testing philosophy and architectural foundations built during the Automock era.
 

@@ -37,6 +37,7 @@ const config: Config = {
           path: "docs",
           routeBasePath: "docs",
           sidebarPath: require.resolve("./config/docs-sidebars.js"),
+          editUrl: "https://github.com/suites-dev/docs.suites.dev/edit/master/",
           remarkPlugins: [
             [require("@docusaurus/remark-plugin-npm2yarn"), { sync: true }],
           ],

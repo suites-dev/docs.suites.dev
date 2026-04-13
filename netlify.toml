@@ -1,4 +1,21 @@
 # ===========================================
+# BUILD
+# ===========================================
+# Triggers an Algolia DocSearch crawler reindex after every successful
+# production build. The script is a no-op for deploy previews and branch
+# deploys, and a no-op (with a warning) if crawler env vars are missing,
+# so it cannot break the build.
+#
+# Required env vars in Netlify → Site settings → Environment variables:
+#   ALGOLIA_CRAWLER_USER_ID
+#   ALGOLIA_CRAWLER_API_KEY
+#   ALGOLIA_CRAWLER_ID
+
+[build]
+command = "yarn run build && yarn algolia:reindex"
+publish = "build"
+
+# ===========================================
 # CRITICAL REDIRECTS (High Traffic Pages)
 # ===========================================
 

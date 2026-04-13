@@ -1,48 +1,67 @@
 ---
 sidebar_position: 2
-title: Test Doubles (Mocks & Stubs)
-description: Understanding test doubles in Suites like mocks and stubs
+title: "Test Doubles in TypeScript: Mocks, Stubs, Spies, Fakes Explained"
+description: Test doubles are stand-ins for real dependencies in unit tests. This guide explains mocks, stubs, spies, and fakes, with TypeScript examples using Suites.
+keywords: [ test doubles, mocks, stubs, spies, fakes, mocks vs stubs, typescript testing, unit testing, martin fowler test doubles ]
 ---
 
-# Mocks and Stubs
+# Test Doubles: Mocks, Stubs, Spies, and Fakes
 
-> **What this covers:** Understanding mocks, stubs, and other test doubles \
+> **What this covers:** What test doubles are, the four main types, when to use each, and how Suites generates them
+> automatically for TypeScript backends. \
 > **Time to read:** ~10 minutes \
-> **Prerequisites:** [Unit Testing Fundamentals](/docs/guides/fundamentals) \
+> **Prerequisites:** Familiarity with unit testing concepts. New to Suites? Start with
+> the [Quickstart](/docs/get-started/quickstart). \
 > **Best for:** Understanding the theory behind test doubles after hands-on experience with solitary testing
 
-When you write unit tests, you need to replace real dependencies with fake versions you can control. These fake versions are called **test doubles**. This guide explains the different types of test doubles, with a focus on **mocks** and **stubs**, and shows you how Suites automatically create them for you.
+A **test double** is a stand-in object you use in a unit test in place of a real dependency (a database, an HTTP client,
+a third-party SDK), so the test stays fast, deterministic, and isolated from the outside world.
 
-## Overview
+The term comes from [Gerard Meszaros's _xUnit Test Patterns_](http://xunitpatterns.com/Test%20Double.html) and was
+popularised by [Martin Fowler's "Mocks Aren't Stubs"](https://martinfowler.com/articles/mocksArentStubs.html). Both
+works distinguish four common kinds of test double:
 
-This guide covers:
+| Type     | What it does                                                          | Typical use                                                                             |
+|----------|-----------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
+| **Stub** | Returns a hard-coded value when called. No verification.              | Make a dependency return what your test needs.                                          |
+| **Mock** | Records calls so the test can assert *how* the dependency was used.   | Verify the system-under-test called `repo.save()` exactly once with the right argument. |
+| **Spy**  | Wraps a real object, records calls, but lets the real method execute. | Observe behaviour without changing it.                                                  |
+| **Fake** | A working but simplified implementation (e.g. in-memory database).    | When the real dependency is too heavy but a stub would lose too much realism.           |
 
-1. What test doubles are and the common types
-2. How Suites uses the terms "mocks" and "stubs"
-3. Why some dependencies can be replaced and others cannot
-4. Two ways to verify your tests work correctly
-5. How Suites automatically generates mocks for you
-6. When to use real implementations instead of test doubles
+The distinction that catches most people out: a **stub** answers *queries*, a **mock** verifies *commands*. Fowler calls
+this _state verification_ vs _behaviour verification_. If you're unsure which you need, you almost always want a stub.
 
-## What Are Test Doubles?
+## Why test doubles matter
 
-A **test double** is a fake version of a dependency that you use in your tests. Think of it like a stunt double in a movie - it stands in for the real thing so you can control what happens.
+Without them, a "unit" test ends up exercising your entire dependency tree: the database, the network, the file system.
+The result is slow, flaky, and tells you very little about the unit you actually changed. Test doubles let you isolate
+one piece of code, make its environment deterministic, and assert on it precisely.
 
-Test doubles help you:
-- Control what your dependencies return
-- Isolate the code you want to test
-- Avoid side effects like database writes or API calls
+## Test doubles in Suites
 
-**Common types of test doubles:**
+Writing test doubles by hand is repetitive: for every dependency, you build a fake class, stub each method, wire it into
+your DI container. Suites does this automatically. Given a class with constructor-injected dependencies, Suites
+generates a fully-mocked version of every dependency, no manual `jest.fn()` calls, no hand-rolled fakes.
 
-- **Stub**: Returns a predetermined response when called
-- **Mock**: A fake class where you can verify method calls
-- **Spy**: Records information about how it was called (wraps the real object)
-- **Fake**: A simplified working version (like an in-memory database)
+```typescript
+import { TestBed, Mocked } from '@suites/unit';
 
-:::info
-Suites follows [Martin Fowler's test double patterns](https://martinfowler.com/bliki/TestDouble.html), using the vocabulary from Gerard Meszaros's xUnit Test Patterns.
-:::
+const { unit, unitRef } = await TestBed.solitary(UserService).compile();
+const repo: Mocked<UserRepository> = unitRef.get(UserRepository);
+
+repo.findById.mockResolvedValue(testUser);  // stub a return value
+await unit.activateUser('123');
+expect(repo.save).toHaveBeenCalledWith(testUser);  // verify a call
+```
+
+That's it - `UserRepository` was generated as a mock with every method pre-stubbed. No setup file, no manual mock
+factory.
+
+> **Try it:** Set up Suites and write your first test in under five minutes. See
+> the [Quickstart](/docs/get-started/quickstart).
+
+The rest of this guide explains how Suites uses the terms _mock_ and _stub_, which dependencies it can and can't
+replace, and how to choose between state and behaviour verification in practice.
 
 ## How Suites Uses "Mocks" and "Stubs"
 
@@ -63,11 +82,14 @@ repo.findById.mockResolvedValue(testUser);
 // findById is now a stub that returns testUser
 ```
 
-**Simple rule:** When you see `Mocked<UserRepository>`, it means you have a mock (fake class) where all methods are stubs (fake methods).
+**Simple rule:** When you see `Mocked<UserRepository>`, it means you have a mock (fake class) where all methods are
+stubs (fake methods).
 
 ## Dependencies: What Can Be Replaced?
 
-Suites can only create test doubles for **explicit dependencies** - dependencies that are passed in through the constructor or method parameters. It cannot replace **implicit dependencies** - things that are imported directly at the top of a file.
+Suites can only create test doubles for **explicit dependencies** - dependencies that are passed in through the
+constructor or method parameters. It cannot replace **implicit dependencies** - things that are imported directly at the
+top of a file.
 
 **Explicit dependencies** (Suites can replace these):
 
@@ -84,12 +106,12 @@ export class UserService {
 **Implicit dependencies** (Suites cannot replace these):
 
 ```typescript
-import { sendEmail } from './email-utils';  // ❌ Direct import
+import { sendEmail } from './email-utils'; // ❌ Direct import
 
 @Injectable()
 export class UserService {
   createUser(data: UserData) {
-    sendEmail(data.email);  // ❌ Always runs the real code
+    sendEmail(data.email); // ❌ Always runs the real code
   }
 }
 ```
@@ -135,7 +157,7 @@ Suites automatically creates mocks for all dependencies.
 
 ```typescript
 const { unit, unitRef } = await TestBed.solitary(UserService).compile();
-const repo = unitRef.get(UserRepository);  // Automatically a mock!
+const repo = unitRef.get(UserRepository); // Automatically a mock!
 
 // Now configure what the stub methods should return
 repo.findById.mockResolvedValue(testUser);
@@ -149,7 +171,8 @@ For more details on configuration options, see:
 
 ## Testing with Real Implementations
 
-Sometimes you want to test how multiple components work together using real code, not mocks. Use sociable tests for this:
+Sometimes you want to test how multiple components work together using real code, not mocks. Use sociable tests for
+this:
 
 ```typescript
 const { unit } = await TestBed.sociable(UserService)
@@ -167,14 +190,14 @@ See [Sociable Unit Tests](/docs/guides/sociable) for more information.
 
 ### Quick Reference
 
-| Term                    | What It Means                                                | Example                                 |
-|-------------------------|--------------------------------------------------------------|-----------------------------------------|
-| **Test Double**         | Any fake replacement for a real dependency                   | Any mock, stub, spy, fake, or dummy     |
-| **Mock**                | A fake version of an entire class (all methods are stubs)    | `Mocked<UserRepository>`                |
-| **Stub**                | A fake method that returns a predetermined value             | `repo.findById.mockResolvedValue(user)` |
-| **Spy**                 | A stub that also records how it was called                   | `jest.spyOn()` - not recommended        |
-| **Explicit Dependency** | Passed in through constructor or parameters                  | `constructor(private db: Database)`     |
-| **Implicit Dependency** | Imported directly at the top of the file                     | `import { sendEmail } from './utils'`   |
+| Term                    | What It Means                                             | Example                                 |
+|-------------------------|-----------------------------------------------------------|-----------------------------------------|
+| **Test Double**         | Any fake replacement for a real dependency                | Any mock, stub, spy, fake, or dummy     |
+| **Mock**                | A fake version of an entire class (all methods are stubs) | `Mocked<UserRepository>`                |
+| **Stub**                | A fake method that returns a predetermined value          | `repo.findById.mockResolvedValue(user)` |
+| **Spy**                 | A stub that also records how it was called                | `jest.spyOn()` - not recommended        |
+| **Explicit Dependency** | Passed in through constructor or parameters               | `constructor(private db: Database)`     |
+| **Implicit Dependency** | Imported directly at the top of the file                  | `import { sendEmail } from './utils'`   |
 
 ### Takeaways
 
@@ -193,4 +216,5 @@ Learn more about using test doubles in practice:
 
 ## Additional Resources
 
-- **[Martin Fowler - Mocks Aren't Stubs](https://martinfowler.com/articles/mocksArentStubs.html)**: Classic article explaining different testing approaches
+- **[Martin Fowler - Mocks Aren't Stubs](https://martinfowler.com/articles/mocksArentStubs.html)**: Classic article
+  explaining different testing approaches
