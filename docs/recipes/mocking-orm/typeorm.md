@@ -1,22 +1,19 @@
 ---
 sidebar_position: 9
-title: Mocking TypeORM
-description: How to mock TypeORM repositories and entity managers in your unit tests
+title: "Mocking TypeORM Repositories in NestJS Unit Tests"
+description: Mock TypeORM Repository and EntityManager in NestJS unit tests using Suites. Wrap repositories in injectables for clean, isolated testing with TypeScript.
+keywords: [mock typeorm, typeorm unit test, nestjs typeorm testing, mock repository, mock entity manager, typescript testing, suites]
 ---
 
-# Mocking TypeORM
+# Mocking TypeORM in NestJS Unit Tests
 
 :::info Overview
 For an overview of the pattern and approach to mocking ORMs, see the [Mocking ORMs overview](/docs/recipes/mocking-orm).
 :::
 
-:::tip Complete Examples
-For complete, runnable TypeORM examples, see the [TypeORM examples](https://github.com/suites-dev/examples/tree/main/nestjs-jest-typeorm) in the Suites Examples repository.
-:::
+TypeORM uses repositories and entity managers to interact with the database. Wrap these in injectable classes so Suites can auto-mock them.
 
-TypeORM uses repositories and entity managers to interact with the database. Wrap these in injectables.
-
-If you are using NestJS, you can follow the [NestJS TypeORM documentation](https://docs.nestjs.com/recipes/sql-typeorm).
+See also the [NestJS TypeORM documentation](https://docs.nestjs.com/recipes/sql-typeorm).
 
 ## Step 1: Create an Injectable Repository
 

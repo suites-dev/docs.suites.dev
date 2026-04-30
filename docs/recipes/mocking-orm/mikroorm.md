@@ -1,22 +1,19 @@
 ---
 sidebar_position: 12
-title: Mocking MikroORM
-description: How to mock MikroORM entity managers and repositories in your unit tests
+title: "Mocking MikroORM in NestJS Unit Tests"
+description: Mock MikroORM EntityManager and repositories in NestJS unit tests using Suites. Wrap data access in injectables for clean, isolated testing with TypeScript.
+keywords: [mock mikroorm, mikroorm unit test, nestjs mikroorm testing, mock entity manager, typescript testing, suites]
 ---
 
-# Mocking MikroORM
+# Mocking MikroORM in NestJS Unit Tests
 
 :::info Overview
 For an overview of the pattern and approach to mocking ORMs, see the [Mocking ORMs overview](/docs/recipes/mocking-orm).
 :::
 
-:::tip Complete Examples
-For complete, runnable MikroORM examples, see the [MikroORM examples](https://github.com/suites-dev/examples/tree/main/nestjs-jest-mikroorm) in the Suites Examples repository.
-:::
+MikroORM uses entity managers and repositories to interact with the database. Wrap these in injectable classes so Suites can auto-mock them.
 
-MikroORM uses entity managers and repositories to interact with the database. Wrap these in injectable classes.
-
-If you are using NestJS, you can follow the [NestJS MikroORM documentation](https://docs.nestjs.com/recipes/mikroorm).
+See also the [NestJS MikroORM documentation](https://docs.nestjs.com/recipes/mikroorm).
 
 ## Step 1: Create an Injectable Repository
 

@@ -1,22 +1,19 @@
 ---
 sidebar_position: 10
-title: Mocking Prisma
-description: How to mock Prisma client instances in your unit tests
+title: "Mocking Prisma Client in NestJS Unit Tests"
+description: Mock PrismaClient and PrismaService in NestJS unit tests using Suites. Wrap the generated client in an injectable for clean, isolated testing with TypeScript.
+keywords: [mock prisma, prisma unit test, nestjs prisma testing, mock prisma client, prisma service mock, typescript testing, suites]
 ---
 
-# Mocking Prisma
+# Mocking Prisma in NestJS Unit Tests
 
 :::info Overview
 For an overview of the pattern and approach to mocking ORMs, see the [Mocking ORMs overview](/docs/recipes/mocking-orm).
 :::
 
-:::tip Complete Examples
-For complete, runnable Prisma examples, see the [Prisma examples](https://github.com/suites-dev/examples/tree/main/nestjs-jest-prisma) in the Suites Examples repository.
-:::
+Prisma uses a generated client that you typically import directly. Wrap it in an injectable class so Suites can auto-mock it.
 
-Prisma uses a generated client that you typically import directly. Wrap it in an injectable class.
-
-If you are using NestJS, you can follow the [NestJS Prisma documentation](https://docs.nestjs.com/recipes/prisma).
+See also the [NestJS Prisma documentation](https://docs.nestjs.com/recipes/prisma).
 
 ## Step 1: Create a Prisma Injectable
 
@@ -155,57 +152,11 @@ describe("UserService", () => {
 });
 ```
 
-## Direct Prisma Client Injection
-
-If you prefer to inject PrismaService directly:
-
-```typescript title="user.service.ts"
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "./prisma.service";
-
-@Injectable()
-export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
-
-  async getUserById(id: number) {
-    return this.prisma.user.findUnique({ where: { id } });
-  }
-}
-```
-
-```typescript title="user.service.spec.ts"
-import { TestBed, type Mocked } from "@suites/unit";
-import { UserService } from "./user.service";
-import { PrismaService } from "./prisma.service";
-
-describe("UserService", () => {
-  let userService: UserService;
-  let prisma: Mocked<PrismaService>;
-
-  beforeAll(async () => {
-    const { unit, unitRef } = await TestBed.solitary(UserService).compile();
-    userService = unit;
-    prisma = unitRef.get(PrismaService);
-  });
-
-  it("should get user by id", async () => {
-    const mockUser = { id: 1, email: "test@example.com", name: "Test" };
-    prisma.user.findUnique.mockResolvedValue(mockUser as any);
-
-    const result = await userService.getUserById(1);
-
-    expect(result).toEqual(mockUser);
-    expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { id: 1 } });
-  });
-});
-```
-
 ## Summary
 
 - **Wrap Prisma client** in an injectable `PrismaService` class to make it mockable
 - **Create repository wrappers** for clean separation between data access and business logic
 - **Use Suites** to automatically mock repository dependencies in your service tests
-- **Direct client injection** is possible but requires more complex mock setup
 
 ## Next Steps
 

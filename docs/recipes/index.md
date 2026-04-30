@@ -1,32 +1,21 @@
 ---
 sidebar_position: 3
 title: Recipes
-description: Real-world examples and patterns for testing with Suites
+description: Practical testing recipes for NestJS with Suites, covering ORMs, databases, and real-world patterns.
+keywords: [suites, nestjs testing, unit testing recipes, mock database, typescript testing]
 ---
 
 # Recipes
 
-> **What this covers:** Real-world examples for testing with Suites across various technologies \
-> **Best for:** Developers looking for practical patterns beyond core testing concepts
+> **What this covers:** Practical examples for testing NestJS services with Suites \
+> **Best for:** Developers looking for patterns beyond the core guides
 
-This section contains real-world examples demonstrating how to use Suites with various technologies and frameworks. These examples go beyond the core testing concepts and show practical patterns for common scenarios.
+This section contains real-world examples showing how to use Suites with popular libraries and frameworks. Each recipe walks through the pattern, implementation, and test code.
 
-## Examples Repository
+:::tip Examples Repository
+For complete, runnable code examples, browse the [Suites Examples repository](https://github.com/suites-dev/examples).
+:::
 
-For complete, runnable code examples, browse the **[Suites Examples repository](https://github.com/suites-dev/examples)**. The repository contains:
+## Available Recipes
 
-- Working implementations of all patterns shown in these guides
-- Complete test suites for each example
-- Different framework integrations (NestJS, InversifyJS)
-- Real-world scenarios and edge cases
-
-## Available Examples
-
-- **[Mocking ORMs](/docs/recipes/mocking-orm)** - Learn how to mock TypeORM, Prisma, Drizzle, and MikroORM in your unit tests
-
-## Contributing Examples
-
-Have a pattern or example you'd like to share? Contributions are welcome! You can:
-
-1. Submit examples to the [Examples repository](https://github.com/suites-dev/examples)
-2. Suggest documentation improvements via issues or pull requests
+- **[Mocking ORMs](/docs/recipes/mocking-orm)** - Mock TypeORM, Prisma, Drizzle, and MikroORM in NestJS unit tests

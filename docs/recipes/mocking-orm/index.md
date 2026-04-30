@@ -1,17 +1,18 @@
 ---
 sidebar_position: 8
-title: Mocking ORMs
-description: How to mock TypeORM, Prisma, Drizzle, and MikroORM in your unit tests
+title: "Mocking ORMs in NestJS Unit Tests: TypeORM, Prisma, Drizzle, MikroORM"
+description: Mock TypeORM repositories, Prisma client, Drizzle, and MikroORM EntityManager in NestJS unit tests using Suites. Step-by-step patterns with TypeScript examples.
+keywords: [mock typeorm, mock prisma, mock drizzle, mock mikroorm, nestjs unit test, mock database, typescript testing, suites]
 ---
 
-# Mocking ORMs
+# Mocking ORMs in NestJS Unit Tests
 
-> **What this covers:** Mocking Object-Relational Mapping (ORM) libraries like TypeORM, Prisma, Drizzle, and MikroORM \
+> **What this covers:** Mocking ORM libraries (TypeORM, Prisma, Drizzle, MikroORM) in NestJS services \
 > **Time to read:** ~12 minutes \
 > **Prerequisites:** [Unit Testing Fundamentals](/docs/guides/fundamentals), [Solitary Unit Tests](/docs/guides/solitary) \
-> **Best for:** Testing services that interact with databases without hitting real database connections
+> **Best for:** Testing NestJS services that interact with databases without hitting real connections
 
-When testing services that interact with databases, you need to mock ORM clients to keep tests isolated. This guide shows you how to structure your code and write tests for popular ORMs: TypeORM, Prisma, Drizzle, and MikroORM.
+When testing NestJS services that interact with databases, you need to mock ORM clients to keep tests isolated. This guide shows you how to structure your code and write tests for popular ORMs: TypeORM, Prisma, Drizzle, and MikroORM.
 
 ## Overview
 

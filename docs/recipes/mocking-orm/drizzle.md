@@ -1,20 +1,17 @@
 ---
 sidebar_position: 11
-title: Mocking Drizzle
-description: How to mock Drizzle database instances in your unit tests
+title: "Mocking Drizzle ORM in NestJS Unit Tests"
+description: Mock Drizzle database instances in NestJS unit tests using Suites. Wrap the Drizzle client in an injectable service for clean, isolated testing with TypeScript.
+keywords: [mock drizzle, drizzle orm unit test, nestjs drizzle testing, mock database, typescript testing, suites]
 ---
 
-# Mocking Drizzle
+# Mocking Drizzle in NestJS Unit Tests
 
 :::info Overview
 For an overview of the pattern and approach to mocking ORMs, see the [Mocking ORMs overview](/docs/recipes/mocking-orm).
 :::
 
-:::tip Complete Examples
-For complete, runnable Drizzle examples, see the [Drizzle examples](https://github.com/suites-dev/examples/tree/main/nestjs-jest-drizzle) in the Suites Examples repository.
-:::
-
-Drizzle uses a database instance that you typically import directly. Wrap it in an injectable class.
+Drizzle uses a database instance that you typically import directly. Wrap it in an injectable class so Suites can auto-mock it.
 
 ## Step 1: Create a Database Injectable
 
@@ -150,72 +147,11 @@ describe("UserService", () => {
 });
 ```
 
-## Direct Database Injection
-
-If you prefer to inject DatabaseService directly and mock the database instance:
-
-```typescript title="user.service.ts"
-import { Injectable } from "@nestjs/common";
-import { DatabaseService } from "./database.service";
-import { users } from "./schema";
-import { eq } from "drizzle-orm";
-
-@Injectable()
-export class UserService {
-  constructor(private readonly database: DatabaseService) {}
-
-  async getUserById(id: number) {
-    const db = this.database.getDb();
-    const result = await db
-      .select()
-      .from(users)
-      .where(eq(users.id, id))
-      .limit(1);
-    return result[0] || null;
-  }
-}
-```
-
-```typescript title="user.service.spec.ts"
-import { TestBed, type Mocked } from "@suites/unit";
-import { UserService } from "./user.service";
-import { DatabaseService } from "./database.service";
-
-describe("UserService", () => {
-  let userService: UserService;
-  let database: Mocked<DatabaseService>;
-
-  beforeAll(async () => {
-    const { unit, unitRef } = await TestBed.solitary(UserService).compile();
-    userService = unit;
-    database = unitRef.get(DatabaseService);
-  });
-
-  it("should get user by id", async () => {
-    const mockDb = {
-      select: jest.fn().mockReturnThis(),
-      from: jest.fn().mockReturnThis(),
-      where: jest.fn().mockReturnThis(),
-      limit: jest
-        .fn()
-        .mockResolvedValue([{ id: 1, email: "test@example.com" }]),
-    };
-    database.getDb.mockReturnValue(mockDb as any);
-
-    const result = await userService.getUserById(1);
-
-    expect(result).toEqual({ id: 1, email: "test@example.com" });
-    expect(database.getDb).toHaveBeenCalled();
-  });
-});
-```
-
 ## Summary
 
 - **Wrap Drizzle database instance** in an injectable `DatabaseService` class to make it mockable
 - **Create repository wrappers** for clean separation between data access and business logic
 - **Use Suites** to automatically mock repository dependencies in your service tests
-- **Direct database injection** is possible but requires chained mock setup
 
 ## Next Steps
 
