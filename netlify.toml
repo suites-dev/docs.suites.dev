@@ -40,11 +40,6 @@ to = "/docs/get-started/installation"
 status = 301
 
 [[redirects]]
-from = "/docs/developer-guide/unit-tests/suites-api"
-to = "/docs/api-reference/"
-status = 301
-
-[[redirects]]
 from = "/docs/learn/unit-tests/suites-api"
 to = "/docs/api-reference/"
 status = 301
@@ -55,18 +50,8 @@ to = "/docs/api-reference/"
 status = 301
 
 [[redirects]]
-from = "/docs/developer-guide/unit-tests/solitary"
-to = "/docs/guides/solitary"
-status = 301
-
-[[redirects]]
 from = "/docs/learn/unit-tests/solitary"
 to = "/docs/guides/solitary"
-status = 301
-
-[[redirects]]
-from = "/docs/developer-guide/unit-tests/sociable"
-to = "/docs/guides/sociable"
 status = 301
 
 [[redirects]]
@@ -75,18 +60,8 @@ to = "/docs/guides/sociable"
 status = 301
 
 [[redirects]]
-from = "/docs/developer-guide/unit-tests/test-doubles"
-to = "/docs/guides/test-doubles"
-status = 301
-
-[[redirects]]
 from = "/docs/learn/unit-tests/test-doubles"
 to = "/docs/guides/test-doubles"
-status = 301
-
-[[redirects]]
-from = "/docs/developer-guide/unit-tests/fundamentals"
-to = "/docs/guides/fundamentals"
 status = 301
 
 [[redirects]]
@@ -168,21 +143,64 @@ to = "/docs/get-started/why-suites"
 status = 301
 
 # ===========================================
-# DEVELOPER GUIDE
+# DEVELOPER GUIDE (wildcard catches all old paths + trailing slashes)
 # ===========================================
 
 [[redirects]]
-from = "/docs/developer-guide/unit-tests"
+from = "/docs/developer-guide/unit-tests/suites-api*"
+to = "/docs/api-reference/"
+status = 301
+
+[[redirects]]
+from = "/docs/developer-guide/unit-tests/solitary*"
+to = "/docs/guides/solitary"
+status = 301
+
+[[redirects]]
+from = "/docs/developer-guide/unit-tests/sociable*"
+to = "/docs/guides/sociable"
+status = 301
+
+[[redirects]]
+from = "/docs/developer-guide/unit-tests/test-doubles*"
+to = "/docs/guides/test-doubles"
+status = 301
+
+[[redirects]]
+from = "/docs/developer-guide/unit-tests/fundamentals*"
+to = "/docs/guides/fundamentals"
+status = 301
+
+[[redirects]]
+from = "/docs/developer-guide/*"
 to = "/docs/guides/"
 status = 301
 
-[[redirects]]
-from = "/docs/developer-guide/adapters/inversifyjs"
-to = "/docs/get-started/"
-status = 301
+# ===========================================
+# FAVICON / APPLE TOUCH ICONS
+# ===========================================
 
 [[redirects]]
-from = "/docs/developer-guide/adapters/identifiers"
+from = "/favicon.ico"
+to = "/img/favicon.png"
+status = 200
+
+[[redirects]]
+from = "/apple-touch-icon.png"
+to = "/img/favicon.png"
+status = 200
+
+[[redirects]]
+from = "/apple-touch-icon-precomposed.png"
+to = "/img/favicon.png"
+status = 200
+
+# ===========================================
+# OLD CATEGORY PAGES
+# ===========================================
+
+[[redirects]]
+from = "/docs/category/getting-started*"
 to = "/docs/get-started/"
 status = 301
 
@@ -221,17 +239,32 @@ to = "/docs/api-reference/"
 status = 301
 
 [[redirects]]
+from = "/docs/extras/identical-injections"
+to = "/docs/guides/"
+status = 301
+
+[[redirects]]
+from = "/docs/extras/identical-injections/"
+to = "/docs/guides/"
+status = 301
+
+[[redirects]]
 from = "/docs/category/extras"
 to = "/docs/guides/"
 status = 301
 
 [[redirects]]
-from = "/docs/adapters/inversify"
+from = "/docs/category/di-framework-adapters"
 to = "/docs/get-started/"
 status = 301
 
 [[redirects]]
-from = "/docs/adapters/identifiers"
+from = "/docs/category/di-framework-adapters/"
+to = "/docs/get-started/"
+status = 301
+
+[[redirects]]
+from = "/docs/adapters/*"
 to = "/docs/get-started/"
 status = 301
 
