@@ -10,24 +10,6 @@ All notable changes to Suites are documented here. For the complete version hist
 
 ---
 
-## May 2026
-
-### 🔧 v3.1.0
-
-This release focuses on build correctness and compatibility with modern TypeScript and testing tooling.
-
-**What's Fixed:**
-
-- ✅ **ESM build**: All packages now ship a working ESM output (`dist/esm/`) with proper `.js` extensions on relative imports. The previous build used `moduleResolution: "node"`, which omits extensions and caused ESM consumers to fail silently. Each package now uses `moduleResolution: NodeNext` per-format tsconfig.
-- ✅ **NodeNext type resolution**: Users with `moduleResolution: NodeNext` or `"type": "module"` projects were receiving `StubbedInstance<T>` instead of `Mocked<T>` from `unitRef.get()` because the ESM entry point failed to load. The corrected ESM build resolves this, and `unitRef.get()` now returns the right `Mocked<T>` type.
-- ✅ **Vitest 4.x compatibility**: Vitest 4.x made mock function properties (`mock`, `lastCall`, etc.) getter-only (non-writable). The Proxy `set` trap in `@suites/doubles.vitest` now guards against non-writable, non-configurable properties, fixing a `TypeError: Cannot set property lastCall` crash.
-
-**Minimum Node version updated to 18.** Node 16 reached end-of-life and is no longer supported.
-
-[View full release notes →](https://github.com/suites-dev/suites/releases/tag/v3.1.0)
-
----
-
 ## January 2, 2025
 
 ### 🐛 Bug Fixes in v3.0.1
@@ -124,8 +106,7 @@ The transition to Suites represented a rebranding and modernization while preser
 
 | Version           | Status                 | Released  | Support Until |
 |-------------------|------------------------|-----------|---------------|
-| `v3.1.x`          | 🟢 Stable              | May 2026  | TBD           |
-| `v3.0.x`          | 🔧 Maintenance         | July 2024 | TBD           |
+| `v3.0.x`          | 🟢 Stable              | July 2024 | June 2026     |
 | `v2.x` (Automock) | ⚠️ Critical fixes only | Nov 2022  | June 2025     |
 
 **Support Policy:**
