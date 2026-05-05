@@ -7,10 +7,16 @@ keywords: [ automock, migrate from automock, automock to suites, "@automock/jest
 
 # Migrating from Automock to Suites
 
+:::danger Automock Deprecation Notice
+**Automock will be fully deprecated on June 30, 2026.** Until then, it receives critical fixes only. All new features
+and improvements are released exclusively under Suites 3.x. Please migrate before the deprecation date.
+:::
+
 ## Introduction
 
-Suites succeeds Automock as the actively developed testing framework. Automock stopped at version `2.1.2` and receives
-critical fixes only. All new development continues in Suites, starting from version `3.0.0`.
+Suites succeeds Automock as the actively developed testing framework. Automock stopped at version `2.1.0` and receives
+critical fixes only until **June 30, 2026**, after which it will no longer be maintained. All new development continues
+in Suites, starting from version `3.0.0`.
 
 This guide covers the migration process from Automock to Suites, including dependency updates, API changes, and new
 features.
