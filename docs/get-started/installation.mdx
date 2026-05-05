@@ -13,7 +13,7 @@ Get Suites up and running in your project.
 
 ## Prerequisites
 
-- Node 16 or higher
+- Node 18 or higher
 - TypeScript project with decorators enabled
 - A framework implementing IoC ([NestJS](https://nestjs.com/), [InversifyJS](https://inversify.io/)), or plain
 TypeScript classes (manually)
@@ -109,6 +109,10 @@ This configuration is necessary for Suites to reflect class dependencies and con
 }
 ```
 
+:::note NodeNext / ESM projects
+As of `3.1.0`, projects configured with `moduleResolution: NodeNext` or `"type": "module"` work with Suites out of the box. No additional configuration is required beyond the standard setup shown above.
+:::
+
 ## Type Reference Configuration
 
 To ensure type safety and maintain a clean API, Suites requires setting up type references for your mocking library. This approach enables importing all utilities from `@suites/unit` while maintaining proper type information.
@@ -182,9 +186,18 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: { globals: true, root: './' },
-  plugins: [swc.vite({ module: { type: 'es6' } })],
+  plugins: [
+    swc.vite({
+      module: { type: 'es6' },
+      jsc: { transform: { decoratorMetadata: true } },
+    }),
+  ],
 });
 ```
+
+:::note Vitest 4.x
+Vitest 4.x uses Oxc by default instead of esbuild. The `esbuild: false` option is a no-op in Vitest 4.x and produces a warning; remove it from any existing config. The configuration above works correctly with both Vitest 3.x and 4.x. Vitest 4.x is supported as of `3.1.0`.
+:::
 
 <div class="next-steps-section">
 ## What's Next?
