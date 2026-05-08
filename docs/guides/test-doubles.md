@@ -1,8 +1,8 @@
 ---
 sidebar_position: 2
-title: "Test Doubles in Suites: Mocks, Stubs, Spies, Fakes Explained"
-description: Test doubles are stand-ins for real dependencies in unit tests. This guide explains mocks, stubs, spies, and fakes, with TypeScript examples using Suites.
-keywords: [ test doubles, mocks, stubs, spies, fakes, mocks vs stubs, typescript testing, unit testing, martin fowler test doubles ]
+title: "TypeScript Test Doubles: Auto-Generated Mocks, Stubs, Spies & Fakes"
+description: "Type-safe test doubles for TypeScript unit tests. Auto-generate mocks, stubs, spies, and fakes for NestJS, Inversify, Jest, and Vitest using Suites."
+keywords: [test doubles, mocks, stubs, spies, fakes, mocks vs stubs, typescript testing, unit testing, mock generation typescript, auto mocks, nestjs testing, vitest mocks, jest mocks]
 ---
 
 # Test Doubles: Mocks, Stubs, Spies, and Fakes

@@ -1,7 +1,8 @@
 ---
 sidebar_position: 4
-title: Quick Start
-description: Write your first unit test with Suites. Examples for using solitary and sociable testing patterns.
+title: "Suites Quick Start: Write Your First Unit Test in 5 Minutes"
+description: "Write your first Suites unit test in 5 minutes. Walkthrough for NestJS and Inversify with Jest or Vitest."
+keywords: [suites quickstart, nestjs unit test example, inversify unit test, first nestjs test, vitest nestjs example, typescript unit test tutorial]
 ---
 
 import Tabs from '@theme/Tabs';
