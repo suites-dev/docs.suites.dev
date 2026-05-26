@@ -1,0 +1,106 @@
+---
+sidebar_position: 2
+title: AI Agents
+description: Suites ships version-matched LLM docs inside @suites/unit so AI coding agents read the current Suites API before writing tests.
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import CodeBlock from '@theme/CodeBlock';
+
+# Suites for AI Coding Agents
+
+Suites ships version-matched documentation inside `@suites/unit` so AI coding agents reference the current testing API instead of stale training data. An `AGENTS.md` file at your project root points the agent at the bundled docs in `node_modules/@suites/unit/dist/llm/knowledge/` before it writes tests.
+
+## How it works
+
+When an AI coding agent opens a test file in a Suites project, the flow is short:
+
+1. The agent reads `AGENTS.md` at the project root.
+2. `AGENTS.md` tells it to read `node_modules/@suites/unit/dist/llm/knowledge/index.md` first.
+3. `index.md` routes the agent to the right file for its task: `writing-tests.md`, `di-testing-with-suites.md`, `solitary-vs-sociable.md`, or `common-mistakes.md`.
+4. The agent reads version-matched guidance, then writes the test.
+
+## Install
+
+Prerequisite: `@suites/unit` must be installed. See [Installation](/docs/get-started/installation).
+
+### Step 1: Add `AGENTS.md` to your project root
+
+<Tabs groupId="agents-files">
+<TabItem value="agents" label="AGENTS.md" default>
+
+<CodeBlock language="md" showLineNumbers={false}>
+{`<!-- BEGIN:suites-agent-rules -->
+
+# Suites: read testing guidance before writing tests
+
+When writing or modifying tests in this project, first read the relevant doc
+in \`node_modules/@suites/unit/dist/llm/knowledge/\`. Start with \`index.md\`.
+
+These docs are version-matched to the installed \`@suites/*\` packages and
+override your training data.
+
+<!-- END:suites-agent-rules -->
+`}
+</CodeBlock>
+
+</TabItem>
+</Tabs>
+
+The block is marker-delimited. Add your own project-specific instructions outside the markers without worrying about future updates overwriting them.
+
+### Step 2: Add `CLAUDE.md` (Claude Code users only)
+
+<Tabs groupId="claude-files">
+<TabItem value="claude" label="CLAUDE.md" default>
+
+<CodeBlock language="md" showLineNumbers={false}>
+{`@AGENTS.md
+`}
+</CodeBlock>
+
+</TabItem>
+</Tabs>
+
+### Verify
+
+- Open your AI coding agent in the project root.
+- Ask it to write a test for a service that depends on `UserRepository`.
+- Watch the transcript for `node_modules/@suites/unit/dist/llm/knowledge/index.md` before it writes code.
+
+## Understanding the bundle
+
+After `npm install @suites/unit`, the kit is laid out at:
+
+```text
+node_modules/@suites/unit/dist/llm/
+├── knowledge/      # what agents read before writing tests
+├── skills/         # Agent Skills metadata (auto-trigger)
+└── templates/      # the AGENTS.md block and CLAUDE.md import
+```
+
+`knowledge/` contains five Markdown files: `index.md` (router), `writing-tests.md` (framework-agnostic discipline), `di-testing-with-suites.md` (the Suites v3 `TestBed` API), `solitary-vs-sociable.md` (mode selection and token boundaries), and `common-mistakes.md` (anti-patterns).
+
+`skills/` contains two `SKILL.md` files for tools that support task-specific skill loading. `skills/suites-test/SKILL.md` auto-triggers when the agent edits a file importing `@suites/*` or referencing `TestBed.`.
+
+`templates/` contains `agents-block.md` (the marker-delimited block above) and `claude-import.txt` (the one-line `CLAUDE.md` import).
+
+## Versioning
+
+When `@suites/unit` releases a new version, the bundled docs ship with it. There is no separate update step.
+
+The v3 docs describe the v3 testing surface: `TestBed.solitary()`, `TestBed.sociable()`, `.expose()`, `.mock(Dep).final()`, `.mock(Dep).impl()`, and `unitRef.get(Dep).method.mockReturnValue(...)`. If a future v4 changes the testing surface, the v4 package will ship rewritten docs at the same major bump.
+
+Suites follows the Vercel `next@16.2` precedent. Their evals show higher pass rates for many agents when bundled docs are available through `AGENTS.md`. See [Next.js AI agent evals](https://nextjs.org/evals).
+
+## Supported agents
+
+Most AI coding agents, including Claude Code, Cursor, GitHub Copilot, OpenAI Codex CLI, and Gemini CLI, read `AGENTS.md` automatically. Claude Code additionally reads `CLAUDE.md`, which is why the one-line import above exists.
+
+## Troubleshooting
+
+If the agent skips the docs, run `ls node_modules/@suites/unit/dist/llm/knowledge/` and confirm the files exist. Confirm `AGENTS.md` sits at the project root, not inside a package subdirectory.
+
+Check your agent's docs for the convention:
+[Codex](https://developers.openai.com/codex/guides/agents-md), [Cursor](https://cursor.com/docs/rules), [Claude Code](https://docs.anthropic.com/en/docs/claude-code/memory), [Copilot](https://docs.github.com/en/copilot/how-tos/copilot-cli/add-repository-instructions), or [Gemini CLI](https://google-gemini.github.io/gemini-cli/docs/cli/gemini-md.html).

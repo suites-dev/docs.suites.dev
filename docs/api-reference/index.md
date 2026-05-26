@@ -1,5 +1,5 @@
 ---
-sidebar_position: 3
+sidebar_position: 4
 title: API Reference
 description: Complete API reference for Suites testing framework
 ---
