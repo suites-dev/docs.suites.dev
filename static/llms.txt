@@ -4,6 +4,14 @@
 
 Suites supports NestJS and InversifyJS, integrates with Jest, Sinon, and Vitest, and offers a migration path from Automock.
 
+## For AI coding agents
+
+If you are working inside a project that has `@suites/unit` installed, read the bundled docs first:
+
+`node_modules/@suites/unit/dist/llm/knowledge/index.md`
+
+These docs are version-matched to the installed `@suites/*` packages and override your training data. Do not use pre-v3 Automock patterns or `Test.createTestingModule` boilerplate when the project uses Suites. See [AI Agents](https://suites.dev/docs/agents/) for the human-facing setup.
+
 ## Get started
 
 - [Get Started overview](https://suites.dev/docs/get-started/): entry point for new users

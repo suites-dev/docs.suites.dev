@@ -268,6 +268,12 @@ const { unit, unitRef } = await TestBed.solitary(PaymentService).compile();
 
 Same API, same patterns across frameworks. All utilities are exported from a single entry point: `@suites/unit`
 
+:::tip Set this up for your AI agent
+Suites ships version-matched guidance for AI coding agents inside `@suites/unit`. After installation, add the project-level `AGENTS.md` block and one-line `CLAUDE.md` import so tools like Codex CLI, Claude Code, Cursor, Gemini CLI, and Copilot read `node_modules/@suites/unit/dist/llm/knowledge/` before writing tests.
+
+[Install Suites for AI agents](/docs/agents/#install)
+:::
+
 ## In Summary
 
 Suites replaces thousands of lines of brittle, manual test setup with a single, declarative call. Backend teams gain

@@ -76,6 +76,8 @@ This installs three packages:
 
 **Suites will automatically detect the installed adapters and configure itself accordingly.**
 
+After installing, optionally [set up your AI coding agent](/docs/agents/#install) so it reads the version-matched Suites docs in `node_modules/@suites/unit/dist/llm/knowledge/` before writing tests.
+
 :::info Why reflect-metadata?
 `reflect-metadata` is required as a runtime dependency (not dev dependency) because TypeScript's decorator metadata is only emitted at compile time.
 Learn more in the [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/decorators.html#metadata).

@@ -81,6 +81,10 @@ npm install --save-dev @suites/doubles.sinon @suites/di.inversify
 Suites splits the doubles library and the DI integration into separate packages, so install one `@suites/doubles.*` and
 one `@suites/di.*` matching your stack.
 
+:::tip Use Suites with AI coding agents
+After installing the new packages, point your AI coding agent at the version-matched Suites docs so it stops writing old Automock patterns. [Set up for AI agents](/docs/agents/#install).
+:::
+
 ### Step 2: Update Imports
 
 Change all imports from Automock packages to the unified Suites import:
