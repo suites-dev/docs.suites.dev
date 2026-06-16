@@ -1,60 +1,42 @@
 {
-  "name": "suites.dev",
+  "name": "@suites/web",
+  "type": "module",
   "version": "0.0.0",
   "private": true,
+  "packageManager": "pnpm@9.15.0",
   "scripts": {
-    "docusaurus": "docusaurus",
-    "start": "docusaurus start",
-    "build": "docusaurus build",
-    "algolia:reindex": "node scripts/algolia-reindex.mjs",
-    "algolia:sync-config": "node scripts/sync-algolia-config.mjs",
-    "swizzle": "docusaurus swizzle",
-    "deploy": "docusaurus deploy",
-    "clear": "docusaurus clear",
-    "serve": "docusaurus serve",
-    "write-translations": "docusaurus write-translations",
-    "write-heading-ids": "docusaurus write-heading-ids",
-    "typecheck": "tsc"
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "postbuild": "node scripts/algolia-reindex.mjs",
+    "preview": "astro preview",
+    "astro": "astro",
+    "check": "astro check",
+    "typecheck": "astro check"
   },
   "dependencies": {
-    "@algolia/client-search": "^4.24.0",
-    "@docusaurus/core": "^3.4.0",
-    "@docusaurus/plugin-client-redirects": "^3.4.0",
-    "@docusaurus/plugin-google-gtag": "^3.4.0",
-    "@docusaurus/plugin-sitemap": "^3.4.0",
-    "@docusaurus/preset-classic": "^3.4.0",
-    "@docusaurus/remark-plugin-npm2yarn": "^3.1.1",
-    "@docusaurus/theme-mermaid": "^3.4.0",
-    "@docusaurus/theme-search-algolia": "^3.4.0",
-    "@fortawesome/fontawesome-svg-core": "^6.5.2",
-    "@fortawesome/free-solid-svg-icons": "^6.5.2",
-    "@fortawesome/react-fontawesome": "^0.2.2",
-    "@mdx-js/react": "^3.0.0",
-    "clsx": "^2.1.0",
-    "prism-react-renderer": "^2.3.1",
-    "react": "^18.2.0",
-    "react-code-blocks": "^0.1.6",
-    "react-dom": "^18.2.0",
-    "react-icons": "^5.0.1",
-    "search-insights": "^2.15.0"
+    "@astrojs/check": "^0.9.4",
+    "@astrojs/mdx": "^4.0.0",
+    "@astrojs/react": "^4.0.0",
+    "@astrojs/sitemap": "^3.2.0",
+    "@astrojs/vercel": "^8.0.0",
+    "@docsearch/css": "^3.8.0",
+    "@docsearch/react": "^3.8.0",
+    "astro": "^5.0.0",
+    "astro-expressive-code": "^0.40.0",
+    "mermaid": "^11.4.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "react-icons": "^5.4.0",
+    "remark-gfm": "^4.0.0",
+    "typescript": "^5.6.0"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "^3.1.1",
-    "@docusaurus/tsconfig": "^3.1.1",
-    "@types/react": "16",
-    "typescript": "^5.2.2"
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0"
   },
-  "browserslist": {
-    "production": [
-      ">0.5%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "packageManager": "yarn@1.22.1+sha512.84bec57763ecbf87ce884fc98d550b0e0f8b7241b4425ec83d4879c160bfe1412be96f9e17e5551167d1bba43ba9b3a7aa4efea98ec25d84922c17c92321255c"
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  }
 }

@@ -9,6 +9,8 @@ declare global {
       eventName: string,
       params?: Record<string, any>
     ) => void;
+    // Shim for Agent 2's HTML buttons to call inline: window.__suitesTrack('button_name', 'location')
+    __suitesTrack?: (name: string, location: string) => void;
   }
 }
 
@@ -40,3 +42,9 @@ export const trackButtonClick = (
     location,
   });
 };
+
+// Install the global shim so plain HTML onclick attributes can call window.__suitesTrack('name', 'loc')
+if (typeof window !== 'undefined') {
+  window.__suitesTrack = (name: string, location: string) =>
+    trackButtonClick(name, location);
+}
