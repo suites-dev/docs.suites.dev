@@ -1,0 +1,22 @@
+---
+interface Props {
+  title?: string;
+  href?: string;
+  interactive?: boolean;
+}
+const { title, href, interactive } = Astro.props;
+const isInteractive = Boolean(href) || interactive === true;
+const cls = ['card', isInteractive ? 'card-interactive' : ''].filter(Boolean).join(' ');
+const Tag = href ? 'a' : 'div';
+---
+{Tag === 'a' ? (
+  <a class={cls} href={href}>
+    {title && <h3>{title}</h3>}
+    <slot />
+  </a>
+) : (
+  <div class={cls}>
+    {title && <h3>{title}</h3>}
+    <slot />
+  </div>
+)}

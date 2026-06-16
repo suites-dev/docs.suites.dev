@@ -1,0 +1,3456 @@
+/*
+ * Suites Design System, Components
+ * Verbatim port of the component CSS from the baseline HTML
+ * (~/Downloads/suites-design-system-board (2).html, lines 93-797).
+ * Do not invent or restyle here.
+ */
+
+.shell {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+/* Docs uses the full viewport width so sidebar/content/toc form a true three-pane.
+   The marketing pages (homepage, 404) still get the bounded .shell.            */
+.shell--docs {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  backdrop-filter: blur(18px);
+  background: rgba(15,15,18,.78);
+}
+
+/* Light-mode topbar uses a translucent white pane instead of inky graphite. */
+:root[data-theme="light"] .topbar {
+  background: rgba(255, 255, 255, 0.82);
+}
+
+/*
+ * Light-mode overrides for surfaces that hard-code rgba(255,255,255,.X) as
+ * an "ink-on-glass" tint. On white these wash out entirely, so we restate
+ * the same visual intent using a graphite tint at comparable alpha.
+ * Anything not listed here is acceptable on both themes (transparent
+ * borders, brand-pink overlays, semantic color washes for warnings/errors).
+ */
+:root[data-theme="light"] .icon-link:hover { background: rgba(15,15,18,.06); }
+:root[data-theme="light"] .article :not(pre) > code { background: rgba(15,15,18,.06); }
+:root[data-theme="light"] .sidebar-group-label:hover { background: rgba(15,15,18,.04); }
+:root[data-theme="light"] .toc-list a:hover { background: rgba(15,15,18,.04); }
+:root[data-theme="light"] .btn { background: rgba(15,15,18,.04); }
+:root[data-theme="light"] .btn:hover { background: rgba(15,15,18,.07); }
+:root[data-theme="light"] .btn-primary { background: var(--primary); }
+:root[data-theme="light"] .btn-primary:hover { background: var(--pink-600); }
+:root[data-theme="light"] .doc-pager a { background: rgba(15,15,18,.02); }
+:root[data-theme="light"] .doc-pager a:hover { background: rgba(15,15,18,.05); }
+
+.nav {
+  max-width: var(--max);
+  height: var(--header-h);
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* Secondary product-tab row under the main header. Bounded to the same
+   --max + 24px gutter as .nav so both hairlines (top + bottom of the row)
+   stop at the layout edges and never reach the viewport edge. */
+.nav-tabs {
+  max-width: var(--max);
+  height: var(--header-tabs-h);
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text-muted);
+  overflow-x: auto;
+}
+
+.nav-tabs a {
+  color: var(--text-muted);
+  padding: 8px 0;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  font-weight: var(--fw-medium);
+}
+
+.nav-tabs a:hover,
+.nav-tabs a.active {
+  color: var(--text);
+  border-bottom-color: var(--primary);
+}
+
+.nav-tabs a.active {
+  font-weight: var(--fw-semibold);
+}
+
+/* Product-tab badge (e.g. "alpha") shown after a product label in nav-tabs. */
+.nav-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+  padding: 2px 7px;
+  font-size: 10px;
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--primary-light);
+  background: var(--primary-soft);
+  border: 1px solid var(--primary-border);
+  border-radius: 999px;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+/* Centered search input in the header (prisma pattern) */
+.nav-search {
+  flex: 1;
+  max-width: 384px;
+  margin: 0 16px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.025em;
+}
+
+.mark {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  box-shadow: 0 0 0 1px rgba(255,255,255,.16) inset, 0 14px 34px rgba(239,71,121,.28);
+  position: relative;
+}
+
+.mark::before,
+.mark::after {
+  content: "";
+  position: absolute;
+  inset: 8px 10px;
+  border-top: 2px solid #0F0F12;
+  border-bottom: 2px solid #0F0F12;
+  transform: skew(-18deg);
+}
+
+.navlinks {
+  display: flex;
+  gap: 16px;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: var(--fw-medium);
+}
+
+.navlinks a:hover { color: var(--text); }
+
+/* ============================================================
+ * Marketing header nav (MarketingHeader.astro). Distinct from the docs
+ * .navlinks above because marketing pages need richer affordances
+ * (dropdowns with descriptions) and do not host DocSearch or product tabs.
+ * ============================================================ */
+
+.marketing-navlinks {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  margin-left: 24px;
+}
+
+.marketing-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 10px;
+  color: var(--text-muted);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: var(--fw-medium);
+  transition: color 160ms ease, background-color 160ms ease;
+  cursor: pointer;
+}
+
+.marketing-nav-link:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+:root[data-theme="light"] .marketing-nav-link:hover {
+  background: rgba(15, 15, 18, 0.06);
+}
+
+/* Native <details>/<summary> dropdown. Hides the default disclosure caret;
+   we render our own SVG caret that rotates on open. */
+.marketing-dropdown {
+  position: relative;
+}
+.marketing-dropdown > summary,
+.marketing-mobile-menu > summary {
+  list-style: none;
+  cursor: pointer;
+}
+.marketing-dropdown > summary::-webkit-details-marker,
+.marketing-mobile-menu > summary::-webkit-details-marker {
+  display: none;
+}
+
+.marketing-caret {
+  transition: transform 160ms ease;
+}
+.marketing-dropdown[open] .marketing-caret {
+  transform: rotate(180deg);
+}
+
+.marketing-dropdown[open] > .marketing-dropdown-trigger {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
+}
+:root[data-theme="light"] .marketing-dropdown[open] > .marketing-dropdown-trigger {
+  background: rgba(15, 15, 18, 0.06);
+}
+
+.marketing-dropdown-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  z-index: var(--z-overlay);
+  min-width: 320px;
+  padding: 8px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 4px;
+}
+
+.marketing-dropdown-panel--compact {
+  min-width: 200px;
+}
+
+.marketing-dropdown-item {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  color: var(--text);
+  border-radius: 10px;
+  transition: background-color 160ms ease;
+}
+
+.marketing-dropdown-item--compact {
+  padding: 8px 12px;
+}
+
+.marketing-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+:root[data-theme="light"] .marketing-dropdown-item:hover {
+  background: rgba(15, 15, 18, 0.06);
+}
+
+.marketing-dropdown-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: var(--fw-semibold);
+  color: var(--text);
+}
+
+.marketing-dropdown-desc {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+/* Tool/status badge inside the dropdown. The alpha variant matches the
+   header product-tab badge; the stable variant is a neutral pill. */
+.marketing-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  font-size: 10px;
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  line-height: 1;
+}
+
+.marketing-badge[data-variant="alpha"] {
+  color: var(--primary-light);
+  background: var(--primary-soft);
+  border: 1px solid var(--primary-border);
+}
+
+.marketing-badge[data-variant="stable"] {
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+}
+
+:root[data-theme="light"] .marketing-badge[data-variant="stable"] {
+  background: rgba(15, 15, 18, 0.05);
+}
+
+/* Mobile drawer (kicks in below 767px via the existing breakpoint farther
+   down in this file). The toggle is hidden on desktop; the drawer panel is
+   a fixed right-side panel anchored under the topbar. */
+.marketing-mobile-menu {
+  display: none;
+}
+.marketing-mobile-panel {
+  display: none;
+}
+.marketing-mobile-section {
+  display: grid;
+  gap: 4px;
+  padding-bottom: 12px;
+}
+.marketing-mobile-section + .marketing-mobile-section {
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.marketing-mobile-label {
+  margin: 0 0 4px;
+  color: var(--text-soft);
+  font-family: var(--font-code);
+  font-size: 11px;
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.marketing-mobile-link {
+  display: grid;
+  gap: 2px;
+  padding: 12px 4px;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: var(--fw-medium);
+  text-decoration: none;
+}
+.marketing-mobile-link small {
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: var(--fw-regular);
+}
+.marketing-mobile-link-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hero {
+  padding: 88px 0 58px;
+  text-align: center;
+  max-width: 940px;
+  margin: 0 auto;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--primary-border);
+  background: var(--primary-soft);
+  color: var(--primary-light);
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 13px;
+  font-weight: var(--fw-semibold);
+  margin-bottom: 26px;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(52px, 9vw, 108px);
+  line-height: .94;
+  letter-spacing: -0.044em;
+  font-weight: var(--fw-display);
+}
+
+h1 span { color: var(--primary-light); display: block; }
+
+.hero p {
+  max-width: 700px;
+  margin: 24px auto 0;
+  color: var(--text-muted);
+  font-size: clamp(18px, 2vw, 21px);
+  letter-spacing: 0;
+}
+
+.section {
+  margin-top: 28px;
+  padding: 32px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.02)),
+    rgba(23,23,28,.74);
+  box-shadow: 0 1px 0 rgba(255,255,255,.04) inset;
+}
+
+.section + .section { margin-top: 20px; }
+
+.section-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.section-title {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 48px);
+  line-height: 1;
+  letter-spacing: -0.034em;
+  font-weight: var(--fw-display);
+}
+
+.section-desc {
+  margin: 8px 0 0;
+  color: var(--text-muted);
+  max-width: 640px;
+}
+
+.chip {
+  display: inline-flex;
+  min-height: 30px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0 11px;
+  color: var(--primary-light);
+  background: var(--primary-soft);
+  border: 1px solid var(--primary-border);
+  font-size: 12px;
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+}
+
+.grid {
+  display: grid;
+  gap: 14px;
+}
+
+.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.cols-4 { grid-template-columns: repeat(4, 1fr); }
+.cols-5 { grid-template-columns: repeat(5, 1fr); }
+
+.card {
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,.035);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  min-height: 150px;
+}
+
+.card h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  letter-spacing: -0.016em;
+}
+
+.card p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.token-card {
+  min-height: 148px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  position: relative;
+}
+
+.token-swatch {
+  height: 72px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.16);
+  margin-bottom: 14px;
+  box-shadow: 0 18px 40px rgba(0,0,0,.2);
+}
+
+.token-name {
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.02em;
+}
+
+.token-value {
+  color: var(--text-soft);
+  font-family: var(--font-code);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.ruler {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: #0b0b0f;
+}
+
+.ruler-track {
+  display: grid;
+  grid-template-columns: repeat(11, 1fr);
+  min-height: 128px;
+}
+
+.ruler-step {
+  position: relative;
+  padding: 14px 10px;
+  display: flex;
+  align-items: end;
+  border-right: 1px solid rgba(0,0,0,.12);
+}
+
+.ruler-step:last-child { border-right: 0; }
+
+.ruler-step span {
+  display: block;
+  font-family: var(--font-code);
+  font-size: 11px;
+  line-height: 1.35;
+  color: rgba(15,15,18,.78);
+  font-weight: var(--fw-semibold);
+  text-shadow: 0 1px rgba(255,255,255,.18);
+}
+
+.ruler-step.dark-label span {
+  color: rgba(255,255,255,.82);
+  text-shadow: none;
+}
+
+.ruler-caption {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  border-top: 1px solid var(--border);
+  padding: 16px 18px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.usage-row {
+  display: grid;
+  grid-template-columns: 210px 1fr 1fr;
+  gap: 14px;
+  align-items: stretch;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: rgba(255,255,255,.025);
+}
+
+.usage-row + .usage-row { margin-top: 10px; }
+
+.usage-label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-weight: var(--fw-semibold);
+}
+
+.usage-label code {
+  color: var(--primary-light);
+  font-family: var(--font-code);
+  font-size: 12px;
+  font-weight: var(--fw-regular);
+}
+
+.usage-good,
+.usage-bad {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.usage-good strong { color: var(--success); }
+.usage-bad strong { color: var(--error); }
+
+.btn-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.btn {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: rgba(255,255,255,.04);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: var(--fw-medium);
+}
+
+.btn-primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #0F0F12;
+  box-shadow: 0 14px 38px rgba(239,71,121,.26);
+}
+
+.btn-primary:hover { background: var(--primary-light); border-color: var(--primary-light); }
+
+.btn-secondary {
+  background: var(--surface-raised);
+}
+
+.btn-ghost {
+  background: transparent;
+}
+
+.btn-danger {
+  background: rgba(255,107,107,.1);
+  border-color: rgba(255,107,107,.28);
+  color: #FFB4B4;
+}
+
+.badge-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.badge {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,.035);
+  border-radius: 999px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: var(--fw-semibold);
+  color: var(--text-muted);
+}
+
+.badge-pink { color: var(--primary-light); background: var(--primary-soft); border-color: var(--primary-border); }
+.badge-success { color: var(--success); background: rgba(134, 239, 172, 0.10); border-color: rgba(134, 239, 172, 0.25); }
+.badge-warning { color: var(--warning); background: rgba(251, 146, 60, 0.10);  border-color: rgba(251, 146, 60, 0.28);  }
+.badge-error   { color: var(--error);   background: rgba(255, 107, 107, 0.10); border-color: rgba(255, 107, 107, 0.25); }
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.field label {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: var(--fw-medium);
+}
+
+input, select, textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: #111116;
+  color: var(--text);
+  border-radius: 14px;
+  padding: 13px 14px;
+  font: inherit;
+  outline: none;
+}
+
+textarea { min-height: 116px; resize: vertical; }
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-soft);
+}
+
+.alert {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(255,255,255,.03);
+}
+
+.alert .symbol {
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-weight: var(--fw-display);
+  font-size: 14px;
+  line-height: 1;
+  flex: none;
+  margin-top: 2px;
+}
+
+.alert-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.alert h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+/* Sibling spacing for arbitrary MDX content inside an admonition.
+   Replaces the old `.alert p { margin: 0 }` collapse which broke
+   multi-paragraph asides and asides containing code blocks / lists. */
+.alert-body > * { margin: 0; }
+.alert-body > * + * { margin-top: 10px; }
+
+.alert-body p,
+.alert-body li {
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.alert-body ul,
+.alert-body ol { padding-left: 20px; }
+.alert-body li + li { margin-top: 4px; }
+
+.alert-body pre,
+.alert-body :where(.code, [class*="expressive-code"]) {
+  margin: 0;
+  font-size: 13px;
+}
+
+.alert-body a {
+  color: var(--primary-light);
+  border-bottom: 1px solid var(--primary-border);
+}
+
+.alert-body a:hover {
+  color: var(--text);
+  border-bottom-color: var(--primary);
+}
+
+.alert-info    .symbol { background: rgba(147, 197, 253, 0.12); color: var(--info);    }
+.alert-success .symbol { background: rgba(134, 239, 172, 0.12); color: var(--success); }
+.alert-warning .symbol { background: rgba(251, 146, 60, 0.14);  color: var(--warning); }
+.alert-error   .symbol { background: rgba(255, 107, 107, 0.12); color: var(--error);   }
+
+/* MDX Aside (docs admonition).
+   Lives in its own namespace so it can evolve independently of the marketing
+   .alert component, even though the visual language is shared today. */
+.aside {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(255,255,255,.03);
+}
+
+.aside .aside-symbol {
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-weight: var(--fw-display);
+  font-size: 14px;
+  line-height: 1;
+  flex: none;
+  margin-top: 2px;
+}
+
+.aside-body {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Title renders as a non-heading strong label so the Aside can appear anywhere
+   in a docs page without polluting the article heading outline (an Aside is
+   not a section). Visually matches the old h3 weight. */
+.aside-title {
+  display: block;
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.01em;
+  color: var(--text);
+  font-family: var(--font-title);
+}
+
+.aside-body > * { margin: 0; }
+.aside-body > * + * { margin-top: 10px; }
+
+.aside-body p,
+.aside-body li {
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.aside-body ul,
+.aside-body ol { padding-left: 20px; }
+.aside-body li + li { margin-top: 4px; }
+
+.aside-body pre,
+.aside-body :where(.code, [class*="expressive-code"]) {
+  margin: 0;
+  font-size: 13px;
+}
+
+.aside-body a {
+  color: var(--primary-light);
+  border-bottom: 1px solid var(--primary-border);
+}
+
+.aside-body a:hover {
+  color: var(--text);
+  border-bottom-color: var(--primary);
+}
+
+/* Variant accents: tinted left border + symbol tile.
+   Four-color semantic palette tuned away from Prisma's blues/teals/yellow.
+   Contrast verified on var(--bg) #0F0F12 (target >= 4.5:1):
+     --info    #93C5FD sky      ~10.5:1
+     --success #86EFAC emerald  ~12.0:1
+     --warning #FB923C orange   ~8.1:1   (no more yellow)
+     --error   #FF6B6B salmon   ~5.1:1 */
+.aside-info    { border-left: 3px solid var(--info); }
+.aside-success { border-left: 3px solid var(--success); }
+.aside-warning { border-left: 3px solid var(--warning); }
+.aside-error   { border-left: 3px solid var(--error); }
+
+.aside-info    .aside-symbol { background: rgba(147, 197, 253, 0.12); color: var(--info);    }
+.aside-success .aside-symbol { background: rgba(134, 239, 172, 0.12); color: var(--success); }
+.aside-warning .aside-symbol { background: rgba(251, 146, 60, 0.14);  color: var(--warning); }
+.aside-error   .aside-symbol { background: rgba(255, 107, 107, 0.12); color: var(--error);   }
+
+.code {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--code-bg);
+  padding: 20px;
+  overflow: auto;
+  font-family: var(--font-code);
+  color: var(--code-text);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.tok-pink { color: var(--primary-light); }
+.tok-green { color: var(--success); }
+.tok-blue { color: var(--info); }
+.tok-yellow { color: var(--warning); }
+.tok-gray { color: var(--text-soft); }
+
+.mini-nav {
+  height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: rgba(255,255,255,.03);
+}
+
+.tabs {
+  display: inline-flex;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255,255,255,.03);
+  gap: 3px;
+}
+
+.tab {
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: var(--fw-semibold);
+  padding: 8px 13px;
+}
+
+.tab.active {
+  color: var(--text);
+  background: var(--primary-soft);
+  box-shadow: 0 0 0 1px var(--primary-border) inset;
+}
+
+.pricing-card {
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,.035);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  min-height: 330px;
+  display: flex;
+  flex-direction: column;
+}
+
+.pricing-card.featured {
+  border-color: var(--primary-border);
+  box-shadow: 0 0 0 1px rgba(239,71,121,.18), 0 28px 80px rgba(239,71,121,.12);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(239,71,121,.16), transparent 18rem),
+    rgba(255,255,255,.04);
+}
+
+.price {
+  margin: 18px 0 16px;
+  font-size: 42px;
+  line-height: 1;
+  font-weight: var(--fw-display);
+  letter-spacing: -0.035em;
+}
+
+.price span {
+  font-size: 14px;
+  color: var(--text-soft);
+  font-weight: var(--fw-medium);
+  letter-spacing: 0;
+}
+
+.features {
+  list-style: none;
+  padding: 0;
+  margin: 18px 0 0;
+}
+
+.features li {
+  color: var(--text-muted);
+  margin: 10px 0;
+  padding-left: 22px;
+  position: relative;
+  font-size: 14px;
+}
+
+.features li::before {
+  content: "✓";
+  color: var(--success);
+  position: absolute;
+  left: 0;
+  font-weight: var(--fw-display);
+}
+
+/* Docs three-pane layout, verified against prisma/web Fumadocs notebook layout.
+   Grid: outer-slack | sidebar 268 | content 900 | toc 268 | outer-slack
+   Outer slack lets the layout center inside --max on wide screens; the grid
+   itself is bounded to --max + 24px gutter on each side so the docs chrome
+   never reaches the viewport edge on ultra-wide displays. */
+.doc-layout {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    var(--sidebar-w)
+    minmax(0, var(--content-w))
+    var(--toc-w)
+    minmax(0, 1fr);
+  grid-template-areas: "edge-l sidebar content toc edge-r";
+  min-height: calc(100vh - var(--header-h));
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 24px;
+  gap: 0;
+  align-items: start;
+}
+
+.doc-layout > .sidebar { grid-area: sidebar; }
+.doc-layout > .article { grid-area: content; }
+.doc-layout > .toc     { grid-area: toc; }
+
+@media (max-width: 1279px) {
+  .doc-layout {
+    grid-template-columns: minmax(0, 1fr) var(--sidebar-w) minmax(0, var(--content-w)) minmax(0, 1fr);
+    grid-template-areas: "edge-l sidebar content edge-r";
+  }
+  .doc-layout > .toc { display: none; }
+}
+
+@media (max-width: 767px) {
+  .doc-layout {
+    grid-template-columns: 1fr;
+    grid-template-areas: "content";
+  }
+  .doc-layout > .sidebar { display: none; }
+}
+
+.sidebar {
+  position: sticky;
+  top: var(--header-h);
+  align-self: start;
+  height: calc(100vh - var(--header-h));
+  overflow-y: auto;
+  padding: 24px 24px 24px 12px;
+  display: flex;
+  flex-direction: column;
+  border: 0;
+  border-right: 1px solid var(--border);
+  background: transparent;
+  border-radius: 0;
+}
+
+/* Three-region sidebar: banner / viewport / footer (prisma pattern) */
+.sidebar-banner   { flex: none; padding: 0 4px 16px; }
+.sidebar-viewport { flex: 1; min-height: 0; overflow-y: auto; padding: 0 4px; }
+.sidebar-footer   { flex: none; padding: 16px 4px 0; border-top: 1px solid var(--border); margin-top: 16px; }
+
+.sidebar a {
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  padding: 8px 10px;
+  min-height: 36px;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: var(--fw-medium);
+  line-height: 20px;
+  transition: color 160ms ease-out, background-color 160ms ease-out;
+}
+
+/* Hover: subtle surface lift only, no pink. Pink is reserved for active. */
+.sidebar a:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* Active page: brand pink wash + pink text.
+   Stronger than hover so the current page is unambiguous. */
+.sidebar a.active {
+  color: var(--primary-light);
+  background: var(--primary-soft);
+  font-weight: var(--fw-semibold);
+}
+
+.sidebar a.active:hover {
+  background: var(--primary-soft);
+}
+
+/* Match focus-ring radius to the link's own radius so the global 2px ring
+   wraps cleanly instead of clipping against the 8px-rounded link. */
+.sidebar a:focus-visible {
+  border-radius: 8px;
+}
+
+@media (max-width: 767px) {
+  .sidebar a {
+    padding: 12px 12px;
+    min-height: 44px;
+  }
+}
+
+.article {
+  width: 100%;
+  max-width: var(--content-w);
+  margin: 0 auto;
+  /* Prisma's article padding stack:
+       all  : px-4 py-6  -> 16 sides, 24 top, 24 bottom
+       md+  : px-6 pt-8  -> 24 sides, 32 top, 24 bottom
+       xl+  : px-8 pt-14 -> 32 sides, 56 top, 24 bottom
+     Bottom stays 24 across all tiers; the prev/next pager already
+     terminates the page so we do not pad the article on bottom. */
+  padding: 32px 32px 24px;
+  font-size: 16px;
+  line-height: 1.75;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+
+@media (max-width: 767px) {
+  .article { padding: 24px 16px 24px; }
+}
+
+@media (min-width: 1280px) {
+  .article { padding-top: 56px; }
+}
+
+.article h1 {
+  font-size: 30px;
+  line-height: 36px;
+  letter-spacing: -0.034em;
+  font-weight: var(--fw-bold);
+  margin: 0 0 24px;
+}
+
+.article h2 {
+  font-size: 24px;
+  line-height: 32px;
+  letter-spacing: -0.02em;
+  font-weight: var(--fw-bold);
+  margin: 48px 0 24px;
+}
+
+.article h3 {
+  font-size: 20px;
+  line-height: 28px;
+  letter-spacing: -0.016em;
+  font-weight: var(--fw-heading-secondary);
+  margin: 32px 0 12px;
+}
+
+.article h4 {
+  font-size: 18px;
+  line-height: 26px;
+  letter-spacing: -0.012em;
+  font-weight: var(--fw-heading-secondary);
+  margin: 24px 0 8px;
+}
+
+.article p {
+  color: var(--text-muted);
+  margin: 0 0 16px;
+  max-width: 72ch;
+}
+
+/* Prose lists only. Scoped to direct children of .article so the rule does not
+   leak into navigation lists (breadcrumb, page actions, footers) that happen to
+   sit inside the article element. */
+.article > ul,
+.article > ol {
+  color: var(--text-muted);
+  padding-left: 24px;
+  margin: 0 0 16px;
+  max-width: 72ch;
+}
+
+.article > ul > li,
+.article > ol > li { margin: 6px 0; }
+
+.article a {
+  color: var(--primary-light);
+  border-bottom: 1px solid var(--primary-border);
+}
+
+.article a:hover {
+  color: var(--text);
+  border-bottom-color: var(--primary);
+}
+
+/* Inline <code> inside prose. Without this, inline code inherits the
+   16px body size and reads visually larger than 13px expressive-code blocks.
+   Per audit J.5 + Top-12 fix 8. */
+.article :not(pre) > code {
+  font-family: var(--font-code);
+  font-size: 0.9em;
+  font-weight: var(--fw-medium);
+  padding: 0.15em 0.4em;
+  border-radius: 6px;
+  background: rgba(255,255,255,.06);
+  color: var(--code-text);
+}
+
+/* Block-primitive rhythm.
+   Every block-level child of .article that isn't a heading or paragraph
+   needs an explicit bottom margin, otherwise it sits flush against the
+   following text (code blocks, asides, tables, quotes were all touching
+   the next sibling). Matches the existing 16px margin on .article p but
+   bumps to 24px because these blocks are heavier than a paragraph. */
+.article > pre,
+.article > [class*="expressive-code"],
+.article > .code,
+.article > .aside,
+.article > .alert,
+.article > table,
+.article > blockquote,
+.article > figure,
+.article > hr {
+  margin: 0 0 24px;
+}
+
+.article > blockquote {
+  border-left: 2px solid var(--border-strong);
+  padding: 4px 0 4px 16px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.article > hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 32px 0;
+}
+
+.article > figure {
+  margin-top: 8px;
+}
+
+/* ============================================================
+ * Docs article header chrome
+ * Owns breadcrumb + title row (with badge + page-actions) + lede.
+ * Sits above the MDX body, below the topbar.
+ * ============================================================ */
+
+.article-header {
+  margin: 0 0 32px;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  margin: 0 0 20px;
+}
+.breadcrumb-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+.breadcrumb-item {
+  display: inline-flex;
+  align-items: baseline;
+}
+.breadcrumb-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 160ms ease;
+}
+.breadcrumb-link:hover {
+  color: var(--text);
+}
+.breadcrumb-current {
+  color: var(--text);
+  font-weight: var(--fw-medium);
+}
+/* Inline slash separator. Sits between items with even breathing on each side. */
+.breadcrumb-sep {
+  display: inline-block;
+  padding: 0 8px;
+  color: var(--text-soft);
+  font-weight: var(--fw-regular);
+  user-select: none;
+}
+
+/* Title row: h1 + page-actions on a single line on desktop, stacked on mobile */
+.article-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 0 0 8px;
+}
+
+.article-title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Small pill next to the h1 indicating maturity. Same family as the
+   product-tab badge in the topbar. */
+.article-title-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-family: var(--font-body);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  line-height: 1;
+  vertical-align: middle;
+  align-self: center;
+}
+.article-title-badge[data-variant="alpha"] {
+  color: var(--primary-light);
+  background: var(--primary-soft);
+  border: 1px solid var(--primary-border);
+}
+.article-title-badge[data-variant="beta"] {
+  color: var(--info);
+  background: rgba(147, 197, 253, 0.12);
+  border: 1px solid rgba(147, 197, 253, 0.32);
+}
+.article-title-badge[data-variant="new"] {
+  color: var(--success);
+  background: rgba(134, 239, 172, 0.12);
+  border: 1px solid rgba(134, 239, 172, 0.32);
+}
+.article-title-badge[data-variant="deprecated"] {
+  color: var(--text-soft);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+}
+:root[data-theme="light"] .article-title-badge[data-variant="deprecated"] {
+  background: rgba(15, 15, 18, 0.05);
+}
+
+/* Description (lede paragraph) directly under the h1. */
+.article-lede {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--text-muted);
+  max-width: 64ch;
+}
+
+/* ============================================================
+ * Page actions cluster
+ * Three affordances: Copy Markdown / Open in LLM dropdown / Edit on GitHub.
+ * 36px tall pills on desktop, wraps below the title on mobile.
+ * ============================================================ */
+
+.page-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.page-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: var(--fw-medium);
+  font-family: var(--font-body);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease;
+  user-select: none;
+}
+.page-action:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--border-strong);
+}
+:root[data-theme="light"] .page-action:hover {
+  background: rgba(15, 15, 18, 0.05);
+}
+.page-action:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+.page-action-icon {
+  flex: none;
+  color: currentColor;
+}
+.page-action-caret {
+  flex: none;
+  color: var(--text-soft);
+  transition: transform 160ms ease;
+}
+
+/* Open in LLM dropdown menu */
+.page-action-menu {
+  position: relative;
+}
+.page-action-menu > summary {
+  list-style: none;
+  cursor: pointer;
+}
+.page-action-menu > summary::-webkit-details-marker {
+  display: none;
+}
+.page-action-menu[open] > summary {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--border-strong);
+}
+:root[data-theme="light"] .page-action-menu[open] > summary {
+  background: rgba(15, 15, 18, 0.05);
+}
+.page-action-menu[open] .page-action-caret {
+  transform: rotate(180deg);
+}
+.page-action-menu-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: var(--z-overlay);
+  min-width: 220px;
+  padding: 6px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 2px;
+}
+.page-action-menu-item {
+  display: block;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--text);
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background-color 160ms ease;
+}
+.page-action-menu-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+:root[data-theme="light"] .page-action-menu-item:hover {
+  background: rgba(15, 15, 18, 0.06);
+}
+
+/* Last updated stamp (above prev/next pager) */
+.doc-last-updated {
+  margin: 40px 0 16px;
+  padding: 12px 0 0;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text-soft);
+}
+.doc-last-updated-label {
+  margin-right: 6px;
+  font-weight: var(--fw-medium);
+  color: var(--text-muted);
+}
+
+/* Responsive: stack the title row on narrow viewports so the h1 keeps its
+   own line and the actions wrap below. */
+@media (max-width: 767px) {
+  .article-title-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  .page-actions {
+    align-self: flex-start;
+  }
+  .page-action {
+    /* 44x44 minimum touch target on mobile per ui-ux-pro-max touch-target-size. */
+    min-height: 44px;
+    padding: 0 14px;
+  }
+}
+
+/* Right TOC (prisma pattern): sticky, no background frame */
+.toc {
+  position: sticky;
+  top: var(--header-h);
+  align-self: start;
+  height: calc(100vh - var(--header-h));
+  max-height: calc(100vh - var(--header-h));
+  overflow-y: auto;
+  padding: 48px 16px 24px 24px;
+  font-size: 14px;
+  line-height: 20px;
+  border-left: 1px solid var(--border);
+}
+
+.toc-label {
+  font-size: 12px;
+  font-weight: var(--fw-semibold);
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 12px;
+  padding: 0 10px;
+}
+
+.toc-list { list-style: none; padding: 0; margin: 0; }
+
+.toc-list a {
+  display: block;
+  padding: 6px 10px;
+  color: var(--text-muted);
+  border-left: 2px solid transparent;
+  margin-left: -2px;
+  overflow-wrap: anywhere;
+  transition: color 160ms ease-out, border-left-color 160ms ease-out;
+}
+
+/* Hover: brighten text only (no pink) so it does not duplicate the active cue. */
+.toc-list a:hover {
+  color: var(--text);
+}
+
+/* Active section: pink left bar + pink text. Distinct from hover. */
+.toc-list a.active {
+  color: var(--primary-light);
+  border-left-color: var(--primary);
+  font-weight: var(--fw-semibold);
+}
+
+.toc-list .depth-3 { padding-left: 22px; }
+.toc-list .depth-4 { padding-left: 34px; }
+
+/* Match focus-ring radius to a comfortable corner for the inline link box. */
+.toc-list a:focus-visible { border-radius: 6px; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+th, td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+th {
+  background: rgba(255,255,255,.04);
+  color: var(--text);
+  font-weight: var(--fw-semibold);
+}
+
+tr:last-child td { border-bottom: 0; }
+
+.type-specimen {
+  display: grid;
+  gap: 22px;
+}
+
+.specimen-line {
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--border);
+}
+
+.specimen-line:last-child { border-bottom: 0; padding-bottom: 0; }
+
+.specimen-label {
+  color: var(--text-soft);
+  font-family: var(--font-code);
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.display-sample {
+  font-family: var(--font-title);
+  font-size: clamp(40px, 7vw, 86px);
+  letter-spacing: -0.044em;
+  line-height: .92;
+  font-weight: var(--fw-display);
+}
+
+.heading-sample {
+  font-family: var(--font-title);
+  font-size: clamp(28px, 5vw, 48px);
+  letter-spacing: -0.034em;
+  line-height: 1;
+  font-weight: var(--fw-display);
+}
+
+.body-sample {
+  max-width: 760px;
+  color: var(--text-muted);
+  font-size: 18px;
+  line-height: 1.68;
+}
+
+.mono-sample {
+  font-family: var(--font-code);
+  color: var(--code-text);
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 16px;
+  overflow: auto;
+}
+
+.scale {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 12px;
+  align-items: center;
+  margin: 12px 0;
+}
+
+.scale-label {
+  color: var(--text-soft);
+  font-family: var(--font-code);
+  font-size: 12px;
+}
+
+.scale-bar {
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.06);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.scale-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--primary);
+}
+
+@media (max-width: 980px) {
+  .navlinks { display: none; }
+  .cols-5, .cols-4, .cols-3, .cols-2 {
+    grid-template-columns: 1fr;
+  }
+  .section-head {
+    align-items: start;
+    flex-direction: column;
+  }
+  .usage-row {
+    grid-template-columns: 1fr;
+  }
+  .ruler-track {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Skip-to-main-content link. BaseLayout renders this as the first
+   focusable element; off-screen until keyboard-focused. */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  z-index: var(--z-skip);
+  padding: 10px 16px;
+  background: var(--surface-raised);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: var(--fw-semibold);
+  transition: top 150ms ease-out;
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+  top: 16px;
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Cursor affordance on interactive non-link elements. */
+.btn, .tab, [role="button"] { cursor: pointer; }
+.btn:disabled, .tab:disabled { cursor: not-allowed; }
+
+/* Icon-only action button used in header right cluster. */
+.icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: var(--text-muted);
+  border-radius: 8px;
+}
+.icon-link:hover { color: var(--text); background: rgba(255,255,255,.04); }
+.icon-link svg { width: 18px; height: 18px; }
+
+/* Light-mode icon-link hover wash. The dark rgba(255,255,255,.04) would be
+   invisible on white, so use a neutral graphite tint. */
+:root[data-theme="light"] .icon-link:hover {
+  background: rgba(15, 15, 18, 0.06);
+}
+
+/* Theme toggle button: same hit-box as .icon-link but with stacked sun/moon
+   icons. One icon is visible per active theme so the glyph always shows the
+   destination (clicking it produces the depicted state). */
+.theme-toggle {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+}
+.theme-toggle .theme-toggle-sun,
+.theme-toggle .theme-toggle-moon {
+  display: none;
+}
+/* In dark mode the sun icon is shown (click goes to light). */
+:root[data-theme="dark"] .theme-toggle .theme-toggle-sun {
+  display: inline-block;
+}
+/* In light mode the moon icon is shown (click goes to dark). */
+:root[data-theme="light"] .theme-toggle .theme-toggle-moon {
+  display: inline-block;
+}
+
+/* Brand divider + product slug in header (Prisma's "logo / docs" pattern). */
+.brand-divider {
+  color: var(--text-soft);
+  margin: 0 4px;
+}
+.brand-product {
+  font-family: var(--font-code);
+  font-size: 15px;
+  color: var(--text-muted);
+  font-weight: var(--fw-medium);
+}
+
+/* Header right-cluster action (text links). */
+.nav-action {
+  font-size: 14px;
+  font-weight: var(--fw-medium);
+  color: var(--text-muted);
+  padding: 8px 4px;
+}
+.nav-action:hover { color: var(--text); }
+
+/* Screen-reader-only utility. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Homepage card decorative icon container. */
+.card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--primary-soft);
+  color: var(--primary-light);
+  margin-bottom: 12px;
+}
+.card-icon svg { width: 20px; height: 20px; }
+
+/* ===========================================================================
+   Utilities added to satisfy component markup contract (post-de-inline pass)
+   =========================================================================== */
+
+/* Small variant of .btn, used for compact CTAs. */
+.btn-sm {
+  min-height: 32px;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: var(--fw-medium);
+}
+
+/* Header right-side action group (Examples / GitHub icon). */
+.nav-cluster {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Sidebar section group + section label (uppercase eyebrow). */
+/* Sidebar group is a native <details> for accessible collapse without JS.
+   The summary line is the group label; the items live in .sidebar-group-items. */
+.sidebar-group {
+  margin-bottom: 16px;
+}
+.sidebar-group:last-child { margin-bottom: 0; }
+.sidebar-group[open] { margin-bottom: 20px; }
+
+/* The summary IS the group label. Strip the default marker and lay out a caret. */
+.sidebar-group-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px 6px;
+  font-size: 12px;
+  font-weight: var(--fw-semibold);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  user-select: none;
+  border-radius: 8px;
+  list-style: none;
+}
+.sidebar-group-label::-webkit-details-marker { display: none; }
+.sidebar-group-label::marker { content: ''; }
+.sidebar-group-label:hover { color: var(--text); background: rgba(255,255,255,.025); }
+
+/* Match the focus ring corner to the label's own 8px radius. */
+.sidebar-group-label:focus-visible { border-radius: 8px; }
+
+.sidebar-group-caret {
+  color: var(--text-soft);
+  transform: rotate(-90deg);
+  transition: transform 180ms ease-out, color 180ms ease-out;
+  flex: none;
+}
+.sidebar-group[open] > .sidebar-group-label .sidebar-group-caret {
+  transform: rotate(0deg);
+  color: var(--text-muted);
+}
+
+/* Items inside the group fade in when the group opens. Native <details> toggles
+   block display synchronously; the opacity transition softens the appearance.
+   A faint vertical structure-line on the left of the items signals hierarchy. */
+.sidebar-group-items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 4px;
+  padding-left: 12px;
+  margin-left: 14px;
+  border-left: 1px solid var(--border);
+  animation: sidebar-group-fade-in 180ms ease-out;
+}
+
+/* When a link inside an open group is active, brighten the structure-line
+   segment leading to it. Implemented as a global open-group line color bump. */
+.sidebar-group[open] > .sidebar-group-items {
+  border-left-color: var(--border-strong);
+}
+
+@keyframes sidebar-group-fade-in {
+  from { opacity: 0; transform: translateY(-2px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-group-caret { transition: none; }
+  .sidebar-group-items { animation: none; }
+}
+
+/* Prev/Next pager at the bottom of every doc page. */
+.doc-pager {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 16px;
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+
+.doc-pager a {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  background: rgba(255,255,255,.02);
+  border-bottom: 1px solid var(--border);
+  transition: border-color 200ms ease-out, color 200ms ease-out, background 200ms ease-out;
+}
+
+.doc-pager a:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+  background: rgba(255,255,255,.04);
+}
+
+.doc-pager a > span:first-child {
+  font-size: 12px;
+  font-weight: var(--fw-semibold);
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.doc-pager a > span:last-child {
+  font-size: 15px;
+  font-weight: var(--fw-bold);
+  color: var(--text);
+}
+
+.doc-pager-next { text-align: right; align-items: flex-end; }
+.doc-pager-prev { text-align: left;  align-items: flex-start; }
+
+@media (max-width: 640px) {
+  .doc-pager { flex-direction: column; }
+}
+
+/* Site footer chrome. Prisma's apps/docs footer structure:
+   brand column on the left + 4-column link grid on the right, hairline,
+   then a copyright row. Source reference:
+   prisma-docs/packages/ui/src/components/footer.tsx + data/footer.ts. */
+.site-footer {
+  margin-top: 80px;
+  border-top: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.site-footer-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 56px 24px 32px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* Two-region top: brand on the left, link grid on the right.
+   Below 960px the brand stacks above the grid. */
+.site-footer-top {
+  display: grid;
+  grid-template-columns: minmax(0, 320px) 1fr;
+  gap: 48px;
+  align-items: start;
+}
+
+.site-footer-brand .brand {
+  font-family: var(--font-title);
+  font-weight: var(--fw-bold);
+  font-size: 18px;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.site-footer-brand .mark {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: linear-gradient(160deg, #FB6F9D 0%, var(--primary) 100%);
+  display: inline-block;
+}
+
+.site-footer-tagline {
+  margin: 16px 0 20px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-muted);
+  max-width: 32ch;
+}
+
+.site-footer-socials {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: -8px;
+}
+
+/* The 4-column link grid. Single row on >= 640px, 2x2 below. */
+.site-footer-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 32px;
+}
+
+.site-footer-col-title {
+  margin: 0 0 16px;
+  font-family: var(--font-title);
+  font-size: 11px;
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.site-footer-col-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.site-footer-col-list a {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: var(--fw-medium);
+  text-decoration: none;
+  transition: color 160ms ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.site-footer-col-list a:hover {
+  color: var(--text);
+}
+
+/* Tiny alpha-pill next to the Blackbox link. Same visual family as the
+   top-nav product-tab badge so the brand identity carries through. */
+.site-footer-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  font-size: 9px;
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--primary-light);
+  background: var(--primary-soft);
+  border: 1px solid var(--primary-border);
+  border-radius: 999px;
+  line-height: 1;
+}
+
+.site-footer-divider {
+  height: 1px;
+  margin: 40px 0 20px;
+  background: var(--border);
+}
+
+.site-footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.site-footer-meta {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-soft);
+}
+
+.site-footer-link--inline {
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-decoration-color: var(--border-strong);
+  text-underline-offset: 3px;
+  transition: color 160ms ease, text-decoration-color 160ms ease;
+}
+
+.site-footer-link--inline:hover {
+  color: var(--primary-light);
+  text-decoration-color: var(--primary-border);
+}
+
+@media (max-width: 960px) {
+  .site-footer-top {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+
+@media (max-width: 640px) {
+  .site-footer-inner {
+    padding: 40px 16px 28px;
+  }
+  .site-footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px;
+  }
+}
+
+/* Mobile touch target floor (ui-ux-pro-max touch-target-size, 44x44 minimum).
+   Per audit section E + Top-12 fix 6. Sidebar already overrides at 767px
+   (see .sidebar a above); matching breakpoint here for consistency. */
+@media (max-width: 767px) {
+  .btn-sm {
+    min-height: 44px;
+    padding: 0 14px;
+  }
+  .tab {
+    min-height: 44px;
+    padding: 10px 16px;
+  }
+  .icon-link {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* Marketing header collapses links + dropdowns into the mobile drawer
+     toggle. The drawer panel is fixed under the topbar and scrolls. */
+  .marketing-navlinks {
+    display: none;
+  }
+  .marketing-mobile-menu {
+    display: inline-flex;
+  }
+  .marketing-mobile-menu[open] .marketing-mobile-panel {
+    display: block;
+    position: fixed;
+    top: var(--header-h);
+    right: 0;
+    left: 0;
+    z-index: var(--z-overlay);
+    max-height: calc(100dvh - var(--header-h));
+    overflow: auto;
+    padding: 16px 20px 24px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+}
+
+/* ==========================================================================
+   UI/UX hardening pass (2026-06-14)
+   Six parallel opus agents reviewed cohesive component groups with the
+   ui-ux-pro-max skill. Deltas appended below so the CSS cascade naturally
+   overrides earlier definitions (last-wins). Originating scratch files:
+   .scratch/ui-ux/{site-chrome,docs-chrome,ui-primitives,mdx,islands}.css
+   ========================================================================== */
+
+/* === site-chrome === */
+/* Site chrome polish: focus rings, hover transitions, mobile touch targets,
+   footer link affordances. All changes reuse existing tokens. */
+
+/* APPEND-TO: .brand  (components.css L96) */
+/* Add an explicit focus-visible radius so the global 2px outline wraps
+   cleanly around the inline-flex brand bounding box instead of clipping
+   into the mark and product slug. */
+.brand {
+  border-radius: 10px;
+}
+
+/* NEW */
+/* Match the focus ring radius to the brand's own corner so the ring
+   visually hugs the element on keyboard focus. */
+.brand:focus-visible {
+  outline-offset: 4px;
+}
+
+/* REPLACES: components.css L1123-L1131 */
+/* Icon-only header action (GitHub). Adds smooth hover transition for
+   color and background per ui-ux-pro-max duration-timing rule (200ms).
+   Global @media (prefers-reduced-motion: reduce) zeroes this transition. */
+.icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: var(--text-muted);
+  border-radius: 8px;
+  transition: color 200ms ease, background-color 200ms ease;
+}
+
+/* APPEND-TO: .nav-action  (components.css L1148) */
+/* Smooth hover transition for the Examples text action. */
+.nav-action {
+  border-radius: 6px;
+  transition: color 200ms ease;
+}
+
+/* APPEND-TO: .nav-tabs a  (components.css L57) */
+/* Smooth color + underline transition when switching active product tab. */
+.nav-tabs a {
+  transition: color 200ms ease, border-bottom-color 200ms ease;
+}
+
+/* APPEND-TO: .navlinks a  (implicit, components.css L131) */
+/* Smooth fade between muted and primary text colors on navlink hover. */
+.navlinks a {
+  transition: color 200ms ease;
+}
+
+/* NEW */
+/* Mobile touch target floor for header text actions and product tabs.
+   ui-ux-pro-max touch-target-size requires minimum 44x44px. The existing
+   767px breakpoint at the bottom of components.css already handles
+   .btn-sm, .tab, and .icon-link. Extending coverage to .nav-action and
+   .nav-tabs a so every header touch target meets the floor. */
+@media (max-width: 767px) {
+  .nav-action {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 10px;
+  }
+  .nav-tabs a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 0;
+  }
+}
+
+/* NEW */
+/* Footer link affordance. The Footer template renders
+   <a class="site-footer-link"> for the author name; without an explicit
+   rule it inherits the global link color (primary) and has no hover or
+   focus feedback. Mirror the navlinks pattern: muted at rest, full text
+   on hover, smooth color transition, rounded focus ring. */
+.site-footer-link {
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-color: var(--border-strong);
+  text-underline-offset: 3px;
+  border-radius: 4px;
+  transition: color 200ms ease, text-decoration-color 200ms ease;
+}
+.site-footer-link:hover {
+  color: var(--primary-light);
+  text-decoration-color: var(--primary-border);
+}
+
+/* NEW */
+/* The Footer icon-link sits in a flex row alongside two <p> tags. The
+   site-footer-inner uses space-between, so the GitHub anchor naturally
+   anchors left. On focus, give it a slightly larger offset so the ring
+   does not collide with the surrounding text baseline. */
+.site-footer .icon-link:focus-visible {
+  outline-offset: 3px;
+}
+
+
+/* === docs-chrome === */
+/* Audit and fixes for sidebar, TOC, and prev/next pager.
+   Pairs with edits to:
+     src/components/docs/Sidebar.astro   (wraps groups in <nav>, items in <ul>/<li>)
+     src/components/docs/TOC.astro       (adds role="list", aria-current="location")
+     src/components/docs/PrevNext.astro  (drops .btn, adds eyebrow + label spans) */
+
+/* ---------- Sidebar ---------------------------------------------------- */
+
+/* NEW: outer landmark wrapper now rendered by Sidebar.astro.
+   Keep zero chrome so layout stays identical to the old bare-details list. */
+.sidebar-nav {
+  display: block;
+}
+
+/* APPEND-TO: .sidebar a  (components.css L790)
+   Slightly tighter focus offset so the global 2px ring tucks against the link
+   instead of bleeding into the adjacent structure-line. */
+.sidebar a:focus-visible {
+  outline-offset: -2px;
+}
+
+/* REPLACES: components.css L1249-L1258
+   .sidebar-group-items was a <div>; it is now a <ul role="list">. Reset list
+   chrome (padding/margin/list-style) and keep the existing flex layout and
+   structure-line. li children get zero margin so spacing comes from the
+   gap on the flex parent. */
+.sidebar-group-items {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 0 0;
+  margin: 0 0 0 14px;
+  padding-left: 12px;
+  border-left: 1px solid var(--border);
+  animation: sidebar-group-fade-in 180ms ease-out;
+}
+
+/* NEW: li children inside the new <ul> wrapper. */
+.sidebar-group-items > li {
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+/* APPEND-TO: .sidebar a  (components.css L790)
+   Long labels (e.g. "Install Suites for NestJS, Inversify, Jest, Vitest...")
+   must wrap inside the 268px sidebar instead of pushing the column wider. */
+.sidebar a {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- TOC -------------------------------------------------------- */
+
+/* APPEND-TO: .toc-list a.active  (components.css L961)
+   Mirror the .active class style for aria-current="location" so the script's
+   ARIA update alone is enough if the class is ever dropped. */
+.toc-list a[aria-current="location"] {
+  color: var(--primary-light);
+  border-left-color: var(--primary);
+  font-weight: var(--fw-semibold);
+}
+
+/* APPEND-TO: .toc-list a:focus-visible  (components.css L971)
+   Pull the global 2px ring inward so it does not visually merge with the
+   2px left-border bar used for the active indicator. */
+.toc-list a:focus-visible {
+  outline-offset: -2px;
+}
+
+/* ---------- Prev / Next pager ----------------------------------------- */
+
+/* REPLACES: components.css L1277-L1285
+   Add min-width:0 propagation so flex children can shrink under long labels
+   without overflowing the article column. */
+.doc-pager {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 16px;
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  min-width: 0;
+}
+
+/* REPLACES: components.css L1287-L1299
+   The pager anchors no longer inherit .btn (pill, 42px min-height). Restate
+   the full box here so the cards keep their card-style border/background and
+   gain min-width:0 + overflow-wrap so long titles wrap to two lines. */
+.doc-pager a {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  background: rgba(255,255,255,.02);
+  text-decoration: none;
+  transition: border-color 200ms ease-out, color 200ms ease-out, background 200ms ease-out;
+}
+
+/* APPEND-TO: .doc-pager a:hover  (components.css L1301) */
+.doc-pager a:hover {
+  border-color: var(--primary-border);
+}
+
+/* REPLACES: components.css L1307-L1313
+   The first child is now .doc-pager-eyebrow (a span containing the arrow
+   plus the word "Previous"/"Next"). Style the eyebrow itself, not whatever
+   span happened to be first. */
+.doc-pager-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: var(--fw-semibold);
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+
+/* REPLACES: components.css L1315-L1319
+   The label is now .doc-pager-label. Allow it to wrap to two lines on
+   narrow viewports without forcing a column-stretch. */
+.doc-pager-label {
+  display: block;
+  font-size: 15px;
+  font-weight: var(--fw-semibold);
+  color: var(--text);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  /* Clamp very long titles to two lines on desktop. Falls back to natural
+     wrap where line-clamp isn't supported. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* NEW: arrow glyph inside the eyebrow. */
+.doc-pager-arrow {
+  font-size: 14px;
+  line-height: 1;
+  color: var(--text-muted);
+  transition: transform 180ms ease-out, color 180ms ease-out;
+}
+
+.doc-pager a:hover .doc-pager-arrow {
+  color: var(--primary-light);
+}
+
+.doc-pager-prev:hover .doc-pager-arrow { transform: translateX(-2px); }
+.doc-pager-next:hover .doc-pager-arrow { transform: translateX(2px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .doc-pager-arrow { transition: none; }
+  .doc-pager-prev:hover .doc-pager-arrow,
+  .doc-pager-next:hover .doc-pager-arrow { transform: none; }
+}
+
+/* NEW: empty side placeholder keeps the grid balanced when only prev or
+   only next exists. Mirrors a card's outer footprint but stays invisible. */
+.doc-pager-spacer {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* APPEND-TO: .doc-pager-prev / .doc-pager-next  (components.css L1321-L1322)
+   Re-state alignment now that .btn is no longer applied. */
+.doc-pager-prev { text-align: left;  align-items: flex-start; }
+.doc-pager-next { text-align: right; align-items: flex-end; }
+
+/* Focus ring sits inside the rounded border. */
+.doc-pager a:focus-visible {
+  outline-offset: -2px;
+  border-radius: var(--radius-sm);
+}
+
+/* APPEND-TO: @media (max-width: 640px) .doc-pager  (components.css L1324)
+   Touch-target floor: pager cards stack on small screens. Ensure each card
+   clears the 44x44 minimum without inflating desktop padding. */
+@media (max-width: 640px) {
+  .doc-pager a { min-height: 44px; }
+  .doc-pager-label { -webkit-line-clamp: 3; }
+}
+
+/* TOKEN PROPOSALS */
+/* None. All values reuse existing tokens in tokens.css. */
+
+
+/* === ui-primitives === */
+/* Surgical UX hardening for buttons, cards, alerts, badges, chips, grids.
+   No new variants. Preserves component APIs. Respects prefers-reduced-motion.
+   References:
+     - WCAG 2.1 AA contrast, focus-visible
+     - ui-ux-pro-max: focus-states, disabled-states, loading-states,
+       hover-states, cursor-pointer, reduced-motion, touch-target-size,
+       content-jumping (no transform/scale hover that shifts layout) */
+
+/* ---------------------------------------------------------------------------
+   BUTTONS
+   --------------------------------------------------------------------------- */
+
+/* REPLACES: components.css L372-385
+   - Adds a smooth color/border/shadow transition so hover does not snap.
+   - Adds default `vertical-align: middle` so inline btns sit cleanly next to text.
+   - Adds `user-select: none` and `text-decoration: none` (anchors). */
+.btn {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: rgba(255, 255, 255, .04);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: var(--fw-medium);
+  text-decoration: none;
+  user-select: none;
+  vertical-align: middle;
+  transition: background-color 160ms ease-out, border-color 160ms ease-out,
+              color 160ms ease-out, box-shadow 160ms ease-out;
+}
+
+/* NEW
+   Generic hover for secondary/ghost/danger. Primary keeps its own rule below.
+   Uses color/border only (no transform) so layout never shifts. */
+.btn:hover {
+  background: rgba(255, 255, 255, .07);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+/* NEW
+   Distinct focus-visible ring tuned for pink-on-dark.
+   Globals apply a 2px var(--primary) outline; on .btn-primary that ring would
+   blend into the pink fill. Use a layered ring: 2px dark gap + 2px pink halo. */
+.btn:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--bg),
+    0 0 0 4px var(--primary-light);
+}
+
+/* NEW
+   Pressed-state feedback. Color shift only, no scale (avoids content jump). */
+.btn:active:not(:disabled):not([aria-disabled="true"]) {
+  background: rgba(255, 255, 255, .09);
+}
+
+/* REPLACES: components.css L387-394
+   - Keeps the pink fill and shadow.
+   - Tightens hover: brighten + slightly stronger shadow.
+   - Removes default text-shadow inheritance from page. */
+.btn-primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #0F0F12;
+  box-shadow: 0 14px 38px rgba(239, 71, 121, .26);
+}
+.btn-primary:hover {
+  background: var(--primary-light);
+  border-color: var(--primary-light);
+  color: #0F0F12;
+  box-shadow: 0 14px 38px rgba(239, 71, 121, .34);
+}
+.btn-primary:active:not(:disabled):not([aria-disabled="true"]) {
+  background: var(--primary);
+  border-color: var(--primary);
+  box-shadow: 0 10px 28px rgba(239, 71, 121, .28);
+}
+
+/* APPEND-TO: .btn-secondary  (components.css L396-398)
+   Hover surfaces lift to --surface-hover so the affordance is unambiguous. */
+.btn-secondary:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+
+/* APPEND-TO: .btn-ghost  (components.css L400-402)
+   Ghost needs a visible hover or it looks dead. */
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, .05);
+}
+
+/* APPEND-TO: .btn-danger  (components.css L404-408) */
+.btn-danger:hover {
+  background: rgba(255, 107, 107, .16);
+  border-color: rgba(255, 107, 107, .42);
+  color: #FFD4D4;
+}
+
+/* REPLACES: components.css L1120
+   Disabled visual state for both <button disabled> and <a aria-disabled="true">.
+   Loses pointer affordance, dims, and kills hover/shadow transitions. */
+.btn:disabled,
+.btn[aria-disabled="true"],
+.tab:disabled,
+.tab[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.55;
+  box-shadow: none;
+  pointer-events: none;
+}
+
+/* NEW
+   Loading-state convention. Replace label with an inline spinner without
+   resizing the button. The button keeps its width via `position: relative`
+   on the host and an absolutely-positioned spinner. We hide the slot text
+   visually (kept in DOM for SR + aria-busy announces in-flight state). */
+.btn-loading {
+  position: relative;
+  cursor: progress;
+  pointer-events: none;
+  color: transparent !important;
+}
+.btn-loading::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  color: var(--text);
+  animation: btn-spin 720ms linear infinite;
+}
+.btn-primary.btn-loading::after { color: #0F0F12; }
+.btn-danger.btn-loading::after  { color: #FFB4B4; }
+
+@keyframes btn-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn { transition: none; }
+  .btn-loading::after { animation-duration: 1800ms; }
+}
+
+/* ---------------------------------------------------------------------------
+   CARDS
+   --------------------------------------------------------------------------- */
+
+/* APPEND-TO: .card  (components.css L232-238)
+   Adds default color + transition so an interactive card can animate cleanly
+   without changing static-card visuals. */
+.card {
+  color: inherit;
+  transition: background-color 180ms ease-out, border-color 180ms ease-out,
+              box-shadow 180ms ease-out;
+}
+
+/* NEW
+   Interactive card variant (used when Card is rendered as <a> or with
+   `interactive` prop. Provides cursor, hover, and focus affordance without
+   layout shift (color/border/shadow only, no scale). */
+.card-interactive {
+  cursor: pointer;
+  text-decoration: none;
+}
+.card-interactive:hover {
+  background: rgba(255, 255, 255, .055);
+  border-color: var(--border-strong);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .28);
+}
+.card-interactive:focus-visible {
+  outline: none;
+  border-color: var(--primary-border);
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--primary-light);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card { transition: none; }
+}
+
+/* ---------------------------------------------------------------------------
+   ALERTS
+   --------------------------------------------------------------------------- */
+
+/* APPEND-TO: .alert  (components.css L464-472)
+   Alert link focus alignment. The body anchor uses a border-bottom underline;
+   on focus-visible promote the underline to the brand color so keyboard users
+   see exactly which inline link is active without the global pink outline
+   clashing with the surrounding card. */
+.alert-body a:focus-visible {
+  outline: none;
+  border-bottom-color: var(--primary);
+  background: var(--primary-soft);
+  border-radius: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+   BADGES & CHIPS
+   --------------------------------------------------------------------------- */
+
+/* REPLACES: components.css L417-428
+   - Default badge text was `var(--text-muted)` (#A1A1AA) on a near-bg surface.
+     Bumps to a slightly stronger value to clear 4.5:1 against the dark canvas
+     even when stacked on the section gradient.
+   - Adds line-height + padding-y to give breathing room for taller glyphs. */
+.badge {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, .045);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: var(--fw-semibold);
+  line-height: 1.4;
+  color: var(--text);
+  letter-spacing: 0.01em;
+}
+
+/* APPEND-TO: .chip  (components.css L207-220)
+   Small line-height + vertical padding tweak so chips sit centered alongside
+   buttons in a btn-row without visual drift. */
+.chip {
+  line-height: 1.4;
+  padding-block: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+   GRID
+   --------------------------------------------------------------------------- */
+
+/* APPEND-TO: .grid  (components.css L222-225)
+   Hard `repeat(N, 1fr)` breaks below ~640px (text gets squeezed below 16px).
+   Collapse 3/4/5 columns to 2 at <=768px and to 1 at <=520px. Keeps cols-2
+   at >=520px. Logical (not transform) layout, no content jump on resize. */
+@media (max-width: 768px) {
+  .grid.cols-3,
+  .grid.cols-4,
+  .grid.cols-5 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 520px) {
+  .grid.cols-2,
+  .grid.cols-3,
+  .grid.cols-4,
+  .grid.cols-5 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   SECTION + HERO
+   --------------------------------------------------------------------------- */
+
+/* APPEND-TO: .section  (components.css L172-181)
+   Reduce horizontal padding on small screens so sections do not bleed past
+   container gutters. No vertical-rhythm change. */
+@media (max-width: 640px) {
+  .section {
+    padding: 24px 18px;
+    border-radius: var(--radius-lg);
+  }
+}
+
+/* APPEND-TO: .hero  (components.css L133-138)
+   Hero top padding is large for desktop. Tighten on small screens so the
+   first interactive control stays near the fold. */
+@media (max-width: 640px) {
+  .hero {
+    padding: 56px 0 36px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   FORMS (.field)
+   --------------------------------------------------------------------------- */
+
+/* APPEND-TO: input/select/textarea focus  (components.css L459-462)
+   The custom inset focus halo already provides a strong indicator; ensure the
+   default browser outline stays suppressed on focus-visible too (globals.css
+   already does this, but reinforce locally so future global resets do not
+   double-ring the field). */
+.field :is(input, select, textarea):focus-visible {
+  outline: none;
+}
+
+/* ===========================================================================
+   TOKEN PROPOSALS  (do not apply, for review against tokens.css upstream)
+   ===========================================================================
+   1. --focus-ring-offset-color: var(--bg)
+      Used by the layered focus ring (gap-then-halo). Today inlined as var(--bg)
+      in .btn:focus-visible and .card-interactive:focus-visible.
+   2. --transition-fast: 160ms ease-out
+      Used by .btn, .card transitions. A token would let us tune system-wide
+      motion without searching files.
+   3. --shadow-btn-primary: 0 14px 38px rgba(239,71,121,.26)
+      Currently inlined in .btn-primary; a token would harmonize with the
+      pricing-card featured glow which uses a similar pink shadow.
+   =========================================================================== */
+
+
+/* === mdx === */
+/* Surgical deltas for src/components/mdx/* (Aside, Tabs, TabItem, MermaidDiagram).
+   All selectors here are inside the documented scope: .aside*, .tabs, .tab,
+   .tab.active. Mermaid additions use a fresh .mermaid-* namespace introduced
+   by the component itself. */
+
+
+/* ---------- Aside ---------------------------------------------------------- */
+
+/* APPEND-TO: .aside  (components.css L541-L549)
+   Tighten left-rule paint when role="note" is announced (no change in look)
+   and add a subtle variant tint so the four severity colors are visually
+   distinct on the body, not only on the icon tile. Tint alphas chosen so
+   --text-muted (#A1A1AA, 8.4:1 on #0F0F12) keeps >= 4.5:1 contrast on top. */
+.aside { isolation: isolate; }
+
+/* REPLACES: components.css L541-L549 (.aside layout).
+   Switch from flex-row (which pushed body column inward by the icon width)
+   to a 2x2 grid: icon + label sit on the header row, title + slot content
+   live on the body row that spans both columns so text starts at the inner
+   left edge with no icon indentation. */
+.aside {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    "icon label"
+    "body body";
+  column-gap: 10px;
+  row-gap: 8px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.03);
+}
+.aside .aside-symbol { grid-area: icon; margin-top: 0; }
+.aside .aside-label  { grid-area: label; margin: 0; align-self: center; }
+.aside .aside-body   { grid-area: body; }
+
+/* REPLACES: components.css L616-L619 + the faint gradients above.
+   Stronger variant identity so the box reads as a separate callout, not page
+   content. The body now gets a clearly perceptible flat tint, the outer
+   border picks up the variant color, and the left accent grows from 3px to
+   4px. Body text (--text-muted, 8.4:1 on --bg) keeps >= 4.5:1 contrast on the
+   new tinted surfaces (luminance shift under 6%). */
+.aside-info {
+  background: rgba(147, 197, 253, 0.075);
+  border-color: rgba(147, 197, 253, 0.28);
+  border-left: 4px solid var(--info);
+}
+.aside-success {
+  background: rgba(134, 239, 172, 0.075);
+  border-color: rgba(134, 239, 172, 0.28);
+  border-left: 4px solid var(--success);
+}
+.aside-warning {
+  background: rgba(251, 146, 60, 0.085);
+  border-color: rgba(251, 146, 60, 0.32);
+  border-left: 4px solid var(--warning);
+}
+.aside-error {
+  background: rgba(255, 107, 107, 0.085);
+  border-color: rgba(255, 107, 107, 0.34);
+  border-left: 4px solid var(--error);
+}
+
+/* APPEND-TO: .aside-title  (components.css L572-L580)
+   <strong> is bold by default; reset and rely on the token weight. Keep the
+   element semantically a strong-emphasis label rather than a heading so the
+   article outline is not polluted by every Aside title. */
+.aside-title { font-style: normal; font-weight: var(--fw-semibold); margin-top: 2px; }
+
+/* NEW
+   Type label rendered inside the body so the callout type is immediately
+   readable even when no title was provided. Uppercase, letter-spaced, tinted
+   in the variant color so it reads as a typed marker (not body content).
+   The element is aria-hidden because the parent <aside> already exposes the
+   same label via aria-label, so the SR experience is unchanged. */
+.aside-label {
+  display: inline-block;
+  margin: 0 0 6px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+.aside-info    .aside-label { color: var(--info); }
+.aside-success .aside-label { color: var(--success); }
+.aside-warning .aside-label { color: var(--warning); }
+.aside-error   .aside-label { color: var(--error); }
+
+/* When both label and title are present, tighten the gap so they read as one
+   header block rather than two separate paragraphs. */
+.aside-label + .aside-title { margin-top: 2px; }
+
+
+/* ---------- Tabs ----------------------------------------------------------- */
+
+/* REPLACES: components.css L655-L662  (.tabs)
+   Add flex-wrap so the rail doesn't horizontally overflow the 72ch article
+   column on narrow viewports, and a row-gap so wrapped pills line up cleanly. */
+.tabs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  row-gap: 3px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255,255,255,.03);
+  gap: 3px;
+  max-width: 100%;
+}
+
+/* REPLACES: components.css L664-L670  (.tab)
+   Add background:transparent (so inactive tabs paint over the rail), color
+   transition for smooth selection, and an explicit border:0 reset since
+   buttons inherit UA borders. Cursor and disabled state are inherited from
+   the existing .btn, .tab, [role="button"] block at L1119-L1120. */
+.tab {
+  border: 0;
+  background: transparent;
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: var(--fw-semibold);
+  padding: 8px 13px;
+  transition: color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+}
+
+/* NEW: hover affordance for inactive tabs.
+   Active state already paints color + soft pink; this is just a hint that
+   the inactive label is interactive. */
+.tab:hover:not(.active) {
+  color: var(--text);
+  background: rgba(255,255,255,.04);
+}
+
+/* NEW: visible keyboard focus ring on the tab itself.
+   Global :focus-visible at components.css L1110-L1116 already paints an
+   outline on every focusable element, but tabs sit on a tinted background
+   so we bump contrast with an inset ring that respects the brand color. */
+.tab:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* NEW: focus ring on the tabpanel so screen-reader/keyboard users see where
+   focus has landed after activating a tab. The panel is tabindex=0 so it can
+   receive focus and be scrolled by the user with arrow keys. */
+.tabs-block [role="tabpanel"]:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 4px;
+  border-radius: var(--radius-xs, 10px);
+}
+
+/* NEW: respect reduced motion for the tab transition. */
+@media (prefers-reduced-motion: reduce) {
+  .tab { transition: none; }
+}
+
+
+/* ---------- Mermaid -------------------------------------------------------- */
+/* NEW: .mermaid-* namespace introduced by MermaidDiagram.tsx. Article column
+   is 72ch (~720px) so we let the diagram fill width and scroll horizontally
+   only when its intrinsic width truly exceeds the column. */
+.mermaid-figure {
+  margin: 24px 0;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md, 20px);
+  background: rgba(255,255,255,.03);
+  overflow-x: auto;
+}
+
+.mermaid-diagram {
+  display: flex;
+  justify-content: center;
+}
+
+.mermaid-diagram > svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.mermaid-caption {
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.mermaid-loading {
+  position: relative;
+  width: 100%;
+  color: var(--text-soft);
+  font-size: 13px;
+}
+.mermaid-loading::after {
+  content: "Loading diagram\2026";
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mermaid-loading::after { content: "Loading diagram"; }
+}
+
+
+/* TOKEN PROPOSALS */
+/* (none). The existing --primary, --primary-soft, --primary-border,
+   --info, --success, --warning, --error, --text-muted, --border, --radius-*
+   tokens cover every selector above. If we later want named aside tints,
+   propose:
+     --aside-tint-info:    rgba(147,197,253,.045);
+     --aside-tint-success: rgba(99,230,190,.045);
+     --aside-tint-warning: rgba(255,209,102,.045);
+     --aside-tint-error:   rgba(255,107,107,.05);
+*/
+
+
+/* === islands === */
+/*
+ * Scope: Algolia DocSearch (.DocSearch-*) and AskAI menu (.ask-ai*).
+ *
+ * Notes:
+ * - components.css currently has NO rules in either namespace, so every block
+ *   below is NEW. No REPLACES/APPEND-TO entries.
+ * - We scope DocSearch overrides under .suites-docsearch where possible so
+ *   they cannot leak. The full-screen modal (.DocSearch-Container) is portaled
+ *   to <body>, so its theming uses --docsearch-* CSS vars set at :root level
+ *   (Algolia's documented theming API; works regardless of portal target).
+ * - Brand pink #EF4779 surfaces on hit highlights, primary action, kbd hints.
+ * - Respects prefers-reduced-motion: all transitions disabled.
+ */
+
+
+/* ============================================================
+ * DocSearch theme variables (Algolia's documented API)
+ * Setting these on :root themes the portaled modal too.
+ * ============================================================ */
+
+/* NEW */
+:root {
+  /* Type */
+  --docsearch-primary-color: var(--primary, #EF4779);
+  --docsearch-text-color: var(--text, #F4F4F5);
+  --docsearch-muted-color: var(--text-muted, #A1A1AA);
+
+  /* Surfaces */
+  --docsearch-container-background: rgba(8, 8, 11, 0.78);
+  --docsearch-modal-background: var(--surface, #17171C);
+  --docsearch-searchbox-background: var(--bg-subtle, #131318);
+  --docsearch-searchbox-focus-background: var(--bg, #0F0F12);
+  --docsearch-hit-background: var(--surface-raised, #202027);
+  --docsearch-hit-color: var(--text, #F4F4F5);
+  --docsearch-hit-active-color: #ffffff;
+  --docsearch-hit-shadow: none;
+  --docsearch-footer-background: var(--bg-subtle, #131318);
+  --docsearch-footer-shadow: inset 0 1px 0 0 var(--border, rgba(255, 255, 255, 0.09));
+
+  /* Key hints (cmd/ctrl/k chips) */
+  --docsearch-key-gradient: linear-gradient(180deg, #2a2a33 0%, #1c1c22 100%);
+  --docsearch-key-shadow:
+    inset 0 -2px 0 0 rgba(0, 0, 0, 0.4),
+    inset 0 0 1px 1px rgba(255, 255, 255, 0.06),
+    0 1px 2px rgba(0, 0, 0, 0.3);
+  --docsearch-key-pressed-shadow:
+    inset 0 -1px 0 0 rgba(0, 0, 0, 0.5),
+    inset 0 0 1px 1px rgba(255, 255, 255, 0.04),
+    0 1px 1px rgba(0, 0, 0, 0.3);
+
+  /* Modal sizing + radius */
+  --docsearch-modal-shadow: var(--shadow, 0 24px 90px rgba(0, 0, 0, 0.45));
+  --docsearch-spacing: 12px;
+  --docsearch-icon-stroke-width: 1.6;
+  --docsearch-highlight-color: var(--primary, #EF4779);
+  --docsearch-logo-color: var(--text-muted, #A1A1AA);
+}
+
+
+/* ============================================================
+ * DocSearch trigger button (the "/Search documentation" chip in the header)
+ *
+ * We do NOT style the wrapper .nav-search; that belongs to site-chrome.
+ * Below we only refine the internal DocSearch button so brand colors apply
+ * to the icon + kbd hints.
+ * ============================================================ */
+
+/* NEW */
+.suites-docsearch .DocSearch-Button {
+  background: var(--bg-subtle, #131318);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.09));
+  color: var(--text-muted, #A1A1AA);
+  border-radius: var(--radius-sm, 14px);
+  padding: 0 10px;
+  height: 36px;
+  transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease;
+}
+
+/* NEW */
+.suites-docsearch .DocSearch-Button:hover {
+  background: var(--surface, #17171C);
+  border-color: var(--border-strong, rgba(255, 255, 255, 0.16));
+  color: var(--text, #F4F4F5);
+  box-shadow: none;
+}
+
+/* NEW */
+.suites-docsearch .DocSearch-Button:focus-visible {
+  outline: 2px solid var(--primary, #EF4779);
+  outline-offset: 2px;
+  border-color: var(--primary, #EF4779);
+}
+
+/* NEW */
+.suites-docsearch .DocSearch-Button-Placeholder {
+  font-size: 14px;
+  font-family: var(--font-body);
+  padding: 0 8px 0 4px;
+}
+
+/* NEW */
+.suites-docsearch .DocSearch-Search-Icon {
+  width: 16px;
+  height: 16px;
+  color: var(--text-soft, #8B8B94);
+}
+
+/* NEW */
+.suites-docsearch .DocSearch-Button-Keys {
+  min-width: auto;
+  gap: 2px;
+}
+
+/* NEW */
+.suites-docsearch .DocSearch-Button-Key {
+  background: var(--surface-raised, #202027);
+  box-shadow: var(--docsearch-key-shadow);
+  color: var(--text, #F4F4F5);
+  font-family: var(--font-code);
+  font-size: 11px;
+  padding: 0 5px;
+  height: 20px;
+  min-width: 20px;
+  border-radius: 6px;
+}
+
+
+/* ============================================================
+ * DocSearch modal (portaled to <body>, so styled at top level)
+ * ============================================================ */
+
+/* NEW */
+.DocSearch-Container {
+  /* Slightly stronger backdrop blur for legibility on busy docs pages */
+  backdrop-filter: blur(8px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  z-index: var(--z-modal, 50);
+}
+
+.DocSearch-Modal {
+  background: var(--surface, #17171C);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.09));
+  border-radius: var(--radius-md, 20px);
+  box-shadow: var(--shadow, 0 24px 90px rgba(0, 0, 0, 0.45));
+  font-family: var(--font-body);
+  max-width: 720px;
+}
+
+/* Search bar sits flush at the top, separated from hits by a hairline. */
+.DocSearch-SearchBar {
+  padding: 0;
+  border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.09));
+}
+
+/* Form is borderless so the searchbar reads as a single field, not a card. */
+.DocSearch-Form {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  height: 56px;
+  padding: 0 16px;
+}
+
+.DocSearch-Form:focus-within {
+  background: transparent;
+  box-shadow: none;
+}
+
+/* NEW */
+.DocSearch-Input {
+  color: var(--text, #F4F4F5);
+  font-size: 15px;
+  font-family: var(--font-body);
+}
+
+/* NEW */
+.DocSearch-Input::placeholder {
+  color: var(--text-soft, #8B8B94);
+  opacity: 1;
+}
+
+/* NEW */
+.DocSearch-Input:focus {
+  outline: none;
+}
+
+/* NEW */
+.DocSearch-MagnifierLabel,
+.DocSearch-Reset {
+  color: var(--text-soft, #8B8B94);
+}
+
+/* NEW */
+.DocSearch-Cancel {
+  color: var(--primary, #EF4779);
+  font-weight: var(--fw-medium);
+}
+
+/* NEW: keyboard focus on the close button */
+.DocSearch-Cancel:focus-visible {
+  outline: 2px solid var(--primary, #EF4779);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+
+/* ============================================================
+ * Hits list
+ * ============================================================ */
+
+.DocSearch-Hits {
+  padding: 6px 8px 12px;
+}
+
+/* Group-source label (e.g. "Documentation > Guides") above each hit cluster. */
+.DocSearch-Hit-source {
+  color: var(--text-soft, #8B8B94);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: transparent;
+  margin: 14px 12px 4px;
+  font-weight: var(--fw-semibold);
+}
+
+/* Flat hit list, no per-row card. Resting is transparent so the modal reads */
+/* as a single panel instead of a stack of pills. */
+.DocSearch-Hit {
+  padding-bottom: 2px;
+}
+
+.DocSearch-Hit a {
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-xs, 10px);
+  padding: 8px 12px;
+  transition: background-color 140ms ease, color 140ms ease;
+  box-shadow: none;
+}
+
+/* Active hit: brand-pink wash + pink text, not a full pink fill. */
+/* Matches the sidebar active pattern so the modal feels like the same */
+/* navigation surface. */
+.DocSearch-Hit[aria-selected="true"] a,
+.DocSearch-Hit a:hover {
+  background: var(--primary-soft, rgba(239, 71, 121, 0.12));
+  color: var(--primary-light, #FF9EBB);
+}
+
+.DocSearch-Hit[aria-selected="true"] .DocSearch-Hit-title,
+.DocSearch-Hit a:hover .DocSearch-Hit-title {
+  color: var(--primary-light, #FF9EBB);
+}
+
+.DocSearch-Hit-path {
+  color: var(--text-soft, #8B8B94);
+  font-size: 12px;
+}
+
+.DocSearch-Hit[aria-selected="true"] .DocSearch-Hit-path,
+.DocSearch-Hit a:hover .DocSearch-Hit-path {
+  color: var(--primary-light, #FF9EBB);
+  opacity: 0.7;
+}
+
+/* Highlighted matched substring inside a hit title. */
+.DocSearch-Hit mark,
+.DocSearch-Hit-Tree {
+  background: transparent;
+  color: var(--primary-light, #FF9EBB);
+  font-weight: var(--fw-semibold);
+}
+
+.DocSearch-Hit[aria-selected="true"] mark,
+.DocSearch-Hit a:hover mark {
+  color: var(--primary, #EF4779);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.DocSearch-Hit-icon,
+.DocSearch-Hit-action {
+  color: var(--text-soft, #8B8B94);
+}
+
+.DocSearch-Hit[aria-selected="true"] .DocSearch-Hit-icon,
+.DocSearch-Hit a:hover .DocSearch-Hit-icon {
+  color: var(--primary, #EF4779);
+}
+
+/* Action icon (right side, the return-arrow on the active hit). */
+.DocSearch-Hit[aria-selected="true"] .DocSearch-Hit-action,
+.DocSearch-Hit a:hover .DocSearch-Hit-action {
+  color: var(--primary, #EF4779);
+}
+
+
+/* ============================================================
+ * Start screen (recent + favorites)
+ * ============================================================ */
+
+/* NEW */
+.DocSearch-StartScreen,
+.DocSearch-NoResults {
+  padding: 18px 14px 8px;
+}
+
+/* NEW */
+.DocSearch-Help {
+  color: var(--text-muted, #A1A1AA);
+  font-size: 13px;
+}
+
+/* NEW */
+.DocSearch-Title {
+  color: var(--text, #F4F4F5);
+  font-family: var(--font-title);
+}
+
+/* NEW */
+.DocSearch-NoResults-Prefill-List {
+  padding-top: 6px;
+}
+
+
+/* ============================================================
+ * Footer (keyboard hint row)
+ * ============================================================ */
+
+/* NEW */
+.DocSearch-Footer {
+  border-radius: 0 0 var(--radius-md, 20px) var(--radius-md, 20px);
+  padding: 8px 14px;
+}
+
+/* NEW */
+.DocSearch-Commands-Key {
+  background: var(--surface-raised, #202027);
+  box-shadow: var(--docsearch-key-shadow);
+  color: var(--text-muted, #A1A1AA);
+  border-radius: 6px;
+}
+
+/* NEW */
+.DocSearch-Label {
+  color: var(--text-soft, #8B8B94);
+  font-size: 11px;
+}
+
+/* NEW */
+.DocSearch-Logo a {
+  color: var(--text-soft, #8B8B94);
+  opacity: 0.7;
+  transition: opacity 180ms ease;
+}
+
+/* NEW */
+.DocSearch-Logo a:hover {
+  opacity: 1;
+}
+
+
+/* ============================================================
+ * Reduced motion: kill all transitions inside the modal + trigger
+ * ============================================================ */
+
+/* NEW */
+@media (prefers-reduced-motion: reduce) {
+  .suites-docsearch .DocSearch-Button,
+  .DocSearch-Hit a,
+  .DocSearch-Form,
+  .DocSearch-Logo a {
+    transition: none !important;
+  }
+}
+
+
+/* ============================================================
+ * AskAI menu (.ask-ai*) - popover with two provider choices
+ * ============================================================ */
+
+/* NEW */
+.ask-ai-root {
+  position: relative;
+  display: inline-flex;
+}
+
+/* NEW: the menu container */
+.ask-ai-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 180px;
+  background: var(--surface, #17171C);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.09));
+  border-radius: var(--radius-sm, 14px);
+  box-shadow: var(--shadow, 0 24px 90px rgba(0, 0, 0, 0.45));
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: var(--z-overlay, 40);
+  animation: ask-ai-menu-in 140ms ease-out;
+  transform-origin: top right;
+}
+
+/* NEW: floating variant pins to the screen-anchored trigger */
+.ask-ai-menu[data-variant="floating"] {
+  right: 0;
+}
+
+/* NEW */
+@keyframes ask-ai-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* NEW: individual menu item */
+.ask-ai-menu-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text, #F4F4F5);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: var(--fw-medium);
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  min-height: 36px;
+  transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
+/* NEW: icons inside menu items inherit a softer tint by default */
+.ask-ai-menu-item > svg {
+  color: var(--text-muted, #A1A1AA);
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  transition: color 160ms ease;
+}
+
+/* NEW: hover + keyboard-focus state - brand pink wash */
+.ask-ai-menu-item:hover,
+.ask-ai-menu-item:focus-visible {
+  background: var(--primary-soft, rgba(239, 71, 121, 0.12));
+  color: var(--text, #F4F4F5);
+  outline: none;
+  border-color: var(--primary-border, rgba(239, 71, 121, 0.32));
+}
+
+/* NEW: focus-visible also gets a clear ring for keyboard users */
+.ask-ai-menu-item:focus-visible {
+  box-shadow: 0 0 0 2px rgba(239, 71, 121, 0.35);
+}
+
+/* NEW: focused/hover icon picks up brand pink */
+.ask-ai-menu-item:hover > svg,
+.ask-ai-menu-item:focus-visible > svg {
+  color: var(--primary, #EF4779);
+}
+
+/* NEW: keep touch targets >= 44px on coarse pointers */
+@media (pointer: coarse) {
+  .ask-ai-menu-item {
+    min-height: 44px;
+    padding: 10px 12px;
+  }
+}
+
+/* NEW */
+@media (prefers-reduced-motion: reduce) {
+  .ask-ai-menu {
+    animation: none;
+  }
+  .ask-ai-menu-item,
+  .ask-ai-menu-item > svg {
+    transition: none;
+  }
+}
+
+
+/* ============================================================
+ * TOKEN PROPOSALS (informational; not applied here)
+ * ============================================================
+ *
+ * If tokens.css gains the following, the rules above would simplify:
+ *
+ *   --backdrop:        rgba(8, 8, 11, 0.78);     // matches docsearch container
+ *   --ring-primary:    0 0 0 3px rgba(239, 71, 121, 0.18);
+ *   --kbd-bg:          linear-gradient(180deg, #2a2a33 0%, #1c1c22 100%);
+ *   --kbd-shadow:      inset 0 -2px 0 0 rgba(0,0,0,.4),
+ *                      inset 0 0 1px 1px rgba(255,255,255,.06),
+ *                      0 1px 2px rgba(0,0,0,.3);
+ *
+ * No changes were made to tokens.css per scope constraints.
+ */

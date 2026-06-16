@@ -1,0 +1,133 @@
+---
+title: "System Test Effect Coverage"
+description: "Understand effect coverage as a system-test signal: runtime evidence of required, forbidden, and decision-sensitive behavior."
+sidebar_position: 3
+keywords: ["system test coverage", "effect coverage", "runtime evidence", "OMC/DC coverage", "code coverage"]
+toc_min_heading_level: 2
+seo:
+  primary_keyword: "system test coverage"
+  secondary_keywords: ["effect coverage", "runtime evidence", "OMC/DC coverage", "behavioral verification", "code coverage"]
+  search_intent: "informational intent from teams comparing code coverage with runtime evidence from system tests"
+  snippet_angle: "system test effect coverage shows whether real test runs produced the required observable behavior, not only which code executed"
+---
+
+import OverviewDiagram from '@/components/blackbox/OverviewDiagram.astro';
+
+System test effect coverage asks a different question from traditional code coverage: when the system ran, did it produce the observable behavior the workflow depends on?
+
+Line coverage and branch coverage are useful inside a codebase. They tell you which statements and branches executed. Blackbox looks at the system from the outside-in. It records runtime evidence from system and E2E runs, then reports whether the important effects were observed, missed, forbidden, or not yet covered.
+
+That makes effect coverage a coverage model for system behavior. It is designed for the places where regressions are often visible only through outcomes: database writes, emitted events, downstream HTTP calls, cache changes, emails, queue messages, and other boundary effects.
+
+## The Input/Output Gap
+
+Traditional E2E tests usually prove that a workflow accepts the expected input and returns the expected output. They are weaker at proving the behavioral path between those two points.
+
+For system behavior, that middle path often matters most. A correct response can still hide a missing event, a skipped persistence step, a wrong cache mutation, a duplicate notification, or an unexpected downstream call.
+
+Effect coverage adds evidence for that middle path.
+
+## Why Code Coverage Is Not Enough
+
+A test can execute the right lines and still miss the behavior that matters.
+
+For example, a subscription endpoint might return `201 Created` while silently skipping the queue message that activates fulfillment. A refactor might keep the response body stable while changing a payment call. A generated implementation might satisfy the visible assertion while sending an extra email, omitting an audit record, or writing to the wrong table.
+
+Traditional coverage helps you see execution. It does not tell you whether the running system produced the effects the product, contract, or scenario requires.
+
+Blackbox treats those effects as first-class coverage targets. The goal is not to replace unit-level metrics. The goal is to add a system-level signal for behavior that only appears when services, storage, queues, caches, and APIs interact.
+
+<OverviewDiagram kind="coverage" />
+
+| Coverage signal | Main question | Common blind spot |
+| --- | --- | --- |
+| Line coverage | Which source lines ran? | Whether running those lines produced the required outcome |
+| Branch coverage | Which branches ran? | Whether each branch changed observable behavior |
+| Trace observability | What did the system emit? | Which emitted facts matter for the tested behavior |
+| System test effect coverage | Which required, forbidden, and decision-sensitive effects appeared? | It cannot prove every possible behavior outside the evidence collected |
+
+## Effects And Feature Files Are Different
+
+Effect coverage and feature files solve different problems.
+
+Effect coverage is runtime proof. It asks whether the system actually produced the required effects, avoided forbidden effects, and exposed decision-sensitive behavior during the run.
+
+Feature files are a readable behavior surface. They help humans and agents review the scenario in Gherkin, and Blackbox can check whether the `.feature` file drifted from the test source.
+
+Use effects when you need to prove runtime behavior. Use feature files when readable behavior matters. Use both when the team wants executable tests, runtime evidence, and readable scenarios to move together.
+
+The combined model is described in [Tests, Effects, and Feature Files](/docs/blackbox/overview/tests-effects-and-feature-files).
+
+## What Counts As An Effect
+
+An effect is an observable action the system performs while a workflow runs. In Blackbox, effects are usually captured from runtime evidence such as OpenTelemetry spans and classified into reviewable shapes.
+
+Common effect types include:
+
+1. Database reads and writes.
+2. HTTP calls to internal or external services.
+3. Queue messages and published events.
+4. Cache reads, writes, invalidations, and flushes.
+5. Email, notification, or webhook intents.
+6. File, object-storage, or other infrastructure-facing operations.
+
+The important point is not the transport. The important point is that the effect is something a system test can observe from the running system and a reviewer can connect to intended behavior.
+
+## Required And Forbidden Effects
+
+Effect coverage is both positive and negative.
+
+A checkout or subscription flow may require a user lookup, a payment intent, a subscription insert, a cache update, and an activation event. If a test passes without one of those effects, Blackbox can surface the missing behavior instead of leaving it hidden behind a response assertion.
+
+The same flow may forbid destructive or unexpected effects: refund creation, database deletes, table truncation, cache flushes, duplicate messages, or calls to a deprecated service. These forbidden effects matter during refactors because many regressions are not omissions. They are extra actions that should not have happened.
+
+Required and forbidden effects turn system tests into behavioral gates. A test is no longer only “the endpoint returned the expected response.” It also says “the system produced the effects this workflow requires, and avoided the effects this workflow must not produce.”
+
+## Runtime Evidence, Not Formal Proof
+
+Blackbox reports evidence from real executions. That distinction matters.
+
+The reports can show that a specific system run produced a required effect, missed one, violated a forbidden effect, or failed to distinguish an observable decision. They do not prove that every possible input, environment, or timing condition is correct.
+
+This is why effect coverage works best as a practical engineering gate. It gives reviewers concrete facts from the running system, then lets the team decide whether to add scenarios, adjust the effect catalog, improve instrumentation, or accept a known boundary.
+
+## How OMC/DC Relates
+
+Blackbox also reports OMC/DC-style coverage for system behavior. In this context, the useful question is: when a decision condition changes, does the system produce a distinguishable observable effect?
+
+Traditional MC/DC is usually discussed as a code-level coverage criterion for decisions and conditions. Blackbox applies a related idea at the system boundary. It looks for whether decision-sensitive behavior is visible in the runtime evidence collected from the test run.
+
+That can reveal several useful cases:
+
+1. A condition changed and produced a distinct observable effect.
+2. A branch executed but its effect was masked by later behavior.
+3. A decision appears important in code but is not distinguished by the current system evidence.
+4. A scenario needs better inputs or assertions because the current run cannot show the behavioral difference.
+
+OMC/DC is therefore a companion to effect coverage. Effect coverage asks whether required and forbidden effects appeared. OMC/DC asks whether meaningful decision changes are visible through the effects the system produced.
+
+## Why It Matters Now
+
+Modern development creates behavior faster than teams can manually inspect it. Refactors can move logic across services. Legacy modernization can preserve API shape while changing side effects. Spec-driven development can keep intent visible, but specs and feature files can still drift from the running system. AI-assisted development can generate plausible code that satisfies local assertions while missing a boundary effect.
+
+System test effect coverage gives those workflows a runtime checkpoint. It connects specs, scenarios, tests, and implementation back to evidence from the system that actually ran.
+
+That is useful before a refactor, because it captures the behavior you need to preserve. It is useful during a refactor, because it shows whether important effects changed. It is useful after a refactor, because it leaves behind reviewable artifacts that explain what the system now does.
+
+## What This Complements
+
+Effect coverage complements existing testing and observability practices:
+
+1. Unit tests still protect small pieces of logic quickly.
+2. Integration tests still validate direct collaboration between modules or managed dependencies.
+3. System and E2E tests still exercise real workflows.
+4. Tracing and logs still help debug production and test runs.
+5. Specs, BDD scenarios, and feature files still express intent.
+
+Blackbox adds the missing bridge between those layers: runtime evidence that the system-level behavior described by the tests and specs actually appeared during execution.
+
+## What To Read Next
+
+1. [Tests, Effects, and Feature Files](/docs/blackbox/overview/tests-effects-and-feature-files)
+2. [OMC/DC Coverage](/docs/blackbox/concepts/omc-dc-coverage)
+3. [Reading Coverage Reports](/docs/blackbox/guides/reading-coverage-reports)

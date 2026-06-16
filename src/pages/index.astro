@@ -1,0 +1,386 @@
+---
+import MarketingLayout from '@/layouts/MarketingLayout.astro';
+import Hero from '@/components/ui/Hero.astro';
+import Eyebrow from '@/components/ui/Eyebrow.astro';
+import Section from '@/components/ui/Section.astro';
+import Grid from '@/components/ui/Grid.astro';
+import Card from '@/components/ui/Card.astro';
+import Btn from '@/components/ui/Btn.astro';
+import Chip from '@/components/ui/Chip.astro';
+import { Code } from 'astro-expressive-code/components';
+
+const withSuitesCode = `import { TestBed, type Mocked } from '@suites/unit';
+
+describe('User Service', () => {
+  let userService: UserService; // The unit we are testing
+  let userApi: Mocked<UserApi>; // The dependencies we are mocking
+  let database: Mocked<Database>;
+
+  beforeAll(async () => {
+    // Create an isolated test env for the unit
+    const { unit, unitRef } = await TestBed.solitary(UserService).compile();
+
+    userService = unit;
+    // Retrieve the unit's dependency mocks - automatically generated
+    userApi = unitRef.get(UserApi);
+    database = unitRef.get(Database);
+  });
+
+  // ✅ Test test test
+  it('should generate a random user and save to the database', async () => {
+    userApi.getRandom.mockResolvedValue({id: 1, name: 'John'} as User);
+    await userService.generateRandomUser();
+    expect(database.saveUser).toHaveBeenCalledWith(userFixture);
+  });
+});`;
+
+const withoutSuitesCode = `// THE MANUAL WAY
+// (Similar complexity exists in NestJS, InversifyJS, etc.)
+
+import { UserService } from './user-service';
+import { UserApi } from './user-api';
+import { Database } from './database';
+
+describe('User Service', () => {
+  let userService: UserService;
+  let userApi: any; // ❌ Lost type safety!
+  let database: any;
+
+  beforeAll(async () => {
+    // 🔧 Manually create mocks for each dependency
+    userApi = {
+      getRandom: jest.fn(),
+      // Missing methods? Who knows? No compile-time checks!
+    };
+
+    database = {
+      saveUser: jest.fn(),
+      // What other methods exist? ¯\\_(ツ)_/¯
+    };
+
+    // Manual wiring - boilerplate for every test
+    userService = new UserService(userApi, database);
+  });
+
+  it('should generate a random user and save to the database', async () => {
+    userApi.getRandom.mockResolvedValue({id: 1, name: 'John'} as User);
+    await userService.generateRandomUser();
+    expect(database.saveUser).toHaveBeenCalledWith(userFixture);
+  });
+})`;
+
+const standardizedCode = `// Same pattern works everywhere
+// NestJS, InversifyJS, TSyringe...
+
+TestBed.solitary(OrderService).compile();
+
+// Or test with real dependencies
+TestBed.sociable(OrderService)
+  .expose(PaymentProcessor)
+  .compile();`;
+
+const revealIntentCode = `// One line creates the entire test environment
+const { unit, unitRef } = await TestBed
+  .solitary(UserService)
+  .compile();
+
+// Just test the logic
+const userApi = unitRef.get(UserApi);
+userApi.getRandom.mockResolvedValue(user);
+await unit.generateRandomUser();`;
+
+const typeSafeCode = `// No manual mocks needed!
+const { unit, unitRef } = await TestBed
+  .solitary(UserService)
+  .compile();
+
+// Fully-typed mocks, automatically generated
+const userApi = unitRef.get(UserApi);
+
+userApi.get.mockResolvedValue({ name: 'John' });`;
+
+const aiFirstCode = `// Manual: 40+ lines per test in AI context
+// class MockUserApi { getRandom = jest.fn(); ... }
+// class MockDatabase { saveUser = jest.fn(); ... }
+// const userService = new UserService(mockUserApi, mockDb);
+
+// Suites: Single canonical pattern
+const { unit, unitRef } = await TestBed
+  .solitary(UserService)
+  .compile();
+
+// AI agents learn the entire API from one example`;
+
+// Unique IDs for each Tabs block
+const heroTabsId = 'hero-tabs';
+---
+<MarketingLayout
+  title="Suites | Unit Testing Framework"
+  description="Suites is a unit testing framework for TypeScript backends working with inversion of control and dependency injection"
+>
+  <div class="shell">
+
+    <!-- HERO -->
+    <Hero>
+      <Eyebrow slot="eyebrow">v3.1.0 is now stable</Eyebrow>
+      <h1>Suites</h1>
+      <p slot="lead">
+        <strong>
+          A unit testing framework for TypeScript backends working with
+          inversion of control and dependency injection
+        </strong>
+      </p>
+    </Hero>
+
+    <!-- CTA buttons -->
+    <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-bottom: 40px;">
+      <Btn
+        variant="primary"
+        href="/docs/get-started/"
+        onclick="window.__suitesTrack && window.__suitesTrack('get_started', 'homepage_hero')"
+      >
+        Get Started
+      </Btn>
+      <Btn
+        href="/docs/get-started/why-suites"
+        onclick="window.__suitesTrack && window.__suitesTrack('why_suites', 'homepage_hero')"
+      >
+        Why Suites?
+      </Btn>
+      <Btn
+        href="/docs/guides/"
+        onclick="window.__suitesTrack && window.__suitesTrack('guides', 'homepage_hero')"
+      >
+        Guides
+      </Btn>
+      <Btn
+        href="https://github.com/suites-dev/suites"
+        onclick="window.__suitesTrack && window.__suitesTrack('github', 'homepage_hero')"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="flex-shrink:0;">
+          <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2Z" />
+        </svg>
+        GitHub
+      </Btn>
+    </div>
+
+    <!-- Works With -->
+    <Section>
+      <div slot="aside"><Chip>Works with projects using</Chip></div>
+      <div style="display: flex; gap: 24px; flex-wrap: wrap; align-items: center; justify-content: center; padding: 8px 0;">
+        <a href="https://docs.nestjs.com/recipes/suites" target="_blank" rel="noopener noreferrer" style="display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); font-size: 13px;">
+          <img src="/img/nestjs-logo.png" alt="NestJS" style="height: 40px; object-fit: contain;" />
+          <span>NestJS</span>
+          <span class="badge badge-pink">Official</span>
+        </a>
+        <a href="https://inversify.io/docs/ecosystem/suites/" target="_blank" rel="noopener noreferrer" style="display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); font-size: 13px;">
+          <img src="/img/inversify-logo.png" alt="InversifyJS" style="height: 40px; object-fit: contain;" />
+          <span>InversifyJS</span>
+          <span class="badge badge-pink">Official</span>
+        </a>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); font-size: 13px;">
+          <img src="/img/vitest-logo.png" alt="Vitest" style="height: 40px; object-fit: contain;" />
+          <span>Vitest</span>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); font-size: 13px;">
+          <img src="/img/jest-logo.png" alt="Jest" style="height: 40px; object-fit: contain;" />
+          <span>Jest</span>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); font-size: 13px;">
+          <img src="/img/sinon-logo.png" alt="Sinon" style="height: 40px; object-fit: contain;" />
+          <span>Sinon</span>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); font-size: 13px;">
+          <div style="height: 40px; width: 40px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: var(--fw-bold); color: var(--text-soft);">+</div>
+          <span>more</span>
+        </div>
+      </div>
+    </Section>
+
+    <!-- With / Without Suites code comparison -->
+    <Section>
+      <div class="tabs-block" data-tabs-id={heroTabsId}>
+        <div class="tabs" role="tablist">
+          <button class="tab active" role="tab" data-tab-target="with-suites" data-tabs-id={heroTabsId} aria-selected="true">With Suites</button>
+          <button class="tab" role="tab" data-tab-target="without-suites" data-tabs-id={heroTabsId} aria-selected="false">Without Suites</button>
+        </div>
+        <div class="tabs-panels" style="margin-top: 16px;">
+          <div data-tab-panel="with-suites">
+            <Code code={withSuitesCode} lang="typescript" />
+          </div>
+          <div data-tab-panel="without-suites" hidden>
+            <Code code={withoutSuitesCode} lang="typescript" />
+          </div>
+        </div>
+      </div>
+    </Section>
+
+    <!-- Features grid -->
+    <Section title="Why Suites?">
+      <Grid cols={4}>
+        <Card>
+          <span class="card-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg>
+          </span>
+          <h3>Declarative</h3>
+          <p>Suites' declarative API creates fully-typed, isolated test environments with a single declaration. Suites auto-generates all mocks and wires dependencies automatically.</p>
+        </Card>
+        <Card>
+          <span class="card-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+          </span>
+          <h3>Type-Safe</h3>
+          <p>Generate type-safe mocks bound to implementations. Eliminate broken tests after refactors, silent runtime failures, and manual type casting.</p>
+        </Card>
+        <Card>
+          <span class="card-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" x2="6" y1="3" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>
+          </span>
+          <h3>Refactoring Confidence</h3>
+          <p>Change constructors, add dependencies, refactor classes - tests adapt automatically. Skip manual mock updates. Catch breaking changes at compile time, not runtime.</p>
+        </Card>
+        <Card>
+          <span class="card-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg>
+          </span>
+          <h3>AI Ready</h3>
+          <p>One canonical pattern teaches AI agents the entire API. Coding agents like Claude Code and Cursor write correct tests in a single pass with 95% less context consumption compared to manual mocking patterns.</p>
+        </Card>
+      </Grid>
+    </Section>
+
+    <!-- Used by -->
+    <Section>
+      <div slot="aside"><Chip>Used by</Chip></div>
+      <div style="display: flex; gap: 32px; flex-wrap: wrap; align-items: center; justify-content: center; padding: 8px 0;">
+        <img src="/img/monday-logo.svg" alt="Monday.com" style="height: 32px; object-fit: contain; filter: brightness(0.7);" />
+        <img src="/img/lemonade-logo.svg" alt="Lemonade" style="height: 32px; object-fit: contain; filter: brightness(0.7);" />
+        <img src="/img/balance-logo.svg" alt="Balance" style="height: 32px; object-fit: contain; filter: brightness(0.7);" />
+        <img src="/img/harmonya-logo.svg" alt="Harmonya" style="height: 32px; object-fit: contain; filter: brightness(0.7);" />
+        <img src="/img/vetric.svg" alt="Vetric" style="height: 32px; object-fit: contain; filter: brightness(0.7);" />
+      </div>
+      <p style="text-align: center; color: var(--text-muted); font-size: 14px; margin-top: 16px; margin-bottom: 0;">
+        Using Suites?{' '}
+        <a href="https://github.com/suites-dev/suites/discussions/655" target="_blank" rel="noopener noreferrer" style="color: var(--text);">Share your experience</a>
+        {' '}and help us shape the future of Suites
+      </p>
+    </Section>
+
+    <!-- Alternating sections -->
+
+    <!-- Section 1: Standardized Testing -->
+    <Section>
+      <div class="grid cols-2" style="gap: 32px; align-items: center;">
+        <div>
+          <h2 style="margin-top: 0; font-size: clamp(22px, 3vw, 32px); letter-spacing: -0.025em;">Standardized Testing Across Teams</h2>
+          <p style="color: var(--text-muted);">
+            Stop relearning test patterns on every project. Suites provides a
+            consistent, standardized approach that works identically across
+            NestJS, InversifyJS, and any DI framework, giving teams a unified
+            testing experience.
+          </p>
+          <Btn href="/docs/get-started/why-suites#3-inconsistent-patterns-across-teams">
+            See Framework Support →
+          </Btn>
+        </div>
+        <Code code={standardizedCode} lang="typescript" />
+      </div>
+    </Section>
+
+    <!-- Section 2: Tests That Reveal Intent -->
+    <Section>
+      <div class="grid cols-2" style="gap: 32px; align-items: center;">
+        <div>
+          <h2 style="margin-top: 0; font-size: clamp(22px, 3vw, 32px); letter-spacing: -0.025em;">Tests That Reveal Intent, Not Boilerplate</h2>
+          <p style="color: var(--text-muted);">
+            Suites' declarative API removes 90% of test setup code. No more
+            scrolling through mock wiring, logic is front and center. New team
+            members write tests on day one, not day ten.
+          </p>
+          <Btn href="/docs/get-started/quickstart">
+            See Quick Start →
+          </Btn>
+        </div>
+        <Code code={revealIntentCode} lang="typescript" />
+      </div>
+    </Section>
+
+    <!-- Section 3: Type-Safe Mocking -->
+    <Section>
+      <div class="grid cols-2" style="gap: 32px; align-items: center;">
+        <div>
+          <h2 style="margin-top: 0; font-size: clamp(22px, 3vw, 32px); letter-spacing: -0.025em;">Type-Safe, Automatic Mocking</h2>
+          <p style="color: var(--text-muted);">
+            No more debugging broken mocks. Suites automatically generates
+            fully-typed mocks bound to implementation. Catch errors at compile
+            time, not runtime. Refactor with confidence while mocks stay valid
+            when dependencies change.
+          </p>
+          <Btn href="/docs/guides/test-doubles">
+            Learn about Mocking →
+          </Btn>
+        </div>
+        <Code code={typeSafeCode} lang="typescript" />
+      </div>
+    </Section>
+
+    <!-- Section 4: Built for AI-First -->
+    <Section>
+      <div class="grid cols-2" style="gap: 32px; align-items: center;">
+        <div>
+          <h2 style="margin-top: 0; font-size: clamp(22px, 3vw, 32px); letter-spacing: -0.025em;">Built for AI-First Development</h2>
+          <p style="color: var(--text-muted);">
+            Manual mocking forces AI agents to hold 40+ lines of boilerplate
+            per test in context. Suites provides one canonical pattern that
+            reduces token consumption by 95%. AI coding assistants like Claude
+            Code, Cursor, and GitHub Copilot generate accurate tests in a
+            single pass without burning tokens on repetitive setup code.
+          </p>
+          <Btn href="/docs/get-started/why-suites#2-excessive-boilerplate-obscures-test-intent-and-confuses-llms">
+            Suites and AI →
+          </Btn>
+        </div>
+        <Code code={aiFirstCode} lang="typescript" />
+      </div>
+    </Section>
+
+  </div>
+</MarketingLayout>
+
+<script>
+  // Tab switching for all tabs-block elements on the page
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll<HTMLButtonElement>('button[data-tab-target]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const tabsId = btn.dataset.tabsId!;
+        const target = btn.dataset.tabTarget!;
+        document.querySelectorAll<HTMLButtonElement>(`button[data-tabs-id="${tabsId}"]`).forEach((b) => {
+          b.classList.remove('active');
+          b.setAttribute('aria-selected', 'false');
+        });
+        btn.classList.add('active');
+        btn.setAttribute('aria-selected', 'true');
+        const block = document.querySelector<HTMLElement>(`.tabs-block[data-tabs-id="${tabsId}"]`);
+        if (!block) return;
+        block.querySelectorAll<HTMLElement>('[data-tab-panel]').forEach((panel) => {
+          panel.hidden = panel.dataset.tabPanel !== target;
+        });
+      });
+    });
+  });
+</script>
+
+<style>
+  .card-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--primary-soft);
+    color: var(--primary-light);
+    margin-bottom: 12px;
+  }
+  .card-icon svg { width: 20px; height: 20px; }
+</style>

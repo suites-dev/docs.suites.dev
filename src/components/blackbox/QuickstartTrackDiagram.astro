@@ -1,0 +1,175 @@
+---
+interface Props {
+  kind: 'existing' | 'new-test' | 'specs';
+}
+
+const { kind } = Astro.props;
+---
+
+{kind === 'existing' && (
+  <figure class="bb-track-diagram" aria-label="Existing tests Blackbox quickstart track">
+    <svg viewBox="0 0 900 310" role="img" aria-labelledby="existing-track-title existing-track-desc">
+      <title id="existing-track-title">Existing tests track</title>
+      <desc id="existing-track-desc">Existing tests are run again with Blackbox, creating observed effects, a reviewed effect catalog, and matcher-backed effect coverage.</desc>
+      <defs>
+        <marker id="bb-existing-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"></path>
+        </marker>
+      </defs>
+      <rect x="8" y="8" width="884" height="294" rx="18" fill="#111827" stroke="#374151"></rect>
+      <text x="36" y="44" fill="#f8fafc" font-size="19" font-weight="700">Track 1: add Blackbox to tests you already run</text>
+      <text x="36" y="70" fill="#cbd5e1" font-size="13">The first value is one reviewed catalog entry and one coverage signal.</text>
+
+      <g>
+        <rect x="36" y="122" width="128" height="72" rx="12" fill="#172554" stroke="#60a5fa"></rect>
+        <circle cx="58" cy="142" r="12" fill="#60a5fa"></circle>
+        <text x="58" y="146" text-anchor="middle" fill="#0f172a" font-size="11" font-weight="800">1</text>
+        <text x="100" y="151" text-anchor="middle" fill="#eff6ff" font-size="13" font-weight="700">existing test</text>
+        <text x="100" y="172" text-anchor="middle" fill="#bfdbfe" font-size="12">input/output</text>
+      </g>
+      <line x1="176" y1="158" x2="224" y2="158" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-existing-arrow)"></line>
+
+      <g>
+        <rect x="236" y="122" width="128" height="72" rx="12" fill="#14532d" stroke="#86efac"></rect>
+        <circle cx="258" cy="142" r="12" fill="#86efac"></circle>
+        <text x="258" y="146" text-anchor="middle" fill="#052e16" font-size="11" font-weight="800">2</text>
+        <text x="300" y="151" text-anchor="middle" fill="#f0fdf4" font-size="13" font-weight="700">add wrapper</text>
+        <text x="300" y="172" text-anchor="middle" fill="#bbf7d0" font-size="12">observe effects</text>
+      </g>
+      <line x1="376" y1="158" x2="424" y2="158" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-existing-arrow)"></line>
+
+      <g>
+        <rect x="436" y="122" width="128" height="72" rx="12" fill="#581c87" stroke="#c084fc"></rect>
+        <circle cx="458" cy="142" r="12" fill="#c084fc"></circle>
+        <text x="458" y="146" text-anchor="middle" fill="#3b0764" font-size="11" font-weight="800">3</text>
+        <text x="500" y="151" text-anchor="middle" fill="#faf5ff" font-size="13" font-weight="700">review catalog</text>
+        <text x="500" y="172" text-anchor="middle" fill="#e9d5ff" font-size="12">requires/forbids</text>
+      </g>
+      <line x1="576" y1="158" x2="624" y2="158" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-existing-arrow)"></line>
+
+      <g>
+        <rect x="636" y="122" width="128" height="72" rx="12" fill="#78350f" stroke="#fbbf24"></rect>
+        <circle cx="658" cy="142" r="12" fill="#fbbf24"></circle>
+        <text x="658" y="146" text-anchor="middle" fill="#451a03" font-size="11" font-weight="800">4</text>
+        <text x="700" y="151" text-anchor="middle" fill="#fef3c7" font-size="13" font-weight="700">rerun</text>
+        <text x="700" y="172" text-anchor="middle" fill="#fde68a" font-size="12">coverage signal</text>
+      </g>
+
+      <rect x="96" y="236" width="708" height="38" rx="12" fill="#0f172a" stroke="#475569"></rect>
+      <circle cx="122" cy="255" r="12" fill="#94a3b8"></circle>
+      <text x="122" y="259" text-anchor="middle" fill="#0f172a" font-size="11" font-weight="800">5</text>
+      <text x="450" y="260" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="700">Advanced after the first loop works: inspect OMC/DC or generate behavior specs.</text>
+    </svg>
+    <figcaption>Existing tests already create useful traffic. Blackbox turns that traffic into observed effects, a reviewed effect catalog, and effect coverage on the next run.</figcaption>
+  </figure>
+)}
+
+{kind === 'new-test' && (
+  <figure class="bb-track-diagram" aria-label="New system test Blackbox quickstart track">
+    <svg viewBox="0 0 900 310" role="img" aria-labelledby="new-track-title new-track-desc">
+      <title id="new-track-title">No system tests track</title>
+      <desc id="new-track-desc">A team without useful system tests starts with the showcase repository, studies one subscription flow, then copies the smallest working system-test shape.</desc>
+      <defs>
+        <marker id="bb-new-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"></path>
+        </marker>
+      </defs>
+      <rect x="8" y="8" width="884" height="294" rx="18" fill="#111827" stroke="#374151"></rect>
+      <text x="36" y="44" fill="#f8fafc" font-size="19" font-weight="700">Track 2: run the showcase, then write one narrow flow</text>
+      <text x="36" y="70" fill="#cbd5e1" font-size="13">The showcase teaches the proof loop before you wire your own system.</text>
+
+      <rect x="48" y="118" width="170" height="92" rx="12" fill="#172554" stroke="#60a5fa"></rect>
+      <circle cx="72" cy="140" r="12" fill="#60a5fa"></circle>
+      <text x="72" y="144" text-anchor="middle" fill="#0f172a" font-size="11" font-weight="800">1</text>
+      <text x="133" y="149" text-anchor="middle" fill="#eff6ff" font-size="13" font-weight="700">run showcase</text>
+      <text x="133" y="171" text-anchor="middle" fill="#bfdbfe" font-size="12">subscription flow</text>
+      <text x="133" y="190" text-anchor="middle" fill="#93c5fd" font-size="11">see real artifacts</text>
+      <line x1="230" y1="164" x2="292" y2="164" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-new-arrow)"></line>
+
+      <rect x="304" y="118" width="170" height="92" rx="12" fill="#14532d" stroke="#86efac"></rect>
+      <circle cx="328" cy="140" r="12" fill="#86efac"></circle>
+      <text x="328" y="144" text-anchor="middle" fill="#052e16" font-size="11" font-weight="800">2</text>
+      <text x="389" y="149" text-anchor="middle" fill="#f0fdf4" font-size="13" font-weight="700">copy the shape</text>
+      <text x="389" y="171" text-anchor="middle" fill="#bbf7d0" font-size="12">test.system + capture</text>
+      <text x="389" y="190" text-anchor="middle" fill="#86efac" font-size="11">one critical flow</text>
+      <line x1="486" y1="164" x2="548" y2="164" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-new-arrow)"></line>
+
+      <rect x="560" y="118" width="170" height="92" rx="12" fill="#581c87" stroke="#c084fc"></rect>
+      <circle cx="584" cy="140" r="12" fill="#c084fc"></circle>
+      <text x="584" y="144" text-anchor="middle" fill="#3b0764" font-size="11" font-weight="800">3</text>
+      <text x="645" y="149" text-anchor="middle" fill="#faf5ff" font-size="13" font-weight="700">first proof</text>
+      <text x="645" y="171" text-anchor="middle" fill="#e9d5ff" font-size="12">catalog + coverage</text>
+      <text x="645" y="190" text-anchor="middle" fill="#d8b4fe" font-size="11">then next layers</text>
+
+      <rect x="118" y="236" width="664" height="38" rx="12" fill="#0f172a" stroke="#475569"></rect>
+      <circle cx="144" cy="255" r="12" fill="#94a3b8"></circle>
+      <text x="144" y="259" text-anchor="middle" fill="#0f172a" font-size="11" font-weight="800">4</text>
+      <text x="450" y="260" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="700">The first custom test should produce one catalog entry and one coverage signal.</text>
+    </svg>
+    <figcaption>When no useful system tests exist, the showcase is the fastest way to understand the effect proof loop before adding one narrow flow to your own service.</figcaption>
+  </figure>
+)}
+
+{kind === 'specs' && (
+  <figure class="bb-track-diagram" aria-label="Behavior specs after Blackbox effects">
+    <svg viewBox="0 0 900 260" role="img" aria-labelledby="spec-track-title spec-track-desc">
+      <title id="spec-track-title">Behavior specs after effects</title>
+      <desc id="spec-track-desc">Feature files can be skipped, emitted from tests, or combined with effects after a system test exists.</desc>
+      <defs>
+        <marker id="bb-spec-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"></path>
+        </marker>
+      </defs>
+      <rect x="8" y="8" width="884" height="244" rx="18" fill="#111827" stroke="#374151"></rect>
+      <text x="36" y="44" fill="#f8fafc" font-size="19" font-weight="700">Behavior specs are optional once a system test exists</text>
+      <text x="36" y="70" fill="#cbd5e1" font-size="13">Skip them, emit feature files from tests, or combine readable specs with runtime effects.</text>
+
+      <rect x="76" y="120" width="170" height="64" rx="12" fill="#14532d" stroke="#86efac"></rect>
+      <circle cx="99" cy="141" r="12" fill="#86efac"></circle>
+      <text x="99" y="145" text-anchor="middle" fill="#052e16" font-size="11" font-weight="800">1</text>
+      <text x="161" y="145" text-anchor="middle" fill="#f0fdf4" font-size="13" font-weight="700">system test</text>
+      <text x="161" y="166" text-anchor="middle" fill="#bbf7d0" font-size="12">required input</text>
+      <line x1="258" y1="152" x2="332" y2="152" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-spec-arrow)"></line>
+
+      <rect x="344" y="120" width="170" height="64" rx="12" fill="#581c87" stroke="#c084fc"></rect>
+      <circle cx="367" cy="141" r="12" fill="#c084fc"></circle>
+      <text x="367" y="145" text-anchor="middle" fill="#3b0764" font-size="11" font-weight="800">2</text>
+      <text x="429" y="145" text-anchor="middle" fill="#faf5ff" font-size="13" font-weight="700">emit feature</text>
+      <text x="429" y="166" text-anchor="middle" fill="#e9d5ff" font-size="12">or skip</text>
+      <line x1="526" y1="152" x2="600" y2="152" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-spec-arrow)"></line>
+
+      <rect x="612" y="120" width="170" height="64" rx="12" fill="#78350f" stroke="#fbbf24"></rect>
+      <circle cx="635" cy="141" r="12" fill="#fbbf24"></circle>
+      <text x="635" y="145" text-anchor="middle" fill="#451a03" font-size="11" font-weight="800">3</text>
+      <text x="697" y="145" text-anchor="middle" fill="#fef3c7" font-size="13" font-weight="700">drift check</text>
+      <text x="697" y="166" text-anchor="middle" fill="#fde68a" font-size="12">keep specs current</text>
+    </svg>
+    <figcaption>Feature files do not require effect coverage. They need a test source. Effects add runtime proof when the team wants the stronger path.</figcaption>
+  </figure>
+)}
+
+<style>
+  .bb-track-diagram {
+    margin: 24px 0;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    overflow-x: auto;
+  }
+
+  .bb-track-diagram svg {
+    display: block;
+    width: 100%;
+    min-width: 680px;
+    height: auto;
+  }
+
+  .bb-track-diagram figcaption {
+    margin-top: 10px;
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.55;
+    text-align: center;
+  }
+</style>

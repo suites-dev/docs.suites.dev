@@ -1,0 +1,23 @@
+---
+/*
+ * Small "last updated" stamp at the bottom of the article, before the prev/next pager.
+ * Reads an ISO date string from frontmatter. If absent the component renders nothing
+ * (the layout decides whether to call this or skip it).
+ */
+
+interface Props {
+  iso: string;
+}
+
+const { iso } = Astro.props;
+
+function fmt(s: string): string {
+  const d = new Date(s);
+  if (Number.isNaN(d.getTime())) return s;
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+---
+<p class="doc-last-updated">
+  <span class="doc-last-updated-label">Last updated</span>
+  <time datetime={iso}>{fmt(iso)}</time>
+</p>

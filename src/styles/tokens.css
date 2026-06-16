@@ -1,0 +1,172 @@
+/*
+ * Suites Design System, Tokens
+ * Source of truth: ~/Downloads/suites-design-system-board (2).html
+ * Lines 11-69 of the baseline. Do not invent new tokens here.
+ * Additions/changes belong upstream in the baseline file first.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&display=swap');
+
+:root {
+  /* Typography */
+  --font-title: "Geist", "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-body: "Geist", "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-code: "Geist Mono", "SFMono-Regular", "Cascadia Code", "Roboto Mono", Consolas, monospace;
+
+  /* Font weight ladder.
+     Geist is loaded as a variable font (wght 100..900) so fractional weights
+     interpolate cleanly. Values below are pre-baked to a dark-only surface:
+     each token is shifted ~25 units lighter than its conventional name to
+     compensate for the optical bloom that light glyphs gain on dark graphite.
+     Reference: Prisma "eclipse" design system, packages/eclipse/src/tokens/
+     index.ts:415-424 (the same -25 mechanism applied at runtime in dark mode).
+     Use these tokens instead of literal numbers so the ladder stays coherent. */
+  --fw-regular:  400;  /* body, list items, aside/alert body, inputs */
+  --fw-medium:   475;  /* nav resting, sidebar resting, field labels, inline code, buttons */
+  --fw-semibold: 575;  /* eyebrow caps, badges, tabs, table th, active nav, aside titles */
+  --fw-heading-secondary: 625;  /* article h3, h4 (fills the 600->700 gap, Prisma uses 650) */
+  --fw-bold:     675;  /* article h1, h2, brand wordmark */
+  --fw-display:  775;  /* hero h1 (clamp 52-108px), .section-title, marketing display */
+
+  /* Deprecated: --fw-caption (50-unit step) is sub-perceptual on dark + Geist
+     above 12px. Aliased to --fw-regular so legacy call sites do not break.
+     Audit and remove call sites, then delete this alias. */
+  --fw-caption:  var(--fw-regular);
+
+  /* Base */
+  --bg: #0F0F12;
+  --bg-subtle: #131318;
+  --surface: #17171C;
+  --surface-raised: #202027;
+  --surface-hover: #292934;
+
+  /* Structure */
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.16);
+
+  /* Text */
+  --text: #F4F4F5;
+  --text-muted: #A1A1AA;
+  --text-soft: #8B8B94;
+
+  /* Brand pink */
+  --primary: #EF4779;
+  --primary-light: #FF9EBB;
+  --primary-dark: #750E2D;
+  --primary-soft: rgba(239, 71, 121, 0.12);
+  --primary-border: rgba(239, 71, 121, 0.32);
+
+  /* Pink ramp */
+  --pink-50: #FFF1F6;
+  --pink-100: #FFE4EE;
+  --pink-200: #FFC7DA;
+  --pink-300: #FF9EBB;
+  --pink-400: #FB6F9D;
+  --pink-500: #EF4779;
+  --pink-600: #D92F63;
+  --pink-700: #B91F4F;
+  --pink-800: #8F183E;
+  --pink-900: #750E2D;
+  --pink-950: #430617;
+
+  /* Semantic. Four distinct colors so Tip / Note / Warning / Danger remain
+     visually separable. Tuned away from Prisma's signature blues + teal:
+     info stays cool but cooler-blue not sky; success is grass-green not
+     teal-mint; warning is orange (NOT the FFD166 yellow we previously
+     shipped); error is salmon. All verified >= 4.5:1 on var(--bg). */
+  --info:    #93C5FD;   /* sky-300, kept (neutral, not Prisma indigo) */
+  --success: #86EFAC;   /* emerald-300, replaces the teal mint */
+  --warning: #FB923C;   /* orange-400, replaces the yellow */
+  --error:   #FF6B6B;   /* salmon, kept */
+
+  /* Code */
+  --code-bg: #111116;
+  --code-text: #E4E4E7;
+
+  --radius-xs: 10px;
+  --radius-sm: 14px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
+  --radius-xl: 36px;
+
+  /* Layout, verified against prisma/web (apps/docs + packages/eclipse)
+     and re-measured against prisma.io/docs live on 2026-06-15. Outer
+     container is 1504px with 24px side padding (so visible reach in
+     the body is 1456px content + 48px gutter). */
+  --max: 1504px;          /* outer container max-width */
+  --header-h: 56px;       /* main topbar bar, matches prisma h-14 */
+  --header-tabs-h: 40px;  /* optional secondary nav row, matches prisma h-10 */
+  --sidebar-w: 268px;     /* matches prisma --fd-sidebar-width */
+  --content-w: 964px;     /* article box = 900 children clamp + 32 side padding x2 */
+  --toc-w: 268px;         /* matches prisma --fd-toc-width */
+
+  --shadow: 0 24px 90px rgba(0,0,0,.45);
+
+  /* Z-index scale, formalized before first modal/dropdown lands.
+     Maps existing 20 (.topbar) and 100 (.skip-link) onto a named tier.
+     Per audit section I and ui-ux-pro-max z-index-management rule. */
+  --z-base:    1;
+  --z-sticky:  20;   /* .topbar */
+  --z-overlay: 40;
+  --z-modal:   50;
+  --z-tooltip: 60;
+  --z-skip:    100;  /* .skip-link must beat any modal/tooltip */
+}
+
+/*
+ * Light theme overrides.
+ * Activated by data-theme="light" on <html>, set by the inline script in
+ * BaseLayout.astro before first paint. Only the tokens that genuinely flip
+ * between themes are restated; brand pink, radii, layout dims, weights, and
+ * z-index are theme-agnostic and inherited from :root above.
+ */
+:root[data-theme="light"] {
+  /* Base surfaces */
+  --bg:             #FFFFFF;
+  --bg-subtle:      #F7F7F8;
+  --surface:        #FFFFFF;
+  --surface-raised: #F4F4F5;
+  --surface-hover:  #EEEEF0;
+
+  /* Structure */
+  --border:        rgba(15, 15, 18, 0.10);
+  --border-strong: rgba(15, 15, 18, 0.18);
+
+  /* Text */
+  --text:       #18181B;  /* zinc-900 */
+  --text-muted: #52525B;  /* zinc-600 */
+  --text-soft:  #71717A;  /* zinc-500 */
+
+  /* Primary stays the same brand pink; only the soft/border opacities are
+     tweaked because the same alpha reads weaker on white. */
+  --primary-soft:   rgba(239, 71, 121, 0.10);
+  --primary-border: rgba(239, 71, 121, 0.36);
+
+  /* Code */
+  --code-bg:   #F4F4F5;
+  --code-text: #18181B;
+
+  /* Shadow is lighter on white. */
+  --shadow: 0 16px 60px rgba(15, 15, 18, 0.12);
+
+  /* DocSearch theme adjustments (the modal is portaled, so we re-set its
+     vars at the same data-theme scope). */
+  --docsearch-text-color:                 var(--text);
+  --docsearch-muted-color:                var(--text-muted);
+  --docsearch-container-background:       rgba(15, 15, 18, 0.32);
+  --docsearch-modal-background:           var(--surface);
+  --docsearch-searchbox-background:       var(--bg-subtle);
+  --docsearch-searchbox-focus-background: var(--bg);
+  --docsearch-hit-background:             transparent;
+  --docsearch-hit-color:                  var(--text);
+  --docsearch-hit-active-color:           var(--primary);
+  --docsearch-footer-background:          var(--bg-subtle);
+  --docsearch-footer-shadow:              inset 0 1px 0 0 var(--border);
+  --docsearch-key-gradient:               linear-gradient(180deg, #FAFAFB 0%, #EFEFF1 100%);
+  --docsearch-key-shadow:
+    inset 0 -2px 0 0 rgba(15, 15, 18, 0.12),
+    inset 0 0 1px 1px rgba(15, 15, 18, 0.04),
+    0 1px 2px rgba(15, 15, 18, 0.08);
+  --docsearch-logo-color: var(--text-muted);
+}

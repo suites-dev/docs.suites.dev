@@ -1,0 +1,146 @@
+---
+title: "Scenario DSL"
+description: "Reference the Blackbox BDD scenario DSL, including scenario, background, given, when, then, given.each, outline, shared, and isolated flows."
+sidebar_position: 2
+keywords: ["scenario dsl", "scenario api", "bdd dsl reference", "given when then"]
+toc_min_heading_level: 2
+seo:
+  primary_keyword: "Scenario DSL"
+  secondary_keywords: ["scenario dsl", "scenario api", "given when then", "bdd dsl reference"]
+  search_intent: "developers who want the public Blackbox scenario DSL surface and its mapping to generated feature files"
+  snippet_angle: "document the Blackbox scenario DSL verbs and how they map to AAA, Gherkin, isolation, shared state, outlines, and feature generation"
+---
+
+The Scenario DSL is Blackbox's explicit BDD authoring surface.
+
+Use it when plain Playwright tests are not structured enough for faithful feature generation, or when the team wants scenarios to be readable in code before they become Gherkin.
+
+The DSL gives Blackbox stronger intent than decompiling arbitrary test code because the author names the behavior grammar directly:
+
+```text
+Given*  When+  Then+
+```
+
+`Then` is the conclusion of the behavior. A scenario without a `Then` may execute code, but it does not express an observable claim.
+
+## Minimal Scenario
+
+```ts
+import { expect, scenario } from './testbed.js';
+
+scenario('subscribe-flow', 'subscribing to the pro tier', ({ given, background }) => {
+  background('the system is reset', async ({ system }) => {
+    await system.reset();
+  });
+
+  given('alice is an existing user with no active subscription', async ({ request, system, when }) => {
+    await when('alice POSTs /subscriptions with a valid card', async ({ then }) => {
+      const response = await request.post(`${system.bff.hostBaseUrl}/subscriptions`, {
+        data: { userId: 'alice', paymentMethodId: 'pm_card_visa' },
+      });
+
+      await then('the response status is 201', async () => {
+        expect(response.status()).toBe(201);
+      });
+    });
+  });
+});
+```
+
+This maps to:
+
+```gherkin
+@flow:subscribe-flow
+Feature: subscribing to the pro tier
+
+  Background:
+    Given the system is reset
+
+  Scenario: alice is an existing user with no active subscription
+    When alice POSTs /subscriptions with a valid card
+    Then the response status is 201
+```
+
+## Verbs
+
+| Verb | Purpose | Gherkin mapping |
+| --- | --- | --- |
+| `scenario(slug, description, body)` | Define a behavior flow with a stable slug and human description | `@flow:<slug>` and `Feature: <description>` |
+| `background(label, fn)` | Shared setup that runs before each scenario inside the scenario body | `Background: Given <label>` |
+| `given(precondition, fn)` | Define the scenario precondition and arrangement frame | `Scenario: <precondition>` plus arrangement lines |
+| `when(action, fn)` | Define the action being exercised | `When <action>` |
+| `then(expectation, fn)` | Define an observable assertion | `Then <expectation>` or `And <expectation>` |
+| `given.each(rows)(precondition, fn)` | Define a scenario outline from row data | `Scenario Outline` and `Examples` |
+| `outline(slug, description, rows, body)` | Define a parameterized flow directly | `Scenario Outline` and `Examples` |
+| `scenario.isolated(...)` | Mark a scenario that needs a fresh isolation group | Same Gherkin; isolation is runtime metadata |
+| `scenario.shared(parentSlug, slug, description, body)` | Join a serial flow to a parent scenario's isolation group | Same Gherkin; shared-state chain is runtime metadata |
+
+## Isolation Verbs
+
+Use `scenario.isolated` when sibling scenarios must not share system state. This is the shape the reshaper uses for `test.describe.parallel(...)` siblings.
+
+Use `scenario.shared(parentSlug, ...)` when a serial chain intentionally carries state from one scenario to the next. The parent slug must already be registered. This is the shape the reshaper uses for serial describe chains.
+
+Use `outline` or `given.each` when the same behavior should run over rows of examples.
+
+## How The Analyzer Reads The DSL
+
+The `blackbox-features` analyzer detects BDD-DSL files by looking for `scenario(...)` plus BDD verbs such as `given`, `when`, `then`, or `background`.
+
+From there it builds an analyzed feature:
+
+| DSL element | Analyzed feature field |
+| --- | --- |
+| `scenario(slug, description, ...)` | feature description and `@<slug>` tag |
+| `background(label, ...)` | background step with `given` phase |
+| `given(label, ...)` | scenario and first `given` step |
+| `when(label, ...)` | `when` step |
+| `then(label, ...)` | `then` step |
+| `given.each([...])` | scenario examples table |
+
+This is more reliable than decompiling arbitrary Playwright because the behavior phases are explicit.
+
+## Lint Rules That Apply
+
+`features lint` applies to DSL-authored and decompiled scenarios.
+
+The most important rules are:
+
+| Rule | Why it matters |
+| --- | --- |
+| `aaa-shape` | Enforces `Given* When+ Then+` in that order |
+| `missing-then` | Prevents scenarios with no observable conclusion |
+| `opaque-step` | Warns when decompiled text is too generic to review |
+| `placeholder-token` | Warns when generated placeholders are unresolved |
+| `missing-background` | Suggests `Background` when setup repeats |
+| `imperative-scenario` | Flags overly low-level UI action lists |
+| `empty-scenario` | Blocks scenarios with no steps |
+
+## Relationship To Feature Files
+
+The DSL is not a replacement for `.feature` files. It is the source shape that makes feature files more faithful.
+
+The normal path is:
+
+1. Author or reshape a test into the Scenario DSL.
+2. Run `blackbox features lint`.
+3. Run `blackbox features emit`.
+4. Commit the generated `.feature` file if it is part of the review surface.
+5. Run `blackbox features check` in CI to catch syntax failure and feature-file drift.
+
+## Relationship To Runtime Effects
+
+The Scenario DSL names behavior. Effects prove boundary behavior.
+
+A `then(...)` block may contain ordinary response assertions, effect catalog matchers, or both. Feature files remain readable; effect catalogs and coverage reports carry the runtime proof.
+
+## Stability
+
+The DSL surface is alpha. The core grammar is stable enough to document: scenarios should arrange, act, and conclude. Migration helpers such as reshape, scaffold, and wrap may change faster than the hand-authored DSL.
+
+## What To Read Next
+
+1. [Writing Scenarios](/docs/blackbox/guides/writing-scenarios)
+2. [Generating Feature Files](/docs/blackbox/guides/generating-feature-files)
+3. [Feature Files, BDD, and Staleness](/docs/blackbox/concepts/feature-files-and-staleness)
+4. [CLI Reference](/docs/blackbox/reference/cli)

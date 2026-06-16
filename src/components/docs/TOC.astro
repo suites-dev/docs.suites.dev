@@ -1,0 +1,90 @@
+---
+interface Heading {
+  depth: number;
+  text: string;
+  slug: string;
+}
+interface Props {
+  headings: Heading[];
+}
+const { headings } = Astro.props;
+const filtered = headings.filter((h) => h.depth >= 2 && h.depth <= 4);
+---
+{filtered.length > 0 && (
+  <ul class="toc-list" data-toc-list role="list">
+    {filtered.map((h) => (
+      <li class={`depth-${h.depth}`}>
+        <a href={`#${h.slug}`} data-toc-link={h.slug}>{h.text}</a>
+      </li>
+    ))}
+  </ul>
+)}
+
+<script>
+  // Highlight the TOC entry that matches the section currently visible in the
+  // viewport. Uses IntersectionObserver so it is cheap and scroll-passive.
+  // Falls back silently if the API is missing or no headings exist.
+  const list = document.querySelector<HTMLElement>('[data-toc-list]');
+  if (list && 'IntersectionObserver' in window) {
+    const links = Array.from(
+      list.querySelectorAll<HTMLAnchorElement>('a[data-toc-link]'),
+    );
+    const bySlug = new Map(links.map((a) => [a.dataset.tocLink!, a]));
+    const slugs = links.map((a) => a.dataset.tocLink!);
+    const targets = slugs
+      .map((s) => document.getElementById(s))
+      .filter((el): el is HTMLElement => el !== null);
+
+    let active: string | null = null;
+    const setActive = (slug: string | null) => {
+      if (slug === active) return;
+      active = slug;
+      for (const a of links) {
+        a.classList.remove('active');
+        a.removeAttribute('aria-current');
+      }
+      if (slug) {
+        const a = bySlug.get(slug);
+        if (a) {
+          a.classList.add('active');
+          a.setAttribute('aria-current', 'location');
+        }
+      }
+    };
+
+    // Track which headings are currently intersecting; pick the one closest
+    // to the top of the reading area. rootMargin biases towards the upper
+    // viewport so the active item changes as a section scrolls past the top.
+    const visible = new Set<string>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const id = entry.target.id;
+          if (entry.isIntersecting) visible.add(id);
+          else visible.delete(id);
+        }
+        if (visible.size > 0) {
+          // Pick the first slug in document order that is currently visible.
+          const next = slugs.find((s) => visible.has(s));
+          if (next) setActive(next);
+        } else {
+          // Nothing intersecting (between sections). Keep the last-known
+          // section that has scrolled above the viewport top.
+          let lastAbove: string | null = null;
+          for (const el of targets) {
+            if (el.getBoundingClientRect().top < 120) lastAbove = el.id;
+          }
+          setActive(lastAbove);
+        }
+      },
+      {
+        // Activate as soon as the heading crosses ~20% from the top of the
+        // viewport; deactivate when it leaves the upper half.
+        rootMargin: '-80px 0px -55% 0px',
+        threshold: [0, 1],
+      },
+    );
+
+    for (const t of targets) observer.observe(t);
+  }
+</script>

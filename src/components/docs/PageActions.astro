@@ -1,0 +1,132 @@
+---
+/*
+ * Docs page-actions cluster.
+ *
+ * Three affordances, dark-mode-first:
+ *  1. Copy Markdown -- copies the page's raw markdown body to the clipboard so
+ *     the reader can paste it into an LLM, an issue, or their notes. The body
+ *     is rendered as a hidden <script type="text/markdown"> tag below; on click
+ *     the inline JS reads its textContent and uses navigator.clipboard.
+ *  2. Open in LLM -- a native <details> dropdown with ChatGPT + Claude entries
+ *     that pre-fill a prompt with the page URL so the LLM can fetch + answer.
+ *  3. Edit on GitHub -- jumps to the source markdown file in the repo. The
+ *     edit URL is composed from a base + the entry filePath.
+ *
+ * Accessibility:
+ *  - All buttons are 36px tall with min-width sized for content; the icon-only
+ *    success state still gets aria-label.
+ *  - Focus rings honour the global :focus-visible style.
+ *  - The dropdown is a native <details>/<summary>, so screen readers and keyboard
+ *    users get standard semantics with no JS.
+ */
+
+interface Props {
+  /* Raw markdown body of the entry, passed in from the dynamic route. */
+  rawBody: string;
+  /* The page slug, used both as a key for the inline script and for the LLM prompt. */
+  slug: string;
+  /* The full edit URL, either from frontmatter or derived from the entry id. */
+  editUrl: string;
+}
+
+const { rawBody, slug, editUrl } = Astro.props;
+const pageUrl = new URL(`/docs/${slug}`, Astro.site ?? 'https://suites.dev').toString();
+const llmPrompt = `Please read ${pageUrl} and help me understand it.`;
+const chatgptHref = `https://chatgpt.com/?q=${encodeURIComponent(llmPrompt)}`;
+const claudeHref  = `https://claude.ai/new?q=${encodeURIComponent(llmPrompt)}`;
+---
+<div class="page-actions" data-page-actions data-slug={slug}>
+  <button
+    type="button"
+    class="page-action"
+    data-copy-markdown
+    aria-label="Copy this page as markdown to the clipboard"
+  >
+    <svg class="page-action-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+    </svg>
+    <span class="page-action-label" data-copy-label>Copy Markdown</span>
+  </button>
+
+  <details class="page-action-menu">
+    <summary class="page-action" aria-label="Open this page in an LLM">
+      <svg class="page-action-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+        <path d="M9 11.5a3.5 3.5 0 1 1 5 3.16V17a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-2.34A3.5 3.5 0 0 1 9 11.5Z" />
+        <path d="M12 2v2" />
+        <path d="M12 20v2" />
+      </svg>
+      <span class="page-action-label">Open</span>
+      <svg class="page-action-caret" width="10" height="10" viewBox="0 0 12 12" fill="none" aria-hidden="true" focusable="false">
+        <path d="M3.5 4.5L6 7L8.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </summary>
+    <div class="page-action-menu-panel" role="menu">
+      <a class="page-action-menu-item" role="menuitem" href={chatgptHref} target="_blank" rel="noopener noreferrer">
+        Open in ChatGPT
+      </a>
+      <a class="page-action-menu-item" role="menuitem" href={claudeHref} target="_blank" rel="noopener noreferrer">
+        Open in Claude
+      </a>
+    </div>
+  </details>
+
+  <a
+    class="page-action page-action-edit"
+    href={editUrl}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Edit this page on GitHub (opens in a new tab)"
+  >
+    <svg class="page-action-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+      <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2Z" />
+    </svg>
+    <span class="page-action-label">Edit on GitHub</span>
+  </a>
+</div>
+
+{/* The raw markdown body, rendered as a script tag so the browser does not try
+    to render it as MDX. set:html keeps the body byte-for-byte. The Copy Markdown
+    button reads this tag's textContent on click. */}
+<script type="text/markdown" data-page-markdown set:html={rawBody}></script>
+
+<script is:inline>
+  (function () {
+    document.addEventListener('click', function (event) {
+      var trigger = event.target.closest('[data-copy-markdown]');
+      if (!trigger) return;
+      var root = trigger.closest('[data-page-actions]');
+      if (!root) return;
+      var md = document.querySelector('[data-page-markdown]');
+      if (!md) return;
+      var text = md.textContent || '';
+      var label = trigger.querySelector('[data-copy-label]');
+      var prior = label ? label.textContent : '';
+      function flash(msg) {
+        if (!label) return;
+        label.textContent = msg;
+        setTimeout(function () { label.textContent = prior; }, 1600);
+      }
+      function fallbackCopy(s) {
+        var ta = document.createElement('textarea');
+        ta.value = s;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'absolute';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); flash('Copied'); }
+        catch (e) { flash('Copy failed'); }
+        document.body.removeChild(ta);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(
+          function () { flash('Copied'); },
+          function () { fallbackCopy(text); }
+        );
+      } else {
+        fallbackCopy(text);
+      }
+    });
+  })();
+</script>

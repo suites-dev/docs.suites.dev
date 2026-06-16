@@ -1,0 +1,36 @@
+---
+import { getCollection, render } from 'astro:content';
+import DocLayout from '@/layouts/DocLayout.astro';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('docs');
+  return entries.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+
+const slug = entry.slug;
+const data = entry.data;
+
+/* Resolve title and description, allowing meta_* overrides for SEO. */
+const title       = data.meta_title       ?? data.title;
+const description = data.meta_description ?? data.description;
+---
+<DocLayout
+  title={title}
+  description={description}
+  headings={headings}
+  slug={slug}
+  badge={data.badge}
+  lastUpdated={data.last_updated}
+  editUrl={data.edit_url}
+  hideToc={data.hide_toc}
+  rawBody={entry.body}
+  entryId={entry.id}
+>
+  <Content />
+</DocLayout>

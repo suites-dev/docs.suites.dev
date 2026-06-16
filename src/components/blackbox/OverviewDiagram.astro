@@ -1,0 +1,345 @@
+---
+interface Props {
+  kind: 'workflow' | 'fit' | 'coverage' | 'blind-spot' | 'quickstart' | 'proof-loop';
+}
+
+const { kind } = Astro.props;
+---
+
+{kind === 'proof-loop' && (
+  <figure class="bb-overview-diagram" aria-label="Tests, effects, and feature files verification loop">
+    <svg viewBox="0 0 860 340" role="img" aria-labelledby="blackbox-proof-loop-title blackbox-proof-loop-desc">
+      <title id="blackbox-proof-loop-title">Tests, effects, and feature files</title>
+      <desc id="blackbox-proof-loop-desc">System tests drive behavior, runtime effects prove boundary behavior, feature files make the behavior readable, and gates keep the artifacts synchronized.</desc>
+      <defs>
+        <marker id="bb-proof-loop-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"></path>
+        </marker>
+      </defs>
+
+      <rect x="8" y="8" width="844" height="324" rx="18" fill="#111827" stroke="#374151"></rect>
+      <text x="36" y="44" fill="#f8fafc" font-size="19" font-weight="700">Three artifacts, one verification loop</text>
+      <text x="36" y="70" fill="#cbd5e1" font-size="13">Tests exercise the workflow. Effects prove what happened. Feature files make the behavior readable. Gates keep them aligned.</text>
+
+      <rect x="58" y="124" width="184" height="88" rx="14" fill="#172554" stroke="#60a5fa"></rect>
+      <text x="150" y="154" text-anchor="middle" fill="#eff6ff" font-size="16" font-weight="700">System test</text>
+      <text x="150" y="178" text-anchor="middle" fill="#bfdbfe" font-size="13">drives one workflow</text>
+      <text x="150" y="198" text-anchor="middle" fill="#93c5fd" font-size="12">source of executable behavior</text>
+
+      <line x1="254" y1="168" x2="330" y2="168" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-proof-loop-arrow)"></line>
+
+      <rect x="342" y="124" width="184" height="88" rx="14" fill="#14532d" stroke="#86efac"></rect>
+      <text x="434" y="154" text-anchor="middle" fill="#f0fdf4" font-size="16" font-weight="700">Runtime effects</text>
+      <text x="434" y="178" text-anchor="middle" fill="#bbf7d0" font-size="13">required and forbidden</text>
+      <text x="434" y="198" text-anchor="middle" fill="#86efac" font-size="12">source of proof</text>
+
+      <line x1="538" y1="168" x2="614" y2="168" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-proof-loop-arrow)"></line>
+
+      <rect x="626" y="124" width="184" height="88" rx="14" fill="#581c87" stroke="#c084fc"></rect>
+      <text x="718" y="154" text-anchor="middle" fill="#faf5ff" font-size="16" font-weight="700">Feature file</text>
+      <text x="718" y="178" text-anchor="middle" fill="#e9d5ff" font-size="13">Gherkin readable view</text>
+      <text x="718" y="198" text-anchor="middle" fill="#d8b4fe" font-size="12">source of shared language</text>
+
+      <path d="M718 226 C718 282 150 282 150 226" fill="none" stroke="#fbbf24" stroke-width="2" stroke-dasharray="7 7" marker-end="url(#bb-proof-loop-arrow)"></path>
+      <text x="434" y="276" text-anchor="middle" fill="#fde68a" font-size="13" font-weight="700">review changes, rerun gates, keep behavior synchronized</text>
+
+      <rect x="144" y="88" width="572" height="30" rx="15" fill="#0f172a" stroke="#475569"></rect>
+      <text x="430" y="108" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="700">features lint/check + system tests + effect coverage + optional observation comparison</text>
+    </svg>
+    <figcaption>The combined workflow is stronger than any artifact alone: tests keep behavior executable, effects make runtime proof reviewable, and feature files give humans and agents a readable behavior surface.</figcaption>
+  </figure>
+)}
+
+{kind === 'blind-spot' && (
+  <figure class="bb-overview-diagram" aria-label="Normal E2E assertion compared with Blackbox behavioral evidence">
+    <svg viewBox="0 0 860 360" role="img" aria-labelledby="blackbox-blind-spot-title blackbox-blind-spot-desc">
+      <title id="blackbox-blind-spot-title">The E2E blind spot</title>
+      <desc id="blackbox-blind-spot-desc">A request returns a passing response while the internal effects between input and output remain unchecked until Blackbox records and classifies them.</desc>
+      <defs>
+        <marker id="bb-blind-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#9ca3af"></path>
+        </marker>
+      </defs>
+
+      <rect x="8" y="8" width="844" height="344" rx="18" fill="#111827" stroke="#374151"></rect>
+      <text x="36" y="42" fill="#f9fafb" font-size="19" font-weight="700">A green E2E test can still leave behavior unverified</text>
+      <text x="36" y="67" fill="#cbd5e1" font-size="13">Blackbox keeps the request and response, then adds evidence for the effects that happened between them.</text>
+
+      <rect x="46" y="106" width="166" height="88" rx="13" fill="#14532d" stroke="#86efac"></rect>
+      <text x="129" y="136" text-anchor="middle" fill="#f0fdf4" font-size="15" font-weight="700">Input</text>
+      <text x="129" y="162" text-anchor="middle" fill="#bbf7d0" font-size="18" font-weight="800">POST</text>
+      <text x="129" y="182" text-anchor="middle" fill="#86efac" font-size="12">/subscriptions</text>
+
+      <line x1="224" y1="150" x2="326" y2="150" stroke="#9ca3af" stroke-width="2" marker-end="url(#bb-blind-arrow)"></line>
+      <text x="275" y="129" text-anchor="middle" fill="#fbbf24" font-size="12" font-weight="700">usual blind spot</text>
+      <text x="275" y="170" text-anchor="middle" fill="#fde68a" font-size="12">effects not reviewed</text>
+
+      <rect x="338" y="106" width="166" height="88" rx="13" fill="#172554" stroke="#60a5fa"></rect>
+      <text x="421" y="136" text-anchor="middle" fill="#eff6ff" font-size="15" font-weight="700">Output</text>
+      <text x="421" y="162" text-anchor="middle" fill="#bfdbfe" font-size="28" font-weight="800">PASS</text>
+      <text x="421" y="182" text-anchor="middle" fill="#93c5fd" font-size="12">201 Created</text>
+
+      <line x1="516" y1="150" x2="618" y2="150" stroke="#9ca3af" stroke-width="2" marker-end="url(#bb-blind-arrow)"></line>
+
+      <rect x="630" y="84" width="188" height="132" rx="14" fill="#1f2937" stroke="#64748b"></rect>
+      <text x="724" y="113" text-anchor="middle" fill="#f8fafc" font-size="15" font-weight="700">Blackbox evidence</text>
+      <text x="650" y="144" fill="#dcfce7" font-size="12" font-weight="700">seen</text>
+      <text x="704" y="144" fill="#dcfce7" font-size="12">payment intent</text>
+      <text x="650" y="169" fill="#dcfce7" font-size="12" font-weight="700">seen</text>
+      <text x="704" y="169" fill="#dcfce7" font-size="12">subscription insert</text>
+      <text x="650" y="194" fill="#fee2e2" font-size="12" font-weight="700">missing</text>
+      <text x="704" y="194" fill="#fee2e2" font-size="12">activation message</text>
+
+      <rect x="108" y="248" width="644" height="50" rx="14" fill="#0f172a" stroke="#475569"></rect>
+      <text x="430" y="270" text-anchor="middle" fill="#e5e7eb" font-size="13" font-weight="700">The test result stays useful. The evidence now says whether the behavior behind it is complete.</text>
+      <text x="430" y="290" text-anchor="middle" fill="#94a3b8" font-size="12">Runtime evidence -> effect catalog -> coverage report -> reviewable gate</text>
+    </svg>
+    <figcaption>Normal E2E assertions usually see the outside of the workflow. Blackbox adds a review surface for the required, forbidden, and missing effects that explain whether the workflow really behaved correctly.</figcaption>
+  </figure>
+)}
+
+{kind === 'workflow' && (
+  <figure class="bb-overview-diagram" aria-label="Blackbox workflow from test run to verification gate">
+    <svg viewBox="0 0 860 260" role="img" aria-labelledby="blackbox-workflow-title blackbox-workflow-desc">
+      <title id="blackbox-workflow-title">Blackbox workflow</title>
+      <desc id="blackbox-workflow-desc">A system or end-to-end test run produces runtime evidence. Blackbox maps the evidence into effects, then generates effect coverage reports, optional behavior specs, and CI gates.</desc>
+      <defs>
+        <marker id="bb-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#9ca3af"></path>
+        </marker>
+        <filter id="bb-card-shadow" x="-10%" y="-20%" width="120%" height="150%">
+          <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000000" flood-opacity="0.18"></feDropShadow>
+        </filter>
+      </defs>
+      <rect x="8" y="8" width="844" height="244" rx="18" fill="#111827" stroke="#374151"></rect>
+      <text x="36" y="42" fill="#f9fafb" font-size="19" font-weight="700">From a real run to a reviewable gate</text>
+      <text x="36" y="67" fill="#cbd5e1" font-size="13">Blackbox keeps tests, runtime evidence, behavior artifacts, and CI decisions connected.</text>
+
+      <g filter="url(#bb-card-shadow)">
+        <rect x="36" y="102" width="166" height="84" rx="12" fill="#172554" stroke="#60a5fa"></rect>
+        <text x="119" y="132" text-anchor="middle" fill="#eff6ff" font-size="15" font-weight="700">System or E2E</text>
+        <text x="119" y="154" text-anchor="middle" fill="#bfdbfe" font-size="13">test run</text>
+        <text x="119" y="174" text-anchor="middle" fill="#93c5fd" font-size="12">workflow executes</text>
+      </g>
+
+      <line x1="214" y1="144" x2="276" y2="144" stroke="#9ca3af" stroke-width="2" marker-end="url(#bb-arrow)"></line>
+
+      <g filter="url(#bb-card-shadow)">
+        <rect x="288" y="102" width="166" height="84" rx="12" fill="#14532d" stroke="#86efac"></rect>
+        <text x="371" y="132" text-anchor="middle" fill="#f0fdf4" font-size="15" font-weight="700">Runtime</text>
+        <text x="371" y="154" text-anchor="middle" fill="#bbf7d0" font-size="13">evidence</text>
+        <text x="371" y="174" text-anchor="middle" fill="#86efac" font-size="12">spans and observations</text>
+      </g>
+
+      <line x1="466" y1="144" x2="528" y2="144" stroke="#9ca3af" stroke-width="2" marker-end="url(#bb-arrow)"></line>
+
+      <g filter="url(#bb-card-shadow)">
+        <rect x="540" y="102" width="166" height="84" rx="12" fill="#581c87" stroke="#c084fc"></rect>
+        <text x="623" y="132" text-anchor="middle" fill="#faf5ff" font-size="15" font-weight="700">Effect model</text>
+        <text x="623" y="154" text-anchor="middle" fill="#e9d5ff" font-size="13">requires and forbids</text>
+        <text x="623" y="174" text-anchor="middle" fill="#d8b4fe" font-size="12">behavior is classified</text>
+      </g>
+
+      <line x1="718" y1="144" x2="780" y2="144" stroke="#9ca3af" stroke-width="2" marker-end="url(#bb-arrow)"></line>
+
+      <g filter="url(#bb-card-shadow)">
+        <rect x="656" y="198" width="166" height="32" rx="10" fill="#1f2937" stroke="#6b7280"></rect>
+        <text x="739" y="219" text-anchor="middle" fill="#e5e7eb" font-size="12">JSON, Markdown, HTML, JUnit</text>
+      </g>
+
+      <g filter="url(#bb-card-shadow)">
+        <rect x="690" y="74" width="134" height="42" rx="10" fill="#7f1d1d" stroke="#fca5a5"></rect>
+        <text x="757" y="100" text-anchor="middle" fill="#fee2e2" font-size="13" font-weight="700">CI gate</text>
+      </g>
+
+      <g filter="url(#bb-card-shadow)">
+        <rect x="690" y="132" width="134" height="42" rx="10" fill="#78350f" stroke="#fbbf24"></rect>
+        <text x="757" y="158" text-anchor="middle" fill="#fef3c7" font-size="13" font-weight="700">Reports and artifacts</text>
+      </g>
+    </svg>
+    <figcaption>Blackbox starts with the test run you already trust, then turns the observed behavior into evidence, effect coverage, behavior artifacts, and gates that can be reviewed in CI.</figcaption>
+  </figure>
+)}
+
+{kind === 'fit' && (
+  <figure class="bb-overview-diagram" aria-label="Blackbox fit across system and end-to-end tests">
+    <svg viewBox="0 0 860 300" role="img" aria-labelledby="blackbox-fit-title blackbox-fit-desc">
+      <title id="blackbox-fit-title">Where Blackbox fits</title>
+      <desc id="blackbox-fit-desc">Blackbox is strongest around controlled system tests with managed dependencies, and can also observe broader end-to-end journeys that include unmanaged dependencies.</desc>
+      <defs>
+        <marker id="bb-fit-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#9ca3af"></path>
+        </marker>
+        <linearGradient id="bb-fit-band" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#14532d"></stop>
+          <stop offset="55%" stop-color="#155e75"></stop>
+          <stop offset="100%" stop-color="#581c87"></stop>
+        </linearGradient>
+      </defs>
+
+      <rect x="8" y="8" width="844" height="284" rx="18" fill="#111827" stroke="#374151"></rect>
+      <text x="36" y="42" fill="#f9fafb" font-size="19" font-weight="700">Blackbox is strongest where the run is realistic and controlled</text>
+      <text x="36" y="67" fill="#cbd5e1" font-size="13">The same evidence model can observe broader E2E journeys, but managed dependencies make failures easier to trust as gates.</text>
+
+      <line x1="96" y1="214" x2="764" y2="214" stroke="#9ca3af" stroke-width="2" marker-end="url(#bb-fit-arrow)"></line>
+      <text x="96" y="240" text-anchor="middle" fill="#d1fae5" font-size="13" font-weight="700">Managed</text>
+      <text x="96" y="258" text-anchor="middle" fill="#a7f3d0" font-size="12">local, resettable</text>
+      <text x="764" y="240" text-anchor="middle" fill="#f5d0fe" font-size="13" font-weight="700">Unmanaged</text>
+      <text x="764" y="258" text-anchor="middle" fill="#e9d5ff" font-size="12">remote, shared, vendor</text>
+
+      <rect x="72" y="104" width="260" height="88" rx="14" fill="#14532d" stroke="#86efac"></rect>
+      <text x="202" y="134" text-anchor="middle" fill="#f0fdf4" font-size="16" font-weight="700">Controlled system test</text>
+      <text x="202" y="158" text-anchor="middle" fill="#bbf7d0" font-size="13">services, databases, queues, caches</text>
+      <text x="202" y="178" text-anchor="middle" fill="#86efac" font-size="12">best first fit for CI gates</text>
+
+      <rect x="528" y="104" width="260" height="88" rx="14" fill="#581c87" stroke="#c084fc"></rect>
+      <text x="658" y="134" text-anchor="middle" fill="#faf5ff" font-size="16" font-weight="700">Broader E2E journey</text>
+      <text x="658" y="158" text-anchor="middle" fill="#e9d5ff" font-size="13">auth, email, vendors, shared envs</text>
+      <text x="658" y="178" text-anchor="middle" fill="#d8b4fe" font-size="12">valuable evidence, noisier gates</text>
+
+      <rect x="236" y="86" width="388" height="34" rx="17" fill="url(#bb-fit-band)" stroke="#93c5fd"></rect>
+      <text x="430" y="108" text-anchor="middle" fill="#f8fafc" font-size="13" font-weight="700">Runtime evidence and effect coverage</text>
+
+      <line x1="334" y1="148" x2="518" y2="148" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 7"></line>
+      <text x="426" y="145" text-anchor="middle" fill="#e5e7eb" font-size="12">same workflow, different control</text>
+    </svg>
+    <figcaption>Start with controlled system tests when you need a deterministic merge gate. Use broader E2E runs when the goal is full-journey evidence and you can tolerate more environmental noise.</figcaption>
+  </figure>
+)}
+
+{kind === 'coverage' && (
+  <figure class="bb-overview-diagram" aria-label="Effect coverage report simulation">
+    <svg viewBox="0 0 860 340" role="img" aria-labelledby="effect-coverage-title effect-coverage-desc">
+      <title id="effect-coverage-title">Effect coverage catches missing behavior between input and output</title>
+      <desc id="effect-coverage-desc">A simulated report where the input and output assertion passes, but effect coverage shows a missing queue message and an OMC/DC masking signal.</desc>
+      <defs>
+        <marker id="bb-effect-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#9ca3af"></path>
+        </marker>
+      </defs>
+
+      <rect x="8" y="8" width="844" height="324" rx="18" fill="#111827" stroke="#374151"></rect>
+      <text x="36" y="42" fill="#f9fafb" font-size="19" font-weight="700">Input and output can pass while behavior is missing</text>
+      <text x="36" y="67" fill="#cbd5e1" font-size="13">Effect coverage makes the middle of the workflow visible: what the system actually did.</text>
+
+      <rect x="36" y="100" width="170" height="96" rx="13" fill="#14532d" stroke="#86efac"></rect>
+      <text x="121" y="128" text-anchor="middle" fill="#f0fdf4" font-size="15" font-weight="700">Input</text>
+      <text x="121" y="154" text-anchor="middle" fill="#bbf7d0" font-size="18" font-weight="800">POST</text>
+      <text x="121" y="178" text-anchor="middle" fill="#86efac" font-size="12">/subscriptions</text>
+
+      <line x1="218" y1="148" x2="274" y2="148" stroke="#9ca3af" stroke-width="2" marker-end="url(#bb-effect-arrow)"></line>
+
+      <rect x="286" y="100" width="170" height="96" rx="13" fill="#172554" stroke="#60a5fa"></rect>
+      <text x="371" y="128" text-anchor="middle" fill="#eff6ff" font-size="15" font-weight="700">Output assertion</text>
+      <text x="371" y="154" text-anchor="middle" fill="#bfdbfe" font-size="28" font-weight="800">PASS</text>
+      <text x="371" y="178" text-anchor="middle" fill="#93c5fd" font-size="12">201 Created</text>
+
+      <line x1="468" y1="148" x2="524" y2="148" stroke="#9ca3af" stroke-width="2" marker-end="url(#bb-effect-arrow)"></line>
+
+      <rect x="536" y="88" width="288" height="148" rx="14" fill="#1f2937" stroke="#64748b"></rect>
+      <text x="680" y="118" text-anchor="middle" fill="#f8fafc" font-size="16" font-weight="700">Behavioral evidence</text>
+
+      <rect x="560" y="136" width="240" height="24" rx="6" fill="#14532d" stroke="#22c55e"></rect>
+      <text x="574" y="153" fill="#dcfce7" font-size="12" font-weight="700">OBSERVED</text>
+      <text x="658" y="153" fill="#dcfce7" font-size="12">subscription inserted</text>
+
+      <rect x="560" y="168" width="240" height="24" rx="6" fill="#7f1d1d" stroke="#f87171"></rect>
+      <text x="574" y="185" fill="#fee2e2" font-size="12" font-weight="700">MISSING</text>
+      <text x="658" y="185" fill="#fee2e2" font-size="12">activation message</text>
+
+      <rect x="560" y="200" width="240" height="24" rx="6" fill="#78350f" stroke="#fbbf24"></rect>
+      <text x="574" y="217" fill="#fef3c7" font-size="12" font-weight="700">MASKED</text>
+      <text x="646" y="217" fill="#fef3c7" font-size="12">tier decision not distinct</text>
+
+      <rect x="86" y="254" width="688" height="42" rx="12" fill="#0f172a" stroke="#475569"></rect>
+      <text x="430" y="280" text-anchor="middle" fill="#e2e8f0" font-size="14" font-weight="700">Review question: should input/output success be enough when required behavior is missing?</text>
+    </svg>
+    <figcaption>System-test effect coverage does not replace the assertion or the coverage report. It adds the missing behavior view: which required, forbidden, and decision-sensitive effects appeared in the run.</figcaption>
+  </figure>
+)}
+
+{kind === 'quickstart' && (
+  <figure class="bb-overview-diagram" aria-label="Quickstart proof trail from one command to Blackbox artifacts">
+    <svg viewBox="0 0 860 380" role="img" aria-labelledby="blackbox-quickstart-title blackbox-quickstart-desc">
+      <title id="blackbox-quickstart-title">Quickstart proof trail</title>
+      <desc id="blackbox-quickstart-desc">One system test command runs the subscription flow, records runtime evidence, and writes effect contracts, coverage reports, diagnostics, and optional behavior specs.</desc>
+      <defs>
+        <marker id="bb-quickstart-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#9ca3af"></path>
+        </marker>
+      </defs>
+
+      <rect x="8" y="8" width="844" height="364" rx="18" fill="#111827" stroke="#374151"></rect>
+      <text x="36" y="42" fill="#f9fafb" font-size="19" font-weight="700">One run should leave a proof trail</text>
+      <text x="36" y="67" fill="#cbd5e1" font-size="13">The quickstart is successful when the command produces artifacts a reviewer can inspect.</text>
+
+      <rect x="42" y="112" width="178" height="82" rx="13" fill="#172554" stroke="#60a5fa"></rect>
+      <text x="131" y="142" text-anchor="middle" fill="#eff6ff" font-size="14" font-weight="700">Run</text>
+      <text x="131" y="168" text-anchor="middle" fill="#bfdbfe" font-size="15" font-weight="800">pnpm test:system</text>
+
+      <line x1="232" y1="153" x2="310" y2="153" stroke="#9ca3af" stroke-width="2" marker-end="url(#bb-quickstart-arrow)"></line>
+
+      <rect x="322" y="98" width="214" height="110" rx="14" fill="#14532d" stroke="#86efac"></rect>
+      <text x="429" y="128" text-anchor="middle" fill="#f0fdf4" font-size="15" font-weight="700">Runtime evidence</text>
+      <text x="429" y="153" text-anchor="middle" fill="#bbf7d0" font-size="12">Redis, Postgres, HTTP, SQS</text>
+      <text x="429" y="176" text-anchor="middle" fill="#86efac" font-size="12">spans and per-test diagnostics</text>
+
+      <line x1="548" y1="153" x2="626" y2="153" stroke="#9ca3af" stroke-width="2" marker-end="url(#bb-quickstart-arrow)"></line>
+
+      <rect x="638" y="82" width="180" height="142" rx="14" fill="#581c87" stroke="#c084fc"></rect>
+      <text x="728" y="112" text-anchor="middle" fill="#faf5ff" font-size="15" font-weight="700">Effect contract</text>
+      <text x="728" y="139" text-anchor="middle" fill="#e9d5ff" font-size="12">required effects</text>
+      <text x="728" y="162" text-anchor="middle" fill="#e9d5ff" font-size="12">forbidden effects</text>
+      <text x="728" y="190" text-anchor="middle" fill="#d8b4fe" font-size="12">checked on later runs</text>
+
+      <rect x="96" y="262" width="184" height="54" rx="12" fill="#0f172a" stroke="#475569"></rect>
+      <text x="188" y="286" text-anchor="middle" fill="#e5e7eb" font-size="12" font-weight="700">Coverage reports</text>
+      <text x="188" y="304" text-anchor="middle" fill="#94a3b8" font-size="11">OMC/DC, HTML, Markdown</text>
+
+      <rect x="338" y="262" width="184" height="54" rx="12" fill="#0f172a" stroke="#475569"></rect>
+      <text x="430" y="286" text-anchor="middle" fill="#e5e7eb" font-size="12" font-weight="700">Diagnostic evidence</text>
+      <text x="430" y="304" text-anchor="middle" fill="#94a3b8" font-size="11">spans and V8 per test</text>
+
+      <rect x="580" y="262" width="184" height="54" rx="12" fill="#0f172a" stroke="#475569"></rect>
+      <text x="672" y="286" text-anchor="middle" fill="#e5e7eb" font-size="12" font-weight="700">Optional behavior spec</text>
+      <text x="672" y="304" text-anchor="middle" fill="#94a3b8" font-size="11">feature file when enabled</text>
+
+      <line x1="429" y1="220" x2="188" y2="254" stroke="#64748b" stroke-width="2" marker-end="url(#bb-quickstart-arrow)"></line>
+      <line x1="429" y1="220" x2="430" y2="254" stroke="#64748b" stroke-width="2" marker-end="url(#bb-quickstart-arrow)"></line>
+      <line x1="429" y1="220" x2="672" y2="254" stroke="#64748b" stroke-width="2" marker-end="url(#bb-quickstart-arrow)"></line>
+    </svg>
+    <figcaption>The first run is not finished when the endpoint returns 201. It is finished when the evidence, effect contract, reports, and optional readable spec can be inspected together.</figcaption>
+  </figure>
+)}
+
+<style>
+  .bb-overview-diagram {
+    margin: 24px 0;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    overflow-x: auto;
+  }
+
+  .bb-overview-diagram svg {
+    display: block;
+    width: 100%;
+    min-width: 680px;
+    height: auto;
+  }
+
+  .bb-overview-diagram figcaption {
+    margin-top: 10px;
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.55;
+    text-align: center;
+  }
+
+  @media (max-width: 760px) {
+    .bb-overview-diagram {
+      padding: 12px;
+    }
+  }
+</style>

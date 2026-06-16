@@ -1,0 +1,137 @@
+---
+title: "Tests, Effects, and Feature Files"
+description: "Understand the combined Blackbox loop: tests execute behavior, effects prove runtime boundaries, feature files make behavior readable, and gates keep them synchronized."
+sidebar_position: 2
+keywords: ["blackbox feature files", "effect coverage", "gherkin drift", "behavioral verification gate", "AI testing"]
+toc_min_heading_level: 2
+seo:
+  primary_keyword: "behavioral verification gate"
+  secondary_keywords: ["effect coverage", "blackbox feature files", "gherkin drift", "AI testing"]
+  search_intent: "evaluating how Blackbox combines tests, runtime effects, feature files, and gates"
+  snippet_angle: "tests execute the workflow, effects prove runtime behavior, feature files make it readable, and gates keep the artifacts synchronized"
+---
+
+import OverviewDiagram from '@/components/blackbox/OverviewDiagram.astro';
+import BddReverseDemo from '@/components/blackbox/BddReverseDemo.astro';
+
+Blackbox is strongest when three artifacts stay connected:
+
+1. A system or E2E test that executes the behavior.
+2. Runtime effects that prove what the system actually did.
+3. A readable feature file when the team wants behavior expressed in Gherkin.
+
+You can use these layers separately. Effects are the core Blackbox layer. Feature files are optional. The combination matters because it turns a green test into a reviewable behavioral proof trail.
+
+<OverviewDiagram kind="proof-loop" />
+
+## The Three Artifacts
+
+Each artifact answers a different question.
+
+| Artifact | What it gives you | Question it answers |
+| --- | --- | --- |
+| System or E2E test | Executable behavior | Can we run the workflow again? |
+| Runtime effects | Evidence from the running system | What did the system actually do and avoid? |
+| Feature file | Human-readable behavior | Can reviewers, product people, and agents understand the intended behavior? |
+
+The mistake is treating one of them as a replacement for the others.
+
+A test without effects can pass while missing a required queue message, audit write, cache update, or downstream call. A feature file without a test can become stale documentation. Runtime evidence without a readable behavior surface can be hard to review outside the engineering team.
+
+Blackbox lets the layers reinforce each other.
+
+## Why The Combination Changes The Process
+
+Without this loop, many reviews stop at “the test is green.” That is often too thin for a refactor, migration, incident regression, or AI-generated change.
+
+With the loop, a behavior change has more surfaces:
+
+1. The test shows the workflow still executes.
+2. The effect catalog shows the required and forbidden runtime behavior.
+3. Effect coverage shows which effects were observed, missing, failed, or uncovered.
+4. The feature file shows the behavior in a readable scenario format.
+5. Drift checks show whether the readable behavior is still aligned with the test source.
+
+This changes the review from “does the assertion pass?” to “does the system still prove the behavior we care about?”
+
+That is the core Blackbox category: runtime-backed behavioral verification for system and E2E tests.
+
+## The Verification Gates
+
+The gates are deliberately layered. A team can start with only the runtime effect layer, then add feature-file gates when readable behavior specs become valuable.
+
+| Gate | Layer | What it protects |
+| --- | --- | --- |
+| Project system test | Test | The workflow still runs and assertions still pass |
+| Effect catalog matchers | Runtime effects | Required effects happened and forbidden effects stayed absent |
+| Effect coverage report | Runtime effects | The cataloged effects were actually covered by the run |
+| OMC/DC report | Runtime effects | Decision-sensitive behavior is distinguishable in observed effects |
+| `features lint` | Feature files | The scenario has a useful Given/When/Then shape |
+| `features check` / `features drift` | Feature files | The `.feature` file did not drift from the test source |
+| `features compare-observations` | Optional semantic comparison | Runtime observations did not change meaningfully during a reshape |
+
+These gates do not all need to block on day one. The important choice is to make the gate match the risk.
+
+For a first adoption, effect catalog matchers and effect coverage usually matter most. For a BDD-heavy or spec-driven team, feature-file drift becomes a useful second gate. For a large refactor, migration, or AI-assisted change, observation comparison can add another review surface.
+
+## You Can Adopt The Layers Separately
+
+Blackbox does not force a single methodology.
+
+| Adoption path | What you use | Best when |
+| --- | --- | --- |
+| Effects only | Runtime evidence, catalog, matchers, coverage | You already have system tests and want stronger behavioral proof |
+| Feature files only | `features emit`, lint, check, drift | You want readable scenarios generated from tests, even before effect gates |
+| Combined loop | Tests, effects, coverage, feature files, drift gates | You want executable behavior, runtime proof, and readable specs to move together |
+
+Effects are the must-have layer because they capture the missing middle of many E2E and system tests: what happened between input and output.
+
+Feature files add a different kind of value. They make behavior easier to review, discuss, and compare over time. They are especially useful when the team already uses BDD language, wants Gherkin artifacts, or is moving toward spec-driven development.
+
+## Why This Increases Confidence
+
+Confidence improves because the same behavior is checked from multiple angles.
+
+A system test proves the workflow can execute. The effect catalog proves the runtime boundaries that matter. The coverage report shows whether those effects were exercised. The feature file gives the behavior a readable form. The gates keep the artifacts synchronized.
+
+This is not formal proof. It is practical engineering evidence from a real run.
+
+That evidence is useful before a refactor because it records what the current system does. It is useful during a refactor because it shows exactly which behavior changed. It is useful after a refactor because it leaves behind artifacts future reviewers can inspect.
+
+## Why This Matters For AI-Assisted Development
+
+AI coding agents make implementation changes quickly. They can also update tests, prose, and feature files quickly. That speed makes external verification more important, not less.
+
+Blackbox gives the agentic workflow stop conditions outside the generated code:
+
+1. If the source test changed, feature-file drift exposes it.
+2. If the implementation changed behavior, runtime effects expose it.
+3. If required effects disappeared, coverage exposes it.
+4. If the readable scenario changed, the feature diff exposes it.
+5. If a refactor changes the runtime shape, observation comparison can expose it.
+
+This gives reviewers a better question to ask an agent: not “did you say the task is done?” but “which tests, effects, feature files, and gates prove the behavior?”
+
+## Where Gherkin And BDD Fit
+
+Blackbox uses Gherkin as a readable behavior format. It does not require Cucumber as the test runner, and it does not require teams to adopt classic BDD ceremony before getting value.
+
+The feature-file track is about keeping readable behavior close to executable behavior:
+
+1. Analyze existing Playwright or Blackbox scenario tests.
+2. Emit `.feature` files from the test source.
+3. Lint the Given/When/Then shape.
+4. Check whether the feature file drifted from the test.
+5. Optionally compare runtime observations across baseline and candidate runs.
+
+The result is not a promise that feature files will never go stale. It is a way to make staleness detectable.
+
+<BddReverseDemo />
+
+## What To Read Next
+
+1. [5-Minute Quickstart](/docs/blackbox/quickstart/first-proven-feature)
+2. [Feature Files From Tests](/docs/blackbox/quickstart/feature-files-from-tests)
+3. [System Test Effect Coverage](/docs/blackbox/overview/system-test-effect-coverage)
+4. [Feature Files, BDD, and Staleness](/docs/blackbox/concepts/feature-files-and-staleness)
+5. [Configure CI Gates](/docs/blackbox/guides/ci-behavioral-gates)

@@ -1,0 +1,107 @@
+---
+/*
+ * Single shared docs layout.
+ *
+ * Owns the entire article column so cross-cutting affordances (breadcrumb,
+ * page-actions, last-updated, prev/next) ship in one edit instead of one
+ * per page. Pages just author MDX; everything else lives here.
+ *
+ * Stack, top to bottom:
+ *  1. Breadcrumb (computed from slug)
+ *  2. Title block: <h1> with optional badge, plus description as a lede paragraph
+ *  3. Page actions (Copy Markdown + Open in LLM + Edit on GitHub)
+ *  4. <slot /> -- the MDX body
+ *  5. Last updated stamp (if frontmatter provides it)
+ *  6. Prev/Next pager
+ */
+import BaseLayout from './BaseLayout.astro';
+import Sidebar from '@/components/docs/Sidebar.astro';
+import TOC from '@/components/docs/TOC.astro';
+import PrevNext from '@/components/docs/PrevNext.astro';
+import Breadcrumb from '@/components/docs/Breadcrumb.astro';
+import PageActions from '@/components/docs/PageActions.astro';
+import LastUpdated from '@/components/docs/LastUpdated.astro';
+
+interface Heading {
+  depth: number;
+  text: string;
+  slug: string;
+}
+
+interface Props {
+  title: string;
+  description?: string;
+  headings?: Heading[];
+  slug: string;
+  /* Optional metadata from the entry frontmatter; layout falls back to safe defaults. */
+  badge?: 'alpha' | 'beta' | 'new' | 'deprecated';
+  lastUpdated?: string;
+  editUrl?: string;
+  hideToc?: boolean;
+  /* Raw markdown body, passed in from the dynamic route so PageActions can copy it. */
+  rawBody?: string;
+  /* Entry id (the file path relative to src/content/docs), used to compute the default Edit URL. */
+  entryId?: string;
+}
+
+const {
+  title,
+  description,
+  headings = [],
+  slug,
+  badge,
+  lastUpdated,
+  editUrl: editUrlProp,
+  hideToc = false,
+  rawBody = '',
+  entryId,
+} = Astro.props;
+
+const GITHUB_EDIT_BASE = 'https://github.com/suites-dev/suites.dev/edit/master/src/content/docs/';
+const editUrl = editUrlProp ?? (entryId ? GITHUB_EDIT_BASE + entryId : GITHUB_EDIT_BASE);
+
+const showToc = !hideToc && headings.length > 0;
+---
+<BaseLayout title={title} description={description} showFooter={false} header="docs">
+  <div class="shell shell--docs">
+    <div class="doc-layout">
+      <nav class="sidebar" aria-label="Documentation">
+        <div class="sidebar-viewport">
+          <Sidebar />
+        </div>
+      </nav>
+
+      <article class="article">
+        <header class="article-header">
+          <Breadcrumb slug={slug} title={title} />
+
+          <div class="article-title-row">
+            <h1 class="article-title">
+              <span>{title}</span>
+              {badge && (
+                <span class="article-title-badge" data-variant={badge} aria-label={`${badge} status`}>
+                  {badge}
+                </span>
+              )}
+            </h1>
+            <PageActions rawBody={rawBody} slug={slug} editUrl={editUrl} />
+          </div>
+
+          {description && <p class="article-lede">{description}</p>}
+        </header>
+
+        <slot />
+
+        {lastUpdated && <LastUpdated iso={lastUpdated} />}
+        <PrevNext slug={slug} />
+      </article>
+
+      {showToc && (
+        <nav class="toc" aria-label="On this page">
+          <p class="toc-label">On this page</p>
+          <TOC headings={headings} />
+        </nav>
+      )}
+    </div>
+  </div>
+</BaseLayout>

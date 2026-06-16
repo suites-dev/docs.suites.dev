@@ -1,0 +1,75 @@
+/*
+ * Suites Global styles
+ * Mirrors the body/reset/layout primitives from the baseline HTML.
+ * Tokens live in tokens.css. Component classes live in components.css.
+ */
+
+@import './tokens.css';
+@import './components.css';
+
+* { box-sizing: border-box; }
+
+html {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.5;
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + var(--header-tabs-h) + 16px);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 16% -8%, rgba(239,71,121,.24), transparent 38rem),
+    radial-gradient(circle at 90% 10%, rgba(255,158,187,.13), transparent 34rem),
+    linear-gradient(180deg, #0F0F12 0%, #111115 44%, #0F0F12 100%);
+}
+
+/* In light mode the marketing gradient uses a softer pink wash over white so
+   the brand identity carries without the inky base layer. */
+:root[data-theme="light"] body {
+  background:
+    radial-gradient(circle at 16% -8%, rgba(239,71,121,.10), transparent 38rem),
+    radial-gradient(circle at 90% 10%, rgba(239,71,121,.06), transparent 34rem),
+    var(--bg);
+}
+
+/* Docs pages drop the marketing gradient and pink glow for a cleaner reading
+   surface. The marketing surfaces (homepage, 404) keep the gradient. */
+body:has(.shell--docs) {
+  background: var(--bg);
+}
+
+a { color: inherit; text-decoration: none; }
+
+h1, h2, h3 {
+  font-family: var(--font-title);
+  text-wrap: balance;
+}
+
+/* Accessibility: visible keyboard focus ring.
+   Form inputs already define their own focus style in components.css,
+   so defer to that to avoid double-styling. */
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
+}
+
+/* Respect user motion preferences. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

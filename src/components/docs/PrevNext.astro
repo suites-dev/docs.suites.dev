@@ -1,0 +1,39 @@
+---
+import sidebar, { productFromPath } from '@/config/sidebar';
+
+interface Props {
+  slug: string;
+}
+const { slug } = Astro.props;
+
+const currentHref = `/docs/${slug}`.replace(/\/$/, '');
+const product = productFromPath(`${currentHref}/`);
+const flat = sidebar[product].flatMap((group) => group.items);
+
+const idx = flat.findIndex((item) => item.href.replace(/\/$/, '') === currentHref);
+
+const prev = idx > 0 ? flat[idx - 1] : null;
+const next = idx >= 0 && idx < flat.length - 1 ? flat[idx + 1] : null;
+---
+{(prev || next) && (
+  <nav class="doc-pager" aria-label="Previous and next page">
+    {prev ? (
+      <a class="doc-pager-prev" href={prev.href} rel="prev">
+        <span class="doc-pager-eyebrow">
+          <span aria-hidden="true" class="doc-pager-arrow">&larr;</span>
+          Previous
+        </span>
+        <span class="doc-pager-label">{prev.label}</span>
+      </a>
+    ) : <span class="doc-pager-spacer" aria-hidden="true" />}
+    {next ? (
+      <a class="doc-pager-next" href={next.href} rel="next">
+        <span class="doc-pager-eyebrow">
+          Next
+          <span aria-hidden="true" class="doc-pager-arrow">&rarr;</span>
+        </span>
+        <span class="doc-pager-label">{next.label}</span>
+      </a>
+    ) : <span class="doc-pager-spacer" aria-hidden="true" />}
+  </nav>
+)}

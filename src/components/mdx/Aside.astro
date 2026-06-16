@@ -1,0 +1,50 @@
+---
+interface Props {
+  type?: 'tip' | 'info' | 'note' | 'warning' | 'danger' | 'caution';
+  title?: string;
+}
+const { type = 'info', title } = Astro.props;
+
+const variantMap: Record<string, 'info' | 'success' | 'warning' | 'error'> = {
+  tip: 'success',
+  info: 'info',
+  note: 'info',
+  warning: 'warning',
+  caution: 'warning',
+  danger: 'error',
+};
+
+const symbolMap: Record<string, string> = {
+  tip: '✓',
+  info: 'i',
+  note: 'i',
+  warning: '!',
+  caution: '!',
+  danger: '×',
+};
+
+// Accessible name announced by screen readers for the note region.
+// Matches the visual variant so users hear the severity even without the icon.
+const labelMap: Record<string, string> = {
+  info: 'Note',
+  success: 'Tip',
+  warning: 'Warning',
+  error: 'Danger',
+};
+
+const variant = variantMap[type] ?? 'info';
+const symbol = symbolMap[type] ?? 'i';
+const label = labelMap[variant];
+---
+<aside
+  class={`aside aside-${variant}`}
+  role="note"
+  aria-label={title ? `${label}: ${title}` : label}
+>
+  <div class="aside-symbol" aria-hidden="true">{symbol}</div>
+  <span class="aside-label" aria-hidden="true">{label}</span>
+  <div class="aside-body">
+    {title && <strong class="aside-title">{title}</strong>}
+    <slot />
+  </div>
+</aside>

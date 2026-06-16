@@ -1,0 +1,163 @@
+---
+title: "What is Blackbox?"
+description: "Suites Blackbox is runtime behavioral verification for controlled system tests, with E2E support."
+sidebar_position: 1
+keywords: ["blackbox overview", "system testing", "effect coverage", "behavioral verification"]
+toc_min_heading_level: 2
+seo:
+  primary_keyword: "blackbox vs whitebox testing"
+  secondary_keywords: ["what is system testing", "effect coverage", "runtime evidence", "behavioral verification"]
+  search_intent: "top-of-funnel comparison intent from readers trying to place Blackbox in the testing landscape"
+  snippet_angle: "Blackbox is runtime behavioral verification for system tests and E2E tests, turning observed effects into reviewable proof"
+---
+
+import OverviewDiagram from '@/components/blackbox/OverviewDiagram.astro';
+
+Suites Blackbox is runtime behavioral verification for controlled system tests, with E2E support.
+
+It captures what a running system actually did during a real workflow, maps that evidence into effects, and lets reviewers or CI decide whether required behavior happened and forbidden behavior stayed absent.
+
+Use it when a passing response, UI assertion, or green E2E run is not enough proof.
+
+## Why Passing Tests Still Miss Behavior
+
+Most system and E2E tests are strongest at the outside of a workflow:
+
+1. Send this request, command, or click path.
+2. Assert this response, screen state, or final result.
+
+That is necessary. It is not always enough.
+
+A test can return `201 Created` while the system skipped a required queue message, missed an audit write, called the wrong downstream service, forgot a cache update, sent an extra notification, or performed a side effect that should have been forbidden.
+
+Blackbox keeps the test result, then adds behavioral evidence for what happened between input and output.
+
+<OverviewDiagram kind="blind-spot" />
+
+## Best First Fit
+
+Blackbox is system-test-first.
+
+The best first fit is a controlled system test: services, databases, queues, caches, and local or test-managed dependencies running in a repeatable environment. That kind of run is realistic enough to produce meaningful effects and controlled enough to trust as a CI gate.
+
+Blackbox can also observe broader E2E journeys. Those runs can be valuable when you need full-journey realism across auth, email, vendors, shared environments, or other unmanaged dependencies. They are usually noisier, so they are better as evidence first and gates only when the environment is stable enough.
+
+<OverviewDiagram kind="fit" />
+
+## The Core Model
+
+Blackbox is not a pile of unrelated artifacts. The model has an order.
+
+| Layer | What it means |
+| --- | --- |
+| Runtime evidence | Observed facts from the real test run |
+| Effects | The behavior derived from that evidence: writes, calls, messages, cache operations, emitted intents |
+| Effect catalog | The reviewed behavior contract: `requires` and `forbids` |
+| Matchers | The assertions that enforce the catalog during future runs |
+| Effect coverage | The report showing which cataloged effects were satisfied, missing, failed, or uncovered |
+| OMC/DC | An advanced decision-sensitivity report based on observed effects |
+| Feature files | Optional readable Gherkin artifacts derived from tests and checked for drift |
+
+The core path is runtime evidence, effects, effect catalog, matchers, and effect coverage. OMC/DC is deeper coverage. Feature files are optional readable specs.
+
+<OverviewDiagram kind="workflow" />
+
+## The Combined Loop
+
+Blackbox is most coherent when tests, effects, and feature files are understood as separate layers that can reinforce each other.
+
+The test executes the workflow. The effect catalog proves the runtime behavior that matters. The feature file, when used, gives that behavior a readable Gherkin surface. Gates keep the layers synchronized so a review can see whether the workflow still runs, what it actually did, and whether the readable behavior drifted.
+
+Read [Tests, Effects, and Feature Files](/docs/blackbox/overview/tests-effects-and-feature-files) for the full model.
+
+## What Success Looks Like
+
+A useful first Blackbox adoption is small.
+
+Pick one important workflow. Run it. Review the generated effect catalog. Keep the effects that define correct behavior. Add forbids for behavior that must never happen. Run again and let the matcher prove the catalog.
+
+Success after the first useful loop looks like this:
+
+```yaml
+requires:
+  - { boundary: postgres, op: INSERT, key: subscriptions }
+  - { boundary: redis, op: SET, key: "user:*:tier" }
+  - { boundary: sqs, op: SendMessage }
+forbids:
+  - { boundary: postgres, op: DELETE }
+  - { boundary: http, op: POST, key: /v1/refunds }
+```
+
+That catalog gives reviewers a concrete contract. The next run can now answer: did the required effects happen, and did the forbidden effects stay absent?
+
+## A Concrete Example
+
+Consider a subscription workflow.
+
+A normal system test might call `POST /subscriptions` and assert `201 Created`. Blackbox asks what the system did while producing that response:
+
+1. Did it look up the user and tier?
+2. Did it create the payment intent?
+3. Did it insert the subscription?
+4. Did it update the cache?
+5. Did it call the order service?
+6. Did it publish the subscription message?
+7. Did it avoid refunds, deletes, truncates, and destructive cache operations?
+
+The HTTP assertion still matters. Blackbox adds the review surface for the runtime behavior behind it.
+
+## When Not To Start Here
+
+Blackbox is not the first tool for every test problem.
+
+Start somewhere else when:
+
+1. You only need fast feedback on pure local logic.
+2. The behavior has no meaningful runtime boundary.
+3. The only goal is writing Gherkin files, not verifying behavior.
+4. The environment is so flaky that every run produces different dependency behavior.
+5. The team cannot yet run the system or the target workflow in test or CI.
+
+In those cases, unit tests, integration tests, testbed setup, or plain feature-file authoring may come first.
+
+## What Blackbox Complements
+
+Blackbox strengthens existing practices rather than replacing them.
+
+| Practice | How Blackbox relates |
+| --- | --- |
+| Unit tests | Complements them; unit tests remain the fastest check for local logic |
+| Integration tests | Complements them; integration tests still prove narrow collaborator behavior |
+| System tests | Makes their runtime behavior reviewable |
+| E2E tests | Adds evidence beyond pass/fail and input/output checks |
+| Observability | Uses runtime signals as verification inputs, not just inspection data |
+| BDD and specs | Can generate or check readable behavior specs, but does not require them |
+| AI-assisted development | Gives reviewers proof from a real run, outside the generated implementation |
+
+The value is not that Blackbox knows your intent magically. The value is that it turns a real run into artifacts a human or gate can review.
+
+## Why It Matters Now
+
+Teams are changing systems faster than behavioral documentation can keep up.
+
+Refactors are larger. Legacy modernization touches more boundaries. Service graphs are harder to reason about from code alone. Specs and feature files can become stale. AI-assisted development can produce useful code quickly, but it also increases the amount of change reviewers must verify.
+
+Blackbox gives teams a different review question:
+
+> What behavior did the running system prove?
+
+That question is useful before refactors, after incidents, during migrations, in system-test CI gates, and anywhere a green response is not the whole story.
+
+## Start Here
+
+Choose the path that matches your repo:
+
+1. [5-Minute Quickstart: existing tests](/docs/blackbox/quickstart/first-proven-feature?track=existing)
+2. [5-Minute Quickstart: no system tests yet](/docs/blackbox/quickstart/first-proven-feature?track=new)
+3. [Feature Files From Tests](/docs/blackbox/quickstart/feature-files-from-tests)
+
+Then read the concepts behind the first run:
+
+1. [Tests, Effects, and Feature Files](/docs/blackbox/overview/tests-effects-and-feature-files)
+2. [System Effects](/docs/blackbox/concepts/system-effects)
+3. [Runtime Evidence](/docs/blackbox/concepts/system-tests-and-runtime-evidence)

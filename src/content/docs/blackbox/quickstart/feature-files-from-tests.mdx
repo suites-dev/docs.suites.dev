@@ -1,0 +1,227 @@
+---
+title: "Feature Files From Tests"
+description: "Generate Gherkin .feature files from system and E2E tests, then check feature-file drift without making BDD mandatory."
+sidebar_position: 4
+keywords: ["blackbox feature files", "generate feature files from tests", "playwright bdd", "gherkin drift check"]
+toc_min_heading_level: 2
+seo:
+  primary_keyword: "blackbox feature files"
+  secondary_keywords: ["generate feature files from tests", "playwright bdd", "features emit", "features check", "gherkin drift check"]
+  search_intent: "developers who have system or E2E tests and want to decide whether to generate Gherkin feature files"
+  snippet_angle: "generate feature files from tests, validate Gherkin syntax, and catch feature-file drift without adopting Cucumber as the main workflow"
+---
+
+import QuickstartTrackDiagram from '@/components/blackbox/QuickstartTrackDiagram.astro';
+import BddReverseDemo from '@/components/blackbox/BddReverseDemo.astro';
+
+Feature files are a readable behavior layer on top of tests that already exist.
+
+Use this page after you have at least one system or E2E test. You can skip this layer and still use Blackbox for runtime evidence, effect catalogs, matchers, effect coverage, and OMC/DC. Add feature files when the team wants a Gherkin-shaped artifact for review, product discussion, SDD handoff, or CI checks for feature-file drift.
+
+<QuickstartTrackDiagram kind="specs" />
+
+<BddReverseDemo />
+
+## The BDD Context
+
+BDD and Cucumber made an important idea popular: behavior should be readable by more than the person who wrote the test. Gherkin gave teams the `Given`, `When`, `Then` shape and `.feature` files gave behavior a reviewable home.
+
+The hard part was maintenance. In many teams, hand-written feature files, step definitions, and test code became three things that had to agree. When the system changed, the prose could stay green-looking while the real behavior moved somewhere else.
+
+Blackbox uses the useful part of that movement without requiring the old workflow:
+
+| Workflow | Starts from | What you maintain | Best fit |
+| --- | --- | --- | --- |
+| Cucumber-style BDD | Hand-written `.feature` files | Feature text plus step bindings | Teams that want Gherkin to drive implementation |
+| Plain system tests | Test code | Test code only | Engineering-only suites |
+| Blackbox feature files | Existing system or E2E tests | Test source plus generated/reviewed feature files | Teams that want readable specs without making Gherkin the driver |
+
+Gherkin is the format. Cucumber is not required.
+
+## What Blackbox Actually Does
+
+Blackbox does not just stringify test names into `.feature` files. The feature pipeline has four jobs:
+
+1. Detect the test style: explicit Blackbox BDD DSL when present, otherwise Playwright-style tests.
+2. Analyze the behavior shape into phases: arrange as `Given`, act as `When`, conclude with observable `Then` assertions.
+3. Emit a canonical Gherkin subset: `@flow`, `Feature`, optional `Background`, `Scenario`, `Scenario Outline`, `Rule`, `Examples`, `When`, `Then`, and `And`.
+4. Gate the result with syntax validation, feature-file drift detection, and optional runtime-observation comparison.
+
+The explicit BDD DSL gives Blackbox the strongest signal because the author already wrote `scenario`, `given`, `when`, `then`, `background`, or `given.each`. Plain Playwright tests can still be decompiled, but intent recovery is best-effort. If the test structure is unclear, lint findings are useful feedback rather than something to hide.
+
+## Prerequisite
+
+Start with a test source that describes a real flow:
+
+```text
+tests/
+  checkout.system.test.ts
+```
+
+or, in the showcase layout:
+
+```text
+e2e/tests/
+  00-baseline-subscribe.system.test.ts
+```
+
+The test should be worth explaining to another human. Feature files are not a replacement for writing the test or proving runtime behavior.
+
+## Choose The Layer
+
+There are three valid paths:
+
+| Path | What you get | What you do not get |
+| --- | --- | --- |
+| Effects only | Runtime evidence, effect catalogs, matchers, effect coverage, and OMC/DC reports | Human-readable Gherkin output |
+| Feature files only | Readable `.feature` files and feature-file drift checks from test source | Runtime effect coverage |
+| Both | Runtime-backed behavior proof plus readable feature files | More artifacts to review |
+
+Use the smallest path that creates value. If the audience is mostly developers and the effect catalog is already clear, effects-only may be enough. If product, QA, platform, or AI-assisted workflows need a readable behavior surface, add feature files.
+
+## Generate A Feature File
+
+Use `features emit` to create `.feature` files from Playwright or Blackbox BDD-DSL test sources:
+
+```bash
+pnpm exec blackbox features emit ./tests --out ./features
+```
+
+For the showcase layout:
+
+```bash
+pnpm exec blackbox features emit ./e2e/tests --out ./e2e/features
+```
+
+The command accepts one or more test files or directories. It can also use a step library, or skip step resolution:
+
+```bash
+pnpm exec blackbox features emit ./tests --steps ./scripts/step-lib.json
+pnpm exec blackbox features emit ./tests --no-steps
+```
+
+The output is a Gherkin `.feature` file:
+
+```gherkin
+@flow:subscribe-flow
+Feature: subscribing as a pro tier user
+
+  Scenario: alice is an existing user with no active subscription
+    When alice POSTs /subscriptions with a valid card
+    Then the response status is 201
+    And the subscription is persisted in postgres
+    And the tier is cached in redis
+    And a subscribe order is queued in SQS
+```
+
+Read this file as a review artifact derived from tests, not as proof by itself. Runtime proof comes from the system run, the effect catalog, and coverage reports.
+
+## Check The Behavior Grammar
+
+Use `features lint` when feature files matter enough to gate. The key rule is `aaa-shape`:
+
+```text
+Given*  When+  Then+
+```
+
+That means a scenario may have setup, must exercise at least one action, and must conclude with at least one observable assertion. The linter also catches missing `Then` steps, empty scenarios, unresolved placeholders, overly opaque decompiled steps, and repeated setup that should become a `Background`.
+
+```bash
+pnpm exec blackbox features lint ./tests --fail-on error
+pnpm exec blackbox features lint ./tests --json
+```
+
+Use this before trusting generated feature files in review. A pretty feature file is not enough; the underlying scenario needs a shape that can survive as a verification artifact.
+
+## Check Gherkin Syntax And Feature-File Drift
+
+Use `features check` after generating feature files. It runs two checks by default:
+
+1. Gherkin syntax validation for `.feature` files with the Cucumber parser.
+2. Source-vs-feature consistency between the test sources and generated feature files.
+
+```bash
+pnpm exec blackbox features check --features ./features --tests ./tests
+```
+
+For the showcase layout:
+
+```bash
+pnpm exec blackbox features check --features ./e2e/features --tests ./e2e/tests
+```
+
+Use JSON when a script, CI job, or AI agent needs structured output:
+
+```bash
+pnpm exec blackbox features check --features ./e2e/features --tests ./e2e/tests --json
+```
+
+You can also run only one side of the check:
+
+```bash
+pnpm exec blackbox features check --features ./features --skip-drift
+pnpm exec blackbox features check --features ./features --tests ./tests --skip-syntax
+```
+
+For a dedicated feature-file drift check:
+
+```bash
+pnpm exec blackbox features drift --tests ./tests --features ./features
+```
+
+The feature-file drift kinds are `missing`, `stale`, `orphan`, and `unparseable`.
+
+## Optional Semantic Observation Gate
+
+Feature-file drift is source-to-feature drift. It answers: did the `.feature` file stay synchronized with the test source?
+
+Semantic observation comparison is runtime-to-runtime drift. It answers: did two runs produce the same meaningful observable behavior?
+
+Use it when reshaping tests, migrating toward the BDD DSL, or comparing a baseline run to a candidate run:
+
+```bash
+pnpm exec blackbox features compare-observations --baseline ./baseline-observations --candidate ./candidate-observations --json
+```
+
+This gate is experimental. It compares `.observation.json` files from the observation reporter and treats step-boundary changes as benign, while network-call changes, assertion changes, response differences, missing tests, and different outcomes are meaningful.
+
+## How This Fits Spec-Driven Development
+
+Spec-driven development tools describe intended product behavior. Blackbox feature files describe system behavior as exercised by tests. They can live side by side.
+
+The useful bridge is authored translation: a human, test author, or agent turns a product spec into a system or E2E test. From there, Blackbox can generate feature files from the test source and compare them over time. That adds a verification step to the SDD workflow without claiming that generated Gherkin replaces the original product spec.
+
+## What To Commit
+
+Commit feature files when they are part of the durable review surface:
+
+```text
+features/*.feature
+```
+
+or:
+
+```text
+e2e/features/*.feature
+```
+
+If you are also using effects, commit the reviewed effect catalogs:
+
+```text
+e2e/tests/__effects__/*.effects.yaml
+```
+
+Generated run outputs usually stay out of git unless CI publishes them:
+
+```text
+.blackbox-coverage/
+playwright-report/
+test-results/
+```
+
+## What To Read Next
+
+1. [Feature Files, BDD, and Staleness](/docs/blackbox/concepts/feature-files-and-staleness)
+2. [Generating Feature Files](/docs/blackbox/guides/generating-feature-files)
+3. [Files and Artifacts](/docs/blackbox/reference/files-and-artifacts)
+4. [Spec-Driven Development](/docs/blackbox/use-cases/spec-driven-development)

@@ -1,0 +1,203 @@
+---
+import { Code } from 'astro-expressive-code/components';
+
+const sourceTest = `test.system('subscribe-flow', 'alice subscribes to the pro tier', () => {
+  test('alice is an existing user with no active subscription', async ({ request, system }) => {
+    const response = await request.post(\`\${system.bff.hostBaseUrl}/subscriptions\`, {
+      data: { userId: 'alice', paymentMethodId: 'pm_card_visa' },
+    });
+
+    expect(response.status()).toBe(201);
+  });
+});`;
+
+const analyzedTrace = `adapter: playwright
+feature: subscribing to the pro tier
+flow: subscribe-flow
+
+scenario: alice is an existing user with no active subscription
+  when:
+    alice POSTs /subscriptions with a valid card
+  then:
+    response status is 201
+
+grammar:
+  aaa-shape: pass
+  missing-then: pass
+  opaque-step: none`;
+
+const featureFile = `@flow:subscribe-flow
+Feature: subscribing to the pro tier
+
+  Scenario: alice is an existing user with no active subscription
+    When alice POSTs /subscriptions with a valid card
+    Then the response status is 201`;
+
+const gateOutput = `$ pnpm exec blackbox features check --features ./features --tests ./e2e/tests
+syntax: 1/1 .feature files parsed cleanly.
+drift:  no drift detected.
+
+$ pnpm exec blackbox features lint ./e2e/tests --fail-on error
+no lint findings`;
+---
+
+<section class="bb-bdd-demo" aria-label="Test to feature file demo">
+  <div class="bb-bdd-demo-head">
+    <div>
+      <strong>Test to Feature REPL</strong>
+      <p>Future package-backed REPL flow: load a test, analyze the AAA/Given-When-Then shape, emit Gherkin, then run the gates.</p>
+    </div>
+    <div class="bb-bdd-demo-steps" aria-label="REPL stages">
+      <button type="button" class="is-active" data-bdd-stage="source">1 Source</button>
+      <button type="button" data-bdd-stage="trace">2 Analyze</button>
+      <button type="button" data-bdd-stage="feature">3 Emit</button>
+      <button type="button" data-bdd-stage="gate">4 Gate</button>
+    </div>
+  </div>
+
+  <div class="bb-bdd-demo-grid">
+    <article class="bb-bdd-stage is-active" data-bdd-panel="source">
+      <h3>Source Test</h3>
+      <p>The input can be a plain Playwright-style system test or a Blackbox BDD-DSL test. Plain tests are decompiled best-effort; DSL-authored tests preserve more intent.</p>
+      <Code code={sourceTest} lang="ts" />
+    </article>
+
+    <article class="bb-bdd-stage" data-bdd-panel="trace" hidden>
+      <h3>Analyzed Behavior Trace</h3>
+      <p>The analyzer turns test structure into a behavior trace. The linter checks that the trace has a valid AAA shape: `Given*`, `When+`, `Then+`.</p>
+      <Code code={analyzedTrace} lang="yaml" />
+    </article>
+
+    <article class="bb-bdd-stage" data-bdd-panel="feature" hidden>
+      <h3>Generated Gherkin</h3>
+      <p>The feature file is a readable projection from the test source. It is useful for review, but it is still checked against the source instead of trusted as disconnected prose.</p>
+      <Code code={featureFile} lang="gherkin" />
+    </article>
+
+    <article class="bb-bdd-stage" data-bdd-panel="gate" hidden>
+      <h3>Verification Gate</h3>
+      <p>The gate is two-part: Cucumber-compatible Gherkin syntax validation, plus feature-file drift detection against the test source. Runtime effects and observation comparison can add stronger gates later.</p>
+      <Code code={gateOutput} lang="bash" />
+    </article>
+  </div>
+</section>
+
+<script>
+  const demos = Array.from(document.querySelectorAll('.bb-bdd-demo'));
+
+  demos.forEach((demo) => {
+    const buttons = Array.from(demo.querySelectorAll('[data-bdd-stage]'));
+    const panels = Array.from(demo.querySelectorAll('[data-bdd-panel]'));
+
+    const activate = (stage) => {
+      buttons.forEach((button) => {
+        const active = button.getAttribute('data-bdd-stage') === stage;
+        button.classList.toggle('is-active', active);
+        if (active) {
+          button.setAttribute('aria-current', 'step');
+        } else {
+          button.removeAttribute('aria-current');
+        }
+      });
+
+      panels.forEach((panel) => {
+        const active = panel.getAttribute('data-bdd-panel') === stage;
+        panel.classList.toggle('is-active', active);
+        if (panel instanceof HTMLElement) {
+          panel.hidden = !active;
+        }
+      });
+    };
+
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => {
+        activate(button.getAttribute('data-bdd-stage') ?? 'source');
+      });
+    });
+  });
+</script>
+
+<style>
+  .bb-bdd-demo {
+    margin: 28px 0;
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .bb-bdd-demo-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 18px;
+    align-items: start;
+  }
+
+  .bb-bdd-demo-head strong {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text);
+    font-size: 15px;
+    text-transform: uppercase;
+  }
+
+  .bb-bdd-demo-head p,
+  .bb-bdd-stage p {
+    margin: 0;
+    color: var(--text-muted);
+    line-height: 1.55;
+  }
+
+  .bb-bdd-demo-steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .bb-bdd-demo-steps button {
+    min-height: 34px;
+    padding: 0 11px;
+    border: 1px solid rgba(148, 163, 184, 0.34);
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.42);
+    color: var(--text-muted);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  .bb-bdd-demo-steps button.is-active,
+  .bb-bdd-demo-steps button:hover,
+  .bb-bdd-demo-steps button:focus-visible {
+    border-color: #60a5fa;
+    background: rgba(96, 165, 250, 0.13);
+    color: #bfdbfe;
+  }
+
+  .bb-bdd-demo-grid {
+    margin-top: 18px;
+  }
+
+  .bb-bdd-stage[hidden] {
+    display: none !important;
+  }
+
+  .bb-bdd-stage h3 {
+    margin-top: 0;
+  }
+
+  .bb-bdd-stage .expressive-code {
+    margin-top: 14px;
+  }
+
+  @media (max-width: 760px) {
+    .bb-bdd-demo-head {
+      grid-template-columns: 1fr;
+    }
+
+    .bb-bdd-demo-steps {
+      justify-content: flex-start;
+    }
+  }
+</style>

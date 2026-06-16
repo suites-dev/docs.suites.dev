@@ -1,0 +1,648 @@
+---
+import { Code } from 'astro-expressive-code/components';
+import QuickstartTrackDiagram from './QuickstartTrackDiagram.astro';
+
+const existingSteps = [
+  'Add wrapper',
+  'Run command',
+  'Review catalog',
+  'Tighten catalog',
+  'Read coverage',
+];
+
+const newSteps = [
+  'Run showcase',
+  'Inspect proof',
+  'Copy test shape',
+  'Write one flow',
+  'Read coverage',
+];
+
+const existingTestSnippet = `import { expect, test } from './testbed.js';
+
+test.system('checkout-flow', 'customer completes checkout', () => {
+  test('existing checkout test', async ({ capture, request, system }) => {
+    const response = await request.post(\`\${system.app.hostBaseUrl}/checkout\`, {
+      data: { cartId: 'cart-123', paymentMethodId: 'pm_card_visa' },
+    });
+
+    expect(response.status()).toBe(201);
+
+    await expect(capture).toMatchCatalog();
+  });
+});`;
+
+const showcaseTestSnippet = `import { expect, test } from './testbed.js';
+
+test.system('subscribe-flow', 'subscribing a user to the pro tier', () => {
+  test('alice subscribes', async ({ capture, request, system }) => {
+    const response = await request.post(\`\${system.bff.hostBaseUrl}/subscriptions\`, {
+      data: { userId: 'alice', paymentMethodId: 'pm_card_visa' },
+    });
+
+    expect(response.status()).toBe(201);
+
+    await expect(capture).toMatchCatalog();
+  });
+});`;
+
+const existingCatalogSnippet = `specVersion: "0.1"
+
+checkout-flow:
+  requires:
+    - { boundary: postgres, op: INSERT, key: orders }
+    - { boundary: http, op: POST, key: /payments }
+    - { boundary: sqs, op: SendMessage }`;
+
+const existingReviewedCatalogSnippet = `specVersion: "0.1"
+
+checkout-flow:
+  requires:
+    - { boundary: postgres, op: INSERT, key: orders }
+  forbids:
+    - { boundary: http, op: POST, key: /refunds }`;
+
+const showcaseCatalogSnippet = `specVersion: "0.1"
+
+subscribe-flow:
+  requires:
+    - { boundary: redis, op: GET, key: "user:*:tier" }
+    - { boundary: postgres, op: INSERT, key: subscriptions }
+    - { boundary: sqs, op: SendMessage }
+  forbids:
+    - { boundary: postgres, op: DELETE }
+    - { boundary: http, op: POST, key: /v1/refunds }`;
+
+const existingRunCommand = `<your-system-test-command>`;
+
+const playwrightExampleCommand = `npx playwright test --config ./e2e/playwright.config.ts`;
+
+const showcaseRunCommand = `pnpm test:system`;
+
+const baselineMessage = `toMatchCatalog: no catalog entry for "checkout-flow"; baseline pending.
+Will be written at fixture teardown.`;
+
+const effectCoverageOutput = `effect coverage
+metric           value
+catalog entries  1
+satisfied        1  (100%)
+failed           0
+uncovered        0
+
+  entry          state      runs  why
+✓ checkout-flow  satisfied  1/1
+written: <coverage-dir>/coverage.json`;
+
+const showcaseProofArtifacts = `e2e/tests/__effects__/00-baseline-subscribe.system.effects.yaml
+e2e/.blackbox-coverage/coverage.json
+e2e/.blackbox-coverage/omcdc-propagation.md`;
+
+const replayCommand = `pnpm exec blackbox coverage replay --coverage-dir e2e/.blackbox-coverage --out reports`;
+
+const omcdcArtifacts = `e2e/.blackbox-coverage/omcdc-propagation.md
+e2e/.blackbox-coverage/omcdc-propagation.json
+e2e/.blackbox-coverage/omcdc.html`;
+
+const featureCommands = `pnpm exec blackbox features emit ./e2e/tests --out ./e2e/features
+pnpm exec blackbox features check --features ./e2e/features --tests ./e2e/tests`;
+---
+
+<section class="bb-quickstart" id="quickstart-track" data-active-track="existing">
+  <div class="bb-preflight" aria-label="Before you start">
+    <div>
+      <strong>Before you start</strong>
+      <p>Install Blackbox first. Then choose the path that matches your repo: an existing system or E2E test, or the Blackbox showcase.</p>
+    </div>
+    <div>
+      <strong>First success</strong>
+      <p>One run records effects, one catalog entry is reviewed, and the next run reports a satisfied effect coverage entry.</p>
+    </div>
+  </div>
+
+  <div class="bb-track-pick" aria-label="Choose a quickstart track">
+    <a class="bb-track-option is-active" href="?track=existing#quickstart-track" data-track-choice="existing" aria-controls="track-existing" aria-current="true">
+      <span>Track 1</span>
+      <strong>I already have system or E2E tests</strong>
+      <em>Add Blackbox to one flow, review its effect catalog, and rerun until one catalog entry is covered.</em>
+    </a>
+    <a class="bb-track-option" href="?track=new#quickstart-track" data-track-choice="new" aria-controls="track-new">
+      <span>Track 2</span>
+      <strong>Showcase first</strong>
+      <em>Run the Blackbox showcase, inspect the proof trail, then copy the smallest system-test shape.</em>
+    </a>
+  </div>
+
+  <nav class="bb-track-progress" aria-label="Quickstart track progress">
+    <div class="bb-track-progress-head">
+      <strong data-progress-title>Progress</strong>
+      <span data-progress-count>Step 1 of 5</span>
+    </div>
+    <div class="bb-track-rail" aria-hidden="true">
+      <span></span>
+    </div>
+    <ol data-progress-list="existing">
+      {existingSteps.map((step, index) => (
+        <li data-progress-index={index}>
+          <a href={`#existing-step-${index + 1}`}>
+            <span>{index + 1}</span>
+            {step}
+          </a>
+        </li>
+      ))}
+    </ol>
+    <ol data-progress-list="new" hidden>
+      {newSteps.map((step, index) => (
+        <li data-progress-index={index}>
+          <a href={`#new-step-${index + 1}`}>
+            <span>{index + 1}</span>
+            {step}
+          </a>
+        </li>
+      ))}
+    </ol>
+  </nav>
+
+  <article class="bb-track-panel is-active" id="track-existing" data-track-panel="existing">
+    <h2>Track 1: Add Effect Coverage To An Existing System Test</h2>
+    <p>Use this path when you already have a system or E2E test that exercises a valuable flow. The first win is not a new suite. It is evidence for behavior your existing test already drives.</p>
+    <QuickstartTrackDiagram kind="existing" />
+
+    <section id="existing-step-1" data-track-section="existing">
+      <h3><span>1</span>Add the Blackbox wrapper and matcher</h3>
+      <p>Keep the request and response assertions you already trust. Add the Blackbox system boundary and `toMatchCatalog()` at the end of one valuable flow.</p>
+      <Code code={existingTestSnippet} lang="ts" />
+    </section>
+
+    <section id="existing-step-2" data-track-section="existing">
+      <h3><span>2</span>Run your normal system-test command</h3>
+      <p>Blackbox does not need to replace your runner. Use the command your project already uses; the Playwright command below is only an example.</p>
+      <Code code={existingRunCommand} lang="bash" />
+      <Code code={playwrightExampleCommand} lang="bash" />
+      <p class="bb-checkpoint">You should see a baseline-pending message the first time the catalog entry does not exist.</p>
+      <Code code={baselineMessage} lang="text" />
+    </section>
+
+    <section id="existing-step-3" data-track-section="existing">
+      <h3><span>3</span>Review the effect catalog</h3>
+      <p>The first useful artifact is the generated catalog. It starts as observed behavior, not a trusted contract. Review it before committing it.</p>
+      <Code code={existingCatalogSnippet} lang="yaml" />
+    </section>
+
+    <section id="existing-step-4" data-track-section="existing">
+      <h3><span>4</span>Tighten the catalog to one meaningful contract</h3>
+      <p>`toMatchCatalog()` is already the matcher. Your job here is to edit the catalog: keep one required effect that proves useful behavior and add one forbid for behavior that must not happen.</p>
+      <Code code={existingReviewedCatalogSnippet} lang="yaml" />
+    </section>
+
+    <section id="existing-step-5" data-track-section="existing">
+      <h3><span>5</span>Rerun and read effect coverage</h3>
+      <p>On the next run, the terminal should show whether the reviewed catalog entry was satisfied, failed, or uncovered.</p>
+      <Code code={effectCoverageOutput} lang="text" />
+      <p class="bb-checkpoint">That is the first quickstart win: the same flow now proves something about the behavior inside the system, not only its response.</p>
+    </section>
+  </article>
+
+  <article class="bb-track-panel" id="track-new" data-track-panel="new" hidden>
+    <h2>Track 2: Showcase First</h2>
+    <p>Use this path when you do not yet have a useful system test. First learn the proof loop in the Blackbox showcase, then write one narrow flow in your own system.</p>
+    <QuickstartTrackDiagram kind="new-test" />
+
+    <section id="new-step-1" data-track-section="new">
+      <h3><span>1</span>Run the showcase</h3>
+      <p>From the Blackbox showcase repo root, run the system-test script. The subscription flow is intentionally small but effect-rich: Redis, Postgres, HTTP, and SQS all participate.</p>
+      <Code code={showcaseRunCommand} lang="bash" />
+    </section>
+
+    <section id="new-step-2" data-track-section="new">
+      <h3><span>2</span>Inspect the proof trail</h3>
+      <p>A successful showcase run should produce a catalog and coverage artifacts. Start with these three; spans and V8 payloads are diagnostics for later.</p>
+      <Code code={showcaseProofArtifacts} lang="text" />
+    </section>
+
+    <section id="new-step-3" data-track-section="new">
+      <h3><span>3</span>Copy the smallest test shape</h3>
+      <p>The important shape is `test.system(...)` plus `toMatchCatalog()`. The matcher seeds a baseline when no catalog entry exists, then enforces the reviewed catalog on later runs.</p>
+      <Code code={showcaseTestSnippet} lang="ts" />
+    </section>
+
+    <section id="new-step-4" data-track-section="new">
+      <h3><span>4</span>Write one narrow flow in your system</h3>
+      <p>Pick a flow where input/output success is not enough: checkout, signup, webhook handling, account deletion, refund prevention, or another side-effect-heavy path.</p>
+      <p class="bb-checkpoint">The goal is not a broad journey. The goal is one controlled system flow whose effects matter.</p>
+    </section>
+
+    <section id="new-step-5" data-track-section="new">
+      <h3><span>5</span>Review the catalog and read coverage</h3>
+      <p>The first custom catalog begins as observed behavior. Keep the effects that define correctness, add forbids for dangerous behavior, then rerun to see effect coverage.</p>
+      <Code code={showcaseCatalogSnippet} lang="yaml" />
+      <Code code={effectCoverageOutput.replace('checkout-flow', 'subscribe-flow')} lang="text" />
+    </section>
+  </article>
+
+  <aside class="bb-after-success" aria-label="After first success">
+    <h2>After First Success</h2>
+    <div class="bb-next-grid">
+      <div>
+        <strong>Inspect OMC/DC when you need decision evidence</strong>
+        <p>OMC/DC is advanced coverage over decisions and observed effects. The normal test run writes the reports; replay is for offline rendering from saved coverage artifacts.</p>
+        <Code code={replayCommand} lang="bash" />
+        <Code code={omcdcArtifacts} lang="text" />
+      </div>
+      <div>
+        <strong>Add behavior specs when readable specs help</strong>
+        <p>Feature files are optional. Generate them when you want a readable behavior surface and feature-file drift checks beside runtime effect evidence.</p>
+        <Code code={featureCommands} lang="bash" />
+        <p><a href="/docs/blackbox/quickstart/feature-files-from-tests">Continue to Feature Files From Tests</a>.</p>
+      </div>
+    </div>
+  </aside>
+</section>
+
+<script>
+  const root = document.querySelector('.bb-quickstart');
+
+  if (root instanceof HTMLElement) {
+    const choices = Array.from(root.querySelectorAll('[data-track-choice]'));
+    const panels = Array.from(root.querySelectorAll('[data-track-panel]'));
+    const progressLists = Array.from(root.querySelectorAll('[data-progress-list]'));
+    const title = root.querySelector('[data-progress-title]');
+    const count = root.querySelector('[data-progress-count]');
+    const rail = root.querySelector('.bb-track-rail span');
+
+    let activeTrack = 'existing';
+    let activeStep = 0;
+
+    const setProgress = (index) => {
+      const list = root.querySelector(`[data-progress-list="${activeTrack}"]`);
+      const items = list === null ? [] : Array.from(list.querySelectorAll('li'));
+      activeStep = Math.max(0, Math.min(index, items.length - 1));
+
+      items.forEach((item, i) => {
+        item.classList.toggle('is-done', i < activeStep);
+        item.classList.toggle('is-active', i === activeStep);
+        const link = item.querySelector('a');
+        if (link !== null) {
+          if (i === activeStep) {
+            link.setAttribute('aria-current', 'step');
+          } else {
+            link.removeAttribute('aria-current');
+          }
+        }
+      });
+
+      if (count !== null) {
+        count.textContent = `Step ${activeStep + 1} of ${items.length}`;
+      }
+
+      if (rail instanceof HTMLElement) {
+        const pct = items.length <= 1 ? 100 : (activeStep / (items.length - 1)) * 100;
+        rail.style.width = `${pct}%`;
+      }
+    };
+
+    const setTrack = (track, push) => {
+      activeTrack = track === 'new' ? 'new' : 'existing';
+      root.dataset.activeTrack = activeTrack;
+
+      choices.forEach((choice) => {
+        const isActive = choice.getAttribute('data-track-choice') === activeTrack;
+        choice.classList.toggle('is-active', isActive);
+        if (isActive) {
+          choice.setAttribute('aria-current', 'true');
+        } else {
+          choice.removeAttribute('aria-current');
+        }
+      });
+
+      panels.forEach((panel) => {
+        const isActive = panel.getAttribute('data-track-panel') === activeTrack;
+        panel.classList.toggle('is-active', isActive);
+        if (panel instanceof HTMLElement) {
+          panel.hidden = !isActive;
+        }
+      });
+
+      progressLists.forEach((list) => {
+        if (list instanceof HTMLElement) {
+          list.hidden = list.getAttribute('data-progress-list') !== activeTrack;
+        }
+      });
+
+      if (title !== null) {
+        title.textContent = activeTrack === 'new' ? 'Showcase track' : 'Existing-tests track';
+      }
+
+      if (push) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('track', activeTrack);
+        window.history.replaceState({}, '', `${url.pathname}?${url.searchParams.toString()}${url.hash}`);
+      }
+
+      setProgress(0);
+      updateFromScroll();
+    };
+
+    const updateFromScroll = () => {
+      const sections = Array.from(root.querySelectorAll(`[data-track-section="${activeTrack}"]`));
+      const offset = 150;
+      let current = 0;
+
+      sections.forEach((section, index) => {
+        const rect = section.getBoundingClientRect();
+        if (rect.top <= offset) {
+          current = index;
+        }
+      });
+
+      setProgress(current);
+    };
+
+    choices.forEach((choice) => {
+      choice.addEventListener('click', (event) => {
+        event.preventDefault();
+        const next = choice.getAttribute('data-track-choice') === 'new' ? 'new' : 'existing';
+        setTrack(next, true);
+        root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    window.addEventListener('scroll', updateFromScroll, { passive: true });
+    window.addEventListener('resize', updateFromScroll);
+
+    const initial = new URL(window.location.href).searchParams.get('track');
+    setTrack(initial === 'new' ? 'new' : 'existing', false);
+  }
+</script>
+
+<style>
+  .bb-quickstart {
+    margin: 24px 0 48px;
+  }
+
+  .bb-preflight {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+  }
+
+  .bb-preflight > div,
+  .bb-after-success,
+  .bb-next-grid > div {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.035);
+  }
+
+  .bb-preflight > div {
+    padding: 16px;
+  }
+
+  .bb-preflight strong,
+  .bb-next-grid strong {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text);
+    font-size: 14px;
+    text-transform: uppercase;
+  }
+
+  .bb-preflight p,
+  .bb-next-grid p {
+    margin: 0;
+    color: var(--text-muted);
+    line-height: 1.55;
+  }
+
+  .bb-track-pick {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+  }
+
+  .bb-track-option {
+    display: flex;
+    min-height: 210px;
+    flex-direction: column;
+    gap: 14px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.035);
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .bb-track-option:hover,
+  .bb-track-option:focus-visible,
+  .bb-track-option.is-active {
+    border-color: #60a5fa;
+    background: rgba(96, 165, 250, 0.08);
+  }
+
+  .bb-track-option span {
+    width: fit-content;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: rgba(96, 165, 250, 0.12);
+    color: #93c5fd;
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .bb-track-option strong {
+    font-size: 20px;
+    line-height: 1.25;
+  }
+
+  .bb-track-option em {
+    color: var(--text-muted);
+    font-style: normal;
+    line-height: 1.55;
+  }
+
+  .bb-track-progress {
+    position: sticky;
+    top: 12px;
+    z-index: 20;
+    margin: 24px 0 30px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--bg) 88%, #111827 12%);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  }
+
+  .bb-track-progress-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+
+  .bb-track-progress-head strong {
+    color: var(--text);
+    text-transform: uppercase;
+  }
+
+  .bb-track-rail {
+    height: 3px;
+    margin-bottom: 10px;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.28);
+    overflow: hidden;
+  }
+
+  .bb-track-rail span {
+    display: block;
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: #60a5fa;
+    transition: width 180ms ease;
+  }
+
+  .bb-track-progress ol {
+    display: flex;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    overflow-x: auto;
+    list-style: none;
+  }
+
+  .bb-track-progress ol[hidden] {
+    display: none !important;
+  }
+
+  .bb-track-progress li {
+    margin: 0;
+    padding: 0;
+  }
+
+  .bb-track-progress a {
+    display: inline-flex;
+    gap: 7px;
+    align-items: center;
+    min-height: 34px;
+    padding: 0 10px;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    border-radius: 999px;
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .bb-track-progress a span {
+    display: grid;
+    width: 20px;
+    height: 20px;
+    place-items: center;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.16);
+    color: inherit;
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  .bb-track-progress li.is-active a,
+  .bb-track-progress li.is-done a {
+    border-color: #60a5fa;
+    color: #bfdbfe;
+  }
+
+  .bb-track-progress li.is-active a span,
+  .bb-track-progress li.is-done a span {
+    background: #60a5fa;
+    color: #0f172a;
+  }
+
+  .bb-track-panel {
+    display: none;
+  }
+
+  .bb-track-panel[hidden] {
+    display: none !important;
+  }
+
+  .bb-track-panel.is-active {
+    display: block;
+  }
+
+  .bb-track-panel section {
+    scroll-margin-top: 150px;
+    margin: 28px 0;
+    padding-top: 2px;
+  }
+
+  .bb-track-panel h3 {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .bb-track-panel h3 span {
+    display: grid;
+    flex: 0 0 auto;
+    width: 26px;
+    height: 26px;
+    place-items: center;
+    border-radius: 999px;
+    background: #60a5fa;
+    color: #0f172a;
+    font-size: 13px;
+    font-weight: 900;
+  }
+
+  .bb-checkpoint {
+    padding: 12px 14px;
+    border-left: 3px solid #60a5fa;
+    border-radius: 6px;
+    background: rgba(96, 165, 250, 0.08);
+    color: var(--text);
+  }
+
+  .bb-after-success {
+    margin: 34px 0 0;
+    padding: 18px;
+  }
+
+  .bb-after-success h2 {
+    margin-top: 0;
+  }
+
+  .bb-next-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .bb-next-grid > div {
+    padding: 16px;
+  }
+
+  @media (max-width: 820px) {
+    .bb-preflight,
+    .bb-next-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .bb-track-pick {
+      grid-template-columns: 1fr;
+    }
+
+    .bb-track-progress {
+      top: 8px;
+    }
+
+    .bb-track-progress-head {
+      flex-direction: column;
+      gap: 4px;
+    }
+  }
+</style>

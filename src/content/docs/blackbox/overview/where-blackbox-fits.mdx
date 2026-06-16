@@ -1,0 +1,119 @@
+---
+title: "Where Blackbox Fits"
+description: "Understand where Blackbox belongs: controlled system tests, broader E2E journeys, managed dependencies, unmanaged dependencies, and runtime behavior gates."
+sidebar_position: 2
+keywords: ["system testing", "e2e testing", "blackbox testing", "managed dependencies", "runtime behavior gate"]
+toc_min_heading_level: 2
+seo:
+  primary_keyword: "system testing"
+  secondary_keywords: ["e2e testing", "blackbox testing", "managed dependencies", "runtime behavior gate"]
+  search_intent: "teams deciding where Blackbox belongs in their test and release workflow"
+  snippet_angle: "Blackbox fits where real system runs cross boundaries and need reviewable runtime evidence"
+---
+
+import OverviewDiagram from '@/components/blackbox/OverviewDiagram.astro';
+
+Blackbox fits where a passing test is not enough by itself. It belongs around real system runs: workflows that cross process, service, database, queue, HTTP, event, file, or other runtime boundaries.
+
+The goal is not to replace smaller tests or production observability. The goal is to add a verification layer that can say: this run produced these effects, this behavior changed, this gap remains, and this release should or should not pass the gate.
+
+That makes Blackbox strongest at the boundary between testing and release confidence. It turns selected system and E2E runs into runtime behavior gates.
+
+## The Best First Fit
+
+The best first fit is usually a controlled system test.
+
+In this context, a system test runs a composed slice of the product in an environment the test mostly controls. It may start real services, databases, queues, caches, local infrastructure, Docker Compose, or Testcontainers. The run is realistic enough to produce meaningful runtime behavior, but controlled enough to make failures useful in CI.
+
+That is where Blackbox has the clearest value:
+
+1. The workflow crosses real boundaries.
+2. The dependencies are known and resettable.
+3. The outputs can be compared between runs.
+4. The evidence can become a merge or release gate.
+
+Examples include signup, subscription, billing-state changes, order placement, webhook handling, job processing, event publishing, and service-to-service flows.
+
+## System Tests And E2E Tests
+
+Blackbox can work with both system tests and E2E tests, but they answer slightly different questions.
+
+<OverviewDiagram kind="fit" />
+
+| Test shape | What it usually proves | Dependency shape | Blackbox role |
+| --- | --- | --- | --- |
+| System test | A composed service or local topology behaves correctly | Mostly managed by the test run | Strong fit for repeatable behavior gates |
+| E2E test | A full journey works through a production-like path | Often includes remote or shared services | Strong fit for broad evidence and smoke coverage |
+
+The distinction matters because Blackbox reports are only as actionable as the run they describe.
+
+If an E2E test depends on a shared staging environment, real auth, external email delivery, a payment sandbox, or a vendor API, Blackbox can still capture what happened. The evidence is valuable. But a failure may come from the product, the environment, a third party, shared state, rate limits, credentials, or network behavior.
+
+If a system test runs the same journey with managed dependencies, the evidence is usually better suited for a deterministic CI gate.
+
+## Managed And Unmanaged Dependencies
+
+A managed dependency is created, configured, reset, and owned by the test run. Examples include a local Postgres container, Redis, SQS through LocalStack, a fake mail server, local services, Docker Compose, or Testcontainers.
+
+An unmanaged dependency sits outside the test's direct control. Examples include a real auth provider, real email delivery, SMS, a payment provider, a vendor API, a shared staging service, or a remote environment owned by another team.
+
+Blackbox can observe both shapes, but the meaning of a failure changes:
+
+1. System tests with managed dependencies are better for deterministic behavioral gates.
+2. E2E tests with unmanaged dependencies are better for full-journey realism.
+3. Failures in managed environments usually point closer to the behavior under test.
+4. Failures in unmanaged environments may come from auth, email, vendors, shared state, or infrastructure noise.
+
+That is why many teams start by taking one important E2E-style journey and running it in a more controlled system-test topology. Blackbox then preserves the behavioral value of that journey while making the result more reviewable and more reliable as a gate.
+
+## Black-Box And White-Box
+
+White-box testing uses knowledge of internals such as classes, functions, branches, providers, and modules. This is useful for local reasoning and fast feedback.
+
+Black-box testing observes behavior from the outside. This is useful when the user, another service, or the business process only cares what the system did at the boundary.
+
+Blackbox is black-box in that second sense, but it is not only a testing philosophy. It provides a concrete evidence pipeline: runtime capture, effect catalogs, coverage reports, optional generated behavior specs, and CI gates.
+
+## Where The Feature-File Track Fits
+
+The feature-file track is useful when the team wants behavior to be readable outside the test implementation.
+
+It can be adopted separately from effect coverage. A team can emit feature files from existing tests, lint the Given/When/Then shape, and check for feature-file drift without making runtime effects the first gate. Another team can start with only effects and never write Gherkin.
+
+The strongest path combines both. System tests execute the behavior, effects prove what happened at runtime, and feature files make the behavior reviewable as scenarios. That combination is covered in [Tests, Effects, and Feature Files](/docs/blackbox/overview/tests-effects-and-feature-files).
+
+## Runtime Behavior Gates
+
+A runtime behavior gate is a test gate based on what the system actually did during execution, not only on whether assertions passed.
+
+Use Blackbox when the review question sounds like this:
+
+1. Did this workflow write the right record?
+2. Did it publish the right message?
+3. Did it call the right downstream service?
+4. Did it avoid a forbidden side effect?
+5. Did a refactor preserve the behavior a real system run proves?
+
+Blackbox starts where local tests stop being enough: the composed system, the service boundary, the workflow, and the evidence left by a real run.
+
+That does not mean every system test needs Blackbox. Use it where the workflow has behavior worth proving and where the resulting artifacts will change a review or release decision.
+
+## What Blackbox Does Not Replace
+
+Blackbox complements several existing layers:
+
+| Existing layer | Keep using it for | Add Blackbox when |
+| --- | --- | --- |
+| Unit tests | Fast feedback on local logic | The important risk crosses a runtime boundary |
+| Integration tests | Component wiring and collaborator behavior | The composed run produces effects worth tracking |
+| E2E tests | Full-journey realism | You want evidence, comparison, or coverage from the run |
+| Observability | Production diagnosis and operations | You want pre-merge verification from controlled test runs |
+| Specs and scenarios | Intended behavior | You want to anchor them to runtime evidence |
+
+The practical rule is simple: keep the fast tests that tell developers where logic broke, and add Blackbox where the team needs proof of what the running system did.
+
+## What To Read Next
+
+1. [Tests, Effects, and Feature Files](/docs/blackbox/overview/tests-effects-and-feature-files)
+2. [System Test Effect Coverage](/docs/blackbox/overview/system-test-effect-coverage)
+3. [Requirements and Supported Stacks](/docs/blackbox/quickstart/requirements)

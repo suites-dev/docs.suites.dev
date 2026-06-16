@@ -1,0 +1,305 @@
+---
+// Front-page Blackbox demo simulation. Lives as a real Astro component
+// because MDX otherwise tries to parse the `{...}` JS object literals in the
+// script body as MDX expressions, which throws acorn errors.
+//
+// Behavior: click to start, auto-advances through states with a setTimeout
+// loop, respects prefers-reduced-motion, no GIFs or images. Five states,
+// four transitions: idle, executing, spans captured, feature file revealed,
+// forbids-on-physical-absence demo.
+---
+
+<div class="bx-demo" data-bx-demo>
+  <div class="bx-demo__bar">
+    <button type="button" class="bx-demo__btn" data-bx-demo-run aria-label="Run the simulation, step through four states">
+      <span class="bx-demo__btn-label" data-bx-demo-run-label>Run</span>
+      <span class="bx-demo__spinner" data-bx-demo-spinner aria-hidden="true">
+        <span></span><span></span><span></span>
+      </span>
+    </button>
+    <button type="button" class="bx-demo__btn bx-demo__btn--ghost" data-bx-demo-reset aria-label="Reset the simulation to the initial state">Reset</button>
+    <span class="bx-demo__state" data-bx-demo-state aria-live="polite" aria-atomic="true">State 0 of 4. Idle.</span>
+  </div>
+  <div class="bx-demo__grid">
+    <figure class="bx-demo__pane">
+      <figcaption>Playwright test (authored once)</figcaption>
+      <pre class="bx-demo__code" data-bx-demo-left><code>{`scenario('subscribe-flow', 'subscribing as a pro tier user', ({ given }) => {
+  given('alice is an existing user', async ({ system, capture, when }) => {
+    await when('alice POSTs /subscriptions', async ({ then }) => {
+      await then('the captured effects satisfy the subscribe-flow catalog entry', async () => {
+        await expect(capture).toMatchCatalog();
+      });
+    });
+  });
+});`}</code></pre>
+    </figure>
+    <figure class="bx-demo__pane">
+      <figcaption data-bx-demo-right-title>Generated feature file (regenerates every run)</figcaption>
+      <pre class="bx-demo__code" data-bx-demo-right aria-live="polite" aria-atomic="false"><code data-bx-demo-right-body>{`# the file is generated; run the simulation to see it appear`}</code></pre>
+    </figure>
+  </div>
+  <ol class="bx-demo__steps" data-bx-demo-steps>
+    <li data-bx-demo-step="0">Idle. Press Run.</li>
+    <li data-bx-demo-step="1">The Playwright test executes. The bff, order-service, postgres, redis, and SQS containers receive real requests.</li>
+    <li data-bx-demo-step="2">Blackbox observes the OpenTelemetry spans the run emits at the boundary.</li>
+    <li data-bx-demo-step="3">The generated <code>subscribe-flow.feature</code> appears. Every line is backed by a captured effect.</li>
+    <li data-bx-demo-step="4">The ghost-user path returns 404. The forbids clauses pass because the Stripe and SQS spans are physically not there.</li>
+  </ol>
+</div>
+
+<style>
+  .bx-demo {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin: 24px 0;
+    background: rgba(255,255,255,.02);
+  }
+  .bx-demo__bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .bx-demo__btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font: inherit;
+    font-weight: var(--fw-semibold);
+    padding: 10px 20px;
+    min-height: 44px;
+    min-width: 96px;
+    border-radius: 999px;
+    border: 1px solid var(--primary);
+    background: var(--primary);
+    color: #0F0F12;
+    cursor: pointer;
+    transition: background 150ms ease-out, border-color 150ms ease-out, transform 100ms ease-out, opacity 150ms ease-out;
+  }
+  .bx-demo__btn:hover { background: var(--primary-light); border-color: var(--primary-light); }
+  .bx-demo__btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+  .bx-demo__btn:active { transform: translateY(1px); }
+  .bx-demo__btn[disabled] {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+  .bx-demo__btn[disabled]:hover { background: var(--primary); border-color: var(--primary); }
+  .bx-demo__btn--ghost {
+    background: transparent;
+    border-color: var(--border-strong);
+    color: var(--text-muted);
+  }
+  .bx-demo__btn--ghost:hover { color: var(--text); background: rgba(255,255,255,.04); border-color: var(--border-strong); }
+  .bx-demo__btn--ghost[disabled]:hover { background: transparent; color: var(--text-muted); }
+  .bx-demo__btn-label {
+    display: inline-block;
+    transition: opacity 150ms ease-out, transform 150ms ease-out;
+  }
+  .bx-demo__spinner {
+    display: none;
+    align-items: center;
+    gap: 4px;
+  }
+  .bx-demo__spinner > span {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.35;
+    transform: scale(0.7);
+    animation: bx-demo-dot 1s ease-in-out infinite;
+  }
+  .bx-demo__spinner > span:nth-child(2) { animation-delay: 0.15s; }
+  .bx-demo__spinner > span:nth-child(3) { animation-delay: 0.3s; }
+  .bx-demo__btn[data-bx-running] .bx-demo__btn-label {
+    opacity: 0;
+    transform: translateY(-2px);
+    width: 0;
+    overflow: hidden;
+  }
+  .bx-demo__btn[data-bx-running] .bx-demo__spinner { display: inline-flex; }
+  @keyframes bx-demo-dot {
+    0%, 80%, 100% { opacity: 0.35; transform: scale(0.7); }
+    40%           { opacity: 1;    transform: scale(1); }
+  }
+  .bx-demo__state {
+    color: var(--text-soft);
+    font-size: 13px;
+  }
+  .bx-demo__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 720px) {
+    .bx-demo__grid { grid-template-columns: 1fr; }
+  }
+  .bx-demo__pane figcaption {
+    font-size: 12px;
+    color: var(--text-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: var(--fw-semibold);
+    margin-bottom: 6px;
+  }
+  .bx-demo__code {
+    margin: 0;
+    padding: 12px;
+    border-radius: 8px;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    font-family: var(--font-code);
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--code-text);
+    overflow: auto;
+    min-height: 220px;
+    white-space: pre;
+  }
+  .bx-demo__steps {
+    margin: 14px 0 0;
+    padding-left: 20px;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+  .bx-demo__steps li {
+    padding: 4px 0;
+    opacity: 0.45;
+    transition: opacity 200ms ease;
+  }
+  .bx-demo__steps li[data-bx-active] {
+    opacity: 1;
+    color: var(--text);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bx-demo__steps li { transition: none; }
+    .bx-demo__btn,
+    .bx-demo__btn-label { transition: none; }
+    .bx-demo__btn:active { transform: none; }
+    .bx-demo__spinner > span {
+      animation: none;
+      opacity: 0.7;
+      transform: scale(1);
+    }
+  }
+</style>
+
+<script>
+  function initBlackboxDemo() {
+    const root = document.querySelector('[data-bx-demo]');
+    if (!root) return;
+    const runBtn = root.querySelector<HTMLButtonElement>('[data-bx-demo-run]');
+    const runLabel = root.querySelector<HTMLElement>('[data-bx-demo-run-label]');
+    const resetBtn = root.querySelector<HTMLButtonElement>('[data-bx-demo-reset]');
+    const stateEl = root.querySelector<HTMLElement>('[data-bx-demo-state]');
+    const rightTitle = root.querySelector<HTMLElement>('[data-bx-demo-right-title]');
+    const rightBody = root.querySelector<HTMLElement>('[data-bx-demo-right-body]');
+    const steps = root.querySelectorAll<HTMLElement>('[data-bx-demo-step]');
+
+    const FEATURE = [
+      '@flow:subscribe-flow',
+      'Feature: subscribing as a pro tier user',
+      '',
+      '  Scenario: alice is an existing user with no active subscription',
+      '    When alice POSTs /subscriptions with a valid card',
+      '    Then the response status is 201',
+      '    And  the subscription is persisted in postgres',
+      '    And  the tier is cached in redis',
+      '    And  a subscribe order is queued in SQS'
+    ].join('\n');
+
+    const FEATURE_GHOST = [
+      '@flow:subscribe-flow',
+      'Feature: subscribing as a pro tier user',
+      '',
+      '  Scenario: ghost-user does not exist',
+      '    When ghost-user POSTs /subscriptions',
+      '    Then the response status is 404',
+      '    And  cache and users were consulted; Stripe and SQS were not',
+      '    And  the order queue stays empty'
+    ].join('\n');
+
+    const STATES = [
+      { label: 'State 0 of 4. Idle.', title: 'Generated feature file (regenerates every run)', body: '# the file is generated; run the simulation to see it appear' },
+      { label: 'State 1 of 4. Playwright test executing.', title: 'Capturing spans', body: '# capturing OpenTelemetry spans at the bff, postgres, redis, sqs boundaries' },
+      { label: 'State 2 of 4. Spans observed.', title: 'Capturing spans', body: '# 9 spans captured across 4 boundaries' },
+      { label: 'State 3 of 4. Feature file generated.', title: 'subscribe-flow.feature', body: FEATURE },
+      { label: 'State 4 of 4. Forbids pass on physical absence.', title: 'subscribe-flow.feature (ghost-user path)', body: FEATURE_GHOST }
+    ];
+
+    let idx = 0;
+    let timer: number | null = null;
+    const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function render() {
+      const s = STATES[idx];
+      if (stateEl) stateEl.textContent = s.label;
+      if (rightTitle) rightTitle.textContent = s.title;
+      if (rightBody) rightBody.textContent = s.body;
+      steps.forEach((el) => {
+        const n = Number(el.getAttribute('data-bx-demo-step'));
+        if (n === idx) {
+          el.setAttribute('data-bx-active', '');
+        } else {
+          el.removeAttribute('data-bx-active');
+        }
+      });
+    }
+
+    function setRunning(running: boolean) {
+      if (!runBtn) return;
+      if (running) {
+        runBtn.setAttribute('disabled', '');
+        runBtn.setAttribute('aria-busy', 'true');
+        runBtn.setAttribute('data-bx-running', '');
+      } else {
+        runBtn.removeAttribute('disabled');
+        runBtn.removeAttribute('aria-busy');
+        runBtn.removeAttribute('data-bx-running');
+      }
+    }
+
+    function step() {
+      idx = idx + 1;
+      if (idx >= STATES.length) {
+        if (timer !== null) window.clearTimeout(timer);
+        timer = null;
+        setRunning(false);
+        if (runLabel) runLabel.textContent = 'Run again';
+        render();
+        return;
+      }
+      render();
+      const delay = reduced ? 600 : 1100;
+      timer = window.setTimeout(step, delay);
+    }
+
+    if (runBtn) {
+      runBtn.addEventListener('click', () => {
+        if (timer !== null) return;
+        idx = 0;
+        render();
+        setRunning(true);
+        timer = window.setTimeout(step, reduced ? 400 : 700);
+      });
+    }
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        if (timer !== null) { window.clearTimeout(timer); timer = null; }
+        idx = 0;
+        render();
+        setRunning(false);
+        if (runLabel) runLabel.textContent = 'Run';
+      });
+    }
+
+    render();
+  }
+
+  initBlackboxDemo();
+</script>
