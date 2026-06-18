@@ -2,7 +2,7 @@
   "name": "suites",
   "type": "dark",
   "colors": {
-    "editor.background": "#0F0F12",
+    "editor.background": "#1B1B22",
     "editor.foreground": "#F4F4F5",
     "editor.lineHighlightBackground": "#17171C",
     "editor.selectionBackground": "#2A2A33",

@@ -75,13 +75,31 @@ Feature: subscribing to the pro tier
 | `scenario.isolated(...)` | Mark a scenario that needs a fresh isolation group | Same Gherkin; isolation is runtime metadata |
 | `scenario.shared(parentSlug, slug, description, body)` | Join a serial flow to a parent scenario's isolation group | Same Gherkin; shared-state chain is runtime metadata |
 
+## Runtime Mapping
+
+The DSL is not only a feature-file writer. It registers Playwright tests with runtime metadata.
+
+| DSL element | Runtime mapping |
+| --- | --- |
+| `scenario(slug, description, body)` | `test.describe(description, { tag: ['@flow:<slug>', '@isolation-group:bdd:<slug>'] }, body)` |
+| `background(label, fn)` | `test.beforeEach(...)` inside the scenario describe |
+| `given(label, fn)` | `test('GIVEN <label>', ...)` |
+| `when(label, fn)` | `test.step('WHEN <label>', ...)` |
+| `then(label, fn)` | `test.step('THEN <label>', ...)` |
+| `given.each(rows)` | Multiple row tests plus one examples table in the feature trace |
+| `outline(slug, description, rows, body)` | One parameterized behavior shape under one scenario group |
+
+The `@isolation-group` tag is what lets the testbed decide whether to reset state or keep state for the next test in the group.
+
 ## Isolation Verbs
 
-Use `scenario.isolated` when sibling scenarios must not share system state. This is the shape the reshaper uses for `test.describe.parallel(...)` siblings.
+Use `scenario.isolated` when sibling scenarios must not share system state. This is the shape the reshaper uses for `test.describe.parallel(...)` siblings, and it documents that the behavior is safe to run beside other isolated behavior.
 
-Use `scenario.shared(parentSlug, ...)` when a serial chain intentionally carries state from one scenario to the next. The parent slug must already be registered. This is the shape the reshaper uses for serial describe chains.
+Use `scenario.shared(parentSlug, ...)` when a serial chain intentionally carries state from one scenario to the next. The parent slug must already be registered. This is the shape the reshaper uses for serial describe chains, and it should be reserved for flows where state sharing is part of the behavior.
 
 Use `outline` or `given.each` when the same behavior should run over rows of examples.
+
+For the full Playwright worker model, read [Playwright, Isolation, and Parallelism](/docs/blackbox/guides/playwright-isolation-and-parallelism).
 
 ## How The Analyzer Reads The DSL
 

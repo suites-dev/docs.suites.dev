@@ -80,8 +80,10 @@
   --warning: #FB923C;   /* orange-400, replaces the yellow */
   --error:   #FF6B6B;   /* salmon, kept */
 
-  /* Code */
-  --code-bg: #111116;
+  /* Code. Lifted further from --bg (#0F0F12) so fenced blocks read as a
+     distinct surface, not as a wash on the page. Previously sat at #111116
+     which was only +2 luminance ticks above bg, effectively invisible. */
+  --code-bg: #1B1B22;
   --code-text: #E4E4E7;
 
   --radius-xs: 10px;
@@ -90,15 +92,18 @@
   --radius-lg: 28px;
   --radius-xl: 36px;
 
-  /* Layout, verified against prisma/web (apps/docs + packages/eclipse)
-     and re-measured against prisma.io/docs live on 2026-06-15. Outer
-     container is 1504px with 24px side padding (so visible reach in
-     the body is 1456px content + 48px gutter). */
-  --max: 1504px;          /* outer container max-width */
+  /* Layout. Outer reach is 1600px so the article track gets enough room to
+     reach its target width (1016px box, 952px text inside 32px padding).
+     Math at the 1600 outer with 24px side gutter:
+       inner = 1600 - 48 = 1552
+       article track = inner - sidebar (268) - toc (268) = 1016
+     The prior 1504 outer left the article track at 920px, which truncated
+     the article box (964 max-width) and produced a noticeably narrow column. */
+  --max: 1600px;          /* outer container max-width */
   --header-h: 56px;       /* main topbar bar, matches prisma h-14 */
   --header-tabs-h: 40px;  /* optional secondary nav row, matches prisma h-10 */
   --sidebar-w: 268px;     /* matches prisma --fd-sidebar-width */
-  --content-w: 964px;     /* article box = 900 children clamp + 32 side padding x2 */
+  --content-w: 1016px;    /* article box = 952 readable text + 32 side padding x2 */
   --toc-w: 268px;         /* matches prisma --fd-toc-width */
 
   --shadow: 0 24px 90px rgba(0,0,0,.45);

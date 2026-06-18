@@ -42,7 +42,7 @@ const docs = defineCollection({
       secondary_keywords: z.array(z.string()).optional(),
       search_intent: z.string().optional(),
       snippet_angle: z.string().optional(),
-    }).optional(),
+    }).nullable().optional(),
   }),
 });
 

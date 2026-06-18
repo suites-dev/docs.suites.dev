@@ -126,7 +126,6 @@ const sidebar: SidebarConfig = {
         { label: 'Install Blackbox', href: '/docs/blackbox/quickstart/install' },
         { label: '5-Minute Quickstart', href: '/docs/blackbox/quickstart/first-proven-feature' },
         { label: 'Feature Files From Tests', href: '/docs/blackbox/quickstart/feature-files-from-tests' },
-        { label: 'Troubleshooting First Run', href: '/docs/blackbox/quickstart/troubleshooting-first-run' },
       ],
     },
     {
@@ -142,11 +141,16 @@ const sidebar: SidebarConfig = {
       ],
     },
     {
-      label: 'Lifecycle',
+      label: 'Guides',
       items: [
-        { label: 'The Blackbox Lifecycle', href: '/docs/blackbox/lifecycle/the-blackbox-lifecycle' },
-        { label: 'Developer Workflow', href: '/docs/blackbox/lifecycle/developer-workflow' },
-        { label: 'AI-Assisted Workflow', href: '/docs/blackbox/lifecycle/agentic-workflow' },
+        { label: 'Writing Scenarios', href: '/docs/blackbox/guides/writing-scenarios' },
+        { label: 'Playwright, Isolation, and Parallelism', href: '/docs/blackbox/guides/playwright-isolation-and-parallelism' },
+        { label: 'Generating Feature Files', href: '/docs/blackbox/guides/generating-feature-files' },
+        { label: 'Spec-Driven Development', href: '/docs/blackbox/guides/spec-driven-development' },
+        { label: 'AI-Assisted Development', href: '/docs/blackbox/guides/ai-assisted-development' },
+        { label: 'Reading Coverage Reports', href: '/docs/blackbox/guides/reading-coverage-reports' },
+        { label: 'Run with the Testbed', href: '/docs/blackbox/guides/using-the-testbed' },
+        { label: 'Configure CI Gates', href: '/docs/blackbox/guides/ci-behavioral-gates' },
       ],
     },
     {
@@ -156,22 +160,10 @@ const sidebar: SidebarConfig = {
         { label: 'Legacy Modernization', href: '/docs/blackbox/use-cases/legacy-modernization' },
         { label: 'Microservices Regression', href: '/docs/blackbox/use-cases/microservices-regression' },
         { label: 'Incident Regression', href: '/docs/blackbox/use-cases/incident-regression' },
-        { label: 'Spec-Driven Development', href: '/docs/blackbox/use-cases/spec-driven-development' },
-        { label: 'AI-Assisted Development', href: '/docs/blackbox/use-cases/ai-assisted-development' },
       ],
     },
     {
-      label: 'Guides',
-      items: [
-        { label: 'Writing Scenarios', href: '/docs/blackbox/guides/writing-scenarios' },
-        { label: 'Generating Feature Files', href: '/docs/blackbox/guides/generating-feature-files' },
-        { label: 'Reading Coverage Reports', href: '/docs/blackbox/guides/reading-coverage-reports' },
-        { label: 'Run with the Testbed', href: '/docs/blackbox/guides/using-the-testbed' },
-        { label: 'Configure CI Gates', href: '/docs/blackbox/guides/ci-behavioral-gates' },
-      ],
-    },
-    {
-      label: 'CLI and API Reference',
+      label: 'Reference',
       items: [
         { label: 'CLI Reference', href: '/docs/blackbox/reference/cli' },
         { label: 'API Reference', href: '/docs/blackbox/reference/api' },
@@ -195,24 +187,6 @@ const sidebar: SidebarConfig = {
         { label: 'Docker and Testbed', href: '/docs/blackbox/troubleshooting/docker-and-testbed' },
         { label: 'Diagnostics and Debug Logs', href: '/docs/blackbox/troubleshooting/diagnostics-and-debug-logs' },
         { label: 'Reporting a Bug', href: '/docs/blackbox/troubleshooting/reporting-a-bug' },
-      ],
-    },
-    {
-      label: 'Security and Trust',
-      items: [
-        { label: 'What Blackbox Runs', href: '/docs/blackbox/security-and-trust/what-blackbox-runs' },
-        { label: 'Network Access and Isolation', href: '/docs/blackbox/security-and-trust/network-access-and-isolation' },
-        { label: 'Data and Telemetry', href: '/docs/blackbox/security-and-trust/data-and-telemetry' },
-        { label: 'Secrets and Containers', href: '/docs/blackbox/security-and-trust/secrets-and-containers' },
-      ],
-    },
-    {
-      label: 'Project',
-      items: [
-        { label: 'Examples and Sample Project', href: '/docs/blackbox/project/examples-and-sample-project' },
-        { label: 'Supported Platforms and Integrations', href: '/docs/blackbox/project/supported-platforms-and-integrations' },
-        { label: 'Upgrade and Version Compatibility', href: '/docs/blackbox/project/upgrade-and-version-compatibility' },
-        { label: 'License and Support', href: '/docs/blackbox/project/license-and-support' },
       ],
     },
   ],

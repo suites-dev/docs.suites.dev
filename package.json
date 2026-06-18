@@ -11,7 +11,9 @@
     "postbuild": "node scripts/algolia-reindex.mjs",
     "preview": "astro preview",
     "astro": "astro",
-    "check": "astro check",
+    "docs:graph": "node scripts/generate-blackbox-docs-graph.mjs",
+    "docs:graph:check": "node scripts/generate-blackbox-docs-graph.mjs --check",
+    "check": "pnpm docs:graph:check && astro check",
     "typecheck": "astro check"
   },
   "dependencies": {

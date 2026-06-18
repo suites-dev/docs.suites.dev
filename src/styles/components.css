@@ -386,7 +386,11 @@ h1 {
   font-weight: var(--fw-display);
 }
 
-h1 span { color: var(--primary-light); display: block; }
+/* Marketing hero only: the second line of the hero h1 is wrapped in a span
+   to colorize the gradient kicker (e.g. "Stop mocking. Start testing."). This
+   is a hero-specific affordance; do NOT let it leak to article titles in
+   DocLayout (which also wraps the title text in a span). */
+.hero h1 span { color: var(--primary-light); display: block; }
 
 .hero p {
   max-width: 700px;
@@ -732,8 +736,8 @@ input:focus, select:focus, textarea:focus {
 
 .alert-body p,
 .alert-body li {
-  color: var(--text-muted);
-  font-size: 14px;
+  color: var(--text);
+  font-size: 1.0625rem;
   line-height: 1.6;
 }
 
@@ -811,8 +815,8 @@ input:focus, select:focus, textarea:focus {
 
 .aside-body p,
 .aside-body li {
-  color: var(--text-muted);
-  font-size: 14px;
+  color: var(--text);
+  font-size: 1.0625rem;
   line-height: 1.6;
 }
 
@@ -1029,9 +1033,9 @@ input:focus, select:focus, textarea:focus {
   padding: 8px 10px;
   min-height: 36px;
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: 0.9375rem;
   font-weight: var(--fw-medium);
-  line-height: 20px;
+  line-height: 1.45;
   transition: color 160ms ease-out, background-color 160ms ease-out;
 }
 
@@ -1077,8 +1081,11 @@ input:focus, select:focus, textarea:focus {
      Bottom stays 24 across all tiers; the prev/next pager already
      terminates the page so we do not pad the article on bottom. */
   padding: 32px 32px 24px;
-  font-size: 16px;
-  line-height: 1.75;
+  /* Body sits at 17px (1.0625rem) to compensate for Geist Sans's smaller
+     x-height vs Inter. Matches the body size used in vercel.com/docs and
+     nextjs.org/docs, which also ship Geist. */
+  font-size: 1.0625rem;
+  line-height: 1.7;
   background: transparent;
   border: 0;
   border-radius: 0;
@@ -1093,9 +1100,9 @@ input:focus, select:focus, textarea:focus {
 }
 
 .article h1 {
-  font-size: 30px;
-  line-height: 36px;
-  letter-spacing: -0.034em;
+  font-size: 34px;
+  line-height: 40px;
+  letter-spacing: 0;
   font-weight: var(--fw-bold);
   margin: 0 0 24px;
 }
@@ -1125,7 +1132,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .article p {
-  color: var(--text-muted);
+  color: var(--text);
   margin: 0 0 16px;
   max-width: 72ch;
 }
@@ -1135,7 +1142,7 @@ input:focus, select:focus, textarea:focus {
    sit inside the article element. */
 .article > ul,
 .article > ol {
-  color: var(--text-muted);
+  color: var(--text);
   padding-left: 24px;
   margin: 0 0 16px;
   max-width: 72ch;
@@ -1202,6 +1209,23 @@ input:focus, select:focus, textarea:focus {
   margin-top: 8px;
 }
 
+/* Expressive Code renders shell snippets with terminal titlebar chrome.
+   Keep the code box and copy button, but remove the decorative window header
+   globally so command snippets read as docs snippets rather than app chrome. */
+.expressive-code .frame.is-terminal {
+  --button-spacing: 0.4rem !important;
+}
+
+.expressive-code .frame.is-terminal .header {
+  display: none !important;
+}
+
+.expressive-code .frame.is-terminal pre {
+  border-top: var(--ec-brdWd) solid var(--ec-brdCol) !important;
+  border-top-left-radius: calc(var(--ec-brdRad) + var(--ec-brdWd)) !important;
+  border-top-right-radius: calc(var(--ec-brdRad) + var(--ec-brdWd)) !important;
+}
+
 /* ============================================================
  * Docs article header chrome
  * Owns breadcrumb + title row (with badge + page-actions) + lede.
@@ -1209,12 +1233,30 @@ input:focus, select:focus, textarea:focus {
  * ============================================================ */
 
 .article-header {
-  margin: 0 0 32px;
+  margin: 0;
+}
+
+/* The first body element directly after the header was stacking its own
+   top margin (h2 = 48, h3 = 32) on top of the h1's bottom margin (24),
+   producing a 70-90px gap. Zero out the top margin of whatever leads the
+   body so the only spacing is the h1's own bottom margin. */
+.article > .article-header + * { margin-top: 0; }
+
+/* Meta row: breadcrumb on the left, page-actions cluster pinned right.
+   Both elements vertically centered on each other's mid-line. */
+.article-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 0 0 48px;
 }
 
 /* Breadcrumb */
 .breadcrumb {
-  margin: 0 0 20px;
+  margin: 0;
+  flex: 1;
+  min-width: 0;
 }
 .breadcrumb-list {
   display: flex;
@@ -1223,7 +1265,7 @@ input:focus, select:focus, textarea:focus {
   margin: 0;
   padding: 0;
   list-style: none;
-  font-size: 13px;
+  font-size: 0.9375rem;
   line-height: 1.5;
   color: var(--text-muted);
 }
@@ -1252,19 +1294,10 @@ input:focus, select:focus, textarea:focus {
   user-select: none;
 }
 
-/* Title row: h1 + page-actions on a single line on desktop, stacked on mobile */
-.article-title-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 24px;
-  margin: 0 0 8px;
-}
-
+/* H1 now sits on its own row (page-actions moved into the meta row above).
+   Title + maturity badge stay on the same baseline via inline-flex. */
 .article-title {
-  flex: 1;
-  min-width: 0;
-  margin: 0;
+  margin: 0 0 16px;
   display: inline-flex;
   align-items: center;
   flex-wrap: wrap;
@@ -1313,9 +1346,9 @@ input:focus, select:focus, textarea:focus {
 
 /* Description (lede paragraph) directly under the h1. */
 .article-lede {
-  margin: 0;
-  font-size: 17px;
-  line-height: 1.55;
+  margin: 12px 0 0;
+  font-size: 1.1875rem;
+  line-height: 1.5;
   color: var(--text-muted);
   max-width: 64ch;
 }
@@ -1338,8 +1371,8 @@ input:focus, select:focus, textarea:focus {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 32px;
-  padding: 0 12px;
+  height: 31px;
+  padding: 0 11px;
   border-radius: 8px;
   border: 1px solid var(--border);
   background: transparent;
@@ -1351,6 +1384,10 @@ input:focus, select:focus, textarea:focus {
   cursor: pointer;
   transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease;
   user-select: none;
+}
+.page-action svg {
+  width: 14px;
+  height: 14px;
 }
 .page-action:hover {
   color: var(--text);
@@ -1440,10 +1477,10 @@ input:focus, select:focus, textarea:focus {
   color: var(--text-muted);
 }
 
-/* Responsive: stack the title row on narrow viewports so the h1 keeps its
-   own line and the actions wrap below. */
+/* Responsive: stack the meta row on narrow viewports so the breadcrumb keeps
+   its own line and the actions wrap below. */
 @media (max-width: 767px) {
-  .article-title-row {
+  .article-meta-row {
     flex-direction: column;
     align-items: stretch;
     gap: 16px;
@@ -1515,8 +1552,13 @@ input:focus, select:focus, textarea:focus {
 table {
   width: 100%;
   border-collapse: collapse;
-  border: 1px solid var(--border);
-  border-radius: 20px;
+  /* The outer outline is drawn as an inset box-shadow rather than a `border:`
+     declaration. With `border-collapse: collapse` the cells' borders win and
+     the table's own border can render inconsistently at rounded corners. The
+     inset shadow always sits inside the radius and reads as a single hairline. */
+  border: 0;
+  box-shadow: 0 0 0 1px var(--border) inset;
+  border-radius: 10px;
   overflow: hidden;
 }
 
@@ -1524,14 +1566,24 @@ th, td {
   padding: 14px 16px;
   border-bottom: 1px solid var(--border);
   text-align: left;
-  color: var(--text-muted);
-  font-size: 14px;
+  color: var(--text);
+  font-size: 1.0625rem;
 }
 
 th {
   background: rgba(255,255,255,.04);
   color: var(--text);
   font-weight: var(--fw-semibold);
+}
+
+/* Zebra striping for the body rows. Even rows pick up a subtle tint so the
+   table reads as a structured grid rather than a wall of cells. The tint
+   alpha is low enough that --text on top still keeps high contrast. */
+tbody tr:nth-child(even) td {
+  background: rgba(255, 255, 255, 0.025);
+}
+:root[data-theme="light"] tbody tr:nth-child(even) td {
+  background: rgba(15, 15, 18, 0.035);
 }
 
 tr:last-child td { border-bottom: 0; }

@@ -1,6 +1,6 @@
 ---
 title: "5-Minute Quickstart"
-description: "Choose a Blackbox quickstart track: add effect coverage to an existing system test, or learn the first proof loop from the showcase."
+description: "Run one flow with Blackbox, capture effects, review a catalog, and see your first effect coverage signal."
 sidebar_position: 3
 keywords: ["blackbox quickstart", "effect catalog", "effect coverage tutorial", "system test quickstart"]
 toc_min_heading_level: 2
@@ -8,25 +8,11 @@ seo:
   primary_keyword: "blackbox quickstart"
   secondary_keywords: ["effect catalog", "effect coverage tutorial", "system test quickstart"]
   search_intent: "quickstart intent from developers choosing how to get first value from Blackbox"
-  snippet_angle: "choose an existing-tests or showcase track, produce one effect catalog, and see one effect coverage signal"
+  snippet_angle: "run one system flow, produce one effect catalog, and see one effect coverage signal"
 ---
 
 import QuickstartTracks from '@/components/blackbox/QuickstartTracks.astro';
 
-## Choose Your Starting Point
-
-Blackbox has two fast starts. Use `?track=existing` when you already have a system or E2E test. Use `?track=new` when you want to learn from the showcase before wiring your own service.
-
-Both tracks start with runtime behavior. An effect is observable boundary behavior: a database write, queue message, HTTP call, cache change, emitted event, email intent, or forbidden dependency call.
-
-By the end, you should have one flow run with Blackbox, one effect catalog, one reviewed required or forbidden effect, and one effect coverage signal in the terminal.
+Pick the path that matches your repo. In one flow, Blackbox captures runtime effects, creates a reviewable catalog, and turns the next run into an effect coverage signal.
 
 <QuickstartTracks />
-
-## After Your First Successful Run
-
-After the first effect loop works, choose the next layer deliberately:
-
-- Continue to [Feature Files From Tests](/docs/blackbox/quickstart/feature-files-from-tests) if you want feature files, Gherkin output, or feature-file drift checks.
-- Read [System Effects](/docs/blackbox/concepts/system-effects) to understand catalogs, matchers, effect coverage, and OMC/DC.
-- Use [Troubleshooting First Run](/docs/blackbox/quickstart/troubleshooting-first-run) if the catalog, runner, or coverage output is missing.

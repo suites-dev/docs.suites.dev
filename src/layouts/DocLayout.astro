@@ -73,21 +73,25 @@ const showToc = !hideToc && headings.length > 0;
 
       <article class="article">
         <header class="article-header">
-          <Breadcrumb slug={slug} title={title} />
-
-          <div class="article-title-row">
-            <h1 class="article-title">
-              <span>{title}</span>
-              {badge && (
-                <span class="article-title-badge" data-variant={badge} aria-label={`${badge} status`}>
-                  {badge}
-                </span>
-              )}
-            </h1>
-            <PageActions rawBody={rawBody} slug={slug} editUrl={editUrl} />
+          <div class="article-meta-row">
+            <Breadcrumb slug={slug} title={title} />
+            <PageActions rawBody={rawBody} slug={slug} />
           </div>
 
-          {description && <p class="article-lede">{description}</p>}
+          <h1 class="article-title">
+            <span>{title}</span>
+            {badge && (
+              <span class="article-title-badge" data-variant={badge} aria-label={`${badge} status`}>
+                {badge}
+              </span>
+            )}
+          </h1>
+
+          {/* Description stays in BaseLayout for <title>, og:description, and
+              twitter:description. We do NOT render it as a visible lede here
+              because our content commonly leads with an Abstract or intro
+              paragraph that paraphrases it, which would create a duplicate
+              read on every page. */}
         </header>
 
         <slot />

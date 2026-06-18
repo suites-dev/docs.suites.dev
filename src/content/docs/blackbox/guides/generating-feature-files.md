@@ -29,6 +29,8 @@ Blackbox uses the opposite flow:
 
 That keeps the artifact closer to executable behavior.
 
+This is the core shift: Blackbox uses BDD as a readable system-test artifact, not as a feature-file-first runtime. The feature file helps people review behavior, while the system test and runtime effects remain the proof loop.
+
 ## Playwright BDD Without The Cucumber Tax
 
 Traditional Playwright BDD often starts with a feature file, binds each step to code, then asks the team to keep the step definitions and feature text synchronized forever.

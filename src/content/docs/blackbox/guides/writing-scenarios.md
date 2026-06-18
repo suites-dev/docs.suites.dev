@@ -37,6 +37,25 @@ The exact DSL can vary by runner and API surface, but the mental model stays clo
 
 Do not start with every workflow. Start with one behavior whose boundary effects matter.
 
+## Playwright Test API Shape
+
+When the runner is Playwright, Blackbox reads the Playwright Test API shape before it tries to produce behavior artifacts.
+
+| Playwright construct | How to think about it in Blackbox |
+| --- | --- |
+| `test(title, body)` | One executable behavior candidate |
+| `test.describe(...)` | A grouping context for related behavior |
+| `test.describe.parallel(...)` | Independent sibling behaviors that should map to isolated groups |
+| `test.describe.serial(...)` | A dependent chain that should map to shared groups only when state sharing is intentional |
+| `test.beforeEach(...)` | Repeatable setup that may become `background(...)` |
+| `test.step(...)` | Explicit step boundary that can improve readable behavior traces |
+| fixtures such as `request`, `system`, `capture`, `isolation` | The handles that drive the SUT, collect effects, and activate isolation |
+| `expect(...)` | The observable conclusion; usually the strongest signal for `Then` |
+
+These are Playwright Test API constructs, not Gherkin concepts. Gherkin is the readable output format. Playwright is the execution model. Blackbox connects them through isolation groups and runtime evidence.
+
+Read [Playwright, Isolation, and Parallelism](/docs/blackbox/guides/playwright-isolation-and-parallelism) for the full runner model.
+
 ## Observability Testing Vs Effect Assertions
 
 Observability testing is useful when traces, spans, logs, and runtime facts help explain what happened during a test. By itself, observability does not decide whether the behavior is acceptable.

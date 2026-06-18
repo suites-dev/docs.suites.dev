@@ -1,5 +1,6 @@
 ---
 import { Code } from 'astro-expressive-code/components';
+import Aside from '@/components/mdx/Aside.astro';
 import QuickstartTrackDiagram from './QuickstartTrackDiagram.astro';
 
 const existingSteps = [
@@ -73,8 +74,6 @@ subscribe-flow:
     - { boundary: postgres, op: DELETE }
     - { boundary: http, op: POST, key: /v1/refunds }`;
 
-const existingRunCommand = `<your-system-test-command>`;
-
 const playwrightExampleCommand = `npx playwright test --config ./e2e/playwright.config.ts`;
 
 const showcaseRunCommand = `pnpm test:system`;
@@ -82,54 +81,74 @@ const showcaseRunCommand = `pnpm test:system`;
 const baselineMessage = `toMatchCatalog: no catalog entry for "checkout-flow"; baseline pending.
 Will be written at fixture teardown.`;
 
-const effectCoverageOutput = `effect coverage
-metric           value
-catalog entries  1
-satisfied        1  (100%)
-failed           0
-uncovered        0
+const generatedCatalogPath = `created: e2e/tests/__effects__/checkout-flow.system.effects.yaml
+next: review requires and forbids before committing`;
 
-  entry          state      runs  why
-✓ checkout-flow  satisfied  1/1
-written: <coverage-dir>/coverage.json`;
+const coverageRows = [
+  { metric: 'catalog entries', value: '1', tone: 'neutral' },
+  { metric: 'satisfied', value: '1 (100%)', tone: 'good' },
+  { metric: 'failed', value: '0', tone: 'quiet' },
+  { metric: 'uncovered', value: '0', tone: 'quiet' },
+];
+
+const coverageJsonSnippet = `{
+  "catalog": { "entries": 1 },
+  "summary": { "satisfied": 1, "failed": 0, "uncovered": 0 },
+  "perEntry": {
+    "checkout-flow": { "state": "satisfied", "runs": 1 }
+  }
+}`;
+
+const showcaseRunOutput = `✓ subscribe-flow › alice subscribes
+
+captured effects
+  redis       GET user:alice:tier
+  postgres   INSERT subscriptions
+  http        POST /v1/payment_intents
+  sqs         SendMessage subscription.created
+
+written: e2e/tests/__effects__/00-baseline-subscribe.system.effects.yaml
+written: e2e/.blackbox-coverage/coverage.json`;
 
 const showcaseProofArtifacts = `e2e/tests/__effects__/00-baseline-subscribe.system.effects.yaml
 e2e/.blackbox-coverage/coverage.json
 e2e/.blackbox-coverage/omcdc-propagation.md`;
 
-const replayCommand = `pnpm exec blackbox coverage replay --coverage-dir e2e/.blackbox-coverage --out reports`;
-
-const omcdcArtifacts = `e2e/.blackbox-coverage/omcdc-propagation.md
-e2e/.blackbox-coverage/omcdc-propagation.json
-e2e/.blackbox-coverage/omcdc.html`;
-
 const featureCommands = `pnpm exec blackbox features emit ./e2e/tests --out ./e2e/features
 pnpm exec blackbox features check --features ./e2e/features --tests ./e2e/tests`;
+
+const featureOutput = `emitted: e2e/features/subscribe-flow.feature
+checked: 1 feature file, 1 source test
+status: in sync`;
 ---
 
 <section class="bb-quickstart" id="quickstart-track" data-active-track="existing">
-  <div class="bb-preflight" aria-label="Before you start">
-    <div>
-      <strong>Before you start</strong>
-      <p>Install Blackbox first. Then choose the path that matches your repo: an existing system or E2E test, or the Blackbox showcase.</p>
-    </div>
-    <div>
-      <strong>First success</strong>
-      <p>One run records effects, one catalog entry is reviewed, and the next run reports a satisfied effect coverage entry.</p>
-    </div>
-  </div>
-
   <div class="bb-track-pick" aria-label="Choose a quickstart track">
     <a class="bb-track-option is-active" href="?track=existing#quickstart-track" data-track-choice="existing" aria-controls="track-existing" aria-current="true">
-      <span>Track 1</span>
-      <strong>I already have system or E2E tests</strong>
+      <span>Existing tests</span>
+      <strong>Add Blackbox to one flow</strong>
       <em>Add Blackbox to one flow, review its effect catalog, and rerun until one catalog entry is covered.</em>
+      <b>Start with an existing test</b>
     </a>
     <a class="bb-track-option" href="?track=new#quickstart-track" data-track-choice="new" aria-controls="track-new">
-      <span>Track 2</span>
-      <strong>Showcase first</strong>
+      <span>No system tests yet</span>
+      <strong>Run the showcase first</strong>
       <em>Run the Blackbox showcase, inspect the proof trail, then copy the smallest system-test shape.</em>
+      <b>Start with the showcase</b>
     </a>
+  </div>
+
+  <div class="bb-preflight" aria-label="Quickstart success criteria">
+    <div class="bb-preflight-panel">
+      <span>Start with</span>
+      <strong>One runnable system flow</strong>
+      <p>Use an existing test command or the showcase SUT. You only need one place to write artifacts.</p>
+    </div>
+    <div class="bb-preflight-panel is-success">
+      <span>Stop at</span>
+      <strong>One satisfied coverage entry</strong>
+      <p>Run once, review one catalog entry, rerun, and see effect coverage turn green.</p>
+    </div>
   </div>
 
   <nav class="bb-track-progress" aria-label="Quickstart track progress">
@@ -163,99 +182,199 @@ pnpm exec blackbox features check --features ./e2e/features --tests ./e2e/tests`
   </nav>
 
   <article class="bb-track-panel is-active" id="track-existing" data-track-panel="existing">
-    <h2>Track 1: Add Effect Coverage To An Existing System Test</h2>
+    <h2>Existing Tests: Add Effect Coverage To One Flow</h2>
     <p>Use this path when you already have a system or E2E test that exercises a valuable flow. The first win is not a new suite. It is evidence for behavior your existing test already drives.</p>
     <QuickstartTrackDiagram kind="existing" />
 
     <section id="existing-step-1" data-track-section="existing">
-      <h3><span>1</span>Add the Blackbox wrapper and matcher</h3>
-      <p>Keep the request and response assertions you already trust. Add the Blackbox system boundary and `toMatchCatalog()` at the end of one valuable flow.</p>
+      <h3><span aria-hidden="true">1</span>Add the Blackbox wrapper and matcher</h3>
+      <p>Keep the request and response assertions you already trust. Add the Blackbox system boundary and <code>toMatchCatalog()</code> at the end of one valuable flow.</p>
       <Code code={existingTestSnippet} lang="ts" />
     </section>
 
     <section id="existing-step-2" data-track-section="existing">
-      <h3><span>2</span>Run your normal system-test command</h3>
+      <h3><span aria-hidden="true">2</span>Run your normal system-test command</h3>
       <p>Blackbox does not need to replace your runner. Use the command your project already uses; the Playwright command below is only an example.</p>
-      <Code code={existingRunCommand} lang="bash" />
       <Code code={playwrightExampleCommand} lang="bash" />
-      <p class="bb-checkpoint">You should see a baseline-pending message the first time the catalog entry does not exist.</p>
+      <Aside type="note" title="Expected first-run signal">
+        You should see a baseline-pending message the first time the catalog entry does not exist.
+      </Aside>
+      <p>That message means Blackbox has seen this flow, but there is no reviewed effect contract for it yet. The run continues, records the observed effects, and writes a draft catalog entry for you to review before the next run enforces it.</p>
       <Code code={baselineMessage} lang="text" />
+      <Code code={generatedCatalogPath} lang="text" />
     </section>
 
     <section id="existing-step-3" data-track-section="existing">
-      <h3><span>3</span>Review the effect catalog</h3>
+      <h3><span aria-hidden="true">3</span>Review the effect catalog</h3>
       <p>The first useful artifact is the generated catalog. It starts as observed behavior, not a trusted contract. Review it before committing it.</p>
       <Code code={existingCatalogSnippet} lang="yaml" />
+      <Aside type="info" title="Catalogs are contracts after review">
+        Keep effects that define correctness, delete noise, and add forbids for behavior that would make the flow unsafe. See <a href="/docs/blackbox/reference/catalog-schema">Catalog Schema</a> for the durable format.
+      </Aside>
     </section>
 
     <section id="existing-step-4" data-track-section="existing">
-      <h3><span>4</span>Tighten the catalog to one meaningful contract</h3>
-      <p>`toMatchCatalog()` is already the matcher. Your job here is to edit the catalog: keep one required effect that proves useful behavior and add one forbid for behavior that must not happen.</p>
+      <h3><span aria-hidden="true">4</span>Tighten the catalog to one meaningful contract</h3>
+      <p><code>toMatchCatalog()</code> is already the matcher. Your job here is to edit the catalog: keep one required effect that proves useful behavior and add one forbid for behavior that must not happen.</p>
       <Code code={existingReviewedCatalogSnippet} lang="yaml" />
+      <Aside type="note" title="Start intentionally small">
+        One required effect and one forbidden effect are enough for the first loop. Broaden the catalog after the team trusts the signal.
+      </Aside>
     </section>
 
     <section id="existing-step-5" data-track-section="existing">
-      <h3><span>5</span>Rerun and read effect coverage</h3>
+      <h3><span aria-hidden="true">5</span>Rerun and read effect coverage</h3>
       <p>On the next run, the terminal should show whether the reviewed catalog entry was satisfied, failed, or uncovered.</p>
-      <Code code={effectCoverageOutput} lang="text" />
-      <p class="bb-checkpoint">That is the first quickstart win: the same flow now proves something about the behavior inside the system, not only its response.</p>
+      <figure class="bb-coverage-output" aria-label="Effect coverage output for checkout-flow">
+        <div class="bb-coverage-head">
+          <span>effect coverage</span>
+          <strong>1 satisfied</strong>
+        </div>
+        <div class="bb-coverage-table" role="table" aria-label="Effect coverage summary">
+          <div class="bb-coverage-row is-header" role="row">
+            <span role="columnheader">metric</span>
+            <span role="columnheader">value</span>
+          </div>
+          {coverageRows.map((row) => (
+            <div class={`bb-coverage-row is-${row.tone}`} role="row">
+              <span role="cell">{row.metric}</span>
+              <strong role="cell">{row.value}</strong>
+            </div>
+          ))}
+        </div>
+        <div class="bb-coverage-entry">
+          <span aria-hidden="true">✓</span>
+          <code>checkout-flow</code>
+          <strong>satisfied</strong>
+          <em>1/1 runs</em>
+        </div>
+        <figcaption>written: &lt;coverage-dir&gt;/coverage.json</figcaption>
+      </figure>
+      <p>The same run also writes a machine-readable summary for CI, dashboards, and agent context.</p>
+      <Code code={coverageJsonSnippet} lang="json" />
+      <Aside type="tip" title="First quickstart win">
+        The same flow now proves something about the behavior inside the system, not only its response. Read <a href="/docs/blackbox/concepts/system-effects">System Effects</a> when you want the mental model behind catalog coverage and OMC/DC.
+      </Aside>
     </section>
   </article>
 
   <article class="bb-track-panel" id="track-new" data-track-panel="new" hidden>
-    <h2>Track 2: Showcase First</h2>
+    <h2>Showcase First: Learn The Proof Loop</h2>
     <p>Use this path when you do not yet have a useful system test. First learn the proof loop in the Blackbox showcase, then write one narrow flow in your own system.</p>
-    <QuickstartTrackDiagram kind="new-test" />
+    <Aside type="info" title="The showcase SUT">
+      The example system under test is a small subscription backend. The test calls the BFF, and the BFF touches Redis, Postgres, a payment HTTP boundary, and SQS. That gives the quickstart enough behavior to show required effects, forbidden effects, catalog coverage, and OMC/DC reports.
+    </Aside>
+    <QuickstartTrackDiagram kind="showcase-sut" />
 
     <section id="new-step-1" data-track-section="new">
-      <h3><span>1</span>Run the showcase</h3>
+      <h3><span aria-hidden="true">1</span>Run the showcase</h3>
       <p>From the Blackbox showcase repo root, run the system-test script. The subscription flow is intentionally small but effect-rich: Redis, Postgres, HTTP, and SQS all participate.</p>
       <Code code={showcaseRunCommand} lang="bash" />
+      <Code code={showcaseRunOutput} lang="text" />
     </section>
 
     <section id="new-step-2" data-track-section="new">
-      <h3><span>2</span>Inspect the proof trail</h3>
+      <h3><span aria-hidden="true">2</span>Inspect the proof trail</h3>
       <p>A successful showcase run should produce a catalog and coverage artifacts. Start with these three; spans and V8 payloads are diagnostics for later.</p>
       <Code code={showcaseProofArtifacts} lang="text" />
+      <Aside type="info" title="What to inspect first">
+        Open the effect catalog before the OMC/DC report. The catalog tells you what behavior the test observed; OMC/DC tells you where decision evidence is still thin. See <a href="/docs/blackbox/reference/files-and-artifacts">Files and Artifacts</a> for the full inventory.
+      </Aside>
     </section>
 
     <section id="new-step-3" data-track-section="new">
-      <h3><span>3</span>Copy the smallest test shape</h3>
-      <p>The important shape is `test.system(...)` plus `toMatchCatalog()`. The matcher seeds a baseline when no catalog entry exists, then enforces the reviewed catalog on later runs.</p>
+      <h3><span aria-hidden="true">3</span>Copy the smallest test shape</h3>
+      <p>The important shape is <code>test.system(...)</code> plus <code>toMatchCatalog()</code>. The matcher seeds a baseline when no catalog entry exists, then enforces the reviewed catalog on later runs.</p>
       <Code code={showcaseTestSnippet} lang="ts" />
+      <Aside type="note" title="Use your runner, not a new testing religion">
+        Blackbox is the evidence layer around a system flow. Today this quickstart assumes Playwright for the runnable system-test path.
+      </Aside>
     </section>
 
     <section id="new-step-4" data-track-section="new">
-      <h3><span>4</span>Write one narrow flow in your system</h3>
+      <h3><span aria-hidden="true">4</span>Write one narrow flow in your system</h3>
       <p>Pick a flow where input/output success is not enough: checkout, signup, webhook handling, account deletion, refund prevention, or another side-effect-heavy path.</p>
-      <p class="bb-checkpoint">The goal is not a broad journey. The goal is one controlled system flow whose effects matter.</p>
+      <Aside type="tip" title="Keep it narrow">
+        The goal is not a broad journey. The goal is one controlled system flow whose effects matter.
+      </Aside>
     </section>
 
     <section id="new-step-5" data-track-section="new">
-      <h3><span>5</span>Review the catalog and read coverage</h3>
+      <h3><span aria-hidden="true">5</span>Review the catalog and read coverage</h3>
       <p>The first custom catalog begins as observed behavior. Keep the effects that define correctness, add forbids for dangerous behavior, then rerun to see effect coverage.</p>
       <Code code={showcaseCatalogSnippet} lang="yaml" />
-      <Code code={effectCoverageOutput.replace('checkout-flow', 'subscribe-flow')} lang="text" />
+      <figure class="bb-coverage-output" aria-label="Effect coverage output for subscribe-flow">
+        <div class="bb-coverage-head">
+          <span>effect coverage</span>
+          <strong>1 satisfied</strong>
+        </div>
+        <div class="bb-coverage-table" role="table" aria-label="Effect coverage summary">
+          <div class="bb-coverage-row is-header" role="row">
+            <span role="columnheader">metric</span>
+            <span role="columnheader">value</span>
+          </div>
+          {coverageRows.map((row) => (
+            <div class={`bb-coverage-row is-${row.tone}`} role="row">
+              <span role="cell">{row.metric}</span>
+              <strong role="cell">{row.value}</strong>
+            </div>
+          ))}
+        </div>
+        <div class="bb-coverage-entry">
+          <span aria-hidden="true">✓</span>
+          <code>subscribe-flow</code>
+          <strong>satisfied</strong>
+          <em>1/1 runs</em>
+        </div>
+        <figcaption>written: &lt;coverage-dir&gt;/coverage.json</figcaption>
+      </figure>
+      <Aside type="tip" title="You now have the same loop as Track 1">
+        The showcase path should end with the same proof shape: one reviewed catalog entry and one satisfied coverage signal. From here, the next choices are the same for both tracks.
+      </Aside>
     </section>
   </article>
 
-  <aside class="bb-after-success" aria-label="After first success">
-    <h2>After First Success</h2>
-    <div class="bb-next-grid">
-      <div>
-        <strong>Inspect OMC/DC when you need decision evidence</strong>
-        <p>OMC/DC is advanced coverage over decisions and observed effects. The normal test run writes the reports; replay is for offline rendering from saved coverage artifacts.</p>
-        <Code code={replayCommand} lang="bash" />
-        <Code code={omcdcArtifacts} lang="text" />
-      </div>
-      <div>
-        <strong>Add behavior specs when readable specs help</strong>
-        <p>Feature files are optional. Generate them when you want a readable behavior surface and feature-file drift checks beside runtime effect evidence.</p>
+  <section class="bb-after-success" aria-label="After first success">
+    <div class="bb-after-success-head">
+      <span>After first success</span>
+      <h2 id="after-first-success">Pick one next signal</h2>
+      <p>The first loop proves Blackbox can observe your system and enforce one reviewed effect contract. Most teams should add readable behavior specs next. Add OMC/DC or CI gates when a specific review needs them.</p>
+    </div>
+
+    <div class="bb-next-signal">
+      <a class="bb-next-primary" href="/docs/blackbox/quickstart/feature-files-from-tests">
+        <span class="bb-next-kicker">Recommended next</span>
+        <strong>Continue to Feature Files From Tests</strong>
+        <p>Turn the proven system test into a readable behavior spec, then drift-check that the feature file and test source still describe the same behavior.</p>
+        <span class="bb-next-link">Open guide</span>
+      </a>
+
+      <details class="bb-next-command">
+        <summary>Show command preview</summary>
         <Code code={featureCommands} lang="bash" />
-        <p><a href="/docs/blackbox/quickstart/feature-files-from-tests">Continue to Feature Files From Tests</a>.</p>
+        <Code code={featureOutput} lang="text" />
+      </details>
+
+      <div class="bb-next-secondary" aria-label="Optional next signals">
+        <a href="/docs/blackbox/concepts/omc-dc-coverage">
+          <span class="bb-next-kicker">When branch risk matters</span>
+          <strong>Inspect OMC/DC coverage</strong>
+          <p>Use it for feature flags, authorization, compensation paths, retries, and forbidden side effects.</p>
+          <span class="bb-next-link">Read OMC/DC guide</span>
+        </a>
+        <a href="/docs/blackbox/guides/ci-behavioral-gates">
+          <span class="bb-next-kicker">When review needs a gate</span>
+          <strong>Publish CI evidence</strong>
+          <p>Archive the catalog coverage summary and OMC/DC reports where reviewers can inspect failures.</p>
+          <span class="bb-next-link">Open CI guide</span>
+        </a>
       </div>
     </div>
-  </aside>
+
+    <p class="bb-after-note">
+      <strong>Keep the next step narrow.</strong> Add one more valuable signal, not every possible report. Bring in OMC/DC, feature files, and CI publishing when the team has a concrete review or merge-gate need.
+    </p>
+  </section>
 </section>
 
 <script>
@@ -300,7 +419,7 @@ pnpm exec blackbox features check --features ./e2e/features --tests ./e2e/tests`
       }
     };
 
-    const setTrack = (track, push) => {
+    const setTrack = (track, push, hash) => {
       activeTrack = track === 'new' ? 'new' : 'existing';
       root.dataset.activeTrack = activeTrack;
 
@@ -335,7 +454,8 @@ pnpm exec blackbox features check --features ./e2e/features --tests ./e2e/tests`
       if (push) {
         const url = new URL(window.location.href);
         url.searchParams.set('track', activeTrack);
-        window.history.replaceState({}, '', `${url.pathname}?${url.searchParams.toString()}${url.hash}`);
+        const nextHash = hash ?? url.hash;
+        window.history.replaceState({}, '', `${url.pathname}?${url.searchParams.toString()}${nextHash}`);
       }
 
       setProgress(0);
@@ -362,7 +482,36 @@ pnpm exec blackbox features check --features ./e2e/features --tests ./e2e/tests`
         event.preventDefault();
         const next = choice.getAttribute('data-track-choice') === 'new' ? 'new' : 'existing';
         setTrack(next, true);
-        root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        requestAnimationFrame(() => {
+          const activePanel = root.querySelector(`[data-track-panel="${next}"]`);
+          if (activePanel instanceof HTMLElement) {
+            activePanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      });
+    });
+
+    document.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+
+      const anchor = target.closest('a[href^="#"]');
+      if (!(anchor instanceof HTMLAnchorElement)) return;
+
+      const hash = anchor.hash;
+      const track = hash.startsWith('#new-step-') || hash === '#track-new'
+        ? 'new'
+        : hash.startsWith('#existing-step-') || hash === '#track-existing'
+          ? 'existing'
+          : null;
+
+      if (track === null) return;
+
+      event.preventDefault();
+      setTrack(track, true, hash);
+
+      requestAnimationFrame(() => {
+        document.querySelector(hash)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     });
 
@@ -370,45 +519,76 @@ pnpm exec blackbox features check --features ./e2e/features --tests ./e2e/tests`
     window.addEventListener('resize', updateFromScroll);
 
     const initial = new URL(window.location.href).searchParams.get('track');
-    setTrack(initial === 'new' ? 'new' : 'existing', false);
+    const initialHash = window.location.hash;
+    const initialTrack = initialHash.startsWith('#new-step-') || initialHash === '#track-new'
+      ? 'new'
+      : initial === 'new'
+        ? 'new'
+        : 'existing';
+    setTrack(initialTrack, false);
   }
 </script>
 
 <style>
   .bb-quickstart {
-    margin: 24px 0 48px;
+    margin: 18px 0 48px;
   }
 
   .bb-preflight {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
-    margin: 24px 0;
+    gap: 12px;
+    margin: 16px 0 22px;
   }
 
-  .bb-preflight > div,
-  .bb-after-success,
-  .bb-next-grid > div {
-    border: 1px solid var(--border);
+  .bb-preflight-panel {
+    border: 1px solid rgba(148, 163, 184, 0.22);
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.035);
+    background: rgba(255, 255, 255, 0.02);
   }
 
-  .bb-preflight > div {
-    padding: 16px;
+  .bb-preflight-panel {
+    display: grid;
+    align-content: start;
+    gap: 8px;
+    padding: 14px 16px;
   }
 
-  .bb-preflight strong,
-  .bb-next-grid strong {
-    display: block;
-    margin-bottom: 8px;
-    color: var(--text);
-    font-size: 14px;
+  .bb-preflight-panel.is-success {
+    border-color: rgba(134, 239, 172, 0.24);
+    background: rgba(134, 239, 172, 0.04);
+  }
+
+  .bb-preflight-panel > span,
+  .bb-after-success-head > span,
+  .bb-next-kicker {
+    width: fit-content;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: rgba(96, 165, 250, 0.12);
+    color: #93c5fd;
+    font-size: 12px;
+    font-weight: 800;
     text-transform: uppercase;
   }
 
-  .bb-preflight p,
-  .bb-next-grid p {
+  .bb-preflight-panel.is-success > span {
+    background: rgba(134, 239, 172, 0.12);
+    color: #86efac;
+  }
+
+  .bb-preflight-panel strong,
+  .bb-next-primary strong,
+  .bb-next-secondary strong {
+    display: block;
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.3;
+  }
+
+  .bb-preflight-panel p,
+  .bb-next-primary p,
+  .bb-next-secondary p {
     margin: 0;
     color: var(--text-muted);
     line-height: 1.55;
@@ -418,14 +598,14 @@ pnpm exec blackbox features check --features ./e2e/features --tests ./e2e/tests`
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
-    margin: 24px 0;
+    margin: 18px 0 0;
   }
 
   .bb-track-option {
     display: flex;
-    min-height: 210px;
+    min-height: 176px;
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
     padding: 20px;
     border: 1px solid var(--border);
     border-radius: 8px;
@@ -462,10 +642,36 @@ pnpm exec blackbox features check --features ./e2e/features --tests ./e2e/tests`
     line-height: 1.55;
   }
 
+  .bb-track-option b {
+    width: fit-content;
+    margin-top: auto;
+    padding: 7px 10px;
+    border: 1px solid rgba(96, 165, 250, 0.38);
+    border-radius: 6px;
+    background: rgba(96, 165, 250, 0.1);
+    color: #bfdbfe;
+    font-size: 13px;
+    font-weight: 850;
+    line-height: 1;
+  }
+
+  .bb-track-option b::after {
+    content: " ->";
+  }
+
+  .bb-track-option:hover b,
+  .bb-track-option:focus-visible b,
+  .bb-track-option.is-active b {
+    border-color: rgba(96, 165, 250, 0.7);
+    background: rgba(96, 165, 250, 0.16);
+    color: var(--text);
+  }
+
   .bb-track-progress {
     position: sticky;
     top: 12px;
     z-index: 20;
+    scroll-margin-top: calc(var(--header-h, 0px) + 12px);
     margin: 24px 0 30px;
     padding: 12px;
     border: 1px solid var(--border);
@@ -564,6 +770,7 @@ pnpm exec blackbox features check --features ./e2e/features --tests ./e2e/tests`
 
   .bb-track-panel {
     display: none;
+    scroll-margin-top: calc(var(--header-h, 0px) + 82px);
   }
 
   .bb-track-panel[hidden] {
@@ -578,6 +785,17 @@ pnpm exec blackbox features check --features ./e2e/features --tests ./e2e/tests`
     scroll-margin-top: 150px;
     margin: 28px 0;
     padding-top: 2px;
+  }
+
+  .bb-track-panel :global(.expressive-code),
+  .bb-track-panel :global(.aside),
+  .bb-next-command :global(.expressive-code) {
+    margin: 16px 0;
+  }
+
+  .bb-track-panel :global(.expressive-code + .expressive-code),
+  .bb-next-command :global(.expressive-code + .expressive-code) {
+    margin-top: 12px;
   }
 
   .bb-track-panel h3 {
@@ -599,36 +817,295 @@ pnpm exec blackbox features check --features ./e2e/features --tests ./e2e/tests`
     font-weight: 900;
   }
 
-  .bb-checkpoint {
-    padding: 12px 14px;
-    border-left: 3px solid #60a5fa;
-    border-radius: 6px;
-    background: rgba(96, 165, 250, 0.08);
+  .bb-coverage-output {
+    margin: 18px 0;
+    padding: 16px;
+    border: 1px solid rgba(134, 239, 172, 0.28);
+    border-radius: 8px;
+    background: linear-gradient(180deg, rgba(134, 239, 172, 0.065), rgba(15, 23, 42, 0.22));
     color: var(--text);
   }
 
+  .bb-coverage-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .bb-coverage-head span {
+    color: #bbf7d0;
+    font-family: var(--font-code);
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  .bb-coverage-head strong {
+    padding: 4px 8px;
+    border: 1px solid rgba(134, 239, 172, 0.36);
+    border-radius: 999px;
+    background: rgba(134, 239, 172, 0.12);
+    color: #86efac;
+    font-size: 12px;
+    line-height: 1;
+  }
+
+  .bb-coverage-table {
+    display: grid;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .bb-coverage-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(96px, max-content);
+    gap: 16px;
+    align-items: center;
+    min-height: 38px;
+    padding: 0 12px;
+    border-top: 1px solid rgba(148, 163, 184, 0.16);
+    color: var(--text-muted);
+    font-family: var(--font-code);
+    font-size: 13px;
+  }
+
+  .bb-coverage-row:first-child {
+    border-top: 0;
+  }
+
+  .bb-coverage-row.is-header {
+    min-height: 34px;
+    background: rgba(15, 23, 42, 0.42);
+    color: var(--text-soft);
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .bb-coverage-row strong {
+    color: var(--text);
+    text-align: right;
+  }
+
+  .bb-coverage-row.is-good {
+    background: rgba(134, 239, 172, 0.09);
+    color: #bbf7d0;
+  }
+
+  .bb-coverage-row.is-good strong {
+    color: #86efac;
+  }
+
+  .bb-coverage-row.is-quiet strong {
+    color: #cbd5e1;
+  }
+
+  .bb-coverage-entry {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-top: 14px;
+    color: var(--text-muted);
+    font-family: var(--font-code);
+    font-size: 13px;
+  }
+
+  .bb-coverage-entry > span {
+    display: grid;
+    width: 22px;
+    height: 22px;
+    place-items: center;
+    border-radius: 999px;
+    background: rgba(134, 239, 172, 0.16);
+    color: #86efac;
+    font-family: var(--font-sans);
+    font-weight: 900;
+  }
+
+  .bb-coverage-entry code {
+    color: #dbeafe;
+  }
+
+  .bb-coverage-entry strong {
+    color: #86efac;
+  }
+
+  .bb-coverage-entry em {
+    color: var(--text-soft);
+    font-style: normal;
+  }
+
+  .bb-coverage-output figcaption {
+    margin-top: 12px;
+    color: var(--text-soft);
+    font-family: var(--font-code);
+    font-size: 12px;
+  }
+
   .bb-after-success {
-    margin: 34px 0 0;
-    padding: 18px;
+    margin: 40px 0 0;
+    padding: 30px 0 0;
+    border-top: 1px solid var(--border);
   }
 
-  .bb-after-success h2 {
-    margin-top: 0;
+  .bb-after-success-head {
+    max-width: 760px;
+    margin-bottom: 20px;
   }
 
-  .bb-next-grid {
+  .bb-after-success-head h2 {
+    margin: 12px 0 8px;
+  }
+
+  .bb-after-success-head p {
+    margin: 0;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .bb-next-signal {
+    display: grid;
+    gap: 18px;
+    max-width: 940px;
+  }
+
+  .bb-next-primary {
+    position: relative;
+    display: grid;
+    gap: 11px;
+    padding: 18px 20px;
+    border: 1px solid rgba(134, 239, 172, 0.34);
+    border-left-width: 4px;
+    border-radius: 8px;
+    background: rgba(134, 239, 172, 0.045);
+    color: var(--text);
+    text-decoration: none;
+    transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+  }
+
+  .bb-next-primary:hover,
+  .bb-next-primary:focus-visible {
+    border-color: rgba(134, 239, 172, 0.7);
+    background: rgba(134, 239, 172, 0.075);
+    transform: translateY(-1px);
+  }
+
+  .bb-next-primary strong {
+    font-size: 22px;
+  }
+
+  .bb-next-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    margin-top: 2px;
+    padding: 7px 10px;
+    border: 1px solid rgba(96, 165, 250, 0.38);
+    border-radius: 6px;
+    background: rgba(96, 165, 250, 0.1);
+    color: #bfdbfe;
+    font-size: 13px;
+    font-weight: 850;
+    line-height: 1;
+  }
+
+  .bb-next-link::after {
+    content: " ->";
+  }
+
+  .bb-next-primary:hover .bb-next-link,
+  .bb-next-primary:focus-visible .bb-next-link,
+  .bb-next-secondary a:hover .bb-next-link,
+  .bb-next-secondary a:focus-visible .bb-next-link {
+    border-color: rgba(96, 165, 250, 0.7);
+    background: rgba(96, 165, 250, 0.16);
+    color: var(--text);
+  }
+
+  .bb-next-command {
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .bb-next-command summary {
+    padding: 13px 0;
+    color: var(--primary-light);
+    cursor: pointer;
+    font-weight: 800;
+  }
+
+  .bb-next-command summary::after {
+    content: " +";
+  }
+
+  .bb-next-command[open] summary::after {
+    content: " -";
+  }
+
+  .bb-next-command summary:hover,
+  .bb-next-command summary:focus-visible {
+    color: var(--text);
+  }
+
+  .bb-next-secondary {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
+    gap: 24px;
+    padding-top: 6px;
   }
 
-  .bb-next-grid > div {
+  .bb-next-secondary a {
+    display: grid;
+    gap: 9px;
     padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.025);
+    color: var(--text);
+    text-decoration: none;
+    transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+  }
+
+  .bb-next-secondary a:hover,
+  .bb-next-secondary a:focus-visible {
+    border-color: #60a5fa;
+    background: rgba(96, 165, 250, 0.055);
+    transform: translateY(-1px);
+  }
+
+  .bb-next-secondary strong {
+    font-size: 16px;
+  }
+
+  .bb-after-artifacts {
+    margin: 0;
+    padding-left: 20px;
+    color: var(--text-muted);
+    line-height: 1.65;
+  }
+
+  .bb-after-artifacts code {
+    color: var(--code-text);
+  }
+
+  .bb-after-note {
+    max-width: 780px;
+    margin: 22px 0 0;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .bb-after-note strong {
+    color: var(--text);
   }
 
   @media (max-width: 820px) {
     .bb-preflight,
-    .bb-next-grid {
+    .bb-next-secondary {
       grid-template-columns: 1fr;
     }
 

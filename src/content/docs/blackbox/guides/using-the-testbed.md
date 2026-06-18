@@ -95,6 +95,22 @@ Blackbox does not require one topology tool. The important distinction is whethe
 
 System tests usually make better behavioral gates when dependencies are controlled. E2E environments are still useful, but failures may come from auth, email, payment, vendor APIs, or shared infrastructure rather than the behavior under test.
 
+## Parallel Testbeds
+
+Blackbox supports parallel Playwright system tests through testbed isolation.
+
+When compose isolation is enabled, each Playwright worker can get its own composed system boundary. The testbed starts a worker-scoped compose project, reads back docker-assigned ports, passes those connections into `bootstrap(ctx)`, and writes worker partial artifacts that are merged during teardown.
+
+The practical model is:
+
+1. Playwright controls scheduling with `workers`, projects, shards, and parallel describe blocks.
+2. Blackbox controls evidence ownership with worker testbeds, isolation groups, trace attribution, and partial report merging.
+3. The user's testbed config controls how state is reset between isolation groups.
+
+That means parallelism is not a separate mode bolted onto the side. It is part of the system-test model. Use `scenario.isolated(...)` for independent flows, `scenario.shared(...)` for intentional shared-state chains, and the `isolation` fixture when a test needs group reset without effect capture.
+
+Read [Playwright, Isolation, and Parallelism](/docs/blackbox/guides/playwright-isolation-and-parallelism) for the full API mapping.
+
 ## Minimal Workflow
 
 A good first run should answer four questions:
@@ -141,5 +157,6 @@ Use [No Spans Captured](/docs/blackbox/troubleshooting/no-spans-captured) when t
 
 1. [Runtime Evidence](/docs/blackbox/concepts/system-tests-and-runtime-evidence)
 2. [Writing Scenarios](/docs/blackbox/guides/writing-scenarios)
-3. [Reading Coverage Reports](/docs/blackbox/guides/reading-coverage-reports)
-4. [Files and Artifacts](/docs/blackbox/reference/files-and-artifacts)
+3. [Playwright, Isolation, and Parallelism](/docs/blackbox/guides/playwright-isolation-and-parallelism)
+4. [Reading Coverage Reports](/docs/blackbox/guides/reading-coverage-reports)
+5. [Files and Artifacts](/docs/blackbox/reference/files-and-artifacts)

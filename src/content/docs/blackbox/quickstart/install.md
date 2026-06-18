@@ -78,13 +78,3 @@ pnpm build:otel-image
 That builds `blackbox-otel-bootstrap:local` from the bootstrap Dockerfile. Packaged or CI setups may instead pull a published image or use `BLACKBOX_OTEL_IMAGE`.
 
 You do not need to add `@opentelemetry/*` packages, edit service Dockerfiles, or set `NODE_OPTIONS` by hand for the default testbed path.
-
-## Uninstall
-
-Remove the packages you installed and delete generated artifacts if you no longer need them:
-
-```bash
-pnpm remove @suites/blackbox @suites/blackbox-cli
-```
-
-Generated reports usually live under `.blackbox-coverage/` and can be deleted like other local test output.

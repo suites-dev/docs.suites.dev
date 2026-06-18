@@ -21,14 +21,82 @@ const filtered = headings.filter((h) => h.depth >= 2 && h.depth <= 4);
 )}
 
 <script>
-  // Highlight the TOC entry that matches the section currently visible in the
-  // viewport. Uses IntersectionObserver so it is cheap and scroll-passive.
-  // Falls back silently if the API is missing or no headings exist.
   const list = document.querySelector<HTMLElement>('[data-toc-list]');
-  if (list && 'IntersectionObserver' in window) {
+  const article = document.querySelector<HTMLElement>('.article');
+
+  const getHeadingText = (heading: HTMLElement) => {
+    const clone = heading.cloneNode(true);
+    if (!(clone instanceof HTMLElement)) return heading.textContent?.trim() ?? '';
+
+    clone
+      .querySelectorAll('[aria-hidden="true"], .toc-ignore')
+      .forEach((node) => node.remove());
+
+    return clone.textContent?.replace(/\s+/g, ' ').trim() ?? '';
+  };
+
+  const getRenderedHeadings = () => {
+    if (!article) return [];
+
+    const selectors = [
+      'h2[id]',
+      'h3[id]',
+      'h4[id]',
+      'section[id] > h2:first-child',
+      'section[id] > h3:first-child',
+      'section[id] > h4:first-child',
+      'article[id] > h2:first-child',
+      'article[id] > h3:first-child',
+      'article[id] > h4:first-child',
+    ].join(',');
+
+    const seen = new Set<string>();
+    return Array.from(article.querySelectorAll<HTMLElement>(selectors))
+      .map((heading) => {
+        const slug = heading.id || heading.parentElement?.id || '';
+        const depth = Number(heading.tagName.slice(1));
+        const text = getHeadingText(heading);
+        return { depth, text, slug };
+      })
+      .filter((heading) => {
+        if (!heading.slug || !heading.text || heading.depth < 2 || heading.depth > 4) return false;
+        if (seen.has(heading.slug)) return false;
+        seen.add(heading.slug);
+        return true;
+      });
+  };
+
+  const rebuildFromRenderedHeadings = () => {
+    if (!list) return;
+
+    const renderedHeadings = getRenderedHeadings();
+    const currentCount = list.querySelectorAll('a[data-toc-link]').length;
+    if (renderedHeadings.length <= currentCount) return;
+
+    list.replaceChildren(
+      ...renderedHeadings.map((heading) => {
+        const item = document.createElement('li');
+        item.className = `depth-${heading.depth}`;
+
+        const link = document.createElement('a');
+        link.href = `#${heading.slug}`;
+        link.dataset.tocLink = heading.slug;
+        link.textContent = heading.text;
+
+        item.append(link);
+        return item;
+      }),
+    );
+  };
+
+  const observeActiveHeading = () => {
+    if (!list || !('IntersectionObserver' in window)) return;
+
     const links = Array.from(
       list.querySelectorAll<HTMLAnchorElement>('a[data-toc-link]'),
     );
+    if (links.length === 0) return;
+
     const bySlug = new Map(links.map((a) => [a.dataset.tocLink!, a]));
     const slugs = links.map((a) => a.dataset.tocLink!);
     const targets = slugs
@@ -86,5 +154,10 @@ const filtered = headings.filter((h) => h.depth >= 2 && h.depth <= 4);
     );
 
     for (const t of targets) observer.observe(t);
+  };
+
+  if (list) {
+    rebuildFromRenderedHeadings();
+    observeActiveHeading();
   }
 </script>

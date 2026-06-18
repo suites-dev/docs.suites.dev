@@ -1,23 +1,23 @@
 ---
 title: "What is Blackbox?"
-description: "Suites Blackbox is runtime behavioral verification for controlled system tests, with E2E support."
+description: "Suites Blackbox is a system-testing framework that verifies backend behavior from runtime evidence."
 sidebar_position: 1
 keywords: ["blackbox overview", "system testing", "effect coverage", "behavioral verification"]
 toc_min_heading_level: 2
 seo:
-  primary_keyword: "blackbox vs whitebox testing"
-  secondary_keywords: ["what is system testing", "effect coverage", "runtime evidence", "behavioral verification"]
-  search_intent: "top-of-funnel comparison intent from readers trying to place Blackbox in the testing landscape"
-  snippet_angle: "Blackbox is runtime behavioral verification for system tests and E2E tests, turning observed effects into reviewable proof"
+primary_keyword: "blackbox vs whitebox testing"
+secondary_keywords: ["what is system testing", "effect coverage", "runtime evidence", "behavioral verification"]
+search_intent: "top-of-funnel comparison intent from readers trying to place Blackbox in the testing landscape"
+snippet_angle: "Blackbox is runtime behavioral verification for system tests and E2E tests, turning observed effects into reviewable proof"
 ---
 
 import OverviewDiagram from '@/components/blackbox/OverviewDiagram.astro';
 
-Suites Blackbox is runtime behavioral verification for controlled system tests, with E2E support.
+Suites Blackbox is a system-testing framework that verifies backend behavior from runtime evidence.
 
-It captures what a running system actually did during a real workflow, maps that evidence into effects, and lets reviewers or CI decide whether required behavior happened and forbidden behavior stayed absent.
+During a controlled system test, Blackbox captures what the system did at its boundaries: database writes, cache operations, HTTP calls, queue messages, emitted events, and forbidden side effects.
 
-Use it when a passing response, UI assertion, or green E2E run is not enough proof.
+It turns those effects into reviewable contracts and effect coverage, so a passing response or green E2E test is not the only proof reviewers have.
 
 ## Why Passing Tests Still Miss Behavior
 
@@ -105,20 +105,6 @@ A normal system test might call `POST /subscriptions` and assert `201 Created`. 
 7. Did it avoid refunds, deletes, truncates, and destructive cache operations?
 
 The HTTP assertion still matters. Blackbox adds the review surface for the runtime behavior behind it.
-
-## When Not To Start Here
-
-Blackbox is not the first tool for every test problem.
-
-Start somewhere else when:
-
-1. You only need fast feedback on pure local logic.
-2. The behavior has no meaningful runtime boundary.
-3. The only goal is writing Gherkin files, not verifying behavior.
-4. The environment is so flaky that every run produces different dependency behavior.
-5. The team cannot yet run the system or the target workflow in test or CI.
-
-In those cases, unit tests, integration tests, testbed setup, or plain feature-file authoring may come first.
 
 ## What Blackbox Complements
 

@@ -13,6 +13,7 @@ seo:
 
 import OverviewDiagram from '@/components/blackbox/OverviewDiagram.astro';
 import BddReverseDemo from '@/components/blackbox/BddReverseDemo.astro';
+import CodeFirstBddDiagram from '@/components/blackbox/CodeFirstBddDiagram.astro';
 
 Blackbox is strongest when three artifacts stay connected:
 
@@ -21,6 +22,8 @@ Blackbox is strongest when three artifacts stay connected:
 3. A readable feature file when the team wants behavior expressed in Gherkin.
 
 You can use these layers separately. Effects are the core Blackbox layer. Feature files are optional. The combination matters because it turns a green test into a reviewable behavioral proof trail.
+
+<CodeFirstBddDiagram kind="triangle" />
 
 <OverviewDiagram kind="proof-loop" />
 
@@ -115,6 +118,8 @@ This gives reviewers a better question to ask an agent: not “did you say the t
 ## Where Gherkin And BDD Fit
 
 Blackbox uses Gherkin as a readable behavior format. It does not require Cucumber as the test runner, and it does not require teams to adopt classic BDD ceremony before getting value.
+
+The important shift is direction. Blackbox BDD is code-first and system-test-first: the test drives the running system, runtime effects prove what happened, and the feature file becomes a readable view generated from that tested behavior.
 
 The feature-file track is about keeping readable behavior close to executable behavior:
 

@@ -13,10 +13,15 @@ seo:
 
 import QuickstartTrackDiagram from '@/components/blackbox/QuickstartTrackDiagram.astro';
 import BddReverseDemo from '@/components/blackbox/BddReverseDemo.astro';
+import CodeFirstBddDiagram from '@/components/blackbox/CodeFirstBddDiagram.astro';
 
 Feature files are a readable behavior layer on top of tests that already exist.
 
 Use this page after you have at least one system or E2E test. You can skip this layer and still use Blackbox for runtime evidence, effect catalogs, matchers, effect coverage, and OMC/DC. Add feature files when the team wants a Gherkin-shaped artifact for review, product discussion, SDD handoff, or CI checks for feature-file drift.
+
+This is code-first BDD for system tests. Do not start by hand-writing a `.feature` file and binding step definitions. Start from the system test that drives behavior, emit the feature file from that test, and then gate drift so the readable artifact stays close to executable behavior.
+
+<CodeFirstBddDiagram kind="loop" />
 
 <QuickstartTrackDiagram kind="specs" />
 
@@ -48,6 +53,23 @@ Blackbox does not just stringify test names into `.feature` files. The feature p
 4. Gate the result with syntax validation, feature-file drift detection, and optional runtime-observation comparison.
 
 The explicit BDD DSL gives Blackbox the strongest signal because the author already wrote `scenario`, `given`, `when`, `then`, `background`, or `given.each`. Plain Playwright tests can still be decompiled, but intent recovery is best-effort. If the test structure is unclear, lint findings are useful feedback rather than something to hide.
+
+## How Playwright Structure Maps To BDD
+
+Blackbox does not flatten Playwright into prose and ignore the runner model. It preserves important Playwright structure when producing BDD-shaped artifacts.
+
+| Playwright structure | Blackbox behavior shape |
+| --- | --- |
+| `test(...)` | A scenario candidate |
+| `test.beforeEach(...)` | `background(...)` when it is behavior setup |
+| `test.describe.parallel(...)` siblings | `scenario.isolated(...)` per sibling |
+| `test.describe.serial(...)` chain | First scenario is fresh; later scenarios use `scenario.shared(parentSlug, ...)` |
+| repeated row tests | `outline(...)` or `given.each(...)` |
+| `expect(...)` after the action | `then(...)` |
+
+This matters because feature files should not erase isolation intent. A readable Gherkin artifact is useful, but Blackbox still needs the runtime grouping that keeps parallel system-test evidence trustworthy.
+
+Read [Playwright, Isolation, and Parallelism](/docs/blackbox/guides/playwright-isolation-and-parallelism) before relying on generated feature files in a broad parallel suite.
 
 ## Prerequisite
 
@@ -224,4 +246,4 @@ test-results/
 1. [Feature Files, BDD, and Staleness](/docs/blackbox/concepts/feature-files-and-staleness)
 2. [Generating Feature Files](/docs/blackbox/guides/generating-feature-files)
 3. [Files and Artifacts](/docs/blackbox/reference/files-and-artifacts)
-4. [Spec-Driven Development](/docs/blackbox/use-cases/spec-driven-development)
+4. [Spec-Driven Development](/docs/blackbox/guides/spec-driven-development)

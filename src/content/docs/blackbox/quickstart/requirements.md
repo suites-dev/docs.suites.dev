@@ -31,8 +31,17 @@ The current alpha path is aimed at Node services that can be started as containe
 | A service image with a shell | The current node wrapper is a POSIX shell script. Distroless images need a different wrapper and are a known limitation. |
 | A normal service command | Blackbox expects your service to start through `node`, for example `CMD ["node", "src/server.js"]`. |
 | Managed local dependencies | Databases, queues, caches, and local services should be owned by the test topology when possible. |
+| Isolated parallel execution | Parallel Playwright workers are supported through the Blackbox test API and testbed isolation model. |
 
 Remote end-to-end environments can still be valuable, but they usually include unmanaged dependencies such as auth providers, email systems, payment providers, shared queues, or vendor APIs. Blackbox is strongest as a behavioral gate when the system under test and its dependencies are controlled enough for a failure to mean something specific.
+
+## Parallelism Requirement
+
+Blackbox does not require a serial-only Playwright suite.
+
+The requirement is isolated ownership of state and evidence. When the suite runs with multiple Playwright workers, Blackbox can use per-worker testbeds, isolation groups, trace attribution, and worker partial reports so concurrent system tests remain attributable.
+
+Use the Blackbox API path for parallel proof: `defineSystemTest`, `system`, `capture`, `scenario.isolated`, `scenario.shared`, and the testbed isolation configuration. Read [Playwright, Isolation, and Parallelism](/docs/blackbox/guides/playwright-isolation-and-parallelism) before turning a first proof run into a broad CI gate.
 
 ## What Blackbox Does Not Require
 
@@ -60,4 +69,4 @@ At test time, Blackbox uses an OpenTelemetry bootstrap image, a generated Docker
 
 1. [Install Blackbox](/docs/blackbox/quickstart/install)
 2. [Run with the Testbed](/docs/blackbox/guides/using-the-testbed)
-3. [What Blackbox Runs](/docs/blackbox/security-and-trust/what-blackbox-runs)
+3. [Files and Artifacts](/docs/blackbox/reference/files-and-artifacts)
