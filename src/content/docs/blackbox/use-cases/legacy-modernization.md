@@ -27,7 +27,7 @@ This includes old services, mixed stacks, and systems where the source of truth 
 
 Legacy systems accumulate invisible behavior. Some behavior is only known because "the old code has always done it that way." That is a weak contract when the team needs to replace pieces, move infrastructure, or decompose a monolith.
 
-You need a map of what the system actually does, not just what the code seems to imply.
+A map of what the system actually does is more reliable than what the code seems to imply.
 
 ## When It Helps
 

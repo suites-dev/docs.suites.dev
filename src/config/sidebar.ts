@@ -114,9 +114,8 @@ const sidebar: SidebarConfig = {
       items: [
         { label: 'What is Blackbox?', href: '/docs/blackbox/overview/what-is-blackbox' },
         { label: 'Tests, Effects, and Feature Files', href: '/docs/blackbox/overview/tests-effects-and-feature-files' },
-        { label: 'Where Blackbox Fits', href: '/docs/blackbox/overview/where-blackbox-fits' },
-        { label: 'System Test Effect Coverage', href: '/docs/blackbox/overview/system-test-effect-coverage' },
         { label: 'When to Use Blackbox', href: '/docs/blackbox/overview/when-to-use-blackbox' },
+        { label: 'Effect Coverage for System Tests', href: '/docs/blackbox/overview/system-test-effect-coverage' },
       ],
     },
     {
@@ -131,26 +130,26 @@ const sidebar: SidebarConfig = {
     {
       label: 'Concepts',
       items: [
-        { label: 'System Effects', href: '/docs/blackbox/concepts/system-effects' },
-        { label: 'Unit, Integration, System, and E2E', href: '/docs/blackbox/concepts/unit-integration-system-e2e-blackbox-testing' },
-        { label: 'Runtime Evidence', href: '/docs/blackbox/concepts/system-tests-and-runtime-evidence' },
-        { label: 'Effects, Runtime, and Specs', href: '/docs/blackbox/concepts/bdd-runtime-and-effects' },
+        { label: 'Testing Layers', href: '/docs/blackbox/concepts/testing-layers' },
+        { label: 'Runtime Evidence', href: '/docs/blackbox/concepts/runtime-evidence' },
+        { label: 'Effects and Catalogs', href: '/docs/blackbox/concepts/effects-and-catalogs' },
         { label: 'OMC/DC Coverage', href: '/docs/blackbox/concepts/omc-dc-coverage' },
-        { label: 'Requires and Forbids', href: '/docs/blackbox/concepts/requires-and-forbids' },
-        { label: 'Feature Files, BDD, and Staleness', href: '/docs/blackbox/concepts/feature-files-and-staleness' },
+        { label: 'Code-First BDD', href: '/docs/blackbox/concepts/code-first-bdd' },
+        { label: 'Feature Staleness and Drift', href: '/docs/blackbox/concepts/feature-staleness-and-drift' },
       ],
     },
     {
       label: 'Guides',
       items: [
+        { label: 'Guides Overview', href: '/docs/blackbox/guides/' },
+        { label: 'Set Up the Testbed', href: '/docs/blackbox/guides/set-up-the-testbed' },
         { label: 'Writing Scenarios', href: '/docs/blackbox/guides/writing-scenarios' },
         { label: 'Playwright, Isolation, and Parallelism', href: '/docs/blackbox/guides/playwright-isolation-and-parallelism' },
         { label: 'Generating Feature Files', href: '/docs/blackbox/guides/generating-feature-files' },
+        { label: 'Reading Coverage Reports', href: '/docs/blackbox/guides/reading-coverage-reports' },
+        { label: 'Configure CI Gates', href: '/docs/blackbox/guides/ci-behavioral-gates' },
         { label: 'Spec-Driven Development', href: '/docs/blackbox/guides/spec-driven-development' },
         { label: 'AI-Assisted Development', href: '/docs/blackbox/guides/ai-assisted-development' },
-        { label: 'Reading Coverage Reports', href: '/docs/blackbox/guides/reading-coverage-reports' },
-        { label: 'Run with the Testbed', href: '/docs/blackbox/guides/using-the-testbed' },
-        { label: 'Configure CI Gates', href: '/docs/blackbox/guides/ci-behavioral-gates' },
       ],
     },
     {

@@ -2,17 +2,68 @@
 title: "5-Minute Quickstart"
 description: "Run one flow with Blackbox, capture effects, review a catalog, and see your first effect coverage signal."
 sidebar_position: 3
-keywords: ["blackbox quickstart", "effect catalog", "effect coverage tutorial", "system test quickstart"]
-toc_min_heading_level: 2
-seo:
-  primary_keyword: "blackbox quickstart"
-  secondary_keywords: ["effect catalog", "effect coverage tutorial", "system test quickstart"]
-  search_intent: "quickstart intent from developers choosing how to get first value from Blackbox"
-  snippet_angle: "run one system flow, produce one effect catalog, and see one effect coverage signal"
 ---
 
 import QuickstartTracks from '@/components/blackbox/QuickstartTracks.astro';
+import OverviewDiagram from '@/components/blackbox/OverviewDiagram.astro';
 
-Pick the path that matches your repo. In one flow, Blackbox captures runtime effects, creates a reviewable catalog, and turns the next run into an effect coverage signal.
+## Abstract
+
+The first run is about visibility, not perfection. Pick the track that matches your repo, run one flow, and stop when Blackbox turns runtime evidence into a durable behavioral contract.
+
+A **first proof run** is the smallest useful Blackbox loop: execute one system flow, capture runtime evidence, review one effect catalog entry, and rerun until the catalog is satisfied. An **effect coverage signal** is the result that tells you whether the reviewed effects for that flow were observed, missing, failed, or uncovered.
+
+Blackbox instruments compatible Node SUT containers during the test run. In the compose testbed path, the generated overlay mounts the bootstrap, shadows the service's Node binary with `node-wrap`, and preloads `bootstrap.cjs` before application code so the runner can drain spans from the debug endpoints.
+
+Use this page when the install is done and you want one concrete proof trail. You should leave with one satisfied catalog entry, one coverage artifact, and enough confidence to decide whether to add readable feature files next.
+
+<OverviewDiagram kind="quickstart" />
+
+## Choose Your Path
+
+Choose the existing-tests track when you already have a runnable Playwright system test. Keep the request and response assertions you trust, add the Blackbox wrapper, and let `toMatchCatalog()` seed the first effect catalog entry for review.
+
+Choose the showcase track when you want to learn the loop before changing your repo. The showcase uses `subscribe-flow`, with `alice` subscribing through the five-service topology: BFF, Redis, Postgres, payment HTTP boundary, and SQS.
+
+Both tracks have the same stop condition:
+
+1. Run one flow.
+2. Inspect the generated showcase artifacts or repo-local artifacts.
+3. Review the effect catalog.
+4. Rerun the same flow.
+5. Confirm one satisfied effect coverage signal.
+
+Do not broaden the suite during this pass. A narrow first proof run makes the catalog easier to review and the signal easier to trust.
+
+Treat the first success as a reviewable gate. You should be able to point at the flow name, the catalog entry, and the coverage result without reading the implementation.
+
+A satisfied entry in `coverage.json` looks like this:
+
+```json
+{
+  "scenario": "subscribe-flow",
+  "actor": "alice",
+  "verdict": "satisfied",
+  "required": {
+    "postgres.subscription.insert": "observed",
+    "redis.tier.write":            "observed",
+    "payment-http.intent.create":  "observed",
+    "order-service.handoff":       "observed",
+    "sqs.subscription.message":    "observed"
+  },
+  "forbidden": {},
+  "uncataloged": []
+}
+```
+
+When you see `verdict: "satisfied"` against your one chosen flow, the first proof run is done. Stop here and keep the catalog narrow.
 
 <QuickstartTracks />
+
+## What To Read Next
+
+After the component shows one satisfied entry, choose the next page based on the artifact you want to understand or add.
+
+1. [Feature Files From Tests](/docs/blackbox/quickstart/feature-files-from-tests): turn the proven system test into a readable Gherkin artifact and drift-check it against the source test.
+2. [System Effects](/docs/blackbox/concepts/effects-and-catalogs): understand how runtime evidence becomes effects, catalogs, matchers, and coverage.
+3. [Files and Artifacts](/docs/blackbox/reference/files-and-artifacts): decide which catalogs, reports, and showcase artifacts to review, commit, ignore, or archive.

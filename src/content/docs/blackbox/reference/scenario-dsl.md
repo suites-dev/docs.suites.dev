@@ -160,5 +160,5 @@ The DSL surface is alpha. The core grammar is stable enough to document: scenari
 
 1. [Writing Scenarios](/docs/blackbox/guides/writing-scenarios)
 2. [Generating Feature Files](/docs/blackbox/guides/generating-feature-files)
-3. [Feature Files, BDD, and Staleness](/docs/blackbox/concepts/feature-files-and-staleness)
+3. [Feature Files, BDD, and Staleness](/docs/blackbox/concepts/feature-staleness-and-drift)
 4. [CLI Reference](/docs/blackbox/reference/cli)

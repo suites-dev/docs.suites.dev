@@ -1,201 +1,193 @@
 ---
-title: "Generating Feature Files"
-description: "Generate Gherkin feature files from Playwright or Blackbox BDD-DSL tests, then gate syntax and feature-file drift."
-sidebar_position: 3
-keywords: ["playwright bdd", "given when then", "gherkin syntax", "feature file generation"]
-toc_min_heading_level: 2
-seo:
-  primary_keyword: "playwright bdd"
-  secondary_keywords: ["given when then", "gherkin syntax", "feature file generation", "feature-file drift"]
-  search_intent: "practical BDD workflow for Playwright users who want readable behavior artifacts without Cucumber-style maintenance cost"
-  snippet_angle: "generate Given/When/Then feature files from Playwright tests, validate Gherkin syntax, and gate feature-file drift"
+title: Generating Feature Files
+description: Generate Gherkin feature files from Playwright or Blackbox DSL tests, then gate syntax and feature-file drift.
+sidebar_position: 5
 ---
 
-Blackbox can generate reviewable `.feature` files from Playwright tests and Blackbox BDD-DSL tests. That gives teams a BDD-style artifact without forcing Cucumber-style step definitions to become the main workflow.
+## Why generate feature files?
 
-This guide is the practical path: check the test grammar, emit Gherkin, verify syntax, and gate feature-file drift.
+A **feature file** is a generated `.feature` artifact that expresses tested behavior in Gherkin. Blackbox uses it as a review surface, not as the runtime source of truth.
 
-## Why Generate Feature Files?
+That is the **No Cucumber Tax** approach. You keep the Playwright or Blackbox DSL test as the thing that runs, and Blackbox emits the readable artifact from that test. Reviewers can read `subscribe-flow.feature`, while the executable test still proves the behavior against the showcase stack.
 
-Feature files are useful because they give behavior a shared language. A reviewer can read a scenario without understanding every test helper, fixture, span, or assertion. The failure mode is that hand-written feature files can drift from what the system actually does.
+Use this workflow when you want a readable file for product, QA, platform, or agent review:
 
-Blackbox uses the opposite flow:
+1. Lint the test shape before generation.
+2. Emit the feature file from the test source or the DSL trace.
+3. Review the generated Gherkin beside the test.
+4. Gate feature-file drift in CI.
 
-1. Start from a system or E2E test.
-2. Analyze the test into a behavior trace.
-3. Generate or check the `.feature` file.
-4. Review feature-file drift when the artifact changes.
-5. Use runtime evidence and effect coverage for stronger behavior proof.
+If the generated text is vague, fix the source test. Blackbox can preserve structure from the [scenario-writing patterns](/docs/blackbox/guides/writing-scenarios), but it cannot invent intent that the test never names.
 
-That keeps the artifact closer to executable behavior.
+## Step 1: Lint the test shape
 
-This is the core shift: Blackbox uses BDD as a readable system-test artifact, not as a feature-file-first runtime. The feature file helps people review behavior, while the system test and runtime effects remain the proof loop.
+Run `blackbox features lint` before you treat generated Gherkin as review material:
 
-## Playwright BDD Without The Cucumber Tax
+```bash
+pnpm exec blackbox features lint ./e2e/tests --fail-on error
+```
 
-Traditional Playwright BDD often starts with a feature file, binds each step to code, then asks the team to keep the step definitions and feature text synchronized forever.
+Use JSON when CI, scripts, or agents need structured findings:
 
-Blackbox does not require that flow. You can keep Playwright as the runner and use Blackbox to produce BDD-shaped output after the run. The generated feature file helps people read and review behavior, but the runtime evidence remains the source of proof.
+```bash
+pnpm exec blackbox features lint ./e2e/tests --json --fail-on warn
+```
 
-| Approach | Source of truth | Maintenance cost | Best fit |
-| --- | --- | --- | --- |
-| Hand-written Gherkin | Feature file and step bindings | High if behavior changes often | Teams committed to BDD as the primary workflow |
-| Plain Playwright | Test code | Lower, but less product-readable | Engineering-only test suites |
-| Blackbox-generated feature files | Test source, plus runtime evidence when effects are enabled | Review feature-file drift instead of maintaining every sentence by hand | System and E2E behavior proof |
-
-## Given, When, Then
-
-Given/When/Then is still a useful shape:
-
-1. **Given** describes the starting state or context.
-2. **When** describes the action or workflow.
-3. **Then** describes the expected externally visible behavior.
-
-Blackbox uses that shape as a readable representation of executable behavior. The difference is that the feature text is checked against test source and can be paired with runtime effects, instead of being trusted as a standalone promise.
-
-The linter enforces the core grammar:
+The linter checks the behavior grammar:
 
 ```text
 Given*  When+  Then+
 ```
 
-`Then` matters. A scenario that never concludes in an observable assertion is not a useful behavior spec.
+That shape matters because the generated file should explain setup, action, and observable result. A `missing-then` finding means the scenario has no `Then` step, so it never reaches an assertion that reviewers can trust.
 
-## Step 1: Lint The Test Shape
-
-Run `features lint` before treating generated Gherkin as review material:
-
-```bash
-pnpm exec blackbox features lint ./tests --fail-on error
-```
-
-For CI or agent workflows:
-
-```bash
-pnpm exec blackbox features lint ./tests --json --fail-on warn
-```
-
-Important findings include:
+Common findings include:
 
 | Rule | What it catches |
 | --- | --- |
-| `aaa-shape` | `Then` before `When`, `Given` after the action, multiple act blocks after assertions, or no action |
-| `missing-then` | A scenario with no observable assertion |
-| `opaque-step` | A decompiled step that became too generic to review |
-| `placeholder-token` | A generated placeholder that does not resolve to example data |
-| `missing-background` | Repeated setup that should move to `Background` |
+| `aaa-shape` | A `Then` before any `When`, a `Given` after the action, a `When` after assertions, or no action. |
+| `missing-then` | A scenario with no observable assertion. |
+| `opaque-step` | A decompiled step that is too generic to review. |
+| `placeholder-token` | A placeholder such as `<user>` that does not resolve to an examples row. |
+| `missing-background` | Repeated setup that should move into `Background`. |
 
-## Step 2: Emit Feature Files
+A failing lint run looks like this:
 
-Generate feature files from a test directory:
+```text
+$ pnpm exec blackbox features lint ./e2e/tests --fail-on error
+linting 4 source files...
 
-```bash
-pnpm exec blackbox features emit ./tests --out ./features
+ERROR  aaa-shape  e2e/tests/subscribe-flow.spec.ts
+  scenario:   alice is an existing user with no active subscription
+  issue:      `Then` appears before any `When` step
+  fix:        move the assertion below the action that produced the response
+
+ERROR  missing-then  e2e/tests/onboarding.spec.ts
+  scenario:   carol completes onboarding
+  issue:      no observable assertion in scenario body
+  fix:        add a `Then` step that captures a reviewable response or effect
+
+2 errors, 0 warnings.
+exit 1
 ```
 
-For the showcase layout:
+Fix lint errors before emitting. Warnings are still useful because they tell you where the generated feature file may be technically valid but weak as a review artifact.
+
+## Step 2: Emit the features
+
+Run `blackbox features emit` when you want a source-to-feature pass:
 
 ```bash
 pnpm exec blackbox features emit ./e2e/tests --out ./e2e/features
 ```
 
-If you have a step library:
+The command reads tests from `./e2e/tests` and writes `.feature` files under `./e2e/features`. See the [CLI reference](/docs/blackbox/reference/cli) for the full command contract and flags.
+
+For Blackbox DSL tests, the Playwright run can also write slug-named feature files from the runtime DSL trace. The showcase uses `BLACKBOX_FEATURES_DIR` to target `e2e/features`, so the `subscribe-flow` scenario writes `e2e/features/subscribe-flow.feature`.
+
+Baseline or rewrite those DSL-generated files with Playwright's snapshot update mode:
 
 ```bash
-pnpm exec blackbox features emit ./tests --steps ./scripts/step-lib.json
+npx playwright test --config ./e2e/playwright.config.ts --update-snapshots
 ```
 
-Or skip step resolution:
+Use the CLI emission path for static generation across a test directory. Use `--update-snapshots` when your project has wired Blackbox's DSL trace finalizer into the Playwright run.
+
+## Step 3: Review the generated output
+
+The generated showcase file is concrete enough for a reviewer to understand the behavior without opening the test source:
+
+```gherkin
+@flow:subscribe-flow
+Feature: subscribing as a pro tier user
+
+  Background:
+    Given the system is reset
+
+  Scenario: alice is an existing user with no active subscription
+    When alice POSTs /subscriptions with a valid card
+    Then the response status is 201
+    And  the response describes a pro tier subscription
+    And  the subscription is persisted in postgres
+    And  the tier is cached in redis
+    And  a subscribe order is queued in SQS
+    And  the captured effects satisfy the subscribe-flow catalog entry
+
+  Scenario Outline: <user> is an existing user (inline contract)
+    When <user> POSTs /subscriptions with <card>
+    Then the response status is 201
+    And  read path: cache lookup then user lookup
+    And  exactly one Stripe payment_intent is created
+    And  write path: persist, cache tier, enqueue order
+    And  no refund and no DELETE
+
+    Examples:
+      | user  | card         |
+      | bob   | pm_card_visa |
+      | carol | pm_card_visa |
+
+  Scenario: ghost-user does not exist
+    When ghost-user POSTs /subscriptions
+    Then the response status is 404
+    And  cache and users were consulted; Stripe and SQS were not
+    And  the order queue stays empty
+```
+
+Read the mapping directly from the DSL:
+
+| DSL shape | Generated Gherkin |
+| --- | --- |
+| `scenario('subscribe-flow', 'subscribing as a pro tier user', ...)` | `@flow:subscribe-flow` and the `Feature:` title. |
+| `background('the system is reset', ...)` | The `Background:` block. |
+| `given('alice is an existing user with no active subscription', ...)` | The first `Scenario:` title. |
+| `when('alice POSTs /subscriptions with a valid card', ...)` | The `When` step. |
+| `then('the response status is 201', ...)` and later `then(...)` calls | The `Then` step followed by `And` steps. |
+| `given.each([{ user: 'bob' }, { user: 'carol' }])` | The `Scenario Outline:` and `Examples:` table. |
+
+Review the feature file as generated output. If `ghost-user` should mention a different forbidden effect, change the source test or effect assertion, then regenerate.
+
+## Step 4: Gate drift in CI
+
+Run `blackbox features check` after generation:
 
 ```bash
-pnpm exec blackbox features emit ./tests --no-steps
+pnpm exec blackbox features check --features ./e2e/features --tests ./e2e/tests
 ```
 
-The command prints the detected style and scope for each source file, then writes one `.feature` file per source file.
+This gate performs two read-only checks:
 
-## Step 3: Gate Syntax And Feature-File Drift
+1. It validates Gherkin syntax for every `.feature` file under `./e2e/features`.
+2. It compares each generated feature file with the matching test source under `./e2e/tests`.
 
-Run `features check` after emitting:
+Use JSON output for automation:
 
 ```bash
-pnpm exec blackbox features check --features ./features --tests ./tests
+pnpm exec blackbox features check --features ./e2e/features --tests ./e2e/tests --json
 ```
 
-This performs two checks:
+A failing `features check` reports both syntax and drift findings together:
 
-1. Gherkin syntax validation using the Cucumber parser.
-2. Source-vs-feature drift detection.
+```text
+$ pnpm exec blackbox features check --features ./e2e/features --tests ./e2e/tests
+syntax: 4/4 files parsed
+drift:  3/4 files in sync
 
-Use JSON in automation:
+STALE    e2e/features/subscribe-flow.feature   (source updated 2026-06-16)
+ORPHAN   e2e/features/legacy-checkout.feature  (no matching test under ./e2e/tests)
 
-```bash
-pnpm exec blackbox features check --features ./features --tests ./tests --json
+regenerate or delete the affected files, then rerun.
+exit 1
 ```
 
-Use `features drift` when you only want the synchronization check:
+Feature-file drift has four kinds:
 
-```bash
-pnpm exec blackbox features drift --tests ./tests --features ./features
-```
+| Kind | What it means |
+| --- | --- |
+| `missing` | A test source exists, but the expected feature file does not. |
+| `stale` | A feature file exists, but it no longer matches the current test source. |
+| `orphan` | A feature file exists without a matching test source. |
+| `unparseable` | Blackbox cannot parse the feature file well enough to compare it. |
 
-Feature-file drift kinds are `missing`, `stale`, `orphan`, and `unparseable`.
+Treat a drift failure as a review signal. The system test may still pass, but the Gherkin artifact no longer matches the executable behavior.
 
-## Step 4: Compare Runtime Observations When Migrating
-
-When reshaping tests or moving from plain Playwright into the BDD DSL, feature-file drift is not enough. You also need to know whether the rewritten test still produces the same meaningful runtime behavior.
-
-The experimental observation comparison gate reads `.observation.json` files from two runs:
-
-```bash
-pnpm exec blackbox features compare-observations --baseline ./baseline-observations --candidate ./candidate-observations --json
-```
-
-It treats step-boundary differences as benign and flags meaningful changes such as missing network calls, changed payloads, changed assertions, missing tests, or different outcomes.
-
-## What Changes In The Project
-
-A generation workflow should make these changes visible:
-
-1. A feature file is created or updated.
-2. Lint findings may point to weak scenario structure.
-3. `features check` can fail when feature files are missing, stale, orphaned, or unparseable.
-4. Runtime effect artifacts may also change if effects are enabled.
-5. Feature-file drift becomes a review event instead of an invisible mismatch.
-
-The exact filenames depend on the configured commands and output paths. The important rule is that generated artifacts should be treated as reviewable outputs, not as decorative documentation.
-
-## Reviewing Feature-File Drift
-
-A feature file change can mean several different things:
-
-1. The product behavior intentionally changed.
-2. The test source was renamed or restructured.
-3. The analyzer recovered clearer or weaker behavior text.
-4. Runtime behavior changed and the tests now express a new outcome.
-
-Do not auto-accept every generated change. Review the feature file beside the effect catalog and coverage report. If the behavior changed intentionally, update the catalog and accept the artifact. If it changed accidentally, fix the system or the test.
-
-## FAQ
-
-### Is this still BDD?
-
-It keeps the readable Given/When/Then artifact, but it does not require feature files to be the primary source of truth.
-
-### Do I need Cucumber?
-
-No. Blackbox uses Gherkin as a format and the Cucumber parser for syntax validation. You do not need Cucumber step definitions to use this workflow.
-
-### Should I write tests in the BDD DSL?
-
-Use the BDD DSL when you want faithful feature generation and explicit `scenario`, `given`, `when`, `then`, `background`, and `given.each` structure. Plain Playwright can work, but decompilation is best-effort.
-
-### Should generated feature files be committed?
-
-Commit them only when your team wants them as durable review artifacts. If they are temporary diagnostics, keep them out of version control.
-
-## What To Read Next
-
-1. [Feature Files, BDD, and Staleness](/docs/blackbox/concepts/feature-files-and-staleness)
-2. [Effects, Runtime, and Specs](/docs/blackbox/concepts/bdd-runtime-and-effects)
-3. [Writing Scenarios](/docs/blackbox/guides/writing-scenarios)
-4. [Files and Artifacts](/docs/blackbox/reference/files-and-artifacts)
+For the deeper model, read [Feature Files, BDD, and Staleness](/docs/blackbox/concepts/feature-staleness-and-drift). In CI, keep `features lint` before `features check` so malformed scenario shape fails before stale files reach review.

@@ -81,7 +81,7 @@ Blackbox does not make refactors risk-free. It does not replace unit tests for l
 
 ## What To Read Next
 
-1. [Runtime Evidence](/docs/blackbox/concepts/system-tests-and-runtime-evidence)
-2. [System Effects](/docs/blackbox/concepts/system-effects)
+1. [Runtime Evidence](/docs/blackbox/concepts/runtime-evidence)
+2. [System Effects](/docs/blackbox/concepts/effects-and-catalogs)
 3. [Reading Coverage Reports](/docs/blackbox/guides/reading-coverage-reports)
 4. [Feature Drift](/docs/blackbox/troubleshooting/feature-drift)

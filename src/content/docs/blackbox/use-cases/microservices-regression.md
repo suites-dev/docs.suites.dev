@@ -96,7 +96,7 @@ Its job is narrower: prove selected runtime behavior for selected workflows, the
 
 ## What To Read Next
 
-1. [Runtime Evidence](/docs/blackbox/concepts/system-tests-and-runtime-evidence)
-2. [System Effects](/docs/blackbox/concepts/system-effects)
+1. [Runtime Evidence](/docs/blackbox/concepts/runtime-evidence)
+2. [System Effects](/docs/blackbox/concepts/effects-and-catalogs)
 3. [OMC/DC Coverage](/docs/blackbox/concepts/omc-dc-coverage)
 4. [Report Formats](/docs/blackbox/reference/report-formats)

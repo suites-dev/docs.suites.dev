@@ -36,6 +36,104 @@ The first command checks the AAA/Given-When-Then grammar. The second command is 
 
 If you do not use feature files, skip the first two commands and start with the system-test command plus effect coverage.
 
+## Sample GitHub Actions workflow
+
+Use this workflow when a pull request must prove behavior before merge. It enforces feature grammar, feature-file drift, the Blackbox runtime proof, and published evidence artifacts from one `pnpm test:system` run.
+
+```yaml title=".github/workflows/blackbox.yml"
+name: Blackbox
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  blackbox:
+    name: Behavioral gate
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+
+    env:
+      CI: true
+      BLACKBOX_OTEL_IMAGE: blackbox-otel-bootstrap:local
+      BLACKBOX_COVERAGE_DIR: .blackbox-coverage
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-blackbox-testbed-${{ hashFiles('e2e/services/compose.user.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-blackbox-testbed-
+
+      - name: Build Blackbox bootstrap image
+        env:
+          DOCKER_BUILDKIT: "1"
+        run: |
+          mkdir -p /tmp/.buildx-cache
+          pnpm exec blackbox build-bootstrap --tag "$BLACKBOX_OTEL_IMAGE"
+
+      - name: Lint feature grammar
+        run: pnpm exec blackbox features lint ./e2e/tests --fail-on error
+
+      - name: Check feature drift
+        run: |
+          mkdir -p "$BLACKBOX_COVERAGE_DIR"
+          pnpm exec blackbox features check \
+            --features ./e2e/features \
+            --tests ./e2e/tests \
+            --json > "$BLACKBOX_COVERAGE_DIR/features-check.json"
+
+      - name: Run system tests
+        run: pnpm test:system
+
+      - name: Upload Blackbox coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: blackbox-coverage
+          path: .blackbox-coverage/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Publish OMC/DC JUnit report
+        if: always() && hashFiles('.blackbox-coverage/omcdc.junit.xml') != ''
+        uses: dorny/test-reporter@v2
+        with:
+          name: OMC/DC
+          path: .blackbox-coverage/omcdc.junit.xml
+          reporter: java-junit
+          fail-on-error: false
+```
+
+This example intentionally leaves notification, retries, and matrix runs out of the baseline gate. Add notifications after the report steps, retries around the system-test step only when the topology is known to be flaky, and matrix entries under `jobs.blackbox.strategy` when you need to prove multiple Node versions or compose profiles.
+
 ## Feature Gates
 
 Feature gates answer: is the readable behavior artifact still valid and synchronized?
@@ -101,11 +199,11 @@ Upload `.blackbox-coverage/` when a run fails or when reviewers need evidence.
 
 Useful artifacts include:
 
-1. `omcdc-propagation.md`
+1. `omcdc-verdict.md`
 2. `omcdc-propagation.json`
-3. `omcdc.html`
-4. `coverage.json`
-5. `shape-coverage.json`
+3. `omcdc-verdict.html`
+4. `effects-coverage.json`
+5. `effects-shape-coverage.json`
 6. `html/index.html`
 7. `features/*.feature` diffs when feature files are generated artifacts
 8. `observations/**/*.observation.json` when using observation comparison

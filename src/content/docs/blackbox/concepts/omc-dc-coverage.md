@@ -1,131 +1,95 @@
 ---
 title: "OMC/DC Coverage"
-description: "Explain how Blackbox turns real system runs into decision coverage artifacts."
+description: "Deep decision coverage for system tests: proving that code changes produce distinguishable behavioral effects."
 sidebar_position: 4
-keywords: ["omc dc coverage", "decision coverage", "system test coverage"]
-toc_min_heading_level: 2
-seo:
-  primary_keyword: "omc dc coverage"
-  secondary_keywords: ["decision coverage", "system test coverage", "mcdc coverage"]
-  search_intent: "educational intent from developers comparing decision coverage with system-test behavior coverage"
-  snippet_angle: "explain OMC/DC as system-test decision coverage based on observed effects, not unit-test line coverage"
 ---
 
-## Abstract
+## What is OMC/DC?
 
-OMC/DC coverage is Blackbox's decision-coverage view of a real system run. It answers a different question from unit-test coverage: not "which lines ran in a small function test," but "which decisions changed the observable behavior of the system test?"
+**OMC/DC coverage** is Blackbox's Deep Coverage layer for system tests. It asks whether a decision in the running system produced behavior that the test could distinguish at the boundary.
 
-It is related to MCDC, but Blackbox applies the idea at the system-test evidence layer. The engine looks at branches, the tests that exercised their arms, and the runtime effects observed for those tests.
+Line coverage can tell you that a branch ran. Branch coverage can tell you that both arms ran. OMC/DC asks a stronger question: did either arm change the observed effects of the system?
 
-## Audience
+That question matters because a passing system test can still hide a weak proof. A `subscribe-flow` test might return the expected response while two internal decisions leave the same observable behavior behind. In that case, the test did run code, but it did not prove that the decision mattered.
 
-Readers who want to understand what Blackbox means by coverage before they look at the report files.
+Blackbox builds this view from the same runtime evidence described in [System Effects](/docs/blackbox/concepts/effects-and-catalogs). The effect catalog records the behavior you require or forbid. OMC/DC uses observed effects as evidence for decision proof.
 
-## What It Covers
+**Decision proof** means that Blackbox can connect a decision arm to a distinguishable boundary effect. It is not a formal proof of every possible execution. It is proof about the real Playwright system-test run and the evidence captured from that run.
 
-1. Branch and decision behavior observed during a system test.
-2. Whether the run exercised the expected boundary effects.
-3. Whether the run left gaps, masking candidates, or uncovered behavior.
-4. Whether those runs came from serial chains or parallel siblings in the BDD DSL.
+## Decision Proof: Did it Matter at the Boundary?
 
-## How It Relates To System Effects
+OMC/DC treats a system test as evidence, not as a coverage percentage to admire. Passing a test proves the code ran. OMC/DC checks whether the code mattered.
 
-OMC/DC coverage is not the effect catalog, and it is not another name for effect coverage.
+The core comparison is between decision arms and effect signatures. An **effect signature** is the set of observed boundary effects Blackbox can associate with a test or branch arm. Distinguishable signatures create stronger proof. Indistinguishable effects point to masking.
 
-The effect catalog records the effects that matter for a flow. Matchers use that catalog to check whether the run covered required effects and avoided forbidden effects. OMC/DC uses the observed effects as evidence for a different question: did a decision in the system produce behavior that the system test could distinguish?
+Use the five-service showcase topology as the mental model. In `subscribe-flow`, a known user such as `alice` posts to `/subscriptions` and the system crosses the expected subscription boundaries. In `subscribe-unknown-user`, `ghost-user` posts to the same endpoint and the flow should stop much earlier. Those paths should not look identical at the boundary.
 
-That distinction keeps the artifacts readable:
+If the known-user and unknown-user paths leave different observed effects, OMC/DC can use that difference as decision proof. The branch did more than execute. Its outcome changed what the system did.
 
-| Artifact | Job |
-| --- | --- |
-| Effect catalog | Records required and forbidden effects for a flow |
-| Effect coverage | Reports whether cataloged effects were observed, missing, forbidden, or newly seen |
-| OMC/DC coverage | Reports whether decisions produced distinguishable observed behavior |
+If both paths return different status codes but leave the same effect signature, the report has weaker evidence. The endpoint assertion may still pass, but the runtime behavior did not prove the decision at the boundary.
 
-## What OMC/DC Means Here
+This is why OMC/DC is stronger than simple line coverage. Line coverage can mark both arms as covered even when their effects are indistinguishable. OMC/DC keeps asking whether the observed system behavior changed.
 
-In classic MCDC, the useful question is whether each condition can independently affect a decision outcome. In Blackbox, the useful system-test question is whether a decision arm affected the observable runtime behavior that the system test can prove.
+It is also why OMC/DC is not the same thing as effect coverage. Effect coverage asks whether required and forbidden effects were observed correctly. OMC/DC asks whether decisions produced distinguishable effects.
 
-That is why the report compares branch arms against effect signatures. If both arms ran but produced the same boundary evidence, the system test may still be passing, but the evidence is not strong enough to prove that the decision mattered at the boundary.
+## The Verdict Hierarchy
 
-## How It Differs From Unit-Test Coverage
+Read OMC/DC verdicts as a hierarchy of proof strength. They are not a replacement for the test result, and they are not all bugs. They tell you how much decision proof the current run can support.
 
-1. Unit-test coverage asks what code paths a small test suite hit inside isolated logic.
-2. OMC/DC coverage asks what decision behavior and boundary effects a full system run actually exercised.
-3. Unit coverage is often local and implementation-shaped.
-4. OMC/DC coverage is behavioral and run-shaped.
+| Verdict | Proof strength | What it means |
+| --- | --- | --- |
+| `propagating` | Strongest | The branch arms produced distinguishable observed effects. |
+| `masking-candidate` | Exercised but weak | Both arms ran, but their effect signatures were indistinguishable. |
+| `coverage-gap` | Missing evidence | The run did not observe enough arm coverage to prove the decision. |
+| `undecidable` | Evidence could not be classified | Blackbox could not make a useful decision from the available evidence. |
+| `multi-arm` | Needs manual review | The decision shape is more complex than a simple two-arm comparison. |
+| `unsupported-mcdc` | Alpha limitation | The current engine does not support this decision shape yet. |
 
-## What Blackbox Does With It
+The hierarchy starts with `propagating` because the report can show a meaningful behavioral difference. `masking-candidate` is weaker because the test may have exercised both arms without proving a behavioral distinction. Gaps and undecidable states sit lower because the run did not provide enough usable evidence.
 
-1. Collect runtime evidence from the real run.
-2. Propagate that evidence through the coverage engine.
-3. Render propagation artifacts and summaries.
-4. Use the result as proof, not as a replacement for the run itself.
+Use the hierarchy to choose the right action. A `masking-candidate` often calls for a better scenario or more precise effect evidence. A `coverage-gap` often calls for another case. An `undecidable` row usually means you need to inspect instrumentation, source mapping, or the decision shape.
 
-## How To Read The Result
+### Propagating vs. Masking
 
-The important question is not only "did the test pass?" It is "did the run exercise the decision behavior and boundary effects we expected?"
+`propagating` is the verdict you want on important decisions. It means the decision outcome propagated into observable behavior. The report can point to branch arms whose observed effects are different enough to prove that the decision mattered.
 
-That is why the report family matters:
+For the subscription showcase, that means `subscribe-flow` and `subscribe-unknown-user` should leave different evidence. The known-user path and the `ghost-user` path do not have the same behavioral meaning, so the boundary evidence should not collapse into the same signature.
 
-1. The propagation artifact shows how the engine arrived at the verdict.
-2. The markdown and HTML versions make the result easier for humans to read.
-3. The summary artifacts make it easier to compare runs over time.
+`masking-candidate` means Blackbox saw both arms, but the effects looked the same from the evidence it had. This is not automatically an application bug. It is a proof problem.
 
-## Verdicts
+Masking can happen when both arms intentionally perform the same boundary work. It can also happen when the important difference stays inside local computation and never becomes an observed effect.
 
-| Verdict | What it tells you |
-| --- | --- |
-| `propagating` | The observed evidence distinguishes the branch arms. |
-| `masking-candidate` | Both arms were exercised, but their observed effect signatures were indistinguishable. |
-| `coverage-gap` | The run did not observe enough arm coverage to prove the decision. |
-| `undecidable` | The engine could not decide from the evidence it had. |
-| `multi-arm` | The decision shape is more complex than a simple two-arm comparison. |
-| `unsupported-mcdc` | The current alpha engine does not support this decision shape yet. |
+If the decision matters, improve the evidence. Add a scenario that reaches a more distinctive outcome, promote the relevant behavior into the effect catalog, or enable more detailed spans when boundary effects alone are not enough.
 
-These verdicts are about proof strength. A `coverage-gap` does not mean the application is wrong. It means the current evidence does not prove enough. A `masking-candidate` does not automatically mean a bug. It means the test ran both arms but the effects looked the same from the evidence Blackbox could see.
+### Coverage Gaps and Undecidable States
 
-## Parallel And Serial Shapes
+`coverage-gap` means Blackbox does not have enough observed arm evidence. The branch may have one arm covered, no useful false-arm test, or a not-observed set that prevents decision proof.
 
-Blackbox's BDD DSL supports both ordered and concurrent execution shapes.
+Do not read a gap as proof of wrong behavior. Read it as missing proof. The system may be correct, but the current test suite did not exercise enough of the decision to show it.
 
-1. `scenario.shared(...)` preserves state across an ordered chain.
-2. `scenario.isolated(...)` gives concurrent siblings separate isolation groups.
-3. `outline(...)` expands into repeated cases that can be read and executed like the rest of the suite.
-4. The showcase file demonstrates that parallelism is part of the model, not an edge case.
+`undecidable` is different. It means Blackbox had evidence, but could not classify it into a useful verdict. That can happen when source coordinates are missing or the branch shape does not map cleanly.
 
-This matters because the coverage model is about the run, not the shape of the prose. The same verification story can be exercised by a serial chain, a parallel sibling set, or an outline table, as long as the testbed keeps the evidence path intact.
+`multi-arm` and `unsupported-mcdc` are also honest limits. They preserve the distinction between "proved" and "not proved yet." Blackbox should not present a complex or unsupported decision as passing just because the surrounding test passed.
 
-## What The Artifacts Mean
+The current alpha engine reports what the captured Playwright run can support. It does not claim complete decision coverage for inputs that never ran, code that executed before instrumentation, or detached work that escaped attribution.
 
-1. `omcdc-propagation.json` is the machine-readable propagation artifact.
-2. `omcdc-propagation.md` is the reviewable markdown form.
-3. `omcdc.html` is the interactive report.
-4. `coverage.json` and `shape-coverage.json` summarize catalog and shape coverage.
-5. `omcdc.junit.xml` is the CI-facing test-result form when JUnit is enabled.
+## Reading the OMC/DC Report
 
-The detailed propagation artifacts include endpoint groups, branch coordinates, true-arm and false-arm test IDs, not-observed test IDs, verdicts, hints, and observed effect shapes. That is why they are useful for review after a refactor or an AI-assisted change: they show not only that a test passed, but what behavior the run actually distinguished.
+Start with the human report, then drill down only where needed.
 
-## Gaps And Limits
+1. Open `omcdc-propagation.md` for endpoint summaries, verdict counts, branch rows, and hints.
+2. Open `omcdc.html` when you need source snippets, branch-level inspection, or a faster way to compare rows.
+3. Use `omcdc-verdict.json` when automation or an agent needs the full structured result.
+4. Read `effects-coverage.json` and `effects-shape-coverage.json` after the OMC/DC verdicts, because those files answer catalog and shape questions.
 
-1. It proves exercised behavior for the run, not formal proof of all behavior.
-2. It depends on instrumentation and a runnable system test.
-3. Parallel and concurrent execution are supported; attribution still depends on the testbed preserving a clean path from each run to its evidence.
-4. Coverage before instrumentation starts is invisible by design.
-5. Detached continuations can escape trace attribution.
-6. The coverage output is only useful if the evidence and artifact story are preserved.
-7. Function-level spans can help distinguish internal decisions whose boundary effects look identical, but they are an opt-in evidence layer rather than a requirement for basic effect coverage.
+For each important endpoint, ask:
 
-## What The Engine Does Not Try To Solve
+1. Which decisions are `propagating`?
+2. Which decisions are `masking-candidate` and therefore exercised but not proven at the boundary?
+3. Which decisions are gaps, undecidable, multi-arm, or unsupported?
 
-1. Formal proof of all behavior.
-2. Exhaustive concurrency correctness.
-3. Coverage of code that never reaches the monitored boundary.
-4. Coverage of arbitrary native or dynamic code unless the instrumentation path can see it.
-5. A replacement for the test runner or the runtime evidence layer.
+For the showcase, inspect the rows around `subscribe-flow` and `subscribe-unknown-user`. You are looking for proof that the known-user path and the `ghost-user` path produce distinguishable behavior, not only proof that `/subscriptions` returned a value.
 
-## Figure Placeholder
+Use the OMC/DC report before you argue from a coverage number. A high line-coverage result can still miss a masked decision.
 
-**Caption:** OMC/DC coverage turning one real system test into decision-coverage artifacts.
-
-**Slot:** `<!-- TODO: insert OMC/DC report screenshot, animated flow, or interactive branch view here -->`
+For the practical artifact workflow, continue to [Reading Coverage Reports](/docs/blackbox/guides/reading-coverage-reports).
