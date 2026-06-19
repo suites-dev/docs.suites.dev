@@ -47,13 +47,13 @@ The default artifact directory in the showcase is `.blackbox-coverage/`. Your pr
 
 | Artifact | What it means | Primary reader | Git policy |
 | --- | --- | --- | --- |
-| `.blackbox-coverage/omcdc-propagation.json` | Machine-readable OMC/DC propagation report. | Tools, CI, agents | Usually ignored; archive in CI when useful |
-| `.blackbox-coverage/omcdc-propagation.md` | Markdown form of the OMC/DC report. | Humans in review or editor | Usually ignored, sometimes attached to PR/CI |
-| `.blackbox-coverage/omcdc.html` | Interactive branch-by-branch OMC/DC report. | Humans debugging coverage | Ignore; publish or attach as CI artifact |
-| `.blackbox-coverage/coverage.json` | Effect catalog coverage summary. | Tools and reviewers | Usually ignored; useful for CI comparison |
-| `.blackbox-coverage/shape-coverage.json` | Boundary-shape coverage summary. | Tools and reviewers | Usually ignored; useful for CI comparison |
+| `.blackbox-coverage/omcdc-verdict.json` | Machine-readable OMC/DC propagation report. | Tools, CI, agents | Usually ignored; archive in CI when useful |
+| `.blackbox-coverage/omcdc-verdict.md` | Markdown form of the OMC/DC report. | Humans in review or editor | Usually ignored, sometimes attached to PR/CI |
+| `.blackbox-coverage/omcdc-verdict.html` | Interactive branch-by-branch OMC/DC report. | Humans debugging coverage | Ignore; publish or attach as CI artifact |
+| `.blackbox-coverage/effects-coverage.json` | Effect catalog coverage summary. | Tools and reviewers | Usually ignored; useful for CI comparison |
+| `.blackbox-coverage/effects-shape-coverage.json` | Boundary-shape coverage summary. | Tools and reviewers | Usually ignored; useful for CI comparison |
 | `.blackbox-coverage/omcdc.junit.xml` | JUnit XML form when the JUnit reporter is enabled. | CI test report UI | Ignore; CI consumes it |
-| `.blackbox-coverage/coverage-final.json` | Istanbul-compatible coverage data. | Coverage tooling | Ignore; archive when needed |
+| `.blackbox-coverage/code-coverage.json` | Istanbul-compatible coverage data. | Coverage tooling | Ignore; archive when needed |
 | `.blackbox-coverage/html/index.html` | Istanbul HTML coverage report. | Humans comparing code coverage | Ignore; publish or attach as CI artifact |
 | `.blackbox-coverage/spans/*.json` | Per-test runtime spans collected from SUT debug endpoints. | Diagnostics, replay, agents | Ignore; archive only for debugging |
 | `.blackbox-coverage/v8-per-test/*.json` | Per-test V8 coverage captured from SUT processes. | OMC/DC engine, replay | Ignore; archive only for debugging |
@@ -103,14 +103,14 @@ BLACKBOX_SINKS=file
 BLACKBOX_SINKS=file,stdout,github-actions
 ```
 
-The file sink writes artifacts under the configured artifact directory. For backwards compatibility, `BLACKBOX_COVERAGE_OUTPUT` can override the path for `coverage.json` only.
+The file sink writes artifacts under the configured artifact directory. For backwards compatibility, `BLACKBOX_COVERAGE_OUTPUT` can override the path for `effects-coverage.json` only.
 
 ## Practical Defaults
 
 1. Commit testbed config, scenarios, feature files, and effect catalogs when they are part of the durable workflow.
 2. Ignore `.blackbox-coverage/` by default.
 3. Archive `.blackbox-coverage/` in CI when a failure needs investigation.
-4. Attach `omcdc.html` and `omcdc-propagation.md` to CI or PRs when reviewers need branch-level context.
+4. Attach `omcdc-verdict.html` and `omcdc-verdict.md` to CI or PRs when reviewers need branch-level context.
 5. Treat span and V8 files as diagnostic evidence, not hand-edited source.
 
 ## Figure Placeholder
