@@ -114,7 +114,7 @@ blackbox coverage replay --no-html
 blackbox coverage replay --service bff=/path/to/bff/src --service order=/path/to/order/src
 ```
 
-Replays reports from saved runtime evidence. By default it writes OMC/DC JSON, Markdown, HTML, Istanbul `code-coverage.json`, and Istanbul HTML. With `--no-html`, it writes only `omcdc-verdict.json` and `omcdc-verdict.md`.
+Replays reports from saved runtime evidence. By default it writes OMC/DC JSON, Markdown, HTML, Istanbul `code-coverage/coverage.json`, and Istanbul HTML. With `--no-html`, it writes only `omcdc/verdict.json` and `omcdc/verdict.md`.
 
 ## Static Instrumentation Commands
 

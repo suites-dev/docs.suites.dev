@@ -199,18 +199,18 @@ Upload `.blackbox-coverage/` when a run fails or when reviewers need evidence.
 
 Useful artifacts include:
 
-1. `omcdc-verdict.md`
-2. `omcdc-verdict.json`
-3. `omcdc-verdict.html`
-4. `effects-coverage.json`
-5. `effects-shape-coverage.json`
+1. `omcdc/verdict.md`
+2. `omcdc/verdict.json`
+3. `omcdc/verdict.html`
+4. `catalog/coverage.json`
+5. `shape/coverage.json`
 6. `html/index.html`
 7. `features/*.feature` diffs when feature files are generated artifacts
 8. `observations/**/*.observation.json` when using observation comparison
 
 ## GitHub Actions Sink
 
-When `GITHUB_ACTIONS=true`, the default sink expands to file output plus GitHub Actions annotations. The GitHub Actions sink reads `omcdc-verdict.json` and emits annotations for actionable verdicts:
+When `GITHUB_ACTIONS=true`, the default sink expands to file output plus GitHub Actions annotations. The GitHub Actions sink reads `omcdc/verdict.json` and emits annotations for actionable verdicts:
 
 1. `masking-candidate` becomes a warning.
 2. `coverage-gap` becomes a notice.

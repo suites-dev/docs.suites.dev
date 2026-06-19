@@ -23,36 +23,36 @@ People who need to consume, parse, archive, or compare the artifacts Blackbox pr
 
 | Reporter token | Artifact | Format | Purpose |
 | --- | --- | --- | --- |
-| `json` | `omcdc-verdict.json` | JSON | Machine-readable OMC/DC propagation report. |
-| `markdown` | `omcdc-verdict.md` | Markdown | Human-readable OMC/DC report for reviews and editor inspection. |
-| `html` | `omcdc-verdict.html` | HTML | Interactive OMC/DC report with branch-level inspection. |
-| `catalog-json` | `effects-coverage.json` | JSON | Effect catalog coverage summary. |
-| `shape-json` | `effects-shape-coverage.json` | JSON | Boundary-shape coverage summary. |
+| `json` | `omcdc/verdict.json` | JSON | Machine-readable OMC/DC propagation report. |
+| `markdown` | `omcdc/verdict.md` | Markdown | Human-readable OMC/DC report for reviews and editor inspection. |
+| `html` | `omcdc/verdict.html` | HTML | Interactive OMC/DC report with branch-level inspection. |
+| `catalog-json` | `catalog/coverage.json` | JSON | Effect catalog coverage summary. |
+| `shape-json` | `shape/coverage.json` | JSON | Boundary-shape coverage summary. |
 | `junit` | `omcdc.junit.xml` | XML | CI-facing test-result view of OMC/DC verdicts. |
 
 ## Stability Notes
 
-1. `effects-coverage.json` and `effects-shape-coverage.json` are compact summaries and are the safest starting point for automation.
-2. `omcdc-verdict.json` is machine-readable but carries detailed branch and verdict data that may evolve while the alpha engine evolves.
+1. `catalog/coverage.json` and `shape/coverage.json` are compact summaries and are the safest starting point for automation.
+2. `omcdc/verdict.json` is machine-readable but carries detailed branch and verdict data that may evolve while the alpha engine evolves.
 3. Markdown and HTML reports are review artifacts. They are meant to be read, attached, and linked, not parsed as stable APIs.
 4. `omcdc.junit.xml` is designed for CI systems that already understand JUnit XML.
 5. Per-test span and V8 files are diagnostic inputs, not public report formats.
 
 ## What Each Artifact Is For
 
-### `omcdc-verdict.json`
+### `omcdc/verdict.json`
 
 Contains endpoints, branch coordinates, true-arm test IDs, false-arm test IDs, not-observed test IDs, verdicts, hints, and observed effect shapes. Use it when an agent or tool needs to understand why a branch is propagating, masked, or still a gap.
 
-### `omcdc-verdict.md`
+### `omcdc/verdict.md`
 
 Contains the same OMC/DC story in a reviewable form: endpoint sections, verdict counts, branch tables, hints, and oracle data per branch. Use it when a reviewer needs to understand the result without opening the interactive report.
 
-### `omcdc-verdict.html`
+### `omcdc/verdict.html`
 
 The interactive OMC/DC report. Use it when a developer needs to inspect branches, hints, source snippets when available, and the relationship between decisions and observed effects.
 
-### `effects-coverage.json`
+### `catalog/coverage.json`
 
 Summarizes effect catalog entry coverage. It answers whether catalog entries were seen, satisfied, failed, or uncovered.
 
@@ -62,7 +62,7 @@ The shape is based on:
 2. `totals`: seen, satisfied, failed, and uncovered counts.
 3. `perEntry`: per-catalog-entry state, run count, pass count, and failure count.
 
-### `effects-shape-coverage.json`
+### `shape/coverage.json`
 
 Summarizes effect shapes, not whole catalog entries. It answers whether declared or inline boundary shapes were asserted and observed.
 
@@ -91,7 +91,7 @@ Reporters render artifacts. Sinks deliver them.
 
 That separation matters: the same proof can become files, stdout output, GitHub Actions annotations, or CI test results without changing the evidence or the coverage model.
 
-The GitHub Actions sink reads `omcdc-verdict.json` and emits workflow annotations for actionable verdicts:
+The GitHub Actions sink reads `omcdc/verdict.json` and emits workflow annotations for actionable verdicts:
 
 1. `masking-candidate` becomes a warning.
 2. `coverage-gap` becomes a notice.

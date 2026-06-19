@@ -108,11 +108,11 @@ captured effects
   sqs         SendMessage subscription.created
 
 written: e2e/tests/__effects__/00-baseline-subscribe.system.effects.yaml
-written: e2e/.blackbox-coverage/effects-coverage.json`;
+written: e2e/.blackbox-coverage/catalog/coverage.json`;
 
 const showcaseProofArtifacts = `e2e/tests/__effects__/00-baseline-subscribe.system.effects.yaml
-e2e/.blackbox-coverage/effects-coverage.json
-e2e/.blackbox-coverage/omcdc-verdict.md`;
+e2e/.blackbox-coverage/catalog/coverage.json
+e2e/.blackbox-coverage/omcdc/verdict.md`;
 
 const featureCommands = `pnpm exec blackbox features emit ./e2e/tests --out ./e2e/features
 pnpm exec blackbox features check --features ./e2e/features --tests ./e2e/tests`;
@@ -248,7 +248,7 @@ status: in sync`;
           <strong>satisfied</strong>
           <em>1/1 runs</em>
         </div>
-        <figcaption>written: &lt;coverage-dir&gt;/effects-coverage.json</figcaption>
+        <figcaption>written: &lt;coverage-dir&gt;/catalog/coverage.json</figcaption>
       </figure>
       <p>The same run also writes a machine-readable summary for CI, dashboards, and agent context.</p>
       <Code code={coverageJsonSnippet} lang="json" />
@@ -326,7 +326,7 @@ status: in sync`;
           <strong>satisfied</strong>
           <em>1/1 runs</em>
         </div>
-        <figcaption>written: &lt;coverage-dir&gt;/effects-coverage.json</figcaption>
+        <figcaption>written: &lt;coverage-dir&gt;/catalog/coverage.json</figcaption>
       </figure>
       <Aside type="tip" title="You now have the same loop as Track 1">
         The showcase path should end with the same proof shape: one reviewed catalog entry and one satisfied coverage signal. From here, the next choices are the same for both tracks.

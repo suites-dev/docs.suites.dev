@@ -77,10 +77,10 @@ The current alpha engine reports what the captured Playwright run can support. I
 
 Start with the human report, then drill down only where needed.
 
-1. Open `omcdc-verdict.md` for endpoint summaries, verdict counts, branch rows, and hints.
-2. Open `omcdc-verdict.html` when you need source snippets, branch-level inspection, or a faster way to compare rows.
-3. Use `omcdc-verdict.json` when automation or an agent needs the full structured result.
-4. Read `effects-coverage.json` and `effects-shape-coverage.json` after the OMC/DC verdicts, because those files answer catalog and shape questions.
+1. Open `omcdc/verdict.md` for endpoint summaries, verdict counts, branch rows, and hints.
+2. Open `omcdc/verdict.html` when you need source snippets, branch-level inspection, or a faster way to compare rows.
+3. Use `omcdc/verdict.json` when automation or an agent needs the full structured result.
+4. Read `catalog/coverage.json` and `shape/coverage.json` after the OMC/DC verdicts, because those files answer catalog and shape questions.
 
 For each important endpoint, ask:
 
