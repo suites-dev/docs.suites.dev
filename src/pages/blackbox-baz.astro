@@ -1,0 +1,1962 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import InputOutputGapDiagram from '@/components/blackbox/InputOutputGapDiagram.astro';
+import OverviewDiagram from '@/components/blackbox/OverviewDiagram.astro';
+import CodeFirstBddDiagram from '@/components/blackbox/CodeFirstBddDiagram.astro';
+---
+
+<BaseLayout
+  title="Blackbox Runtime Evidence For Review"
+  description="A temporary live-demo deck for Suites Blackbox: runtime-effect evidence inside a developer review workflow."
+  showFooter={false}
+>
+  <div class="baz-page">
+    <header class="deck-topbar" aria-label="Deck navigation">
+      <a class="brand" href="/">
+        <img src="/img/logo.svg" alt="" />
+        <span>Suites</span>
+      </a>
+      <nav class="slide-dots" aria-label="Slides">
+        <a href="#suites" class="slide-dot" data-slide-dot="1"><span>1</span> Suites</a>
+        <a href="#blackbox" class="slide-dot" data-slide-dot="2"><span>2</span> Blackbox</a>
+        <a href="#category" class="slide-dot" data-slide-dot="3"><span>3</span> Review Gap</a>
+        <a href="#architecture" class="slide-dot" data-slide-dot="4"><span>4</span> Run Path</a>
+        <a href="#demo" class="slide-dot" data-slide-dot="5"><span>5</span> Demo Setup</a>
+        <a href="#behavior-specs" class="slide-dot" data-slide-dot="6"><span>6</span> Behavior Specs</a>
+        <a href="#lifecycle" class="slide-dot" data-slide-dot="7"><span>7</span> Report Flow</a>
+        <a href="#baz" class="slide-dot" data-slide-dot="8"><span>8</span> Summary</a>
+      </nav>
+    </header>
+
+    <div class="deck-shell">
+      <main class="slides" id="main">
+        <section class="slide slide-intro" id="suites" data-slide="1" aria-label="Suites and Omer">
+          <div class="slide-copy">
+            <p class="eyebrow">Slide 1 / Context</p>
+            <h1>Suites is my testing work for TypeScript backend teams.</h1>
+            <p class="lead">
+              I am Omer Morad, creator and maintainer of Suites. Suites started by making dependency-injection-heavy
+              unit tests easier to write, type-safe, and consistent. Blackbox continues the same direction at the
+              system-behavior layer.
+            </p>
+            <div class="suites-proof-points" aria-label="Suites credibility points">
+              <div><span>Started with unit testing</span> Automatic mocks, typed dependency access, and a single repeatable pattern for NestJS, InversifyJS, Jest, Vitest, and Sinon.</div>
+              <div><span>Predictable test shape</span> Small APIs and consistent structure reduce how much scaffolding humans and coding agents need to infer.</div>
+              <div><span>System behavior</span> From isolated units to controlled system runs: checking what changed at service boundaries.</div>
+            </div>
+          </div>
+
+          <div class="slide-visual suites-visual" aria-label="Suites project snapshot">
+            <div class="snapshot-card snapshot-main">
+              <span class="snapshot-label">Open source project</span>
+              <h3>Suites</h3>
+              <p>A TypeScript backend testing toolkit focused on dependency injection, consistency, and lower setup cost.</p>
+            </div>
+            <div class="snapshot-metrics" aria-label="Suites metrics">
+              <div>
+                <strong>
+                  <svg class="metric-icon metric-icon-star" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 2.7l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.5l-5.8 3.1 1.1-6.5-4.7-4.6 6.5-.9L12 2.7z"></path>
+                  </svg>
+                  539
+                </strong>
+                <span class="metric-label">GitHub stars</span>
+              </div>
+              <div>
+                <strong>
+                  <svg class="metric-icon metric-icon-npm" viewBox="0 0 56 22" aria-hidden="true">
+                    <rect width="56" height="22" rx="3"></rect>
+                    <path d="M8 6h40v10h-6V9h-4v7h-6V9h-4v7H8V6zm6 3v4h8V9h-8z"></path>
+                  </svg>
+                  ~750K
+                </strong>
+                <span class="metric-label">monthly downloads</span>
+              </div>
+            </div>
+            <div class="snapshot-ladder">
+              <div><span>Suites Unit</span> Check one class in isolation.</div>
+              <div><span>Suites Blackbox</span> Check a system change at runtime.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide" id="blackbox" data-slide="2" aria-label="What Blackbox adds to system and E2E flows">
+          <div class="slide-copy">
+            <p class="eyebrow">Slide 2 / What Blackbox adds</p>
+            <h2>Blackbox checks the backend effects behind a system or E2E flow.</h2>
+            <p class="lead">
+              Today, E2E drives the visible flow. Blackbox instruments the controlled run, records configured
+              runtime effects, matches them against a reviewable behavior catalog, and returns an effect report for that run.
+            </p>
+            <div class="blackbox-definition">
+              <div><span>Visible check</span> The UI or API assertion says the flow completed.</div>
+              <div><span>Runtime effects</span> DB writes, queue publishes, cache changes, and outbound calls are recorded.</div>
+              <div><span>Effect report</span> Observed, missing required, forbidden, and covered effects are attached to the run.</div>
+            </div>
+          </div>
+
+          <div class="slide-visual deck-diagram" aria-label="Input output gap and captured runtime effects">
+            <InputOutputGapDiagram />
+          </div>
+        </section>
+
+        <section class="slide slide-intro" id="category" data-slide="3" aria-label="Review gap and integration boundary">
+          <div class="slide-copy">
+            <p class="eyebrow">Slide 3 / Review gap and boundary</p>
+            <h1>Verifier agents infer. Blackbox records runtime facts.</h1>
+            <p class="lead">
+              When agents produce code quickly, review still slows down if the system behavior behind a requirement is
+              not visible. A verifier workflow can select the requirement and run the flow. Blackbox adds deterministic
+              checks over configured runtime evidence from that same controlled run.
+            </p>
+            <p class="lead lead-compact">
+              <strong>The verifier owns intent and execution. Blackbox owns the runtime-effect evidence.</strong>
+            </p>
+            <div class="sensor-outcomes">
+              <div><span>Verifier input</span> Requirement, branch preview, base behavior, and the flow to exercise.</div>
+              <div><span>Blackbox input</span> Run identity, configured instrumentation, and the reviewed behavior catalog.</div>
+              <div><span>Blackbox output</span> Observed, missing required, forbidden, and covered effects for the run.</div>
+            </div>
+          </div>
+
+          <div class="slide-visual sensor-visual" aria-label="Spec review and Blackbox cooperation">
+            <div class="sensor-card sensor-baz">
+              <div class="sensor-label">Requirement review layer</div>
+              <h3>Verifier agents</h3>
+              <p>Turns specs into verification work and runs requirement-focused agents against preview environments.</p>
+              <ul>
+                <li>Extracts requirements and failure cases.</li>
+                <li>Splits verification across agents.</li>
+                <li>Grounds review in base code and scope.</li>
+              </ul>
+            </div>
+            <div class="sensor-plus">+</div>
+            <div class="sensor-card sensor-blackbox">
+              <div class="sensor-label">Runtime evidence layer</div>
+              <h3>Suites Blackbox</h3>
+              <p>Observes the same controlled run and returns cataloged evidence for backend and system effects.</p>
+              <ul>
+                <li>Observed effects.</li>
+                <li>Missing required effects.</li>
+                <li>Forbidden effects and coverage.</li>
+              </ul>
+            </div>
+            <div class="sensor-result">
+              <strong>Shared handoff</strong>
+              <span>The verifier checks the requirement. Blackbox returns the effects produced by the run.</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide" id="architecture" data-slide="4" aria-label="Architecture and constraints">
+          <div class="slide-copy">
+            <p class="eyebrow">Slide 4 / Run path</p>
+            <h2>The verifier runs the flow. Blackbox records the effects.</h2>
+            <p class="lead">
+              For a requirement-scoped run, Blackbox returns a trace-scoped effect report from the configured
+              instrumentation boundary: observed effects, missing required effects, forbidden effects, and coverage.
+            </p>
+            <div class="constraint-row">
+              <span>Requirement scoped</span>
+              <span>Branch scoped</span>
+              <span>Effect report</span>
+              <span>Reviewable catalog</span>
+            </div>
+          </div>
+
+          <div class="slide-visual deck-diagram">
+            <OverviewDiagram kind="workflow" />
+          </div>
+        </section>
+
+        <section class="slide demo-break-slide" id="demo" data-slide="5" aria-label="Demo setup">
+          <div class="demo-break-copy">
+            <p class="eyebrow">Slide 5 / Demo setup</p>
+            <h1>Demo: one requirement run produces one effect report.</h1>
+            <div class="demo-watch-list" aria-label="What to watch in the demo">
+              <span>requirement result</span>
+              <span>observed effects</span>
+              <span>missing required</span>
+              <span>forbidden effects</span>
+              <span>coverage state</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide" id="behavior-specs" data-slide="6" aria-label="Behavior specs and stale specifications">
+          <div class="slide-copy">
+            <p class="eyebrow">Slide 6 / Behavior specs</p>
+            <h2>Feature files are complementary to spec-driven development.</h2>
+            <p class="lead">
+              Specs describe intended behavior before implementation. After implementation and over time, they can drift
+              from what the system actually does. Blackbox can emit feature files from executable runs, so readable
+              behavior specs stay connected to tests and runtime evidence.
+            </p>
+            <div class="lifecycle-points">
+              <div><span>Before code</span> A ticket, design, or SDD spec describes the intended behavior.</div>
+              <div><span>After code</span> A Playwright run exercises the branch and Blackbox records configured effects.</div>
+              <div><span>Readable artifact</span> A generated `.feature` file is optional; it gives humans and agents a compact behavior view.</div>
+              <div><span>Drift check</span> When tests, effects, and feature files separate, the change needs review.</div>
+            </div>
+          </div>
+
+          <div class="slide-visual deck-diagram" aria-label="System tests effects and feature files triangle">
+            <CodeFirstBddDiagram kind="triangle" />
+          </div>
+        </section>
+
+        <section class="slide" id="lifecycle" data-slide="7" aria-label="Lifecycle">
+          <div class="slide-copy">
+            <p class="eyebrow">Slide 7 / Report flow</p>
+            <h2>Where the effect report travels.</h2>
+            <p class="lead">
+              The lifecycle matters because the report is not just terminal output. It becomes review input: what was
+              observed, what was required but missing, what was forbidden, and what catalog or coverage state changed.
+            </p>
+            <div class="lifecycle-points">
+              <div><span>Observed</span> Effects recorded from the configured system boundary during the run.</div>
+              <div><span>Missing</span> Required catalog entries that did not appear for the checked flow.</div>
+              <div><span>Forbidden</span> Effects that appeared even though the catalog says they should not.</div>
+              <div><span>Decision</span> Implementation fix, catalog review, rerun, or gate-ready evidence.</div>
+            </div>
+          </div>
+
+          <div class="slide-visual lifecycle-visual" aria-label="Blackbox and verifier lifecycle">
+            <div class="lifecycle-frame" data-life-step="0">
+              <svg viewBox="0 0 980 560" role="img" aria-labelledby="lifeTitle lifeDesc">
+                <title id="lifeTitle">Spec review and Blackbox lifecycle</title>
+                <desc id="lifeDesc">A planner prepares requirement verification, runs a sandbox, Blackbox observes system effects, and a reviewer agent reads runtime evidence.</desc>
+                <defs>
+                  <marker id="lifeArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"></path>
+                  </marker>
+                </defs>
+
+                <path class="life-lane" d="M140 118 H348"></path>
+                <path class="life-lane" d="M502 118 H710"></path>
+                <path class="life-lane" d="M795 186 V304"></path>
+                <path class="life-lane" d="M710 373 H502"></path>
+                <path class="life-lane" d="M348 373 H140"></path>
+
+                <g class="life-node life-node-1">
+                  <rect x="30" y="62" width="150" height="112" rx="10"></rect>
+                  <text class="life-title" x="105" y="102" text-anchor="middle">Specs + base</text>
+                  <text class="life-sub" x="105" y="130" text-anchor="middle">intent</text>
+                  <text class="life-sub" x="105" y="152" text-anchor="middle">known behavior</text>
+                </g>
+
+                <g class="life-node life-node-2">
+                  <rect x="332" y="42" width="190" height="152" rx="10"></rect>
+                  <text class="life-title" x="427" y="82" text-anchor="middle">Planner agent</text>
+                  <text class="life-sub" x="427" y="112" text-anchor="middle">requirement plan</text>
+                  <text class="life-sub" x="427" y="134" text-anchor="middle">failure cases</text>
+                  <text class="life-chip" x="427" y="164" text-anchor="middle">scoped</text>
+                </g>
+
+                <g class="life-node life-node-3">
+                  <rect x="698" y="42" width="194" height="152" rx="10"></rect>
+                  <text class="life-title" x="795" y="82" text-anchor="middle">Sandbox</text>
+                  <text class="life-sub" x="795" y="112" text-anchor="middle">branch preview</text>
+                  <text class="life-sub" x="795" y="134" text-anchor="middle">isolated execution</text>
+                  <text class="life-chip" x="795" y="164" text-anchor="middle">ephemeral</text>
+                </g>
+
+                <g class="life-node life-node-4">
+                  <rect x="698" y="298" width="194" height="150" rx="10"></rect>
+                  <text class="life-title" x="795" y="338" text-anchor="middle">Verifier flow</text>
+                  <text class="life-sub" x="795" y="368" text-anchor="middle">critical path</text>
+                  <text class="life-sub" x="795" y="390" text-anchor="middle">UI or API driver</text>
+                  <text class="life-chip" x="795" y="420" text-anchor="middle">repeatable</text>
+                </g>
+
+                <g class="life-node life-node-5">
+                  <rect x="332" y="298" width="190" height="150" rx="10"></rect>
+                  <text class="life-title" x="427" y="338" text-anchor="middle">Effect report</text>
+                  <text class="life-sub" x="427" y="368" text-anchor="middle">effects + coverage</text>
+                  <text class="life-sub" x="427" y="390" text-anchor="middle">catalog match</text>
+                  <text class="life-chip good" x="427" y="420" text-anchor="middle">observed facts</text>
+                </g>
+
+                <g class="life-node life-node-6">
+                  <rect x="30" y="298" width="150" height="150" rx="10"></rect>
+                  <text class="life-title" x="105" y="338" text-anchor="middle">Reviewer agent</text>
+                  <text class="life-sub" x="105" y="368" text-anchor="middle">review evidence</text>
+                  <text class="life-sub" x="105" y="390" text-anchor="middle">fix or review</text>
+                  <text class="life-chip good" x="105" y="420" text-anchor="middle">review input</text>
+                </g>
+
+                <g class="life-contract">
+                  <rect x="378" y="212" width="98" height="56" rx="28"></rect>
+                  <text x="427" y="236" text-anchor="middle">catalog</text>
+                  <text x="427" y="254" text-anchor="middle">reviewed</text>
+                </g>
+
+                <path class="life-contract-line" d="M427 268 V298"></path>
+
+                <g class="life-tail">
+                  <rect x="248" y="492" width="150" height="42" rx="8"></rect>
+                  <text x="323" y="518" text-anchor="middle">fix/rerun</text>
+                  <rect x="416" y="492" width="150" height="42" rx="8"></rect>
+                  <text x="491" y="518" text-anchor="middle">PR evidence</text>
+                  <rect x="584" y="492" width="150" height="42" rx="8"></rect>
+                  <text x="659" y="518" text-anchor="middle">feature file</text>
+                </g>
+
+                <path class="life-tail-line" d="M105 448 C105 514 210 514 248 514"></path>
+                <path class="life-tail-line" d="M398 514 H416"></path>
+                <path class="life-tail-line" d="M566 514 H584"></path>
+              </svg>
+              <div class="lifecycle-caption">
+                <strong>Report path:</strong> the run is short-lived, the report is reusable, and catalog changes are
+                reviewed because they redefine expected behavior.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide slide-final" id="baz" data-slide="8" aria-label="Summary">
+          <div class="slide-copy">
+            <p class="eyebrow">Slide 8 / Summary</p>
+            <h2>What the review gets back.</h2>
+            <p class="lead">
+              After the run, the reviewer has the requirement result, the effect report, and the catalog/coverage state
+              for the same branch.
+            </p>
+            <div class="constraint-row">
+              <span>Requirement result</span>
+              <span>Effect report</span>
+              <span>Catalog coverage</span>
+              <span>Branch evidence</span>
+            </div>
+          </div>
+
+          <div class="slide-visual baz-flow">
+            <div class="flow-card">
+              <span class="flow-label">1</span>
+              <h3>Requirement selected</h3>
+              <p>The planner extracts requirements and failure cases from specs, designs, base code, and review scope.</p>
+            </div>
+            <div class="flow-card">
+              <span class="flow-label">2</span>
+              <h3>Branch exercised</h3>
+              <p>Verifier agents exercise the relevant flow in an ephemeral preview or sandbox environment.</p>
+            </div>
+            <div class="flow-card flow-proof">
+              <span class="flow-label">3</span>
+              <h3>Effects recorded</h3>
+              <p>Blackbox reports required effects, forbidden effects, missing effects, and coverage for that run.</p>
+            </div>
+            <div class="flow-card">
+              <span class="flow-label">4</span>
+              <h3>Evidence attached</h3>
+              <p>The reviewer can cite runtime facts, request an implementation fix, or pass the report into a PR gate.</p>
+            </div>
+          </div>
+
+        </section>
+      </main>
+    </div>
+
+    <div class="deck-progress" aria-hidden="true"><span></span></div>
+
+    <script>
+      const slides = Array.from(document.querySelectorAll('.slide'));
+      const dots = Array.from(document.querySelectorAll('.slide-dot'));
+      const progress = document.querySelector('.deck-progress span');
+
+      const scrollToSlide = (slide, updateHash = false) => {
+        if (!slide) return;
+
+        const rect = slide.getBoundingClientRect();
+        const topbar = document.querySelector('.deck-topbar');
+        const topbarOffset = topbar ? topbar.getBoundingClientRect().height / 2 : 0;
+        const targetTop = window.scrollY + rect.top + (rect.height - window.innerHeight) / 2 + topbarOffset;
+
+        window.scrollTo({
+          top: Math.max(0, targetTop),
+          behavior: 'smooth',
+        });
+
+        if (updateHash && slide.id) {
+          window.history.replaceState(null, '', `#${slide.id}`);
+        }
+      };
+
+      const setActive = (index) => {
+        dots.forEach((dot, i) => dot.classList.toggle('is-active', i === index));
+        if (progress) progress.style.width = `${((index + 1) / slides.length) * 100}%`;
+      };
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          const visible = entries
+            .filter((entry) => entry.isIntersecting)
+            .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+          if (!visible) return;
+          const index = slides.indexOf(visible.target);
+          if (index >= 0) setActive(index);
+        },
+        { threshold: [0.45, 0.65, 0.85] },
+      );
+
+      slides.forEach((slide) => observer.observe(slide));
+      setActive(0);
+
+      dots.forEach((dot) => {
+        dot.addEventListener('click', (event) => {
+          const id = dot.getAttribute('href')?.slice(1);
+          const slide = id ? document.getElementById(id) : null;
+          if (!slide) return;
+
+          event.preventDefault();
+          scrollToSlide(slide, true);
+        });
+      });
+
+      window.addEventListener('keydown', (event) => {
+        if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return;
+        const active = dots.findIndex((dot) => dot.classList.contains('is-active'));
+        if (event.key === 'ArrowDown' || event.key === 'ArrowRight' || event.key === 'PageDown') {
+          event.preventDefault();
+          scrollToSlide(slides[Math.min(active + 1, slides.length - 1)]);
+        }
+        if (event.key === 'ArrowUp' || event.key === 'ArrowLeft' || event.key === 'PageUp') {
+          event.preventDefault();
+          scrollToSlide(slides[Math.max(active - 1, 0)]);
+        }
+      });
+    </script>
+  </div>
+</BaseLayout>
+
+<style>
+  :global(html) {
+    scroll-snap-type: y proximity;
+  }
+
+  .baz-page {
+    margin: 0;
+    min-height: 100vh;
+    background:
+      linear-gradient(180deg, rgba(239, 71, 121, 0.08), transparent 28rem),
+      var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+  }
+
+  .deck-shell {
+    min-height: 100vh;
+    display: block;
+  }
+
+  .deck-topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 30;
+    min-height: 56px;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(15, 15, 18, 0.86);
+    backdrop-filter: blur(18px);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: var(--fw-bold);
+    color: var(--text);
+  }
+
+  .brand img {
+    width: 26px;
+    height: 26px;
+  }
+
+  .slide-dots {
+    min-width: 0;
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .slide-dots::-webkit-scrollbar {
+    display: none;
+  }
+
+  .slide-dot {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 34px;
+    padding: 6px 9px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: var(--fw-medium);
+    white-space: nowrap;
+    transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
+  }
+
+  .slide-dot span {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-soft);
+    font-family: var(--font-code);
+    font-size: 11px;
+  }
+
+  .slide-dot.is-active,
+  .slide-dot:hover {
+    color: var(--text);
+    background: var(--surface);
+    border-color: var(--border);
+  }
+
+  .slide-dot.is-active span {
+    background: var(--primary-soft);
+    color: var(--primary-light);
+  }
+
+  .slides {
+    min-width: 0;
+  }
+
+  .slide {
+    min-height: 100vh;
+    scroll-snap-align: start;
+    display: grid;
+    grid-template-columns: minmax(360px, 0.92fr) minmax(420px, 1.08fr);
+    gap: clamp(32px, 5vw, 76px);
+    align-items: center;
+    padding: calc(clamp(42px, 7vw, 96px) + 48px) clamp(42px, 7vw, 96px) clamp(42px, 7vw, 96px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .slide-copy {
+    max-width: 680px;
+  }
+
+  .eyebrow {
+    margin: 0 0 14px;
+    color: var(--primary-light);
+    font-size: 12px;
+    line-height: 1;
+    font-weight: var(--fw-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+
+  h1,
+  h2 {
+    margin: 0;
+    color: var(--text);
+    letter-spacing: 0;
+    line-height: 1.06;
+    text-wrap: balance;
+  }
+
+  h1 {
+    font-size: clamp(40px, 4.8vw, 64px);
+    font-weight: var(--fw-display);
+  }
+
+  h2 {
+    font-size: clamp(34px, 4vw, 54px);
+    font-weight: var(--fw-display);
+  }
+
+  h3 {
+    margin: 0 0 10px;
+    color: var(--text);
+    font-size: 16px;
+    font-weight: var(--fw-bold);
+  }
+
+  .lead {
+    margin: 24px 0 0;
+    color: var(--text-muted);
+    font-size: clamp(18px, 1.6vw, 23px);
+    line-height: 1.45;
+    max-width: 62ch;
+  }
+
+  .lead-compact {
+    margin-top: 14px;
+    color: var(--text);
+    font-size: clamp(16px, 1.2vw, 18px);
+  }
+
+  code,
+  pre {
+    font-family: var(--font-code);
+  }
+
+  .lead code,
+  .demo-steps code {
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--code-text);
+    font-size: 0.86em;
+  }
+
+  .slide-visual {
+    min-width: 0;
+  }
+
+  .suites-proof-points,
+  .blackbox-definition {
+    display: grid;
+    gap: 10px;
+    margin-top: 30px;
+  }
+
+  .suites-proof-points div,
+  .blackbox-definition div {
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .suites-proof-points span,
+  .blackbox-definition span {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--text);
+    font-weight: var(--fw-bold);
+  }
+
+  .suites-visual {
+    display: grid;
+    gap: 12px;
+  }
+
+  .snapshot-card,
+  .snapshot-metrics div,
+  .snapshot-ladder div {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+
+  .snapshot-main {
+    padding: 22px;
+    border-color: var(--primary-border);
+    background:
+      linear-gradient(180deg, var(--primary-soft), transparent 54%),
+      var(--surface);
+  }
+
+  .snapshot-label {
+    display: inline-flex;
+    padding: 5px 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-soft);
+    font-family: var(--font-code);
+    font-size: 11px;
+    font-weight: var(--fw-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .snapshot-card h3 {
+    margin-top: 18px;
+    font-size: 32px;
+  }
+
+  .snapshot-card p {
+    max-width: 48ch;
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .snapshot-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .snapshot-metrics div {
+    min-height: 116px;
+    padding: 16px 14px;
+  }
+
+  .snapshot-metrics strong {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text);
+    font-size: clamp(24px, 2.6vw, 34px);
+    line-height: 1.05;
+    font-weight: var(--fw-display);
+  }
+
+  .metric-icon {
+    flex: 0 0 auto;
+  }
+
+  .metric-icon-star {
+    width: 28px;
+    height: 28px;
+    fill: #fbbf24;
+    filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.2));
+  }
+
+  .metric-icon-npm {
+    display: block;
+    width: 56px;
+    height: 22px;
+  }
+
+  .metric-icon-npm rect {
+    fill: #cb3837;
+  }
+
+  .metric-icon-npm path {
+    fill: #fff;
+  }
+
+  .snapshot-metrics .metric-label {
+    display: block;
+    margin-top: 10px;
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  .snapshot-ladder {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .snapshot-ladder div {
+    min-height: 118px;
+    padding: 16px;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .snapshot-ladder span {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--primary-light);
+    font-weight: var(--fw-bold);
+  }
+
+  .primer-visual {
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background:
+      linear-gradient(180deg, rgba(134, 239, 172, 0.08), transparent 44%),
+      var(--surface);
+    box-shadow: var(--shadow);
+  }
+
+  .primer-visual svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .primer-node,
+  .primer-artifact {
+    fill: #111827;
+    stroke: #334155;
+    stroke-width: 1.5;
+  }
+
+  .primer-effects {
+    fill: rgba(239, 71, 121, 0.1);
+    stroke: var(--primary);
+  }
+
+  .primer-good {
+    fill: rgba(134, 239, 172, 0.08);
+    stroke: rgba(134, 239, 172, 0.7);
+  }
+
+  .primer-artifact {
+    fill: rgba(255, 255, 255, 0.04);
+  }
+
+  .primer-line {
+    fill: none;
+    stroke: #94a3b8;
+    stroke-width: 2;
+    marker-end: url(#primerArrow);
+  }
+
+  .primer-line.faint {
+    stroke: rgba(148, 163, 184, 0.62);
+    stroke-dasharray: 8 7;
+  }
+
+  .primer-title {
+    fill: #f4f4f5;
+    font: 700 18px var(--font-body);
+  }
+
+  .primer-title.small {
+    font-size: 15px;
+  }
+
+  .primer-sub {
+    fill: #a1a1aa;
+    font: 500 13px var(--font-body);
+  }
+
+  .sensor-outcomes {
+    display: grid;
+    gap: 10px;
+    margin-top: 30px;
+  }
+
+  .sensor-outcomes div {
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .sensor-outcomes span {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--text);
+    font-weight: var(--fw-bold);
+  }
+
+  .sensor-visual {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 42px minmax(0, 1fr);
+    grid-template-areas:
+      "baz plus blackbox"
+      "result result result";
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .sensor-card {
+    min-height: 360px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+
+  .sensor-baz {
+    grid-area: baz;
+  }
+
+  .sensor-blackbox {
+    grid-area: blackbox;
+    border-color: var(--primary-border);
+    background:
+      linear-gradient(180deg, var(--primary-soft), transparent 48%),
+      var(--surface);
+  }
+
+  .sensor-label {
+    width: max-content;
+    padding: 5px 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-soft);
+    font-family: var(--font-code);
+    font-size: 11px;
+    font-weight: var(--fw-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .sensor-card h3 {
+    margin-top: 18px;
+    font-size: 28px;
+  }
+
+  .sensor-card p {
+    margin: 0 0 18px;
+    color: var(--text-muted);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .sensor-card ul {
+    margin: 0;
+    padding-left: 18px;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .sensor-card li + li {
+    margin-top: 7px;
+  }
+
+  .sensor-plus {
+    grid-area: plus;
+    align-self: center;
+    justify-self: center;
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface-raised);
+    color: var(--primary-light);
+    font-size: 22px;
+    font-weight: var(--fw-bold);
+  }
+
+  .sensor-result {
+    grid-area: result;
+    display: grid;
+    gap: 6px;
+    padding: 16px 18px;
+    border: 1px solid rgba(134, 239, 172, 0.34);
+    border-radius: 8px;
+    background: rgba(134, 239, 172, 0.08);
+  }
+
+  .sensor-result strong {
+    color: #86efac;
+    font-size: 16px;
+  }
+
+  .sensor-result span {
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .spec-visual {
+    display: grid;
+    gap: 12px;
+  }
+
+  .spec-flow {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .spec-card {
+    min-height: 154px;
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+
+  .spec-card-accent {
+    border-color: var(--primary-border);
+    background:
+      linear-gradient(180deg, var(--primary-soft), transparent 54%),
+      var(--surface);
+  }
+
+  .spec-card-good {
+    grid-column: 1 / -1;
+    min-height: 132px;
+    border-color: rgba(134, 239, 172, 0.34);
+    background: rgba(134, 239, 172, 0.08);
+  }
+
+  .spec-card span {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    margin-bottom: 18px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text);
+    font-family: var(--font-code);
+    font-size: 12px;
+    font-weight: var(--fw-bold);
+  }
+
+  .spec-card-accent span {
+    background: var(--primary-soft);
+    color: var(--primary-light);
+  }
+
+  .spec-card-good span {
+    background: rgba(134, 239, 172, 0.13);
+    color: #86efac;
+  }
+
+  .spec-card p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .spec-caption {
+    padding: 15px 18px;
+    border: 1px solid rgba(134, 239, 172, 0.34);
+    border-radius: 8px;
+    background: rgba(134, 239, 172, 0.08);
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .workflow-strip {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 32px;
+  }
+
+  .workflow-strip div {
+    min-height: 86px;
+    padding: 13px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.3;
+    font-weight: var(--fw-medium);
+  }
+
+  .workflow-strip span {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    margin-bottom: 12px;
+    border-radius: 999px;
+    background: var(--primary-soft);
+    color: var(--primary-light);
+    font-family: var(--font-code);
+    font-size: 11px;
+    font-weight: var(--fw-bold);
+  }
+
+  .pain-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 32px;
+  }
+
+  .pain-strip div {
+    min-height: 96px;
+    padding: 14px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  .pain-strip span {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--warning);
+    font-family: var(--font-code);
+    font-size: 12px;
+    font-weight: var(--fw-bold);
+  }
+
+  .pain-visual {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .pain-code,
+  .pain-effects,
+  .feature-memory {
+    overflow: hidden;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    background: #0b1120;
+    box-shadow: var(--shadow);
+  }
+
+  .pain-effects {
+    display: grid;
+    align-content: start;
+  }
+
+  .effect-row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-height: 48px;
+    padding: 0 14px;
+    border-top: 1px solid #1e293b;
+    color: #cbd5e1;
+    font-family: var(--font-code);
+    font-size: 12px;
+  }
+
+  .effect-row span {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    font-weight: var(--fw-bold);
+  }
+
+  .effect-unknown span {
+    background: rgba(251, 191, 36, 0.12);
+    color: #fbbf24;
+  }
+
+  .effect-bad {
+    color: #fda4af;
+  }
+
+  .effect-bad span {
+    background: rgba(253, 164, 175, 0.14);
+    color: #fda4af;
+  }
+
+  .pain-caption {
+    grid-column: 1 / -1;
+    padding: 14px 16px;
+    border: 1px solid rgba(251, 191, 36, 0.32);
+    border-radius: 8px;
+    background: rgba(251, 191, 36, 0.08);
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .memory-visual {
+    display: grid;
+    gap: 12px;
+  }
+
+  .late-timeline {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .late-timeline div {
+    min-height: 116px;
+    padding: 14px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  .late-timeline span {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    margin-bottom: 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-soft);
+    font-family: var(--font-code);
+    font-size: 11px;
+    font-weight: var(--fw-bold);
+  }
+
+  .late-timeline .timeline-bad {
+    border-color: rgba(253, 164, 175, 0.32);
+    background: rgba(253, 164, 175, 0.08);
+    color: #fda4af;
+  }
+
+  .late-timeline .timeline-bad span {
+    background: rgba(253, 164, 175, 0.14);
+    color: #fda4af;
+  }
+
+  .feature-memory pre {
+    border-bottom: 1px solid #1e293b;
+  }
+
+  .memory-note {
+    padding: 14px 16px;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .developer-loop {
+    display: grid;
+    gap: 12px;
+  }
+
+  .loop-card {
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+
+  .loop-chat p {
+    margin: 0;
+    padding: 18px;
+    color: var(--text);
+    font-size: 18px;
+    line-height: 1.45;
+  }
+
+  .loop-editor,
+  .loop-terminal {
+    background: #0b1120;
+    border-color: #1e293b;
+  }
+
+  .metric-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 32px;
+  }
+
+  .metric {
+    min-height: 112px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+  }
+
+  .metric-value {
+    display: block;
+    color: var(--text);
+    font-size: 22px;
+    line-height: 1.1;
+    font-weight: var(--fw-bold);
+  }
+
+  .metric-label {
+    display: block;
+    margin-top: 10px;
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  .metric-empty {
+    border-style: dashed;
+  }
+
+  .suites-map {
+    position: relative;
+    display: grid;
+    gap: 16px;
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+
+  .map-node {
+    width: max-content;
+    padding: 9px 13px;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    background: var(--surface-raised);
+    color: var(--text);
+    font-weight: var(--fw-bold);
+  }
+
+  .map-node-main {
+    background: var(--primary-soft);
+    border-color: var(--primary-border);
+    color: var(--primary-light);
+  }
+
+  .map-branch {
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .map-branch-accent {
+    border-color: var(--primary-border);
+  }
+
+  .map-branch p {
+    margin: 12px 0 0;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .speaker-note {
+    margin: 22px 0 0;
+    padding-left: 14px;
+    border-left: 2px solid var(--primary);
+    color: var(--text-soft);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .solve-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 30px;
+  }
+
+  .solve-grid article {
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+  }
+
+  .solve-grid ul {
+    margin: 0;
+    padding-left: 18px;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .solve-grid li + li {
+    margin-top: 7px;
+  }
+
+  .handoff-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 30px;
+  }
+
+  .handoff-grid article {
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+  }
+
+  .handoff-grid ul {
+    margin: 0;
+    padding-left: 18px;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .handoff-grid li + li {
+    margin-top: 7px;
+  }
+
+  .proof-panel {
+    display: grid;
+    gap: 14px;
+  }
+
+  .ide-mini,
+  .terminal-pane {
+    overflow: hidden;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    background: #0b1120;
+    box-shadow: var(--shadow);
+  }
+
+  .ide-head,
+  .pane-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid #1e293b;
+    color: #94a3b8;
+    font-family: var(--font-code);
+    font-size: 12px;
+  }
+
+  .status-pill {
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: rgba(34, 197, 94, 0.12);
+    color: #86efac;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  pre {
+    margin: 0;
+    padding: 18px;
+    overflow-x: auto;
+    color: #e2e8f0;
+    font-size: 13px;
+    line-height: 1.6;
+    background: transparent;
+  }
+
+  .kw { color: #93c5fd; }
+  .str { color: #86efac; }
+  .num { color: #fbbf24; }
+  .add { color: #f0abfc; }
+
+  .evidence-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .evidence {
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-family: var(--font-code);
+    font-size: 12px;
+  }
+
+  .evidence-ok {
+    border-color: rgba(134, 239, 172, 0.28);
+    color: #86efac;
+  }
+
+  .evidence-warn {
+    border-color: rgba(251, 191, 36, 0.32);
+    color: #fbbf24;
+  }
+
+  .constraint-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-top: 28px;
+  }
+
+  .constraint-row span {
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--text-muted);
+    background: var(--surface);
+    font-size: 13px;
+  }
+
+  .arch-visual {
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+  }
+
+  .arch-visual svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .svg-box,
+  .svg-artifact {
+    fill: #111827;
+    stroke: #334155;
+    stroke-width: 1.5;
+  }
+
+  .svg-accent {
+    stroke: #ef4779;
+    fill: rgba(239, 71, 121, 0.1);
+  }
+
+  .svg-good {
+    stroke: rgba(134, 239, 172, 0.7);
+    fill: rgba(134, 239, 172, 0.08);
+  }
+
+  .svg-artifact {
+    fill: rgba(255, 255, 255, 0.04);
+  }
+
+  .svg-line {
+    fill: none;
+    stroke: #94a3b8;
+    stroke-width: 2;
+    marker-end: url(#arrow);
+  }
+
+  .svg-title {
+    fill: #f4f4f5;
+    font: 700 18px var(--font-body);
+  }
+
+  .svg-title.small {
+    font-size: 15px;
+  }
+
+  .svg-sub {
+    fill: #a1a1aa;
+    font: 500 13px var(--font-body);
+  }
+
+  .demo-steps {
+    margin: 28px 0 0;
+    padding-left: 22px;
+    color: var(--text-muted);
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  .demo-steps li + li {
+    margin-top: 10px;
+  }
+
+  .lifecycle-points {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 30px;
+  }
+
+  .lifecycle-points div {
+    min-height: 108px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .lifecycle-points span {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text);
+    font-size: 15px;
+    font-weight: var(--fw-bold);
+  }
+
+  .lifecycle-visual {
+    min-width: 0;
+  }
+
+  .lifecycle-frame {
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background:
+      linear-gradient(180deg, rgba(239, 71, 121, 0.08), transparent 36%),
+      var(--surface);
+    box-shadow: var(--shadow);
+  }
+
+  .lifecycle-frame svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .life-lane,
+  .life-tail-line,
+  .life-contract-line {
+    fill: none;
+    stroke: #94a3b8;
+    stroke-width: 2;
+    marker-end: url(#lifeArrow);
+  }
+
+  .life-lane {
+    stroke-dasharray: 10 7;
+    animation: laneFlow 1.6s linear infinite;
+  }
+
+  .life-node rect {
+    fill: #111827;
+    stroke: #334155;
+    stroke-width: 1.5;
+    filter: drop-shadow(0 18px 26px rgba(0, 0, 0, 0.24));
+  }
+
+  .life-node-2 rect {
+    fill: rgba(239, 71, 121, 0.1);
+    stroke: var(--primary);
+  }
+
+  .life-node-5 rect,
+  .life-node-6 rect {
+    fill: rgba(134, 239, 172, 0.08);
+    stroke: rgba(134, 239, 172, 0.68);
+  }
+
+  .life-node {
+    transform-origin: center;
+    animation: lifePulse 9.6s ease-in-out infinite;
+  }
+
+  .life-node-2 { animation-delay: 1.2s; }
+  .life-node-3 { animation-delay: 2.4s; }
+  .life-node-4 { animation-delay: 3.6s; }
+  .life-node-5 { animation-delay: 4.8s; }
+  .life-node-6 { animation-delay: 6s; }
+
+  .life-title {
+    fill: #f4f4f5;
+    font: 700 18px var(--font-body);
+  }
+
+  .life-sub {
+    fill: #a1a1aa;
+    font: 500 13px var(--font-body);
+  }
+
+  .life-chip {
+    fill: var(--primary-light);
+    font: 700 12px var(--font-code);
+    text-transform: uppercase;
+  }
+
+  .life-chip.good {
+    fill: #86efac;
+  }
+
+  .life-contract rect {
+    fill: #17171c;
+    stroke: var(--primary-border);
+    stroke-width: 1.5;
+  }
+
+  .life-contract text {
+    fill: var(--primary-light);
+    font: 700 12px var(--font-code);
+    text-transform: uppercase;
+  }
+
+  .life-tail rect {
+    fill: rgba(255, 255, 255, 0.04);
+    stroke: #334155;
+    stroke-width: 1.5;
+  }
+
+  .life-tail text {
+    fill: #cbd5e1;
+    font: 700 12px var(--font-body);
+  }
+
+  .lifecycle-caption {
+    padding: 14px 18px 16px;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .lifecycle-caption strong {
+    color: var(--text);
+  }
+
+  .demo-break-slide {
+    grid-template-columns: minmax(0, 1fr);
+    place-items: center;
+    text-align: center;
+  }
+
+  .demo-break-copy {
+    display: grid;
+    justify-items: center;
+    max-width: 920px;
+  }
+
+  .demo-break-slide h1 {
+    max-width: 18ch;
+  }
+
+  .demo-watch-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 34px;
+  }
+
+  .demo-watch-list span {
+    padding: 9px 11px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text-muted);
+    font-family: var(--font-code);
+    font-size: 12px;
+  }
+
+  .demo-watch-list span:first-child {
+    border-color: var(--primary-border);
+    background: var(--primary-soft);
+    color: var(--primary-light);
+  }
+
+  .demo-stage {
+    display: grid;
+    grid-template-columns: 0.8fr 1.2fr;
+    grid-template-areas:
+      "chat term"
+      "art term";
+    gap: 12px;
+  }
+
+  .chat-pane,
+  .artifact-pane {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    overflow: hidden;
+  }
+
+  .chat-pane {
+    grid-area: chat;
+  }
+
+  .terminal-pane {
+    grid-area: term;
+  }
+
+  .artifact-pane {
+    grid-area: art;
+  }
+
+  .chat-pane p {
+    margin: 0;
+    padding: 14px;
+    color: var(--text-muted);
+    line-height: 1.45;
+  }
+
+  .chat-pane p + p {
+    border-top: 1px solid var(--border);
+  }
+
+  .agent-line {
+    color: var(--text);
+    background: rgba(239, 71, 121, 0.08);
+  }
+
+  .artifact-row {
+    padding: 12px 14px;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border);
+    font-family: var(--font-code);
+    font-size: 12px;
+  }
+
+  .baz-equation {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-top: 30px;
+    color: var(--text-muted);
+    font-size: 17px;
+  }
+
+  .baz-equation span,
+  .baz-equation strong {
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  .baz-equation strong {
+    color: var(--primary-light);
+    border-color: var(--primary-border);
+    background: var(--primary-soft);
+  }
+
+  .baz-flow {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .flow-card {
+    min-height: 168px;
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+  }
+
+  .flow-proof {
+    border-color: var(--primary-border);
+    background: linear-gradient(180deg, var(--primary-soft), var(--surface));
+  }
+
+  .flow-label {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    margin-bottom: 18px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text);
+    font-family: var(--font-code);
+    font-size: 12px;
+    font-weight: var(--fw-bold);
+  }
+
+  .flow-card p {
+    margin: 0;
+    color: var(--text-muted);
+    line-height: 1.45;
+  }
+
+  .deck-progress {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    z-index: 20;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .deck-progress span {
+    display: block;
+    height: 100%;
+    width: 20%;
+    background: var(--primary);
+    transition: width 200ms ease;
+  }
+
+  @media (max-width: 1180px) {
+    .deck-topbar {
+      padding: 8px 12px;
+    }
+
+    .slide {
+      grid-template-columns: 1fr;
+      min-height: auto;
+      padding: 86px 22px 58px;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .brand span,
+    .slide-dot {
+      white-space: nowrap;
+    }
+
+    .metric-row,
+    .solve-grid,
+    .handoff-grid,
+    .spec-flow,
+    .workflow-strip,
+    .pain-strip,
+    .snapshot-metrics,
+    .snapshot-ladder,
+    .sensor-visual,
+    .lifecycle-points,
+    .evidence-list,
+    .pain-visual,
+    .late-timeline,
+    .baz-flow,
+    .demo-stage {
+      grid-template-columns: 1fr;
+    }
+
+    .pain-caption {
+      grid-column: auto;
+    }
+
+    .demo-stage {
+      grid-template-areas:
+        "chat"
+        "term"
+        "art";
+    }
+
+    .sensor-visual {
+      grid-template-areas:
+        "baz"
+        "plus"
+        "blackbox"
+        "result";
+    }
+
+    .sensor-card {
+      min-height: auto;
+    }
+
+    h1 {
+      font-size: 36px;
+    }
+
+    h2 {
+      font-size: 32px;
+    }
+
+    .lead {
+      font-size: 17px;
+    }
+  }
+
+  @keyframes laneFlow {
+    from {
+      stroke-dashoffset: 0;
+    }
+
+    to {
+      stroke-dashoffset: -17;
+    }
+  }
+
+  @keyframes lifePulse {
+    0%, 18%, 100% {
+      opacity: 0.82;
+    }
+
+    8% {
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .life-lane,
+    .life-node {
+      animation: none;
+    }
+  }
+</style>
