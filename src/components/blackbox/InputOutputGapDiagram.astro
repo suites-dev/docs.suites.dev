@@ -1,0 +1,87 @@
+<figure class="bb-input-output-gap-diagram" aria-label="OTEL auto-instrumentation captures effects from the SUT during a system test">
+  <svg viewBox="0 0 860 360" role="img" aria-labelledby="input-output-gap-title input-output-gap-desc">
+    <title id="input-output-gap-title">OTEL auto-instrumentation captures effects from the SUT</title>
+    <desc id="input-output-gap-desc">The request and response are visible to ordinary assertions. OTEL auto-instrumentation in the SUT also captures the effects the topology produces at each boundary during the run.</desc>
+    <defs>
+      <marker id="bb-input-output-code-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#60a5fa"></path>
+      </marker>
+      <marker id="bb-input-output-effect-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#fbbf24"></path>
+      </marker>
+    </defs>
+
+    <rect x="8" y="8" width="844" height="344" rx="18" fill="#111827" stroke="#374151"></rect>
+    <text x="36" y="42" fill="#f9fafb" font-size="19" font-weight="700">OTEL captures what assertions cannot see</text>
+    <text x="36" y="67" fill="#cbd5e1" font-size="13">A response can stay green while the topology changes the effects behind it.</text>
+
+    <rect x="42" y="104" width="186" height="78" rx="13" fill="#14532d" stroke="#86efac"></rect>
+    <text x="135" y="132" text-anchor="middle" fill="#f0fdf4" font-size="14" font-weight="700">HTTP request</text>
+    <text x="135" y="160" text-anchor="middle" fill="#bbf7d0" font-size="17" font-weight="800">POST</text>
+    <text x="135" y="177" text-anchor="middle" fill="#86efac" font-size="12">/subscriptions</text>
+
+    <line x1="240" y1="143" x2="620" y2="143" stroke="#60a5fa" stroke-width="3" marker-end="url(#bb-input-output-code-arrow)"></line>
+    <rect x="254" y="104" width="352" height="30" rx="15" fill="#172554" stroke="#60a5fa"></rect>
+    <text x="430" y="124" text-anchor="middle" fill="#dbeafe" font-size="12" font-weight="700">request and response (visible to assertions)</text>
+
+    <rect x="632" y="104" width="186" height="78" rx="13" fill="#172554" stroke="#60a5fa"></rect>
+    <text x="725" y="132" text-anchor="middle" fill="#eff6ff" font-size="14" font-weight="700">HTTP response</text>
+    <text x="725" y="161" text-anchor="middle" fill="#bfdbfe" font-size="23" font-weight="800">201 Created</text>
+
+    <rect x="62" y="232" width="736" height="86" rx="16" fill="#0f172a" stroke="#475569"></rect>
+    <rect x="82" y="272" width="124" height="34" rx="8" fill="#581c87" stroke="#c084fc"></rect>
+    <rect x="225" y="272" width="124" height="34" rx="8" fill="#7f1d1d" stroke="#fca5a5"></rect>
+    <rect x="368" y="272" width="124" height="34" rx="8" fill="#164e63" stroke="#67e8f9"></rect>
+    <rect x="511" y="272" width="124" height="34" rx="8" fill="#78350f" stroke="#fbbf24"></rect>
+    <rect x="654" y="272" width="124" height="34" rx="8" fill="#14532d" stroke="#86efac"></rect>
+
+    <path d="M 304 157 C 288 196 155 220 144 272" fill="none" stroke="#fbbf24" stroke-width="2" stroke-dasharray="7 7" marker-end="url(#bb-input-output-effect-arrow)"></path>
+    <path d="M 367 157 C 354 194 291 220 287 272" fill="none" stroke="#fbbf24" stroke-width="2" stroke-dasharray="7 7" marker-end="url(#bb-input-output-effect-arrow)"></path>
+    <path d="M 430 157 C 430 194 430 224 430 272" fill="none" stroke="#fbbf24" stroke-width="2" stroke-dasharray="7 7" marker-end="url(#bb-input-output-effect-arrow)"></path>
+    <path d="M 493 157 C 506 194 569 220 573 272" fill="none" stroke="#fbbf24" stroke-width="2" stroke-dasharray="7 7" marker-end="url(#bb-input-output-effect-arrow)"></path>
+    <path d="M 556 157 C 572 196 705 220 716 272" fill="none" stroke="#fbbf24" stroke-width="2" stroke-dasharray="7 7" marker-end="url(#bb-input-output-effect-arrow)"></path>
+
+    <rect x="170" y="188" width="520" height="32" rx="16" fill="#78350f" stroke="#fbbf24"></rect>
+    <text x="430" y="209" text-anchor="middle" fill="#fef3c7" font-size="13" font-weight="700">OTEL auto-instrumentation captures these effects from the SUT</text>
+    <text x="430" y="254" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="700">five-service topology</text>
+
+    <text x="144" y="294" text-anchor="middle" fill="#faf5ff" font-size="13" font-weight="700">BFF</text>
+    <text x="287" y="294" text-anchor="middle" fill="#fee2e2" font-size="13" font-weight="700">Redis</text>
+    <text x="430" y="294" text-anchor="middle" fill="#ecfeff" font-size="13" font-weight="700">Postgres</text>
+    <text x="573" y="294" text-anchor="middle" fill="#fef3c7" font-size="12" font-weight="700">payment-http</text>
+    <text x="716" y="294" text-anchor="middle" fill="#f0fdf4" font-size="13" font-weight="700">SQS</text>
+  </svg>
+  <figcaption>OTEL auto-instrumentation runs inside the SUT during the test. It captures the boundary effects the topology actually produced, so reviewers see more than the response.</figcaption>
+</figure>
+
+<style>
+  .bb-input-output-gap-diagram {
+    margin: 24px 0;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    overflow-x: auto;
+  }
+
+  .bb-input-output-gap-diagram svg {
+    display: block;
+    width: 100%;
+    min-width: 680px;
+    height: auto;
+  }
+
+  .bb-input-output-gap-diagram figcaption {
+    margin-top: 10px;
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.55;
+    text-align: center;
+  }
+
+  @media (max-width: 760px) {
+    .bb-input-output-gap-diagram {
+      padding: 12px;
+    }
+  }
+</style>

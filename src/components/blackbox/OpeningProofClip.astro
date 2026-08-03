@@ -1,0 +1,402 @@
+---
+interface Props {
+  autoplay?: boolean;
+  loop?: boolean;
+}
+const { autoplay = true, loop = false } = Astro.props;
+---
+
+<figure class="opc" aria-label="Blackbox developer loop: a Playwright system test plus a matcher that proves runtime effects">
+  <div
+    class="opc-card"
+    data-scene="0"
+    data-autoplay={autoplay ? '1' : '0'}
+    data-loop={loop ? '1' : '0'}
+  >
+    <div class="opc-head">
+      <span class="opc-file">subscribe.spec.ts</span>
+      <span class="opc-tag" aria-hidden="true">system test</span>
+    </div>
+
+    <div class="opc-rows">
+      <div class="opc-row" data-row="response">
+        <code class="opc-code"><span class="opc-fn">expect</span>(response.<span class="opc-fn">status</span>()).<span class="opc-fn">toBe</span>(<span class="opc-num">201</span>);</code>
+        <div class="opc-proof opc-proof-response" aria-label="Response assertion">
+          <span class="opc-pill opc-pill-ok"><span class="opc-check">✓</span>201</span>
+          <span class="opc-proof-label">response</span>
+        </div>
+      </div>
+
+      <div class="opc-row opc-row-new" data-row="matcher">
+        <code class="opc-code"><span class="opc-mark">+</span> <span class="opc-kw">await</span> <span class="opc-fn">expect</span>(capture).<span class="opc-fn">toMatchCatalog</span>();</code>
+        <div class="opc-proof opc-proof-effects" aria-label="Effect catalog match">
+          <span class="opc-chip opc-chip-req" data-chip="0"><span class="opc-chip-dot"></span>http</span>
+          <span class="opc-chip opc-chip-req" data-chip="1"><span class="opc-chip-dot"></span>pg</span>
+          <span class="opc-chip opc-chip-req" data-chip="2"><span class="opc-chip-dot"></span>redis</span>
+          <span class="opc-chip opc-chip-req" data-chip="3"><span class="opc-chip-dot"></span>sqs</span>
+          <span class="opc-chip opc-chip-fbd" data-chip="4"><span class="opc-chip-dot"></span>refund</span>
+          <span class="opc-chip opc-chip-fbd" data-chip="5"><span class="opc-chip-dot"></span>delete</span>
+          <span class="opc-proof-label"><span class="opc-mini">4</span> required <span class="opc-sep">·</span> <span class="opc-mini">2</span> forbidden absent</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="opc-foot">
+      <span class="opc-foot-label">effect coverage</span>
+      <div class="opc-bar" aria-hidden="true"><div class="opc-bar-fill"></div></div>
+      <span class="opc-verdict"><span class="opc-verdict-icon">●</span><span class="opc-verdict-text">running…</span></span>
+    </div>
+
+    <button class="opc-replay" type="button" aria-label="Replay clip">replay</button>
+  </div>
+  <figcaption>Keep the Playwright assertion that already passes. Add one matcher; the run proves the required and forbidden effects behind the response.</figcaption>
+</figure>
+
+<script>
+  type Scene = 0 | 1 | 2 | 3;
+  const SCENE_DURATIONS: Record<Scene, number> = { 0: 1600, 1: 1600, 2: 2800, 3: 2400 };
+  const HOLD_AFTER_FINAL = 2200;
+
+  document.querySelectorAll<HTMLDivElement>('.opc-card').forEach((card) => {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const autoplay = card.dataset.autoplay === '1';
+    const loop = card.dataset.loop === '1';
+    const verdictText = card.querySelector<HTMLElement>('.opc-verdict-text');
+    const replay = card.querySelector<HTMLButtonElement>('.opc-replay');
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    const VERDICTS: Record<Scene, string> = {
+      0: 'response 201',
+      1: 'capturing…',
+      2: 'matching catalog…',
+      3: 'satisfied 1 / 1',
+    };
+
+    const setScene = (s: Scene) => {
+      card.dataset.scene = String(s);
+      if (verdictText) verdictText.textContent = VERDICTS[s];
+    };
+
+    const step = (s: Scene) => {
+      setScene(s);
+      const next = (s + 1) as Scene;
+      if (next > 3) {
+        timer = setTimeout(() => {
+          if (loop) start();
+          else if (replay) replay.classList.add('opc-replay-ready');
+        }, HOLD_AFTER_FINAL);
+        return;
+      }
+      timer = setTimeout(() => step(next), SCENE_DURATIONS[s]);
+    };
+
+    const start = () => {
+      if (timer) clearTimeout(timer);
+      if (replay) replay.classList.remove('opc-replay-ready');
+      step(0);
+    };
+
+    if (reduced) {
+      setScene(3);
+      if (replay) replay.classList.add('opc-replay-ready');
+    } else if (autoplay) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (e.isIntersecting) {
+              start();
+              io.disconnect();
+              break;
+            }
+          }
+        },
+        { threshold: 0.45 },
+      );
+      io.observe(card);
+    } else {
+      setScene(0);
+    }
+
+    replay?.addEventListener('click', start);
+  });
+</script>
+
+<style>
+  .opc {
+    --opc-bg: #0b1120;
+    --opc-panel: #0f172a;
+    --opc-line: #1e293b;
+    --opc-fg: #e2e8f0;
+    --opc-mute: #64748b;
+    --opc-faint: #334155;
+    --opc-ok: #22c55e;
+    --opc-ok-bg: rgba(34, 197, 94, 0.14);
+    --opc-warn: #f59e0b;
+    --opc-warn-bg: rgba(245, 158, 11, 0.14);
+    --opc-blue: #60a5fa;
+    --opc-purple: #c084fc;
+    --opc-amber: #fbbf24;
+    --opc-new-bg: rgba(34, 197, 94, 0.08);
+    margin: 24px 0;
+  }
+
+  .opc-card {
+    position: relative;
+    background: linear-gradient(180deg, var(--opc-panel), var(--opc-bg));
+    border: 1px solid var(--opc-line);
+    border-radius: 10px;
+    overflow: hidden;
+    font-family: ui-sans-serif, system-ui, -apple-system, 'Inter', sans-serif;
+    color: var(--opc-fg);
+  }
+
+  .opc-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    background: rgba(15, 23, 42, 0.6);
+    border-bottom: 1px solid var(--opc-line);
+    font-size: 11px;
+  }
+  .opc-file {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: var(--opc-fg);
+    font-weight: 600;
+  }
+  .opc-tag {
+    color: var(--opc-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  .opc-rows {
+    padding: 10px 14px;
+  }
+  .opc-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 16px;
+    padding: 10px 4px;
+    border-bottom: 1px dashed var(--opc-faint);
+  }
+  .opc-row:last-child { border-bottom: 0; }
+
+  .opc-row-new {
+    background: var(--opc-new-bg);
+    border-left: 2px solid var(--opc-ok);
+    border-radius: 4px;
+    padding-left: 8px;
+    margin-left: -10px;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity 320ms ease, max-height 320ms ease;
+  }
+  .opc-card[data-scene="0"] .opc-row-new { opacity: 0; max-height: 0; padding-top: 0; padding-bottom: 0; }
+  .opc-card:not([data-scene="0"]) .opc-row-new { opacity: 1; max-height: 80px; }
+
+  .opc-code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: var(--opc-fg);
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .opc-fn { color: var(--opc-purple); }
+  .opc-kw { color: var(--opc-blue); }
+  .opc-num { color: var(--opc-ok); }
+  .opc-mark { color: var(--opc-ok); font-weight: 800; }
+
+  .opc-proof {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-end;
+  }
+  .opc-proof-label {
+    width: 100%;
+    text-align: right;
+    color: var(--opc-mute);
+    font-size: 10.5px;
+    margin-top: 2px;
+  }
+  .opc-mini {
+    color: var(--opc-fg);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-weight: 700;
+  }
+  .opc-sep { opacity: 0.5; padding: 0 2px; }
+
+  .opc-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px;
+    font-weight: 700;
+    background: var(--opc-ok-bg);
+    color: var(--opc-ok);
+  }
+  .opc-check { font-weight: 900; }
+
+  .opc-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 10.5px;
+    font-weight: 700;
+    background: rgba(148, 163, 184, 0.08);
+    color: var(--opc-mute);
+    border: 1px solid var(--opc-line);
+    opacity: 0;
+    transform: translateY(3px);
+    transition: opacity 220ms ease, transform 220ms ease, color 220ms ease, background 220ms ease, border-color 220ms ease;
+  }
+  .opc-chip-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.6;
+  }
+
+  /* Scene 2: required chips light up green, forbidden chips light up amber */
+  .opc-card[data-scene="2"] .opc-chip,
+  .opc-card[data-scene="3"] .opc-chip {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .opc-card[data-scene="2"] .opc-chip-req,
+  .opc-card[data-scene="3"] .opc-chip-req {
+    background: var(--opc-ok-bg);
+    color: var(--opc-ok);
+    border-color: rgba(34, 197, 94, 0.4);
+  }
+  .opc-card[data-scene="2"] .opc-chip-fbd,
+  .opc-card[data-scene="3"] .opc-chip-fbd {
+    background: var(--opc-warn-bg);
+    color: var(--opc-warn);
+    border-color: rgba(245, 158, 11, 0.4);
+  }
+  .opc-card[data-scene="2"] .opc-chip[data-chip="0"] { transition-delay: 0ms; }
+  .opc-card[data-scene="2"] .opc-chip[data-chip="1"] { transition-delay: 110ms; }
+  .opc-card[data-scene="2"] .opc-chip[data-chip="2"] { transition-delay: 220ms; }
+  .opc-card[data-scene="2"] .opc-chip[data-chip="3"] { transition-delay: 330ms; }
+  .opc-card[data-scene="2"] .opc-chip[data-chip="4"] { transition-delay: 440ms; }
+  .opc-card[data-scene="2"] .opc-chip[data-chip="5"] { transition-delay: 550ms; }
+
+  .opc-foot {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 14px;
+    background: rgba(15, 23, 42, 0.55);
+    border-top: 1px solid var(--opc-line);
+    font-size: 11px;
+  }
+  .opc-foot-label {
+    color: var(--opc-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+  .opc-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--opc-line);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .opc-bar-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--opc-blue), var(--opc-ok));
+    transition: width 480ms ease;
+  }
+  .opc-card[data-scene="0"] .opc-bar-fill { width: 18%; }
+  .opc-card[data-scene="1"] .opc-bar-fill { width: 42%; }
+  .opc-card[data-scene="2"] .opc-bar-fill { width: 75%; }
+  .opc-card[data-scene="3"] .opc-bar-fill { width: 100%; }
+
+  .opc-verdict {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--opc-mute);
+    white-space: nowrap;
+    transition: color 280ms ease;
+  }
+  .opc-verdict-icon {
+    font-size: 8px;
+    color: var(--opc-mute);
+    transition: color 280ms ease;
+  }
+  .opc-card[data-scene="1"] .opc-verdict-icon { color: var(--opc-amber); }
+  .opc-card[data-scene="2"] .opc-verdict-icon { color: var(--opc-blue); }
+  .opc-card[data-scene="3"] .opc-verdict { color: var(--opc-ok); }
+  .opc-card[data-scene="3"] .opc-verdict-icon { color: var(--opc-ok); }
+
+  .opc-replay {
+    position: absolute;
+    top: 6px;
+    right: 14px;
+    background: transparent;
+    color: var(--opc-mute);
+    border: 0;
+    font-size: 10.5px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 220ms ease, color 220ms ease, background 220ms ease;
+  }
+  .opc-replay.opc-replay-ready { opacity: 1; }
+  .opc-replay:hover { color: var(--opc-fg); background: rgba(148, 163, 184, 0.1); }
+
+  .opc figcaption {
+    margin: 10px 4px 0;
+    color: var(--text-secondary, #94a3b8);
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 720px) {
+    .opc-row {
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+    .opc-proof { justify-content: flex-start; }
+    .opc-proof-label { text-align: left; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .opc-row-new,
+    .opc-chip,
+    .opc-bar-fill,
+    .opc-verdict,
+    .opc-verdict-icon,
+    .opc-replay {
+      transition: none;
+    }
+  }
+</style>

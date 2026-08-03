@@ -1,0 +1,358 @@
+---
+const steps = [
+  {
+    label: 'Schedule',
+    title: 'Playwright schedules concurrent work',
+    body: 'Playwright owns the runner model: files, workers, projects, sharding, and parallel or serial describe blocks.',
+    artifact: 'Playwright config',
+    snippet: `export default defineConfig({
+  workers: 2,
+  fullyParallel: true,
+});
+
+test.describe.parallel('subscription changes', () => {
+  test('upgrade to pro', async ({ system, capture }) => {});
+  test('cancel subscription', async ({ system, capture }) => {});
+});`,
+  },
+  {
+    label: 'Workers',
+    title: 'Blackbox gives each worker its own system boundary',
+    body: 'With compose isolation, every Playwright worker gets a separate compose project and docker-assigned host ports.',
+    artifact: 'Worker testbeds',
+    snippet: `worker 0 -> blackbox-e2e-w0
+worker 1 -> blackbox-e2e-w1
+
+bootstrap({ workerInfo, perWorker })`,
+  },
+  {
+    label: 'Groups',
+    title: 'Scenarios become isolation groups',
+    body: 'Blackbox tags scenario describes with @flow and @isolation-group, then resets or shares state according to the group key.',
+    artifact: 'Runtime tags',
+    snippet: `scenario.isolated('refund-flow', ...)
+  -> @flow:refund-flow
+  -> @isolation-group:bdd:refund-flow
+
+scenario.shared('create-order', 'approve-order', ...)
+  -> joins the parent group`,
+  },
+  {
+    label: 'Evidence',
+    title: 'Effects stay attributable to the running test',
+    body: 'The capture fixture injects trace identity, drains spans for that test, and maps observed runtime facts into effects.',
+    artifact: 'Captured effects',
+    snippet: `postgres INSERT subscriptions
+redis SET user:alice:tier
+sqs SendMessage subscription.created
+
+expect(capture).toMatchCatalog();`,
+  },
+  {
+    label: 'Reports',
+    title: 'Worker partials merge into one report',
+    body: 'Each worker writes partial coverage and feature traces. Global teardown merges them into the canonical artifacts.',
+    artifact: 'Merged artifacts',
+    snippet: `.blackbox-coverage/.coverage-partials/catalog-coverage.w0.json
+.blackbox-coverage/.coverage-partials/catalog-coverage.w1.json
+
+-> .blackbox-coverage/catalog/coverage.json
+-> e2e/features/<flow>.feature`,
+  },
+];
+---
+
+<section class="bb-parallel-sim" aria-label="Playwright and Blackbox parallelism simulator" data-parallel-sim>
+  <div class="bb-parallel-sim__head">
+    <div>
+      <strong>Interactive walkthrough</strong>
+      <h2>From Playwright Workers To Blackbox Evidence</h2>
+      <p>Step through how concurrent Playwright execution becomes isolated system-test evidence.</p>
+    </div>
+    <span data-parallel-count>Step 1 of {steps.length}</span>
+  </div>
+
+  <div class="bb-parallel-sim__body">
+    <ol class="bb-parallel-sim__steps" aria-label="Parallel evidence steps">
+      {steps.map((step, index) => (
+        <li>
+          <button
+            type="button"
+            class={index === 0 ? 'is-active' : ''}
+            data-parallel-step={index}
+            aria-current={index === 0 ? 'step' : undefined}
+          >
+            <span>{index + 1}</span>
+            {step.label}
+          </button>
+        </li>
+      ))}
+    </ol>
+
+    <div class="bb-parallel-sim__stage">
+      <div class="bb-parallel-sim__copy">
+        <span data-parallel-artifact>{steps[0].artifact}</span>
+        <h3 data-parallel-title>{steps[0].title}</h3>
+        <p data-parallel-body>{steps[0].body}</p>
+      </div>
+      <pre class="bb-parallel-sim__code" aria-label="Current parallelism artifact"><code data-parallel-snippet>{steps[0].snippet}</code></pre>
+    </div>
+  </div>
+
+  <div class="bb-parallel-sim__actions">
+    <button type="button" data-parallel-prev disabled>Previous</button>
+    <button type="button" data-parallel-next>Next</button>
+  </div>
+</section>
+
+<script define:vars={{ steps }}>
+  const simulators = Array.from(document.querySelectorAll('[data-parallel-sim]'));
+
+  simulators.forEach((simulator) => {
+    const buttons = Array.from(simulator.querySelectorAll('[data-parallel-step]'));
+    const count = simulator.querySelector('[data-parallel-count]');
+    const artifact = simulator.querySelector('[data-parallel-artifact]');
+    const title = simulator.querySelector('[data-parallel-title]');
+    const body = simulator.querySelector('[data-parallel-body]');
+    const snippet = simulator.querySelector('[data-parallel-snippet]');
+    const previous = simulator.querySelector('[data-parallel-prev]');
+    const next = simulator.querySelector('[data-parallel-next]');
+    let active = 0;
+
+    const render = (index) => {
+      active = Math.max(0, Math.min(index, steps.length - 1));
+      const step = steps[active];
+
+      buttons.forEach((button, i) => {
+        const isActive = i === active;
+        button.classList.toggle('is-active', isActive);
+        if (isActive) {
+          button.setAttribute('aria-current', 'step');
+        } else {
+          button.removeAttribute('aria-current');
+        }
+      });
+
+      if (count !== null) count.textContent = `Step ${active + 1} of ${steps.length}`;
+      if (artifact !== null) artifact.textContent = step.artifact;
+      if (title !== null) title.textContent = step.title;
+      if (body !== null) body.textContent = step.body;
+      if (snippet !== null) snippet.textContent = step.snippet;
+
+      if (previous instanceof HTMLButtonElement) previous.disabled = active === 0;
+      if (next instanceof HTMLButtonElement) next.disabled = active === steps.length - 1;
+    };
+
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => {
+        render(Number(button.getAttribute('data-parallel-step') ?? '0'));
+      });
+    });
+
+    previous?.addEventListener('click', () => render(active - 1));
+    next?.addEventListener('click', () => render(active + 1));
+  });
+</script>
+
+<style>
+  .bb-parallel-sim {
+    margin: 28px 0;
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .bb-parallel-sim__head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .bb-parallel-sim__head strong,
+  .bb-parallel-sim__copy > span {
+    display: inline-flex;
+    width: fit-content;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: rgba(20, 184, 166, 0.12);
+    color: #5eead4;
+    font-size: 12px;
+    font-weight: 850;
+    text-transform: uppercase;
+  }
+
+  .bb-parallel-sim__head h2 {
+    margin: 12px 0 8px;
+  }
+
+  .bb-parallel-sim__head p,
+  .bb-parallel-sim__copy p {
+    margin: 0;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .bb-parallel-sim__head > span {
+    padding: 7px 10px;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    border-radius: 999px;
+    color: var(--text-muted);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .bb-parallel-sim__body {
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+    gap: 18px;
+    margin-top: 20px;
+  }
+
+  .bb-parallel-sim__steps {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .bb-parallel-sim__steps li {
+    margin: 0;
+    padding: 0;
+  }
+
+  .bb-parallel-sim__steps button {
+    display: flex;
+    width: 100%;
+    min-height: 38px;
+    align-items: center;
+    gap: 9px;
+    padding: 0 10px;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    border-radius: 6px;
+    background: rgba(15, 23, 42, 0.38);
+    color: var(--text-muted);
+    cursor: pointer;
+    font: inherit;
+    font-size: 13px;
+    text-align: left;
+  }
+
+  .bb-parallel-sim__steps button span {
+    display: grid;
+    width: 20px;
+    height: 20px;
+    flex: 0 0 auto;
+    place-items: center;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.16);
+    font-size: 11px;
+    font-weight: 850;
+  }
+
+  .bb-parallel-sim__steps button.is-active,
+  .bb-parallel-sim__steps button:hover,
+  .bb-parallel-sim__steps button:focus-visible {
+    border-color: #5eead4;
+    background: rgba(20, 184, 166, 0.12);
+    color: #ccfbf1;
+  }
+
+  .bb-parallel-sim__steps button.is-active span,
+  .bb-parallel-sim__steps button:hover span,
+  .bb-parallel-sim__steps button:focus-visible span {
+    background: #5eead4;
+    color: #0f172a;
+  }
+
+  .bb-parallel-sim__stage {
+    display: grid;
+    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+    gap: 16px;
+  }
+
+  .bb-parallel-sim__copy {
+    display: grid;
+    align-content: start;
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.025);
+  }
+
+  .bb-parallel-sim__copy h3 {
+    margin: 0;
+  }
+
+  .bb-parallel-sim__code {
+    min-height: 230px;
+    margin: 0;
+    padding: 16px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 8px;
+    background: #0f172a;
+    color: #e5e7eb;
+    overflow: auto;
+    font-family: var(--font-code);
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+
+  .bb-parallel-sim__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .bb-parallel-sim__actions button {
+    min-height: 36px;
+    padding: 0 12px;
+    border: 1px solid rgba(20, 184, 166, 0.42);
+    border-radius: 6px;
+    background: rgba(20, 184, 166, 0.1);
+    color: #ccfbf1;
+    cursor: pointer;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 850;
+  }
+
+  .bb-parallel-sim__actions button:hover,
+  .bb-parallel-sim__actions button:focus-visible {
+    border-color: rgba(20, 184, 166, 0.72);
+    background: rgba(20, 184, 166, 0.16);
+    color: var(--text);
+  }
+
+  .bb-parallel-sim__actions button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 900px) {
+    .bb-parallel-sim__head,
+    .bb-parallel-sim__body,
+    .bb-parallel-sim__stage {
+      grid-template-columns: 1fr;
+    }
+
+    .bb-parallel-sim__steps {
+      display: flex;
+      overflow-x: auto;
+    }
+
+    .bb-parallel-sim__steps button {
+      width: auto;
+      white-space: nowrap;
+    }
+
+    .bb-parallel-sim__head > span {
+      width: fit-content;
+    }
+  }
+</style>

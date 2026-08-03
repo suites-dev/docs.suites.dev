@@ -1,0 +1,103 @@
+<figure class="bb-overview-diagram" aria-label="Blackbox testbed architecture at test time">
+  <svg viewBox="0 0 860 420" role="img" aria-labelledby="blackbox-testbed-architecture-title blackbox-testbed-architecture-desc">
+    <title id="blackbox-testbed-architecture-title">Blackbox testbed architecture</title>
+    <desc id="blackbox-testbed-architecture-desc">The createBlackboxTestbed factory starts a Docker Compose topology with OpenTelemetry bootstrap injection, then Playwright drains spans through the debug port.</desc>
+    <defs>
+      <marker id="bb-testbed-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#9ca3af"></path>
+      </marker>
+      <filter id="bb-testbed-card-shadow" x="-10%" y="-20%" width="120%" height="150%">
+        <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000000" flood-opacity="0.18"></feDropShadow>
+      </filter>
+    </defs>
+
+    <rect x="8" y="8" width="844" height="404" rx="18" fill="#111827" stroke="#374151"></rect>
+    <text x="36" y="42" fill="#f9fafb" font-size="19" font-weight="700">Where the testbed sits at test time</text>
+    <text x="36" y="67" fill="#cbd5e1" font-size="13">The factory owns the controlled runtime, while Playwright observes the spans that runtime exposes.</text>
+
+    <g filter="url(#bb-testbed-card-shadow)">
+      <rect x="42" y="158" width="190" height="126" rx="14" fill="#172554" stroke="#60a5fa"></rect>
+      <text x="137" y="190" text-anchor="middle" fill="#eff6ff" font-size="15" font-weight="700">createBlackboxTestbed</text>
+      <text x="137" y="213" text-anchor="middle" fill="#bfdbfe" font-size="14" font-weight="700">factory</text>
+      <text x="137" y="241" text-anchor="middle" fill="#93c5fd" font-size="12">called from Playwright</text>
+      <text x="137" y="260" text-anchor="middle" fill="#93c5fd" font-size="12">globalSetup</text>
+    </g>
+
+    <line x1="244" y1="221" x2="298" y2="221" stroke="#9ca3af" stroke-width="2" marker-end="url(#bb-testbed-arrow)"></line>
+    <rect x="256" y="196" width="54" height="22" rx="11" fill="#0f172a" stroke="#475569"></rect>
+    <text x="283" y="211" text-anchor="middle" fill="#e2e8f0" font-size="11" font-weight="700">spawns</text>
+
+    <g filter="url(#bb-testbed-card-shadow)">
+      <rect x="310" y="86" width="240" height="276" rx="14" fill="#1f2937" stroke="#64748b"></rect>
+      <text x="430" y="116" text-anchor="middle" fill="#f8fafc" font-size="15" font-weight="700">Docker Compose:</text>
+      <text x="430" y="138" text-anchor="middle" fill="#cbd5e1" font-size="13" font-weight="700">5-service topology</text>
+
+      <rect x="332" y="158" width="196" height="32" rx="8" fill="#14532d" stroke="#86efac"></rect>
+      <text x="348" y="179" fill="#f0fdf4" font-size="12" font-weight="700">BFF</text>
+      <text x="516" y="179" text-anchor="end" fill="#bbf7d0" font-size="9">OTEL bootstrap injected</text>
+
+      <rect x="332" y="198" width="196" height="32" rx="8" fill="#14532d" stroke="#86efac"></rect>
+      <text x="348" y="219" fill="#f0fdf4" font-size="12" font-weight="700">Redis</text>
+      <text x="516" y="219" text-anchor="end" fill="#bbf7d0" font-size="9">OTEL bootstrap injected</text>
+
+      <rect x="332" y="238" width="196" height="32" rx="8" fill="#14532d" stroke="#86efac"></rect>
+      <text x="348" y="259" fill="#f0fdf4" font-size="12" font-weight="700">Postgres</text>
+      <text x="516" y="259" text-anchor="end" fill="#bbf7d0" font-size="9">OTEL bootstrap injected</text>
+
+      <rect x="332" y="278" width="196" height="32" rx="8" fill="#14532d" stroke="#86efac"></rect>
+      <text x="348" y="299" fill="#f0fdf4" font-size="12" font-weight="700">payment-http</text>
+      <text x="516" y="299" text-anchor="end" fill="#bbf7d0" font-size="9">OTEL bootstrap injected</text>
+
+      <rect x="332" y="318" width="196" height="32" rx="8" fill="#14532d" stroke="#86efac"></rect>
+      <text x="348" y="339" fill="#f0fdf4" font-size="12" font-weight="700">SQS</text>
+      <text x="516" y="339" text-anchor="end" fill="#bbf7d0" font-size="9">OTEL bootstrap injected</text>
+    </g>
+
+    <line x1="562" y1="221" x2="616" y2="221" stroke="#9ca3af" stroke-width="2" marker-end="url(#bb-testbed-arrow)"></line>
+    <rect x="560" y="196" width="58" height="22" rx="11" fill="#0f172a" stroke="#475569"></rect>
+    <text x="589" y="211" text-anchor="middle" fill="#e2e8f0" font-size="11" font-weight="700">spans</text>
+    <rect x="504" y="236" width="170" height="24" rx="12" fill="#0f172a" stroke="#475569"></rect>
+    <text x="589" y="252" text-anchor="middle" fill="#fde68a" font-size="11" font-weight="700">drains spans via debug port</text>
+
+    <g filter="url(#bb-testbed-card-shadow)">
+      <rect x="628" y="158" width="190" height="126" rx="14" fill="#581c87" stroke="#c084fc"></rect>
+      <text x="723" y="194" text-anchor="middle" fill="#faf5ff" font-size="16" font-weight="700">Playwright runner</text>
+      <text x="723" y="223" text-anchor="middle" fill="#e9d5ff" font-size="12">runs scenarios</text>
+      <text x="723" y="243" text-anchor="middle" fill="#d8b4fe" font-size="12">collects evidence</text>
+      <text x="723" y="263" text-anchor="middle" fill="#d8b4fe" font-size="12">writes coverage artifacts</text>
+    </g>
+  </svg>
+  <figcaption>The testbed owns Compose startup, bootstrap injection, and debug-port discovery, while the Playwright runner observes drained spans and writes coverage artifacts.</figcaption>
+</figure>
+
+<style>
+  .bb-overview-diagram {
+    margin: 24px 0;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    overflow-x: auto;
+  }
+
+  .bb-overview-diagram svg {
+    display: block;
+    width: 100%;
+    min-width: 680px;
+    height: auto;
+  }
+
+  .bb-overview-diagram figcaption {
+    margin-top: 10px;
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.55;
+    text-align: center;
+  }
+
+  @media (max-width: 760px) {
+    .bb-overview-diagram {
+      padding: 12px;
+    }
+  }
+</style>

@@ -1,0 +1,204 @@
+---
+interface Props {
+  kind: 'loop' | 'triangle' | 'staleness' | 'sdd';
+}
+
+const { kind } = Astro.props;
+---
+
+{kind === 'loop' && (
+  <figure class="bb-code-bdd-diagram" aria-label="Code-first system-test BDD loop">
+    <svg viewBox="0 0 900 360" role="img" aria-labelledby="bdd-loop-title bdd-loop-desc">
+      <title id="bdd-loop-title">Code-first system-test BDD loop</title>
+      <desc id="bdd-loop-desc">A system test drives behavior, runtime effects prove what happened, effect catalogs and coverage create a gate, and feature files provide a readable behavior surface.</desc>
+      <defs>
+        <marker id="bdd-loop-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"></path>
+        </marker>
+      </defs>
+      <rect x="8" y="8" width="884" height="344" rx="18" fill="#111827" stroke="#374151"></rect>
+      <text x="36" y="44" fill="#f8fafc" font-size="19" font-weight="700">Code-first BDD for system tests</text>
+      <text x="36" y="70" fill="#cbd5e1" font-size="13">Start from the executable system test, then close the loop with runtime effects, coverage, and generated feature files.</text>
+
+      <rect x="64" y="130" width="156" height="78" rx="13" fill="#172554" stroke="#60a5fa"></rect>
+      <text x="142" y="159" text-anchor="middle" fill="#eff6ff" font-size="14" font-weight="800">System test</text>
+      <text x="142" y="181" text-anchor="middle" fill="#bfdbfe" font-size="12">Playwright flow</text>
+      <text x="142" y="199" text-anchor="middle" fill="#93c5fd" font-size="11">code is the driver</text>
+
+      <line x1="232" y1="169" x2="300" y2="169" stroke="#94a3b8" stroke-width="2" marker-end="url(#bdd-loop-arrow)"></line>
+
+      <rect x="312" y="130" width="156" height="78" rx="13" fill="#14532d" stroke="#86efac"></rect>
+      <text x="390" y="159" text-anchor="middle" fill="#f0fdf4" font-size="14" font-weight="800">Runtime effects</text>
+      <text x="390" y="181" text-anchor="middle" fill="#bbf7d0" font-size="12">observed boundaries</text>
+      <text x="390" y="199" text-anchor="middle" fill="#86efac" font-size="11">proof from the run</text>
+
+      <line x1="480" y1="169" x2="548" y2="169" stroke="#94a3b8" stroke-width="2" marker-end="url(#bdd-loop-arrow)"></line>
+
+      <rect x="560" y="130" width="156" height="78" rx="13" fill="#78350f" stroke="#fbbf24"></rect>
+      <text x="638" y="159" text-anchor="middle" fill="#fef3c7" font-size="14" font-weight="800">Catalog + coverage</text>
+      <text x="638" y="181" text-anchor="middle" fill="#fde68a" font-size="12">requires / forbids</text>
+      <text x="638" y="199" text-anchor="middle" fill="#fbbf24" font-size="11">merge-gate signal</text>
+
+      <path d="M638 222 C638 282 262 282 262 222" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="7 7" marker-end="url(#bdd-loop-arrow)"></path>
+      <rect x="268" y="250" width="364" height="40" rx="13" fill="#0f172a" stroke="#475569"></rect>
+      <text x="450" y="275" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="700">Rerun the suite until runtime behavior and catalog agree</text>
+
+      <line x1="716" y1="169" x2="784" y2="169" stroke="#94a3b8" stroke-width="2" marker-end="url(#bdd-loop-arrow)"></line>
+
+      <rect x="736" y="130" width="116" height="78" rx="13" fill="#581c87" stroke="#c084fc"></rect>
+      <text x="794" y="159" text-anchor="middle" fill="#faf5ff" font-size="14" font-weight="800">Feature file</text>
+      <text x="794" y="181" text-anchor="middle" fill="#e9d5ff" font-size="12">readable Gherkin</text>
+      <text x="794" y="199" text-anchor="middle" fill="#d8b4fe" font-size="11">generated view</text>
+
+      <rect x="118" y="92" width="664" height="28" rx="14" fill="#0f172a" stroke="#475569"></rect>
+      <text x="450" y="111" text-anchor="middle" fill="#cbd5e1" font-size="12" font-weight="700">Not feature-file-first. Not step-definition glue. Runtime-backed behavior specs from system tests.</text>
+    </svg>
+    <figcaption>Blackbox keeps the readable part of BDD but changes the source of truth: the system test and runtime evidence drive the feature file, not the other way around.</figcaption>
+  </figure>
+)}
+
+{kind === 'triangle' && (
+  <figure class="bb-code-bdd-diagram" aria-label="System test effects and feature file triangle">
+    <svg viewBox="0 0 860 330" role="img" aria-labelledby="bdd-triangle-title bdd-triangle-desc">
+      <title id="bdd-triangle-title">System tests, effects, and feature files</title>
+      <desc id="bdd-triangle-desc">System tests drive behavior, runtime effects prove behavior, and feature files make behavior readable.</desc>
+      <defs>
+        <marker id="bdd-triangle-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"></path>
+        </marker>
+      </defs>
+      <rect x="8" y="8" width="844" height="314" rx="18" fill="#111827" stroke="#374151"></rect>
+      <text x="36" y="44" fill="#f8fafc" font-size="19" font-weight="700">The Blackbox behavior triangle</text>
+      <text x="36" y="70" fill="#cbd5e1" font-size="13">Each layer can stand alone. Together they close the loop between execution, proof, and readable behavior.</text>
+
+      <rect x="326" y="96" width="208" height="76" rx="14" fill="#581c87" stroke="#c084fc"></rect>
+      <text x="430" y="127" text-anchor="middle" fill="#faf5ff" font-size="15" font-weight="800">Feature file</text>
+      <text x="430" y="151" text-anchor="middle" fill="#e9d5ff" font-size="12">readable behavior for review</text>
+
+      <rect x="92" y="222" width="208" height="76" rx="14" fill="#172554" stroke="#60a5fa"></rect>
+      <text x="196" y="253" text-anchor="middle" fill="#eff6ff" font-size="15" font-weight="800">System test</text>
+      <text x="196" y="277" text-anchor="middle" fill="#bfdbfe" font-size="12">drives the workflow</text>
+
+      <rect x="560" y="222" width="208" height="76" rx="14" fill="#14532d" stroke="#86efac"></rect>
+      <text x="664" y="253" text-anchor="middle" fill="#f0fdf4" font-size="15" font-weight="800">Runtime effects</text>
+      <text x="664" y="277" text-anchor="middle" fill="#bbf7d0" font-size="12">prove what happened</text>
+
+      <line x1="300" y1="238" x2="372" y2="172" stroke="#94a3b8" stroke-width="2" marker-end="url(#bdd-triangle-arrow)"></line>
+      <text x="307" y="196" fill="#bfdbfe" font-size="12" font-weight="700">emit</text>
+      <line x1="488" y1="172" x2="560" y2="238" stroke="#94a3b8" stroke-width="2" marker-end="url(#bdd-triangle-arrow)"></line>
+      <text x="535" y="196" fill="#bbf7d0" font-size="12" font-weight="700">prove</text>
+      <line x1="548" y1="260" x2="312" y2="260" stroke="#94a3b8" stroke-width="2" marker-end="url(#bdd-triangle-arrow)"></line>
+      <text x="390" y="250" fill="#fde68a" font-size="12" font-weight="700">gate and rerun</text>
+    </svg>
+    <figcaption>Blackbox BDD is about system behavior. The test drives the system, effects prove the middle, and the feature file gives the same behavior a readable review surface.</figcaption>
+  </figure>
+)}
+
+{kind === 'staleness' && (
+  <figure class="bb-code-bdd-diagram" aria-label="Classic BDD staleness compared with Blackbox code-first BDD">
+    <svg viewBox="0 0 900 360" role="img" aria-labelledby="bdd-stale-title bdd-stale-desc">
+      <title id="bdd-stale-title">Classic BDD staleness versus Blackbox BDD</title>
+      <desc id="bdd-stale-desc">Classic BDD can drift between feature files, step definitions, tests, and runtime behavior. Blackbox starts from system tests and checks feature files and runtime effects with gates.</desc>
+      <defs>
+        <marker id="bdd-stale-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"></path>
+        </marker>
+        <marker id="bdd-stale-danger" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0 0 L10 5 L0 10 z" fill="#fb7185"></path>
+        </marker>
+      </defs>
+      <rect x="8" y="8" width="884" height="344" rx="18" fill="#111827" stroke="#374151"></rect>
+      <text x="36" y="44" fill="#f8fafc" font-size="19" font-weight="700">The staleness problem is a synchronization problem</text>
+      <text x="36" y="70" fill="#cbd5e1" font-size="13">Blackbox changes the direction: feature files are checked projections from executable system behavior.</text>
+
+      <text x="218" y="112" text-anchor="middle" fill="#fecaca" font-size="14" font-weight="800">Classic feature-file-first BDD</text>
+      <rect x="54" y="136" width="130" height="54" rx="12" fill="#4c0519" stroke="#fb7185"></rect>
+      <text x="119" y="168" text-anchor="middle" fill="#ffe4e6" font-size="12" font-weight="700">.feature file</text>
+      <line x1="196" y1="163" x2="242" y2="163" stroke="#fb7185" stroke-width="2" stroke-dasharray="5 5" marker-end="url(#bdd-stale-danger)"></line>
+      <rect x="254" y="136" width="130" height="54" rx="12" fill="#4c0519" stroke="#fb7185"></rect>
+      <text x="319" y="168" text-anchor="middle" fill="#ffe4e6" font-size="12" font-weight="700">step defs</text>
+      <line x1="319" y1="198" x2="319" y2="232" stroke="#fb7185" stroke-width="2" stroke-dasharray="5 5" marker-end="url(#bdd-stale-danger)"></line>
+      <rect x="254" y="244" width="130" height="54" rx="12" fill="#4c0519" stroke="#fb7185"></rect>
+      <text x="319" y="276" text-anchor="middle" fill="#ffe4e6" font-size="12" font-weight="700">runtime behavior</text>
+      <text x="218" y="324" text-anchor="middle" fill="#fecaca" font-size="12">Every layer must be hand-kept in sync.</text>
+
+      <text x="676" y="112" text-anchor="middle" fill="#bbf7d0" font-size="14" font-weight="800">Blackbox code-first system-test BDD</text>
+      <rect x="514" y="136" width="130" height="54" rx="12" fill="#172554" stroke="#60a5fa"></rect>
+      <text x="579" y="168" text-anchor="middle" fill="#eff6ff" font-size="12" font-weight="700">system test</text>
+      <line x1="656" y1="163" x2="702" y2="163" stroke="#94a3b8" stroke-width="2" marker-end="url(#bdd-stale-arrow)"></line>
+      <rect x="714" y="136" width="130" height="54" rx="12" fill="#581c87" stroke="#c084fc"></rect>
+      <text x="779" y="168" text-anchor="middle" fill="#faf5ff" font-size="12" font-weight="700">feature file</text>
+      <path d="M779 198 C779 232 579 232 579 198" fill="none" stroke="#fbbf24" stroke-width="2" marker-end="url(#bdd-stale-arrow)"></path>
+      <text x="679" y="224" text-anchor="middle" fill="#fde68a" font-size="12" font-weight="700">drift check</text>
+      <line x1="579" y1="198" x2="579" y2="232" stroke="#94a3b8" stroke-width="2" marker-end="url(#bdd-stale-arrow)"></line>
+      <rect x="514" y="244" width="330" height="54" rx="12" fill="#14532d" stroke="#86efac"></rect>
+      <text x="679" y="276" text-anchor="middle" fill="#f0fdf4" font-size="12" font-weight="700">runtime effects + catalog coverage</text>
+      <text x="676" y="324" text-anchor="middle" fill="#bbf7d0" font-size="12">Readable specs are useful because gates keep them close to behavior.</text>
+    </svg>
+    <figcaption>Classic BDD often made the readable spec the thing everyone had to manually protect. Blackbox makes readable specs a generated and checked layer over system-test behavior.</figcaption>
+  </figure>
+)}
+
+{kind === 'sdd' && (
+  <figure class="bb-code-bdd-diagram" aria-label="Spec-driven development with Blackbox verification">
+    <svg viewBox="0 0 900 300" role="img" aria-labelledby="bdd-sdd-title bdd-sdd-desc">
+      <title id="bdd-sdd-title">Spec-driven development and Blackbox verification</title>
+      <desc id="bdd-sdd-desc">A product spec guides implementation. A system test exercises the implementation. Blackbox verifies runtime behavior with effects, coverage, and generated feature files.</desc>
+      <defs>
+        <marker id="bdd-sdd-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"></path>
+        </marker>
+      </defs>
+      <rect x="8" y="8" width="884" height="284" rx="18" fill="#111827" stroke="#374151"></rect>
+      <text x="36" y="44" fill="#f8fafc" font-size="19" font-weight="700">SDD defines intent. Blackbox verifies the running system.</text>
+      <text x="36" y="70" fill="#cbd5e1" font-size="13">Planning specs and runtime-backed feature files can live side by side without pretending to be the same artifact.</text>
+
+      <rect x="54" y="132" width="142" height="70" rx="13" fill="#0f172a" stroke="#94a3b8"></rect>
+      <text x="125" y="160" text-anchor="middle" fill="#e5e7eb" font-size="13" font-weight="800">Product spec</text>
+      <text x="125" y="181" text-anchor="middle" fill="#cbd5e1" font-size="11">intent and constraints</text>
+      <line x1="208" y1="167" x2="266" y2="167" stroke="#94a3b8" stroke-width="2" marker-end="url(#bdd-sdd-arrow)"></line>
+
+      <rect x="278" y="132" width="142" height="70" rx="13" fill="#172554" stroke="#60a5fa"></rect>
+      <text x="349" y="160" text-anchor="middle" fill="#eff6ff" font-size="13" font-weight="800">System test</text>
+      <text x="349" y="181" text-anchor="middle" fill="#bfdbfe" font-size="11">executable behavior</text>
+      <line x1="432" y1="167" x2="490" y2="167" stroke="#94a3b8" stroke-width="2" marker-end="url(#bdd-sdd-arrow)"></line>
+
+      <rect x="502" y="114" width="172" height="106" rx="14" fill="#14532d" stroke="#86efac"></rect>
+      <text x="588" y="145" text-anchor="middle" fill="#f0fdf4" font-size="14" font-weight="800">Blackbox gate</text>
+      <text x="588" y="169" text-anchor="middle" fill="#bbf7d0" font-size="12">effects + coverage</text>
+      <text x="588" y="190" text-anchor="middle" fill="#86efac" font-size="12">feature files + drift</text>
+      <line x1="686" y1="167" x2="744" y2="167" stroke="#94a3b8" stroke-width="2" marker-end="url(#bdd-sdd-arrow)"></line>
+
+      <rect x="756" y="132" width="90" height="70" rx="13" fill="#78350f" stroke="#fbbf24"></rect>
+      <text x="801" y="160" text-anchor="middle" fill="#fef3c7" font-size="13" font-weight="800">Review</text>
+      <text x="801" y="181" text-anchor="middle" fill="#fde68a" font-size="11">proof before merge</text>
+    </svg>
+    <figcaption>Blackbox does not replace SDD. It adds the runtime proof step after specs become tests and implementation.</figcaption>
+  </figure>
+)}
+
+<style>
+  .bb-code-bdd-diagram {
+    margin: 24px 0;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    overflow-x: auto;
+  }
+
+  .bb-code-bdd-diagram svg {
+    display: block;
+    width: 100%;
+    min-width: 680px;
+    height: auto;
+  }
+
+  .bb-code-bdd-diagram figcaption {
+    margin-top: 10px;
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.55;
+    text-align: center;
+  }
+</style>

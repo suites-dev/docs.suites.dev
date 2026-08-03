@@ -1,0 +1,137 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import OpeningProofClip from '@/components/blackbox/OpeningProofClip.astro';
+import TerminalCast from '@/components/blackbox/TerminalCast.astro';
+---
+
+<BaseLayout title="Sandbox — Opening Proof Clip" description="Iteration page for OpeningProofClip.astro" showFooter={false}>
+  <main class="sandbox">
+    <header class="sandbox-head">
+      <p class="sandbox-tag">sandbox</p>
+      <h1>Opening Proof Clip</h1>
+      <p class="sandbox-sub">
+        Iteration page for <code>src/components/blackbox/OpeningProofClip.astro</code>. Once we like it, we embed it on
+        <code>/docs/blackbox/overview/what-is-blackbox</code> above the Verification Debt diagram.
+      </p>
+      <ul class="sandbox-meta">
+        <li><strong>Target:</strong> ~8s, 4 scenes, single card, ~220px tall</li>
+        <li><strong>Surface:</strong> two-line code diff + chip row + coverage strip</li>
+        <li><strong>Honors:</strong> <code>prefers-reduced-motion</code>, IntersectionObserver autoplay</li>
+      </ul>
+    </header>
+
+    <section class="sandbox-section">
+      <h2>Default (autoplay on viewport, no loop)</h2>
+      <OpeningProofClip />
+    </section>
+
+    <section class="sandbox-section">
+      <h2>Looped (for stress-testing visual jitter)</h2>
+      <OpeningProofClip autoplay={true} loop={true} />
+    </section>
+
+    <section class="sandbox-section">
+      <h2>Manual only (no autoplay)</h2>
+      <OpeningProofClip autoplay={false} />
+      <p class="sandbox-hint">Use this variant to test the replay button in isolation.</p>
+    </section>
+
+    <section class="sandbox-section">
+      <h2>Terminal cast (typed playback of the demo script)</h2>
+      <p class="sandbox-hint">
+        Simulated stream of <code>scripts/demo-isolation.sh</code> Step 3 (per-worker compose). Lines appear in real time with per-line pacing; the command line types char-by-char.
+      </p>
+      <TerminalCast />
+    </section>
+
+    <section class="sandbox-section">
+      <h2>Terminal cast (looped)</h2>
+      <TerminalCast autoplay={true} loop={true} title="scripts/demo-isolation.sh — looping for jitter check" />
+    </section>
+
+    <section class="sandbox-section">
+      <h2>Scene reference</h2>
+      <ol class="sandbox-scenes">
+        <li><strong>0 (0-1.6s):</strong> Only the response assertion is visible. <code>✓ 201</code> pill on the right. Verdict: <code>response 201</code>.</li>
+        <li><strong>1 (1.6-3.2s):</strong> The <code>+ await expect(capture).toMatchCatalog()</code> line slides in. Verdict: <code>capturing…</code>.</li>
+        <li><strong>2 (3.2-6.0s):</strong> Six chips stagger in: four green (required boundaries), two amber (forbidden absent). Verdict: <code>matching catalog…</code>.</li>
+        <li><strong>3 (6.0-8.4s):</strong> Bottom strip fills to 100%, verdict turns green: <code>satisfied 1 / 1</code>. Replay button fades in.</li>
+      </ol>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .sandbox {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+    color: var(--text, #e2e8f0);
+  }
+  .sandbox-head { margin-bottom: 32px; }
+  .sandbox-tag {
+    margin: 0 0 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #f59e0b;
+  }
+  .sandbox h1 {
+    margin: 0 0 8px;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text-primary, #f8fafc);
+  }
+  .sandbox-sub {
+    margin: 0 0 14px;
+    color: var(--text-secondary, #94a3b8);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .sandbox-sub code,
+  .sandbox-scenes code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    padding: 1px 6px;
+    background: rgba(148, 163, 184, 0.12);
+    border-radius: 4px;
+  }
+  .sandbox-meta {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    font-size: 12.5px;
+    color: var(--text-secondary, #94a3b8);
+  }
+  .sandbox-meta li { white-space: nowrap; }
+  .sandbox-meta strong { color: var(--text-primary, #f8fafc); }
+
+  .sandbox-section {
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border, #1f2937);
+  }
+  .sandbox-section h2 {
+    margin: 0 0 12px;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary, #f8fafc);
+  }
+  .sandbox-hint {
+    margin: 8px 4px 0;
+    font-size: 12px;
+    color: var(--text-secondary, #94a3b8);
+  }
+  .sandbox-scenes {
+    margin: 0;
+    padding-left: 20px;
+    color: var(--text-secondary, #cbd5e1);
+    font-size: 13.5px;
+    line-height: 1.7;
+  }
+  .sandbox-scenes strong { color: var(--text-primary, #f8fafc); }
+</style>

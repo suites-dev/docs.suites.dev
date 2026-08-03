@@ -1,0 +1,162 @@
+---
+title: "AI-Assisted Development"
+description: "Use Blackbox as an external behavioral gate for agent-authored code, tests, and generated behavior specs."
+sidebar_position: 5
+keywords: ["agentic coding", "ai output verification", "llm output verification", "verification debt", "behavioral verification"]
+toc_min_heading_level: 2
+seo:
+  primary_keyword: "agentic coding"
+  secondary_keywords: ["ai output verification", "llm output verification", "agent output verification", "verification debt"]
+  search_intent: "teams adopting AI coding agents and looking for ways to verify their output before merge"
+  snippet_angle: "agentic coding needs runtime behavior verification because plausible code is not the same as proven behavior"
+---
+
+import AgenticBddWizard from '@/components/blackbox/AgenticBddWizard.astro';
+
+AI-assisted development changes the speed of software change. It does not change the need for proof.
+
+Blackbox helps by putting a behavioral checker outside the agent loop. The agent can write code, reshape tests, or draft behavior language, but the merge decision can still depend on runtime effects, effect coverage, feature-file drift, and human review.
+
+<AgenticBddWizard />
+
+## The Problem
+
+Agent-authored changes can look complete before they are behaviorally correct. The code can be plausible, the explanation can sound confident, and a narrow assertion can pass while the system skipped a queue message, missed an audit write, called the wrong dependency, or changed a feature file without proving the runtime behavior.
+
+That creates verification debt: the gap between generated output and proven behavior.
+
+Blackbox does not make an agent trustworthy by itself. It gives the workflow evidence the agent did not invent.
+
+## Two Useful Agent Loops
+
+There are two common loops.
+
+| Loop | What the agent does | What Blackbox checks |
+| --- | --- | --- |
+| Existing behavior | The agent changes implementation or refactors code behind existing system tests | Runtime effects, catalog matchers, effect coverage, OMC/DC, and optional observation comparison |
+| New behavior | The agent drafts a system test before implementation exists, then emits a feature file for review | Test shape, generated behavior language, feature-file drift, then runtime effects once implementation catches up |
+
+The first loop is about protecting known behavior. The second loop is about shaping new behavior before trusting generated implementation.
+
+## Code-First BDD With Agents
+
+For new behavior, the useful direction is code-first and system-test-first:
+
+1. The user describes the intended system behavior.
+2. The agent drafts a Playwright system test that drives the behavior through a real boundary.
+3. Blackbox emits a `.feature` file from that test source.
+4. The user reviews the feature file as behavior language.
+5. The agent revises the test and generated feature file until the behavior reads correctly.
+6. Implementation catches up to the approved system-test shape.
+7. Runtime effects, effect catalogs, coverage, and drift gates verify whether the behavior actually happened.
+
+This is different from asking the agent to write a feature file first and then trust itself to implement it. The feature file is a reviewable projection from the executable behavior the agent is preparing to make pass.
+
+## Runtime Proof For Agent Changes
+
+For an existing system, start with the normal system-test command and let Blackbox produce evidence from the run:
+
+```bash
+pnpm test:system
+```
+
+Then use the Blackbox artifacts in review:
+
+```text
+effect coverage: satisfied 7, missing 1, forbidden 0
+feature drift: no drift detected
+omcdc: 3/4 decisions observed through effects
+```
+
+The exact commands depend on the project setup, but the review question is stable:
+
+> Which runtime effects, feature files, and gates prove the agent changed the system correctly?
+
+## Prompt Patterns
+
+Three prompt shapes hold up across agent vendors. Treat them as starting points: the value comes from naming the showcase entities (`subscribe-flow`, `alice`, `ghost-user`, the five-service topology) explicitly so the agent grounds its output in real artifacts.
+
+**Generating an effect catalog from an existing test:**
+
+```text
+Read the Playwright system test at e2e/tests/subscribe-flow.spec.ts and the
+existing coverage artifacts under e2e/.blackbox-coverage/.
+Produce a draft effect catalog for `subscribe-flow` that lists:
+- requires: boundary effects that should appear when alice subscribes
+- forbids: boundary effects that should stay absent when ghost-user is rejected
+Use only boundaries observed in the five-service topology (BFF, Redis,
+Postgres, payment-http, SQS). Return a YAML catalog. Do not invent boundaries.
+```
+
+**Reshaping an existing test into the scenario DSL:**
+
+```text
+Convert the Playwright test at e2e/tests/subscribe-flow.spec.ts into the
+Blackbox scenario DSL. Preserve the existing assertions. Group setup under
+`background`, the alice happy-path under `given/when/then`, and add a
+`then.requires([...])` block for the boundary effects already covered by the
+existing test's response assertions. Return only the new test file.
+```
+
+**Reviewing a failing coverage report:**
+
+```text
+Here is the latest .blackbox-coverage/catalog/coverage.json for `subscribe-flow`.
+Identify, in plain English, which required effects are missing, which
+forbidden effects appeared, and which observed effects are not yet
+cataloged. For each missing effect, propose the most likely source-code
+location to investigate. Do not propose a code fix.
+```
+
+Each pattern keeps the agent in a checker or translator role, never the final judge of correctness. The catalog, the DSL output, and the review summary all return to the human or the CI gate for verification.
+
+## What To Gate
+
+Do not put every gate in the first agent workflow. Choose the signal that matches the risk.
+
+| Gate | Use it when |
+| --- | --- |
+| System test pass/fail | Every agent-authored behavior change |
+| Effect catalog matchers | Required or forbidden side effects matter |
+| Effect coverage | Reviewers need to see which cataloged effects were exercised |
+| Feature-file drift | Generated or committed `.feature` files are part of review |
+| OMC/DC coverage | Decision-sensitive behavior should be visible through effects |
+| Observation comparison | A refactor or test reshape should preserve meaningful runtime behavior |
+
+The strongest workflow combines at least three surfaces: the test diff, the effect report, and the readable behavior artifact.
+
+## Maker And Checker Split
+
+Treat the agent as a maker, not the final judge.
+
+1. The maker changes code or tests.
+2. The checker runs the system test and Blackbox gates.
+3. The checker reports pass, fail, or uncertain against explicit artifacts.
+4. The human reviewer decides whether the evidence is enough to merge.
+
+The checker can be another automated process, another agent, or CI. The important part is that the checker reads runtime artifacts and exit codes rather than trusting the maker's summary.
+
+## What Not To Claim
+
+Blackbox is not an AI coding tool. It does not infer product intent from a prompt, and it does not prove every requirement in a planning spec.
+
+It verifies a narrower and more useful thing: the behavior observed during a controlled system or E2E run. That is enough to make agentic development safer because the agent must answer to evidence from the running system.
+
+## What Success Looks Like
+
+A useful AI-assisted loop ends with a review packet:
+
+1. The implementation diff.
+2. The system test or feature-file diff.
+3. The effect catalog change, if behavior changed.
+4. The effect coverage report.
+5. Any feature-file drift, OMC/DC, or observation-comparison output.
+
+The agent can summarize that packet, but the artifacts remain inspectable by humans and CI.
+
+## What To Read Next
+
+1. [Tests, Effects, and Feature Files](/docs/blackbox/overview/tests-effects-and-feature-files)
+2. [Feature Files From Tests](/docs/blackbox/quickstart/feature-files-from-tests)
+3. [Generating Feature Files](/docs/blackbox/guides/generating-feature-files)
+4. [Configure CI Gates](/docs/blackbox/guides/ci-behavioral-gates)

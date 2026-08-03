@@ -1,0 +1,247 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import TerminalCast from '@/components/blackbox/TerminalCast.astro';
+
+type CastLine =
+  | { kind: 'header'; text: string; pauseAfter?: number }
+  | { kind: 'step'; n: number; total: number; title: string; pauseAfter?: number }
+  | { kind: 'subhead'; text: string; pauseAfter?: number }
+  | { kind: 'explain'; text: string; speed?: number; pauseAfter?: number; instant?: boolean }
+  | { kind: 'narrate'; text: string; speed?: number; pauseAfter?: number; instant?: boolean }
+  | { kind: 'cmd'; text: string; speed?: number; pauseAfter?: number; instant?: boolean }
+  | { kind: 'out'; text: string; speed?: number; pauseAfter?: number; instant?: boolean }
+  | { kind: 'pass'; text: string; pauseAfter?: number }
+  | { kind: 'fail'; text: string; pauseAfter?: number }
+  | { kind: 'info'; text: string; pauseAfter?: number }
+  | { kind: 'warn'; text: string; pauseAfter?: number }
+  | { kind: 'blank'; pauseAfter?: number }
+  | { kind: 'pause'; ms: number };
+
+// Curated transcript: a tightened version of step 3 from
+// scripts/demo-isolation.sh — per-worker compose stacks proving isolation.
+// Real script grounding, plausible (pretend) parser output.
+const step3: CastLine[] = [
+  { kind: 'step', n: 3, total: 4, title: "per-worker SUT — kind:'compose', workers:2", pauseAfter: 220 },
+  { kind: 'blank' },
+  {
+    kind: 'explain',
+    text: "Now the isolation engine activates. With kind: 'compose' the kit spins up an",
+    pauseAfter: 30,
+  },
+  { kind: 'explain', text: 'independent compose stack per Playwright worker:', pauseAfter: 220 },
+  { kind: 'explain', text: '', pauseAfter: 0 },
+  { kind: 'explain', text: '  worker 0  →  project blackbox-e2e-w0  (own PG, Redis, SQS, services)', pauseAfter: 30 },
+  { kind: 'explain', text: '  worker 1  →  project blackbox-e2e-w1  (own PG, Redis, SQS, services)', pauseAfter: 260 },
+  { kind: 'explain', text: '', pauseAfter: 0 },
+  {
+    kind: 'explain',
+    text: 'Crucially the COLLISION tests now run: concurrent Redis INCR on the same',
+    pauseAfter: 30,
+  },
+  { kind: 'explain', text: "key, concurrent PG INSERT on the same UNIQUE row. Under shared state they'd", pauseAfter: 30 },
+  { kind: 'explain', text: "race; under per-worker isolation they don't.", pauseAfter: 320 },
+  { kind: 'blank' },
+  { kind: 'subhead', text: 'the new collision tests', pauseAfter: 200 },
+  { kind: 'blank' },
+  { kind: 'out', text: '  09  collision/redis-incr.spec.ts', speed: 6 },
+  { kind: 'out', text: '  10  collision/pg-unique.spec.ts', speed: 6 },
+  { kind: 'out', text: '  11  collision/native-describes.spec.ts', speed: 6, pauseAfter: 380 },
+  { kind: 'blank' },
+  { kind: 'cmd', text: 'BLACKBOX_ISOLATION=compose npx playwright test --workers 2', speed: 22, pauseAfter: 260 },
+  { kind: 'info', text: 'running: compose-w2', pauseAfter: 200 },
+  { kind: 'blank' },
+  { kind: 'out', text: '    Running 42 tests using 2 workers', speed: 4, pauseAfter: 200 },
+  { kind: 'out', text: '    [w0] ✓ subscribe-flow › alice subscribes (3.1s)', instant: true },
+  { kind: 'out', text: '    [w1] ✓ subscribe-flow › bob subscribes (3.0s)', instant: true },
+  { kind: 'out', text: '    [w0] ✓ collision/redis-incr › concurrent INCR no race (1.2s)', instant: true },
+  { kind: 'out', text: '    [w1] ✓ collision/pg-unique › concurrent INSERT no race (1.4s)', instant: true },
+  { kind: 'out', text: '    [w0] ✓ collision/native-describes › sibling tests do not bleed (0.9s)', instant: true },
+  { kind: 'pause', ms: 350 },
+  { kind: 'out', text: '    ... 37 more tests passed', instant: true, pauseAfter: 200 },
+  { kind: 'out', text: '    42 passed (1m 04s)', instant: true, pauseAfter: 280 },
+  { kind: 'blank' },
+  { kind: 'pass', text: 'compose-w2  (64s)  42 passed', pauseAfter: 280 },
+  { kind: 'info', text: 'stack overlap: 21:14:08_to_21:14:51  (43s)', pauseAfter: 80 },
+  { kind: 'info', text: 'projects: blackbox-e2e-w0 blackbox-e2e-w1', pauseAfter: 320 },
+  { kind: 'blank' },
+  { kind: 'subhead', text: 'the artifacts after compose-mode run', pauseAfter: 200 },
+  { kind: 'blank' },
+  { kind: 'out', text: '  effect catalog  (subscribe-flow)', speed: 6 },
+  { kind: 'out', text: '    requires: 4   observed 4', instant: true },
+  { kind: 'out', text: '    forbids:  2   absent   2', instant: true },
+  { kind: 'out', text: '    coverage: satisfied', instant: true, pauseAfter: 260 },
+  { kind: 'blank' },
+  { kind: 'out', text: '  shape coverage  (14 shapes)', speed: 6 },
+  { kind: 'out', text: '    shape:http-post-subscriptions       hits 12', instant: true },
+  { kind: 'out', text: '    shape:pg-insert-subscriptions       hits  6', instant: true },
+  { kind: 'out', text: '    shape:redis-set-tier                hits  6', instant: true },
+  { kind: 'out', text: '    shape:sqs-send-subscription-order   hits  6', instant: true },
+  { kind: 'out', text: '    ... 10 more shapes', instant: true, pauseAfter: 260 },
+  { kind: 'blank' },
+  { kind: 'out', text: '  OMC/DC propagation  (decisions)', speed: 6 },
+  { kind: 'out', text: '    BFF.subscribe.shouldRefund    T+F  distinguishable', instant: true },
+  { kind: 'out', text: '    BFF.subscribe.shouldEnqueue   T+F  distinguishable', instant: true },
+  { kind: 'out', text: '    payment.handler.knownUser     T+F  distinguishable', instant: true, pauseAfter: 360 },
+  { kind: 'blank' },
+  {
+    kind: 'narrate',
+    text: 'The overlap window is the proof: two per-worker SUTs alive at the same wall-clock',
+    pauseAfter: 30,
+  },
+  {
+    kind: 'narrate',
+    text: "moment, each running its share of tests without seeing the other's state.",
+    pauseAfter: 360,
+  },
+];
+
+const compact: CastLine[] = [
+  { kind: 'cmd', text: 'pnpm test:system', speed: 24, pauseAfter: 220 },
+  { kind: 'out', text: '', pauseAfter: 0 },
+  { kind: 'out', text: '✓ subscribe-flow › alice subscribes', speed: 10 },
+  { kind: 'out', text: '✓ response 201 Created', speed: 10, pauseAfter: 240 },
+  { kind: 'blank' },
+  { kind: 'out', text: 'blackbox: captured 4 effects', speed: 12 },
+  { kind: 'out', text: '  http      POST /v1/payment_intents', instant: true },
+  { kind: 'out', text: '  postgres  INSERT subscriptions', instant: true },
+  { kind: 'out', text: '  redis     SET user:alice:tier', instant: true },
+  { kind: 'out', text: '  sqs       SendMessage subscription.created', instant: true, pauseAfter: 260 },
+  { kind: 'blank' },
+  { kind: 'out', text: 'blackbox: matching subscribe-flow against catalog', speed: 12 },
+  { kind: 'out', text: 'requires: 4/4 observed', instant: true },
+  { kind: 'out', text: 'forbids:  2/2 absent', instant: true, pauseAfter: 220 },
+  { kind: 'pass', text: 'effect coverage: satisfied', pauseAfter: 320 },
+  { kind: 'blank' },
+  { kind: 'narrate', text: 'written: .blackbox-coverage/catalog/coverage.json', pauseAfter: 280 },
+];
+---
+
+<BaseLayout title="Sandbox — Terminal Cast" description="Typed terminal replay component" showFooter={false}>
+  <main class="sandbox">
+    <header class="sandbox-head">
+      <p class="sandbox-tag">sandbox</p>
+      <h1>Terminal Cast</h1>
+      <p class="sandbox-sub">
+        Typewriter replay of curated CLI output. Source: <code>~/projects/suites/blackbox/scripts/demo-isolation.sh</code> step 3 (per-worker compose).
+        Content is a pretend recording; real demo lives in the kit repo, this is the styling rehearsal.
+      </p>
+      <ul class="sandbox-meta">
+        <li><strong>Component:</strong> <code>TerminalCast.astro</code></li>
+        <li><strong>Controls:</strong> pause / resume / replay / skip-to-end</li>
+        <li><strong>Honors:</strong> <code>prefers-reduced-motion</code> renders final frame</li>
+      </ul>
+    </header>
+
+    <section class="sandbox-section">
+      <h2>Step 3 — per-worker compose (full narration, ~28s)</h2>
+      <p class="sandbox-hint">The full narrator-style demo. Use for a dedicated "see it run" page, not the front page.</p>
+      <TerminalCast title="bash scripts/demo-isolation.sh" lines={step3} maxHeight={560} />
+    </section>
+
+    <section class="sandbox-section">
+      <h2>Compact — single test run (~8s)</h2>
+      <p class="sandbox-hint">Just the meaningful output. Could embed near a Quickstart code block as the "what you see after the test passes" payoff.</p>
+      <TerminalCast title="pnpm test:system" lines={compact} maxHeight={360} />
+    </section>
+
+    <section class="sandbox-section">
+      <h2>Looped (for visual jitter testing)</h2>
+      <TerminalCast title="pnpm test:system" lines={compact} loop={true} maxHeight={360} />
+    </section>
+
+    <section class="sandbox-section">
+      <h2>Manual only (no autoplay)</h2>
+      <p class="sandbox-hint">Press <code>replay</code> in the chrome bar to start.</p>
+      <TerminalCast title="pnpm test:system" lines={compact} autoplay={false} maxHeight={360} />
+    </section>
+
+    <section class="sandbox-section">
+      <h2>Line kinds reference</h2>
+      <ul class="sandbox-kinds">
+        <li><code>header</code> : magenta block headline with double-rule</li>
+        <li><code>step</code> : <code>STEP n/total title</code>, single-rule above</li>
+        <li><code>subhead</code> : cyan <code>── label ──</code></li>
+        <li><code>explain</code> : blue <code>│</code> bar, default body text</li>
+        <li><code>narrate</code> : dim italic</li>
+        <li><code>cmd</code> : bold white with cyan <code>$</code> prompt</li>
+        <li><code>out</code> : default mono output</li>
+        <li><code>pass</code> / <code>fail</code> / <code>info</code> / <code>warn</code> : colored mark badge plus message</li>
+        <li><code>blank</code> : empty line</li>
+        <li><code>pause</code> : pure delay (<code>ms</code>) with nothing rendered</li>
+      </ul>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .sandbox {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+    color: var(--text, #e2e8f0);
+  }
+  .sandbox-head { margin-bottom: 32px; }
+  .sandbox-tag {
+    margin: 0 0 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #f59e0b;
+  }
+  .sandbox h1 {
+    margin: 0 0 8px;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text-primary, #f8fafc);
+  }
+  .sandbox-sub {
+    margin: 0 0 14px;
+    color: var(--text-secondary, #94a3b8);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .sandbox-sub code,
+  .sandbox-hint code,
+  .sandbox-kinds code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    padding: 1px 6px;
+    background: rgba(148, 163, 184, 0.12);
+    border-radius: 4px;
+  }
+  .sandbox-meta {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    font-size: 12.5px;
+    color: var(--text-secondary, #94a3b8);
+  }
+  .sandbox-meta strong { color: var(--text-primary, #f8fafc); }
+  .sandbox-section {
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border, #1f2937);
+  }
+  .sandbox-section h2 {
+    margin: 0 0 6px;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary, #f8fafc);
+  }
+  .sandbox-hint {
+    margin: 4px 0 12px;
+    font-size: 12.5px;
+    color: var(--text-secondary, #94a3b8);
+  }
+  .sandbox-kinds {
+    margin: 0;
+    padding-left: 20px;
+    color: var(--text-secondary, #cbd5e1);
+    font-size: 13.5px;
+    line-height: 1.7;
+  }
+</style>

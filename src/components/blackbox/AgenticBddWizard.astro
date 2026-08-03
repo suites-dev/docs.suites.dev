@@ -1,0 +1,352 @@
+---
+const steps = [
+  {
+    id: 'intent',
+    label: 'Intent',
+    title: 'User describes the behavior',
+    body: 'The user asks for a system behavior, not an implementation detail. The agent starts by drafting the executable behavior loop.',
+    artifact: 'User intent',
+    snippet: 'When Alice subscribes to the pro tier, the system should persist the subscription and publish a subscription.created event.',
+  },
+  {
+    id: 'test',
+    label: 'Draft test',
+    title: 'Agent writes the system test first',
+    body: 'Before implementation exists, the agent creates or reshapes a Playwright system test that drives the behavior through the real boundary.',
+    artifact: 'System test',
+    snippet: `test.system('subscribe-flow', 'alice subscribes to pro', () => {
+  test('alice subscribes', async ({ request, system, capture }) => {
+    const response = await request.post(\`\${system.bff.hostBaseUrl}/subscriptions\`, {
+      data: { userId: 'alice', paymentMethodId: 'pm_card_visa' },
+    });
+
+    expect(response.status()).toBe(201);
+    await expect(capture).toMatchCatalog();
+  });
+});`,
+  },
+  {
+    id: 'feature',
+    label: 'Emit feature',
+    title: 'Blackbox emits a readable feature file',
+    body: 'The feature file is generated from the test source. The user reviews behavior language before trusting implementation work.',
+    artifact: 'Feature file',
+    snippet: `Feature: subscribing to the pro tier
+
+  Scenario: alice subscribes with a valid card
+    When alice POSTs /subscriptions with a valid card
+    Then the response status is 201`,
+  },
+  {
+    id: 'review',
+    label: 'Review',
+    title: 'User and agent refine the behavior',
+    body: 'The user can ask for the behavior to read differently. The agent revises the system test, then emits the feature file again.',
+    artifact: 'Review loop',
+    snippet: `user: "Add that an event must be published."
+agent: updates test/capture expectation
+blackbox: emits the feature file again`,
+  },
+  {
+    id: 'runtime',
+    label: 'Runtime',
+    title: 'Implementation catches up to the test',
+    body: 'After the behavior reads correctly, implementation work runs against the same test. Runtime effects decide whether the behavior really happened.',
+    artifact: 'Runtime evidence',
+    snippet: `captured effects
+  postgres   INSERT subscriptions
+  sqs        SendMessage subscription.created
+
+effect coverage: satisfied 1 (100%)`,
+  },
+  {
+    id: 'gate',
+    label: 'Gate',
+    title: 'CI gates the closed loop',
+    body: 'The merge gate can check feature-file drift, effect catalog matchers, coverage, and optional observation comparison.',
+    artifact: 'Verification gate',
+    snippet: `features check: no drift detected
+system tests: passed
+effect coverage: satisfied
+review: human signoff required`,
+  },
+];
+---
+
+<section class="bb-agent-wizard" aria-label="Agentic code-first BDD wizard" data-agent-wizard>
+  <div class="bb-agent-wizard-head">
+    <div>
+      <strong>Interactive workflow</strong>
+      <h2>Agent Drafts The Test, Blackbox Emits The Behavior</h2>
+      <p>Click through the loop: the agent starts with a system test, emits a feature file for review, then implementation is verified by runtime effects.</p>
+    </div>
+    <div class="bb-agent-wizard-count" aria-live="polite">
+      <span data-wizard-count>Step 1 of {steps.length}</span>
+    </div>
+  </div>
+
+  <ol class="bb-agent-wizard-tabs" aria-label="Agentic workflow steps">
+    {steps.map((step, index) => (
+      <li>
+        <button
+          type="button"
+          class={index === 0 ? 'is-active' : ''}
+          data-wizard-step={index}
+          aria-current={index === 0 ? 'step' : undefined}
+        >
+          <span>{index + 1}</span>
+          {step.label}
+        </button>
+      </li>
+    ))}
+  </ol>
+
+  <div class="bb-agent-wizard-stage">
+    <div class="bb-agent-wizard-copy">
+      <span data-wizard-artifact>{steps[0].artifact}</span>
+      <h3 data-wizard-title>{steps[0].title}</h3>
+      <p data-wizard-body>{steps[0].body}</p>
+    </div>
+    <pre class="bb-agent-wizard-code" aria-label="Current workflow artifact"><code data-wizard-snippet>{steps[0].snippet}</code></pre>
+  </div>
+
+  <div class="bb-agent-wizard-actions">
+    <button type="button" data-wizard-prev disabled>Previous</button>
+    <button type="button" data-wizard-next>Next</button>
+  </div>
+</section>
+
+<script define:vars={{ steps }}>
+  const wizards = Array.from(document.querySelectorAll('[data-agent-wizard]'));
+
+  wizards.forEach((wizard) => {
+    const buttons = Array.from(wizard.querySelectorAll('[data-wizard-step]'));
+    const count = wizard.querySelector('[data-wizard-count]');
+    const artifact = wizard.querySelector('[data-wizard-artifact]');
+    const title = wizard.querySelector('[data-wizard-title]');
+    const body = wizard.querySelector('[data-wizard-body]');
+    const snippet = wizard.querySelector('[data-wizard-snippet]');
+    const previous = wizard.querySelector('[data-wizard-prev]');
+    const next = wizard.querySelector('[data-wizard-next]');
+    let active = 0;
+
+    const render = (index) => {
+      active = Math.max(0, Math.min(index, steps.length - 1));
+      const step = steps[active];
+
+      buttons.forEach((button, i) => {
+        const isActive = i === active;
+        button.classList.toggle('is-active', isActive);
+        if (isActive) {
+          button.setAttribute('aria-current', 'step');
+        } else {
+          button.removeAttribute('aria-current');
+        }
+      });
+
+      if (count !== null) count.textContent = `Step ${active + 1} of ${steps.length}`;
+      if (artifact !== null) artifact.textContent = step.artifact;
+      if (title !== null) title.textContent = step.title;
+      if (body !== null) body.textContent = step.body;
+      if (snippet !== null) snippet.textContent = step.snippet;
+
+      if (previous instanceof HTMLButtonElement) previous.disabled = active === 0;
+      if (next instanceof HTMLButtonElement) next.disabled = active === steps.length - 1;
+    };
+
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => {
+        render(Number(button.getAttribute('data-wizard-step') ?? '0'));
+      });
+    });
+
+    previous?.addEventListener('click', () => render(active - 1));
+    next?.addEventListener('click', () => render(active + 1));
+  });
+</script>
+
+<style>
+  .bb-agent-wizard {
+    margin: 28px 0;
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .bb-agent-wizard-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 18px;
+    align-items: start;
+  }
+
+  .bb-agent-wizard-head strong,
+  .bb-agent-wizard-copy > span {
+    display: inline-flex;
+    width: fit-content;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: rgba(96, 165, 250, 0.12);
+    color: #93c5fd;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .bb-agent-wizard-head h2 {
+    margin: 12px 0 8px;
+  }
+
+  .bb-agent-wizard-head p,
+  .bb-agent-wizard-copy p {
+    margin: 0;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .bb-agent-wizard-count {
+    padding: 7px 10px;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    border-radius: 999px;
+    color: var(--text-muted);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .bb-agent-wizard-tabs {
+    display: flex;
+    gap: 8px;
+    margin: 20px 0;
+    padding: 0;
+    overflow-x: auto;
+    list-style: none;
+  }
+
+  .bb-agent-wizard-tabs li {
+    margin: 0;
+    padding: 0;
+  }
+
+  .bb-agent-wizard-tabs button {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    min-height: 36px;
+    padding: 0 12px;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.42);
+    color: var(--text-muted);
+    cursor: pointer;
+    font: inherit;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .bb-agent-wizard-tabs button span {
+    display: grid;
+    width: 20px;
+    height: 20px;
+    place-items: center;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.16);
+    color: inherit;
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  .bb-agent-wizard-tabs button.is-active,
+  .bb-agent-wizard-tabs button:hover,
+  .bb-agent-wizard-tabs button:focus-visible {
+    border-color: #60a5fa;
+    background: rgba(96, 165, 250, 0.12);
+    color: #bfdbfe;
+  }
+
+  .bb-agent-wizard-tabs button.is-active span,
+  .bb-agent-wizard-tabs button:hover span,
+  .bb-agent-wizard-tabs button:focus-visible span {
+    background: #60a5fa;
+    color: #0f172a;
+  }
+
+  .bb-agent-wizard-stage {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: 18px;
+    align-items: stretch;
+  }
+
+  .bb-agent-wizard-copy {
+    display: grid;
+    align-content: start;
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.025);
+  }
+
+  .bb-agent-wizard-copy h3 {
+    margin: 0;
+  }
+
+  .bb-agent-wizard-code {
+    min-height: 240px;
+    margin: 0;
+    padding: 16px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 8px;
+    background: #0f172a;
+    color: #e5e7eb;
+    overflow: auto;
+    font-family: var(--font-code);
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+
+  .bb-agent-wizard-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .bb-agent-wizard-actions button {
+    min-height: 36px;
+    padding: 0 12px;
+    border: 1px solid rgba(96, 165, 250, 0.38);
+    border-radius: 6px;
+    background: rgba(96, 165, 250, 0.1);
+    color: #bfdbfe;
+    cursor: pointer;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 850;
+  }
+
+  .bb-agent-wizard-actions button:hover,
+  .bb-agent-wizard-actions button:focus-visible {
+    border-color: rgba(96, 165, 250, 0.7);
+    background: rgba(96, 165, 250, 0.16);
+    color: var(--text);
+  }
+
+  .bb-agent-wizard-actions button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 820px) {
+    .bb-agent-wizard-head,
+    .bb-agent-wizard-stage {
+      grid-template-columns: 1fr;
+    }
+
+    .bb-agent-wizard-count {
+      width: fit-content;
+    }
+  }
+</style>

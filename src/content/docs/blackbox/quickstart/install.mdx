@@ -1,0 +1,175 @@
+---
+title: "Install Blackbox"
+description: "Show project-local installation, CLI verification, upgrade notes, and uninstall expectations."
+sidebar_position: 2
+---
+
+import Aside from '@/components/mdx/Aside.astro';
+import InstrumentationFlowDiagram from '@/components/blackbox/InstrumentationFlowDiagram.astro';
+import Tabs from '@/components/mdx/Tabs.astro';
+import TabItem from '@/components/mdx/TabItem.astro';
+
+## Abstract
+
+Installation is the first step toward visibility. A **project-local install** adds Blackbox to the workspace package that owns your system tests, not to a global toolchain or production dependency set.
+
+Blackbox has two install surfaces:
+
+1. `@suites/blackbox`, the runtime and testbed package used by Playwright system tests.
+2. `@suites/blackbox-cli`, the package that provides the `blackbox` binary for feature checks, coverage replay, and instrumentation commands.
+
+Your **system under test (SUT)** is the service or topology Blackbox observes during the run. Install the packages, then verify the binary before you run a proof flow.
+
+<Aside type="info" title="Test-Time Instrumentation">
+Blackbox instruments compatible Node SUT containers during the test run. The compose testbed mounts the bootstrap, shadows the service's Node binary with `node-wrap`, and preloads `bootstrap.cjs` before application code. Service source and production Dockerfiles do not need OpenTelemetry imports.
+</Aside>
+
+<InstrumentationFlowDiagram />
+
+## Project-Local Install
+
+Install Blackbox in the same package where you run Playwright or your system-test command. This keeps `pnpm exec blackbox` on the same version your tests use.
+
+### Core Runtime
+
+Add the runtime package as a development dependency:
+
+<Tabs groupId="pkg">
+<TabItem value="pnpm" label="pnpm" default>
+
+```bash
+pnpm add -D @suites/blackbox
+```
+
+</TabItem>
+<TabItem value="npm" label="npm">
+
+```bash
+npm install --save-dev @suites/blackbox
+```
+
+</TabItem>
+<TabItem value="yarn" label="yarn">
+
+```bash
+yarn add --dev @suites/blackbox
+```
+
+</TabItem>
+</Tabs>
+
+Use `@suites/blackbox` when test code imports the testbed, Playwright runner helpers, diagnostics, mocks, or runtime APIs. The package is an alpha surface, so pin it through your lockfile and update it intentionally.
+
+You usually do not need to add OpenTelemetry packages manually for the default testbed path. Blackbox can inject its bootstrap when the SUT is a compatible Node container.
+
+### CLI Tooling
+
+Add the CLI package when you want the `blackbox` command:
+
+<Tabs groupId="pkg">
+<TabItem value="pnpm" label="pnpm" default>
+
+```bash
+pnpm add -D @suites/blackbox-cli
+```
+
+</TabItem>
+<TabItem value="npm" label="npm">
+
+```bash
+npm install --save-dev @suites/blackbox-cli
+```
+
+</TabItem>
+<TabItem value="yarn" label="yarn">
+
+```bash
+yarn add --dev @suites/blackbox-cli
+```
+
+</TabItem>
+</Tabs>
+
+`@suites/blackbox-cli` provides command families for `features`, `coverage`, and `otel`. Keep the CLI version aligned with `@suites/blackbox` so generated feature files, coverage replay, and testbed output agree on artifact formats.
+
+## Verification
+
+### Checking the Binary
+
+Run the binary from the package that owns the install:
+
+```bash
+pnpm exec blackbox --help
+pnpm exec blackbox features check --help
+```
+
+A successful run prints the topics and commands the CLI exposes:
+
+```text
+Blackbox CLI - alpha
+
+USAGE
+  $ blackbox [COMMAND]
+
+TOPICS
+  features  Decompile, lint, drift-check, and reshape feature files.
+  coverage  Replay coverage and recompute OMC/DC reports.
+  otel      Static OpenTelemetry instrumentation utilities.
+
+COMMANDS
+  help  Display help for blackbox.
+```
+
+You should see the `features`, `coverage`, and `otel` command topics. This does not prove that the SUT is observable, but it does verify the binary and confirm that the CLI is in the right workspace location.
+
+If `pnpm exec` cannot find `blackbox`, check the current directory first. In a multi-package workspace, installing the CLI at the root does not always make it available inside the package that runs your system tests.
+
+### Validating the Environment
+
+Before the first proof run, confirm that the install can reach the required tools:
+
+1. `node --version` satisfies your project requirements.
+2. Docker is running and can build or pull images.
+3. Playwright can run at least one system test against the SUT.
+4. The SUT starts through a Node command that the testbed can wrap.
+5. The repo has a writable artifact directory, usually `.blackbox-coverage/`.
+
+The CLI does not replace the project-owned system-test command. Your script still starts the topology, runs Playwright, and lets Blackbox collect runtime evidence from that run.
+
+## The Bootstrap Image
+
+The **bootstrap image** carries the OpenTelemetry preload code and wrapper files that Blackbox mounts into Node service containers. It lets the testbed inject observability without changing the service Dockerfile.
+
+If your repo exposes a local build script for the image, run it before the first testbed proof:
+
+```bash
+pnpm build:otel-image
+```
+
+Local development commonly uses an image such as `blackbox-otel-bootstrap:local`. CI can pull a published image instead, or set `BLACKBOX_OTEL_IMAGE` to the image your pipeline should use.
+
+Treat this image as test infrastructure. Rebuild or repull it when you upgrade Blackbox packages, when bootstrap files are missing, or when no spans arrive even though the SUT started.
+
+## Troubleshooting the Install
+
+If the CLI is missing, install `@suites/blackbox-cli` where you run `pnpm exec blackbox`, then reinstall dependencies from the lockfile.
+
+If command topics look different from the docs, align `@suites/blackbox` and `@suites/blackbox-cli` to the same release range:
+
+```bash
+pnpm up @suites/blackbox @suites/blackbox-cli --latest
+```
+
+If the test starts but no runtime evidence appears, the install is not the likely failure point. Check the bootstrap image, the SUT startup command, and whether spans can reach Blackbox during the test.
+
+If you need to remove Blackbox, remove both packages from the system-test package:
+
+```bash
+pnpm remove @suites/blackbox @suites/blackbox-cli
+```
+
+Then review project scripts, generated feature files, and `.blackbox-coverage/` artifacts separately. Package removal should not delete evidence that may still help debugging.
+
+## What To Read Next
+
+Run one controlled proof flow next: [Prove Your First Flow](/docs/blackbox/quickstart/first-proven-feature).

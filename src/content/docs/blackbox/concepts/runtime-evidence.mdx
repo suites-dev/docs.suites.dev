@@ -1,0 +1,136 @@
+---
+title: Runtime Evidence
+description: "Understand how Blackbox transforms system traces and spans into immutable behavioral facts."
+sidebar_position: 2
+---
+
+import Tabs from '@/components/mdx/Tabs.astro';
+import TabItem from '@/components/mdx/TabItem.astro';
+
+Runtime evidence is the material Blackbox trusts from a real system run. It is the observed record of what happened while the system executed.
+
+Blackbox trusts what the system actually did, not what a stale feature file says it should do. Runtime evidence is the raw material of behavioral proof.
+
+## What is Runtime Evidence?
+
+**Runtime evidence** is the captured record of observable behavior from a running system. In Blackbox, that record starts with **OpenTelemetry spans** and **system traces** produced during a Playwright-driven system or end-to-end run.
+
+Those traces matter because they come from execution. They show that `alice` POSTed through the `subscribe-flow` and that the request crossed the expected showcase boundaries.
+
+Blackbox treats runtime evidence as an **immutable source of truth** for that run. You can accept a newer run, revise a catalog, or regenerate a readable feature file, but you should not edit the evidence to make the result look cleaner. The evidence is useful because it is anchored to what the system actually did.
+
+That makes runtime evidence different from **Written Intent**. Written Intent includes specs, feature files, tickets, and checklists that describe what should happen. Those artifacts are useful for planning and review, but they are not proof.
+
+Runtime evidence answers a narrower and stronger question:
+
+1. What did this run observe?
+2. Which boundary crossings happened?
+3. Which expected effects appeared?
+4. Which forbidden effects stayed absent?
+5. Which facts can a reviewer or CI gate trust afterward?
+
+## Beyond Trace-Based Testing
+
+Trace-based testing usually starts and ends with trace shape. A test asserts that a span exists, an attribute has a value, or a trace contains a specific parent-child relationship.
+
+Blackbox uses traces, but it does not stop at trace assertions. The span is input. The useful output is a set of **behavioral facts** that connect a run to reviewed behavior.
+
+For `subscribe-flow`, a raw trace can show that the BFF, Redis, Postgres, payment HTTP boundary, and SQS boundary were involved. That is useful, but it is still too low-level for most reviews. A reviewer wants to know whether the subscription behavior was proven, whether a required boundary effect was missing, or whether the `ghost-user` path avoided the payment and queue boundaries.
+
+Trace-based testing asks whether trace data matched a trace expectation. Blackbox asks whether runtime evidence proves the behavior your team decided to require or forbid. Traces are evidence, not the contract itself.
+
+## Characterization Testing: Capturing the "Now"
+
+**Characterization testing** captures existing behavior before you change a system. It is useful when the system is valuable, the current behavior matters, and the team does not fully trust written documentation.
+
+Blackbox applies that idea to system behavior. The first useful run captures the "now" of the system:
+
+1. `alice` exercises the `subscribe-flow`.
+2. The system emits spans while the workflow runs.
+3. Blackbox captures the system traces.
+4. The run produces observed effects and reviewable artifacts.
+5. The team decides which observed behavior belongs in the contract.
+
+The important step is review. Capturing the present is not the same as approving the present. A characterization run can reveal behavior that is required, incidental, or wrong.
+
+That matters during refactors and AI-assisted changes. A diff can look plausible while behavior changes at the boundary. Runtime evidence gives the team reviewed facts to compare against.
+
+The `ghost-user` case shows the negative side of the same idea. The current behavior is not only what happened. It is also what physically did not happen. If `subscribe-unknown-user` should avoid the payment boundary and avoid the SQS boundary, runtime evidence gives Blackbox something concrete to check.
+
+## What Blackbox Trusts
+
+Blackbox trusts evidence tied to an actual run. It does not trust Written Intent by itself.
+
+That does not make specs, feature files, or tickets useless. They explain what humans wanted. Runtime evidence explains what the system did.
+
+A strong Blackbox run has five properties:
+
+| Property | Why it matters |
+| --- | --- |
+| A real workflow | The evidence comes from execution, not a hand-written claim. |
+| Controlled runtime boundaries | The run can be repeated and reviewed without relying on unrelated production state. |
+| OpenTelemetry spans | Blackbox can observe boundary behavior through system traces. |
+| Reviewed effects | The team separates required behavior from incidental noise. |
+| Stable artifacts | Future runs can compare behavior against the accepted facts. |
+
+This is why Blackbox does not treat generated feature files as the final authority. A feature file can make behavior readable, but runtime evidence decides whether the story matched the run.
+
+It is also why Blackbox does not treat every span as a required effect. Some spans are plumbing, diagnostic, or too incidental to make part of a contract. Trust comes from reviewed facts derived from evidence.
+
+## From Spans to Facts
+
+Blackbox turns system traces into behavioral facts through a short pipeline.
+
+1. The test runs a named workflow such as `subscribe-flow`.
+2. The runtime emits OpenTelemetry spans while the system executes.
+3. Blackbox captures the relevant system traces for that run.
+4. The capture layer normalizes span data into observed boundary behavior.
+5. The effect model classifies the behavior as required, forbidden, observed, missing, or newly seen.
+6. Reports and gates use those facts to show whether the run proved the expected behavior.
+
+The exact implementation path is less important than the contract of the pipeline: traces enter as runtime evidence, and reviewed behavioral facts come out.
+
+Concretely, a single boundary action moves from raw span to behavioral fact:
+
+<Tabs groupId="evidence-to-fact">
+<TabItem value="span" label="Raw OpenTelemetry span (evidence)" default>
+
+```json
+{
+  "name": "INSERT subscriptions",
+  "kind": "CLIENT",
+  "attributes": {
+    "db.system": "postgresql",
+    "db.statement": "INSERT INTO subscriptions(user, tier) VALUES($1, $2)",
+    "db.user.name": "alice",
+    "subscriptions.tier": "pro"
+  },
+  "status": { "code": "OK" },
+  "startTimeUnixNano": "1734517200000000000",
+  "endTimeUnixNano":   "1734517200012000000"
+}
+```
+
+</TabItem>
+<TabItem value="fact" label="Blackbox effect (fact)">
+
+```json
+{
+  "scenario": "subscribe-flow",
+  "actor": "alice",
+  "boundary": "postgres",
+  "effect": "subscription.insert",
+  "fields": { "user": "alice", "tier": "pro" },
+  "verdict": "observed",
+  "source": { "spanId": "8a3e...", "traceId": "01f2..." }
+}
+```
+
+</TabItem>
+</Tabs>
+
+The span is what the runtime emitted. The fact is what reviewers gate against.
+
+Those facts feed the rest of the Concepts section. [System Effects](/docs/blackbox/concepts/effects-and-catalogs) explains how effects and catalogs become the behavior contract. [OMC/DC Coverage](/docs/blackbox/concepts/omc-dc-coverage) explains how Blackbox uses observed effects to decide whether system-level decisions were distinguishable during the run.
+
+Runtime evidence is the source layer for both. Without a real run, the catalog has nothing trustworthy to compare. Without reviewed facts, traces remain debugging data instead of proof.

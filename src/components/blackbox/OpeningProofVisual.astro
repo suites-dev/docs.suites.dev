@@ -1,0 +1,112 @@
+<figure class="bb-opening-proof" aria-label="Playwright system test, Blackbox runtime effects, and effect catalog">
+  <svg viewBox="0 0 980 720" role="img" aria-labelledby="bb-opening-proof-title bb-opening-proof-desc">
+    <title id="bb-opening-proof-title">Blackbox turns a Playwright system test into effect coverage</title>
+    <desc id="bb-opening-proof-desc">A Playwright system test drives subscribe-flow, then Blackbox observes the boundary effects and matches them against a reviewed effect catalog.</desc>
+    <defs>
+      <marker id="bb-opening-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"></path>
+      </marker>
+      <linearGradient id="bb-opening-signal" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#60a5fa"></stop>
+        <stop offset="48%" stop-color="#86efac"></stop>
+        <stop offset="100%" stop-color="#fbbf24"></stop>
+      </linearGradient>
+    </defs>
+
+    <rect x="8" y="8" width="964" height="704" rx="18" fill="#111827" stroke="#374151"></rect>
+    <text x="36" y="45" fill="#f8fafc" font-size="21" font-weight="800">One system test, one behavior contract, one coverage signal</text>
+    <text x="36" y="72" fill="#cbd5e1" font-size="13">The test still checks the response. Blackbox adds runtime proof for the database, cache, HTTP, queue, and forbidden side effects behind it.</text>
+
+    <rect x="36" y="100" width="908" height="320" rx="14" fill="#0f172a" stroke="#334155"></rect>
+    <rect x="36" y="100" width="908" height="34" rx="14" fill="#172554" stroke="#334155"></rect>
+    <text x="58" y="123" fill="#dbeafe" font-size="13" font-weight="800">Playwright system test</text>
+    <text x="844" y="123" fill="#93c5fd" font-size="12" text-anchor="end">subscribe.spec.ts</text>
+
+    <text x="58" y="170" fill="#93c5fd" font-size="14" font-family="monospace">scenario('subscribe-flow', () =&gt; &#123;</text>
+
+    <text x="76" y="202" fill="#c4b5fd" font-size="14" font-family="monospace">given('alice can subscribe', async () =&gt; &#123;</text>
+
+    <text x="94" y="234" fill="#86efac" font-size="14" font-family="monospace">const res = await postJson('/subscriptions');</text>
+
+    <text x="94" y="266" fill="#e2e8f0" font-size="14" font-family="monospace">expect(res.status).toBe(201);</text>
+
+    <rect x="86" y="288" width="364" height="40" rx="8" fill="#052e16" stroke="#86efac"></rect>
+    <text x="100" y="314" fill="#dcfce7" font-size="14" font-family="monospace" font-weight="700">await expect(capture).toMatchCatalog();</text>
+
+    <text x="76" y="362" fill="#c4b5fd" font-size="14" font-family="monospace">&#125;);</text>
+    <text x="58" y="394" fill="#93c5fd" font-size="14" font-family="monospace">&#125;);</text>
+
+    <line x1="257" y1="428" x2="257" y2="466" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-opening-arrow)"></line>
+    <text x="270" y="453" fill="#cbd5e1" font-size="12" font-weight="700">run</text>
+
+    <rect x="36" y="476" width="442" height="200" rx="14" fill="#10251d" stroke="#166534"></rect>
+    <text x="257" y="504" text-anchor="middle" fill="#dcfce7" font-size="14" font-weight="800">Blackbox observes</text>
+    <text x="257" y="526" text-anchor="middle" fill="#bbf7d0" font-size="12">spans become effects</text>
+
+    <rect x="64" y="544" width="180" height="32" rx="16" fill="#0f172a" stroke="#60a5fa"></rect>
+    <text x="154" y="565" text-anchor="middle" fill="#dbeafe" font-size="12" font-weight="700">HTTP payment</text>
+
+    <rect x="270" y="544" width="180" height="32" rx="16" fill="#0f172a" stroke="#86efac"></rect>
+    <text x="360" y="565" text-anchor="middle" fill="#dcfce7" font-size="12" font-weight="700">Postgres write</text>
+
+    <rect x="64" y="588" width="180" height="32" rx="16" fill="#0f172a" stroke="#fbbf24"></rect>
+    <text x="154" y="609" text-anchor="middle" fill="#fef3c7" font-size="12" font-weight="700">Redis cache</text>
+
+    <rect x="270" y="588" width="180" height="32" rx="16" fill="#0f172a" stroke="#c084fc"></rect>
+    <text x="360" y="609" text-anchor="middle" fill="#faf5ff" font-size="12" font-weight="700">SQS message</text>
+
+    <path d="M257 640 L257 660" stroke="url(#bb-opening-signal)" stroke-width="3" marker-end="url(#bb-opening-arrow)"></path>
+    <text x="257" y="671" text-anchor="middle" fill="#dcfce7" font-size="11">trace-scoped evidence</text>
+
+    <line x1="488" y1="576" x2="514" y2="576" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-opening-arrow)"></line>
+    <text x="501" y="565" text-anchor="middle" fill="#cbd5e1" font-size="12" font-weight="700">match</text>
+
+    <rect x="526" y="476" width="418" height="200" rx="14" fill="#1f1b12" stroke="#92400e"></rect>
+    <rect x="526" y="476" width="418" height="34" rx="14" fill="#78350f" stroke="#92400e"></rect>
+    <text x="548" y="499" fill="#fef3c7" font-size="13" font-weight="800">Effect catalog</text>
+    <text x="922" y="499" fill="#fde68a" font-size="12" text-anchor="end">reviewed</text>
+
+    <text x="548" y="535" fill="#fde68a" font-size="12" font-family="monospace">subscribe-flow:</text>
+    <text x="562" y="555" fill="#bbf7d0" font-size="12" font-family="monospace">requires:</text>
+    <text x="578" y="575" fill="#e2e8f0" font-size="12" font-family="monospace">- http payment intent</text>
+    <text x="578" y="592" fill="#e2e8f0" font-size="12" font-family="monospace">- pg subscription insert</text>
+    <text x="578" y="609" fill="#e2e8f0" font-size="12" font-family="monospace">- redis tier write</text>
+    <text x="578" y="626" fill="#e2e8f0" font-size="12" font-family="monospace">- sqs SendMessage</text>
+    <text x="562" y="648" fill="#fecaca" font-size="12" font-family="monospace">forbids:</text>
+    <text x="578" y="666" fill="#e2e8f0" font-size="12" font-family="monospace">- http refund, pg DELETE</text>
+
+    <rect x="146" y="684" width="688" height="20" rx="10" fill="#0f172a" stroke="#475569"></rect>
+    <text x="176" y="698" fill="#86efac" font-size="11" font-weight="800">coverage:</text>
+    <text x="234" y="698" fill="#f8fafc" font-size="11">required observed</text>
+    <text x="364" y="698" fill="#94a3b8" font-size="11">+</text>
+    <text x="380" y="698" fill="#f8fafc" font-size="11">forbidden absent</text>
+    <text x="504" y="698" fill="#94a3b8" font-size="11">=</text>
+    <text x="522" y="698" fill="#fef3c7" font-size="11" font-weight="800">satisfied gate</text>
+  </svg>
+  <figcaption>A Blackbox proof starts with an ordinary Playwright system test. The matcher compares the captured runtime effects with a reviewed catalog, so reviewers see more than a passing response.</figcaption>
+</figure>
+
+<style>
+  .bb-opening-proof {
+    margin: 28px 0;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    overflow-x: auto;
+  }
+
+  .bb-opening-proof svg {
+    display: block;
+    min-width: 760px;
+    width: 100%;
+    height: auto;
+  }
+
+  .bb-opening-proof figcaption {
+    margin: 12px 4px 0;
+    color: var(--text-secondary);
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+</style>

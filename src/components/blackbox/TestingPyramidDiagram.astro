@@ -1,0 +1,102 @@
+<figure class="bb-testing-pyramid-diagram" aria-label="Testing pyramid with Suites Unit, Suites Blackbox, managed dependencies, and unmanaged dependencies">
+  <svg viewBox="0 0 860 500" role="img" aria-labelledby="testing-pyramid-title testing-pyramid-desc">
+    <title id="testing-pyramid-title">Testing pyramid layers and Suites coverage</title>
+    <desc id="testing-pyramid-desc">A four-layer testing pyramid shows unit, integration, system, and end-to-end tests with Suites Unit covering the lower layers and Suites Blackbox covering the upper layers.</desc>
+    <defs>
+      <linearGradient id="bb-unit-layer" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#14532d"></stop>
+        <stop offset="100%" stop-color="#166534"></stop>
+      </linearGradient>
+      <linearGradient id="bb-integration-layer" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#155e75"></stop>
+        <stop offset="100%" stop-color="#0e7490"></stop>
+      </linearGradient>
+      <linearGradient id="bb-system-layer" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#172554"></stop>
+        <stop offset="100%" stop-color="#1d4ed8"></stop>
+      </linearGradient>
+      <linearGradient id="bb-e2e-layer" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#581c87"></stop>
+        <stop offset="100%" stop-color="#7e22ce"></stop>
+      </linearGradient>
+    </defs>
+
+    <rect x="8" y="8" width="844" height="484" rx="18" fill="#111827" stroke="#374151"></rect>
+    <text x="36" y="44" fill="#f8fafc" font-size="19" font-weight="700">Testing pyramid with proof boundaries</text>
+    <text x="36" y="70" fill="#cbd5e1" font-size="13">Suites Unit keeps local feedback fast. Suites Blackbox adds runtime proof where composed behavior crosses real boundaries.</text>
+
+    <polygon points="365,94 495,94 540,162 320,162" fill="url(#bb-e2e-layer)" stroke="#c084fc" stroke-width="2"></polygon>
+    <text x="430" y="121" text-anchor="middle" fill="#faf5ff" font-size="16" font-weight="800">E2E</text>
+    <text x="430" y="143" text-anchor="middle" fill="#e9d5ff" font-size="12">full journey works</text>
+
+    <polygon points="318,170 542,170 598,242 262,242" fill="url(#bb-system-layer)" stroke="#60a5fa" stroke-width="2"></polygon>
+    <text x="430" y="200" text-anchor="middle" fill="#eff6ff" font-size="16" font-weight="800">System</text>
+    <text x="430" y="223" text-anchor="middle" fill="#bfdbfe" font-size="13">composed topology behaves</text>
+
+    <polygon points="260,250 600,250 658,326 202,326" fill="url(#bb-integration-layer)" stroke="#67e8f9" stroke-width="2"></polygon>
+    <text x="430" y="281" text-anchor="middle" fill="#ecfeff" font-size="16" font-weight="800">Integration</text>
+    <text x="430" y="304" text-anchor="middle" fill="#cffafe" font-size="13">providers collaborate correctly</text>
+
+    <polygon points="200,334 660,334 714,426 146,426" fill="url(#bb-unit-layer)" stroke="#86efac" stroke-width="2"></polygon>
+    <text x="430" y="371" text-anchor="middle" fill="#f0fdf4" font-size="17" font-weight="800">Unit</text>
+    <text x="430" y="396" text-anchor="middle" fill="#bbf7d0" font-size="13">local class logic is correct</text>
+
+    <path d="M126 94 H104 V162 H126" fill="none" stroke="#c084fc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+    <text x="94" y="111" text-anchor="end" fill="#faf5ff" font-size="13" font-weight="800">Unmanaged</text>
+    <text x="94" y="130" text-anchor="end" fill="#e9d5ff" font-size="11">run reaches</text>
+    <text x="94" y="146" text-anchor="end" fill="#e9d5ff" font-size="11">shared/remote</text>
+    <text x="94" y="162" text-anchor="end" fill="#e9d5ff" font-size="11">dependencies</text>
+
+    <path d="M184 170 H162 V242 H184" fill="none" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+    <text x="150" y="194" text-anchor="end" fill="#eff6ff" font-size="13" font-weight="800">Managed</text>
+    <text x="150" y="213" text-anchor="end" fill="#bfdbfe" font-size="11">run owns</text>
+    <text x="150" y="229" text-anchor="end" fill="#bfdbfe" font-size="11">the topology</text>
+
+    <path d="M716 94 H738 V242 H716" fill="none" stroke="#c084fc" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+    <text x="752" y="160" fill="#faf5ff" font-size="13" font-weight="800">Suites Blackbox</text>
+    <text x="752" y="180" fill="#e9d5ff" font-size="11">runtime evidence</text>
+
+    <line x1="680" y1="246" x2="840" y2="246" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 4"></line>
+    <text x="840" y="242" text-anchor="end" fill="#94a3b8" font-size="10" font-weight="700" style="text-transform: uppercase; letter-spacing: 0.5px;">Evidence Boundary</text>
+
+    <path d="M716 250 H738 V426 H716" fill="none" stroke="#86efac" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+    <text x="752" y="329" fill="#f0fdf4" font-size="13" font-weight="800">Suites Unit</text>
+    <text x="752" y="349" fill="#bbf7d0" font-size="11">local doubles</text>
+
+    <rect x="164" y="452" width="532" height="24" rx="12" fill="#0f172a" stroke="#475569"></rect>
+    <text x="430" y="468" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="700">Cost rises as realism rises, so the proof layer belongs where runtime behavior matters.</text>
+  </svg>
+  <figcaption>Blackbox adds the proof layer above fast local tests, where system and E2E runs need runtime evidence for composed behavior.</figcaption>
+</figure>
+
+<style>
+  .bb-testing-pyramid-diagram {
+    margin: 24px 0;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    overflow-x: auto;
+  }
+
+  .bb-testing-pyramid-diagram svg {
+    display: block;
+    width: 100%;
+    min-width: 680px;
+    height: auto;
+  }
+
+  .bb-testing-pyramid-diagram figcaption {
+    margin-top: 10px;
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.55;
+    text-align: center;
+  }
+
+  @media (max-width: 760px) {
+    .bb-testing-pyramid-diagram {
+      padding: 12px;
+    }
+  }
+</style>

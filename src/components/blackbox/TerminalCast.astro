@@ -1,0 +1,316 @@
+---
+interface Props {
+  autoplay?: boolean;
+  loop?: boolean;
+  title?: string;
+}
+const {
+  autoplay = true,
+  loop = false,
+  title = 'scripts/demo-isolation.sh — per-worker compose',
+} = Astro.props;
+---
+
+<figure class="tc" aria-label="Terminal recording: per-worker compose run from the blackbox demo script">
+  <div
+    class="tc-card"
+    data-autoplay={autoplay ? '1' : '0'}
+    data-loop={loop ? '1' : '0'}
+  >
+    <div class="tc-head">
+      <span class="tc-dot tc-dot-red"></span>
+      <span class="tc-dot tc-dot-amber"></span>
+      <span class="tc-dot tc-dot-green"></span>
+      <span class="tc-title">{title}</span>
+      <button class="tc-replay" type="button" aria-label="Replay recording">replay</button>
+    </div>
+
+    <div class="tc-body" aria-label="Terminal output">
+      <div class="tc-line" data-kind="cmd" data-delay="200">$ pnpm demo:isolation --step 3</div>
+      <div class="tc-line" data-kind="out" data-delay="600">&nbsp;</div>
+      <div class="tc-line tc-bold-magenta" data-kind="out" data-delay="120">====================================================================</div>
+      <div class="tc-line tc-bold-magenta" data-kind="out" data-delay="60">  STEP 3/4  per-worker SUT — kind:'compose', workers:2</div>
+      <div class="tc-line tc-bold-magenta" data-kind="out" data-delay="60">====================================================================</div>
+      <div class="tc-line" data-kind="out" data-delay="500">&nbsp;</div>
+      <div class="tc-line tc-explainer" data-kind="out" data-delay="320">│ The kit spins up an INDEPENDENT compose stack per worker:</div>
+      <div class="tc-line tc-explainer" data-kind="out" data-delay="280">│    worker 0  →  blackbox-e2e-w0  (PG, Redis, SQS, services)</div>
+      <div class="tc-line tc-explainer" data-kind="out" data-delay="240">│    worker 1  →  blackbox-e2e-w1  (PG, Redis, SQS, services)</div>
+      <div class="tc-line" data-kind="out" data-delay="800">&nbsp;</div>
+      <div class="tc-line tc-cyan" data-kind="out" data-delay="280">>>  running: compose-w2</div>
+      <div class="tc-line tc-dim" data-kind="out" data-delay="180">    log → /tmp/blackbox-demo-Vk9z2X/compose-w2.log</div>
+      <div class="tc-line" data-kind="out" data-delay="400">&nbsp;</div>
+      <div class="tc-line tc-dim" data-kind="out" data-delay="220">    Running 42 tests using 2 workers</div>
+      <div class="tc-line" data-kind="out" data-delay="180">&nbsp;</div>
+      <div class="tc-line" data-kind="out" data-delay="320">    <span class="tc-dim">[worker-0]</span> <span class="tc-green">✓</span> collision/redis-incr-shared-key   <span class="tc-dim">(12.3s)</span></div>
+      <div class="tc-line" data-kind="out" data-delay="240">    <span class="tc-dim">[worker-1]</span> <span class="tc-green">✓</span> collision/pg-unique-row-insert    <span class="tc-dim">(11.8s)</span></div>
+      <div class="tc-line" data-kind="out" data-delay="240">    <span class="tc-dim">[worker-0]</span> <span class="tc-green">✓</span> collision/sqs-message-ordering     <span class="tc-dim">(9.4s)</span></div>
+      <div class="tc-line tc-dim" data-kind="out" data-delay="220">    ... 39 more passed ...</div>
+      <div class="tc-line" data-kind="out" data-delay="500">&nbsp;</div>
+      <div class="tc-line" data-kind="out" data-delay="180">  <span class="tc-green-bold">OK</span>  compose-w2  <span class="tc-dim">(84s)</span>  <span class="tc-green">42 passed</span></div>
+      <div class="tc-line" data-kind="out" data-delay="600">&nbsp;</div>
+      <div class="tc-line tc-bold-cyan" data-kind="out" data-delay="220">── what the kit wrote ──</div>
+      <div class="tc-line" data-kind="out" data-delay="280">&nbsp;</div>
+      <div class="tc-line" data-kind="out" data-delay="260">  catalog coverage   <span class="tc-dim">subscribe-flow</span>           <span class="tc-green">✓</span> satisfied  <span class="tc-dim">(4/4 required, 2/2 forbidden absent)</span></div>
+      <div class="tc-line" data-kind="out" data-delay="200">  catalog coverage   <span class="tc-dim">subscribe-unknown-user</span>   <span class="tc-green">✓</span> satisfied  <span class="tc-dim">(0/0 required, 4/4 forbidden absent)</span></div>
+      <div class="tc-line" data-kind="out" data-delay="200">  shape coverage     <span class="tc-dim">14 reviewed, 0 masking-candidates</span></div>
+      <div class="tc-line" data-kind="out" data-delay="200">  OMC/DC propagation <span class="tc-dim">87/87 decisions distinguishable in run evidence</span></div>
+      <div class="tc-line" data-kind="out" data-delay="500">&nbsp;</div>
+      <div class="tc-line tc-cyan" data-kind="out" data-delay="260">  >> stack overlap: 14:22:11 → 14:23:35  (84s, blackbox-e2e-w0 + blackbox-e2e-w1)</div>
+      <div class="tc-line" data-kind="out" data-delay="700">&nbsp;</div>
+      <div class="tc-line tc-explainer" data-kind="out" data-delay="320">│ Two per-worker SUTs alive at the same wall-clock moment.</div>
+      <div class="tc-line tc-explainer" data-kind="out" data-delay="260">│ Each ran its share of tests without seeing the other's state.</div>
+      <div class="tc-line" data-kind="out" data-delay="800">&nbsp;</div>
+      <div class="tc-line tc-green-bold" data-kind="out" data-delay="240">demo complete.</div>
+    </div>
+  </div>
+  <figcaption>Step 3 of <code>scripts/demo-isolation.sh</code>: two per-worker compose stacks running concurrently, each Playwright worker hitting its own Postgres / Redis / SQS / services. The overlap window is the proof.</figcaption>
+</figure>
+
+<script>
+  const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
+  document.querySelectorAll<HTMLDivElement>('.tc-card').forEach((card) => {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const autoplay = card.dataset.autoplay === '1';
+    const loop = card.dataset.loop === '1';
+    const lines = Array.from(card.querySelectorAll<HTMLDivElement>('.tc-line'));
+    const replay = card.querySelector<HTMLButtonElement>('.tc-replay');
+    const body = card.querySelector<HTMLElement>('.tc-body');
+
+    const originals = lines.map((line) => ({ html: line.innerHTML, text: line.textContent ?? '' }));
+
+    let runToken = 0;
+    const TYPE_MS = 32;
+
+    const reset = () => {
+      lines.forEach((line, i) => {
+        line.classList.remove('tc-line-visible', 'tc-line-typing', 'tc-line-current', 'tc-line-done');
+        line.innerHTML = originals[i].html;
+      });
+      replay?.classList.remove('tc-replay-ready');
+      if (body) body.scrollTop = 0;
+    };
+
+    const showAll = () => {
+      lines.forEach((line) => {
+        line.classList.add('tc-line-visible', 'tc-line-done');
+      });
+      replay?.classList.add('tc-replay-ready');
+    };
+
+    const play = async () => {
+      const token = ++runToken;
+      reset();
+
+      let prev: HTMLDivElement | null = null;
+
+      for (let i = 0; i < lines.length; i++) {
+        if (token !== runToken) return;
+        const line = lines[i]!;
+        const delay = Number(line.dataset.delay) || 100;
+        await wait(delay);
+        if (token !== runToken) return;
+
+        if (prev) {
+          prev.classList.remove('tc-line-current');
+          prev.classList.add('tc-line-done');
+        }
+
+        line.classList.add('tc-line-visible', 'tc-line-current');
+
+        if (line.dataset.kind === 'cmd') {
+          const full = originals[i].text;
+          line.textContent = '';
+          line.classList.add('tc-line-typing');
+          for (let c = 0; c <= full.length; c++) {
+            if (token !== runToken) return;
+            line.textContent = full.slice(0, c);
+            await wait(TYPE_MS);
+          }
+          line.classList.remove('tc-line-typing');
+        }
+
+        if (body) body.scrollTop = body.scrollHeight;
+        prev = line;
+      }
+
+      if (prev) {
+        prev.classList.remove('tc-line-current');
+        prev.classList.add('tc-line-done');
+      }
+
+      if (loop) {
+        await wait(2400);
+        if (token === runToken) play();
+      } else {
+        replay?.classList.add('tc-replay-ready');
+      }
+    };
+
+    if (reduced) {
+      showAll();
+    } else if (autoplay) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (e.isIntersecting) {
+              play();
+              io.disconnect();
+              break;
+            }
+          }
+        },
+        { threshold: 0.3 },
+      );
+      io.observe(card);
+    } else {
+      reset();
+    }
+
+    replay?.addEventListener('click', () => {
+      play();
+    });
+  });
+</script>
+
+<style>
+  .tc {
+    --tc-bg: #0b1120;
+    --tc-head-bg: #0f172a;
+    --tc-line: #1e293b;
+    --tc-fg: #e2e8f0;
+    --tc-dim: #64748b;
+    --tc-green: #86efac;
+    --tc-green-strong: #22c55e;
+    --tc-cyan: #67e8f9;
+    --tc-magenta: #f0abfc;
+    --tc-blue: #93c5fd;
+    --tc-amber: #fbbf24;
+    --tc-red: #fda4af;
+    margin: 24px 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  }
+
+  .tc-card {
+    background: var(--tc-bg);
+    border: 1px solid var(--tc-line);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .tc-head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: var(--tc-head-bg);
+    border-bottom: 1px solid var(--tc-line);
+  }
+  .tc-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  .tc-dot-red { background: #ef4444; }
+  .tc-dot-amber { background: #f59e0b; }
+  .tc-dot-green { background: #22c55e; }
+  .tc-title {
+    flex: 1;
+    color: var(--tc-dim);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px;
+    margin-left: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tc-replay {
+    appearance: none;
+    background: transparent;
+    color: var(--tc-dim);
+    border: 1px solid var(--tc-line);
+    border-radius: 4px;
+    font-size: 10.5px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    padding: 3px 8px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 220ms ease, color 220ms ease, background 220ms ease;
+  }
+  .tc-replay.tc-replay-ready { opacity: 1; }
+  .tc-replay:hover { color: var(--tc-fg); background: rgba(148, 163, 184, 0.1); }
+
+  .tc-body {
+    padding: 14px 16px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--tc-fg);
+    max-height: 480px;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    background:
+      radial-gradient(ellipse at top, rgba(59, 130, 246, 0.05), transparent 60%),
+      var(--tc-bg);
+  }
+
+  .tc-line {
+    white-space: pre;
+    opacity: 0;
+    transform: translateY(2px);
+    transition: opacity 140ms ease, transform 140ms ease;
+  }
+  .tc-line-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .tc-line-current::after {
+    content: '▍';
+    display: inline-block;
+    margin-left: 1px;
+    color: var(--tc-green-strong);
+    animation: tc-blink 1.05s steps(2) infinite;
+  }
+  .tc-line-done::after { content: none; }
+  .tc-line-typing { white-space: pre; }
+
+  @keyframes tc-blink {
+    50% { opacity: 0; }
+  }
+
+  .tc-dim { color: var(--tc-dim); }
+  .tc-cyan { color: var(--tc-cyan); }
+  .tc-bold-cyan { color: var(--tc-cyan); font-weight: 700; }
+  .tc-bold-magenta { color: var(--tc-magenta); font-weight: 700; }
+  .tc-green { color: var(--tc-green); }
+  .tc-green-bold { color: var(--tc-green); font-weight: 700; }
+  .tc-explainer { color: var(--tc-blue); }
+  .tc-explainer::first-letter { color: var(--tc-blue); }
+
+  .tc figcaption {
+    margin: 12px 4px 0;
+    color: var(--text-secondary, #94a3b8);
+    font-size: 0.88rem;
+    line-height: 1.55;
+  }
+  .tc figcaption code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.84rem;
+    padding: 1px 5px;
+    background: rgba(148, 163, 184, 0.12);
+    border-radius: 4px;
+  }
+
+  @media (max-width: 720px) {
+    .tc-body { font-size: 10.5px; padding: 10px 12px; }
+    .tc-title { font-size: 10px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tc-line, .tc-line-current::after { transition: none; animation: none; }
+  }
+</style>

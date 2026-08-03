@@ -1,0 +1,228 @@
+---
+title: Writing Scenarios
+description: Write scenarios and effect assertions using the Blackbox DSL to connect system tests to behavioral proof.
+sidebar_position: 3
+---
+
+import Tabs from '@/components/mdx/Tabs.astro';
+import TabItem from '@/components/mdx/TabItem.astro';
+
+The **scenario DSL** is Blackbox's authoring surface for behavior-shaped system tests. You write the executable test in TypeScript, Blackbox reads the scenario structure, and the run can produce feature files plus effect assertions that prove the behavior at system boundaries.
+
+This guide uses the showcase `subscribe-flow`: an existing user posts to `/subscriptions`, the system creates a pro subscription, writes the supporting state, and proves that the expected boundary effects appeared.
+
+## Start with a scenario
+
+Start with `scenario(slug, description, body)`. The **slug** is the stable identifier Blackbox uses for the flow tag, scenario grouping, generated artifacts, and catalog lookup.
+
+<Tabs groupId="dsl-to-gherkin">
+<TabItem value="dsl" label="Scenario DSL (TypeScript)" default>
+
+```ts
+import { scenario } from './testbed.js';
+
+scenario('subscribe-flow', 'subscribing as a pro tier user', ({ given, background }) => {
+  background('the system is reset', async ({ system }) => {
+    await system.reset();
+  });
+});
+```
+
+</TabItem>
+<TabItem value="gherkin" label="Generated feature file">
+
+```gherkin
+@flow:subscribe-flow
+Feature: subscribing as a pro tier user
+
+  Background:
+    Given the system is reset
+```
+
+</TabItem>
+</Tabs>
+
+Keep the slug stable when you refactor the test body. If you rename `subscribe-flow` without a product reason, reviewers see artificial feature-file drift and catalog history becomes harder to follow.
+
+## Use Given, When, Then
+
+The DSL is closure-based. `scenario()` registers the behavior, `background()` registers shared setup, `given()` names the starting state, `when()` runs the workflow, and `then()` records observable conclusions.
+
+The real `subscribe-flow` test starts with the alice path:
+
+```ts
+import { expect, scenario } from './testbed.js';
+import { postJson } from './_http.js';
+
+scenario('subscribe-flow', 'subscribing as a pro tier user', ({ given, background }) => {
+  background('the system is reset', async ({ system }) => {
+    await system.reset();
+  });
+
+  given('alice is an existing user with no active subscription', async ({ system, capture, when }) => {
+    await when('alice POSTs /subscriptions with a valid card', async ({ then }) => {
+      const res = await postJson(
+        `${system.bff.hostBaseUrl}/subscriptions`,
+        { userId: 'alice', paymentMethodId: 'pm_card_visa' },
+      );
+
+      await then('the response status is 201', () => {
+        expect(res.status).toBe(201);
+      });
+
+      await then('the tier is cached in redis', async () => {
+        expect(await system.cache.get('user:alice:tier')).toBe('pro');
+      });
+
+      await then('the captured effects satisfy the subscribe-flow catalog entry', async () => {
+        await expect(capture).toMatchCatalog();
+      });
+    });
+  });
+});
+```
+
+Each closure controls the fixtures available to the next step. The `given()` body receives `system`, `capture`, and `when`. The `when()` body receives `then`. That keeps the test readable in the same order reviewers see in the generated Gherkin.
+
+Use `then()` for assertions that prove the behavior. The response status is one assertion. The Redis cache check is another. The catalog assertion connects captured runtime effects to the reviewed `subscribe-flow` contract.
+
+## Assert required and forbidden effects
+
+An **effect assertion** checks captured boundary behavior. A **required effect** must appear in the run. A **forbidden effect** must stay absent from the run.
+
+Use inline `toObserveEffects()` assertions while you are shaping the scenario. The bob and carol outline in the showcase asserts the read path, the payment call, the write path, and the forbidden cleanup behavior directly in the test:
+
+```ts
+import {
+  effect,
+  glob,
+  exactly,
+  atLeast,
+} from '@suites/blackbox';
+import { expect } from './testbed.js';
+
+await then('read path: cache lookup then user lookup', async () => {
+  await expect(capture).toObserveEffects([
+    effect.redis('GET', { key: glob('user:*:tier') }),
+    effect.postgres('SELECT', { table: 'users' }),
+  ]);
+});
+
+await then('exactly one Stripe payment_intent is created', async () => {
+  await expect(capture).toObserveEffects(
+    effect.http('POST', { path: '/v1/payment_intents', count: exactly(1) }),
+  );
+});
+
+await then('write path: persist, cache tier, enqueue order', async () => {
+  await expect(capture).toObserveEffects([
+    effect.postgres('INSERT', { table: 'subscriptions' }),
+    effect.redis('SET', { key: glob('user:*:tier') }),
+    effect.http('POST', { path: '/orders' }),
+    effect.sqs('SendMessage', { queue: 'subscription-orders', count: atLeast(1) }),
+  ]);
+});
+
+await then('no refund and no DELETE', async () => {
+  await expect(capture).toObserveEffects({
+    requires: [],
+    forbids: [
+      effect.http('POST', { path: '/v1/refunds' }),
+      effect.postgres('DELETE'),
+    ],
+  });
+});
+```
+
+Use the object form when you need both sides of the contract in one assertion:
+
+```ts
+await then('cache and users were consulted; Stripe and SQS were not', async () => {
+  await expect(capture).toObserveEffects({
+    requires: [
+      effect.redis('GET', { key: glob('user:*:tier') }),
+      effect.postgres('SELECT', { table: 'users' }),
+    ],
+    forbids: [
+      effect.http('POST', { path: '/v1/payment_intents' }),
+      effect.sqs('SendMessage'),
+    ],
+  });
+});
+```
+
+That ghost-user path proves the negative behavior for `subscribe-unknown-user`: the system consults cache and users, returns `404`, and does not create a Stripe payment intent or send an SQS message.
+
+After review, promote stable inline assertions into the catalog. The alice path then uses the slug-backed catalog assertion:
+
+```ts
+await then('the captured effects satisfy the subscribe-flow catalog entry', async () => {
+  await expect(capture).toMatchCatalog();
+});
+```
+
+Keep exploratory assertions inline until the team agrees they belong in the contract. Then move the required and forbidden effects into the catalog so future runs fail when the behavior drifts. Read [Effects and Catalogs](/docs/blackbox/concepts/effects-and-catalogs) for the catalog model.
+
+## Write outlines with given.each
+
+Use `given.each` when one scenario shape should run over example rows. The showcase runs the same subscription behavior for bob and carol:
+
+```ts
+import { expect, scenario } from './testbed.js';
+import { postJson } from './_http.js';
+
+scenario('subscribe-flow', 'subscribing as a pro tier user', ({ given }) => {
+  given.each([
+    { user: 'bob', card: 'pm_card_visa' },
+    { user: 'carol', card: 'pm_card_visa' },
+  ])('<user> is an existing user (inline contract)', async ({ system, when }, row) => {
+    await when('<user> POSTs /subscriptions with <card>', async ({ then }) => {
+      const res = await postJson(
+        `${system.bff.hostBaseUrl}/subscriptions`,
+        { userId: row.user, paymentMethodId: row.card },
+      );
+
+      await then('the response status is 201', () => {
+        expect(res.status).toBe(201);
+      });
+    });
+  });
+});
+```
+
+Blackbox turns those rows into a generated Gherkin Scenario Outline:
+
+```gherkin
+Scenario Outline: <user> is an existing user (inline contract)
+  When <user> POSTs /subscriptions with <card>
+  Then the response status is 201
+  And  read path: cache lookup then user lookup
+  And  exactly one Stripe payment_intent is created
+  And  write path: persist, cache tier, enqueue order
+  And  no refund and no DELETE
+
+  Examples:
+    | user  | card         |
+    | bob   | pm_card_visa |
+    | carol | pm_card_visa |
+```
+
+Placeholders in the step text must match row keys. `<user>` reads `row.user`, and `<card>` reads `row.card`. If you rename a row key, update the step text in the same change.
+
+## Keep scenario text stable
+
+Scenario text is part of the review surface. It appears in generated feature files, helps map runtime evidence back to behavior, and gives reviewers a stable vocabulary for the flow.
+
+Change scenario text when product intent changes:
+
+1. `alice POSTs /subscriptions with a valid card` should change if the action changes.
+2. `the response status is 201` should change if success means a different status.
+3. `no refund and no DELETE` should change if the forbidden behavior changes.
+
+Do not change scenario text for internal refactors. Moving helper functions, renaming local variables, or changing the implementation behind `/subscriptions` should not rename `subscribe-flow` or its behavior steps.
+
+Next steps:
+
+- **[Scenario DSL](/docs/blackbox/reference/scenario-dsl)**: Review the full `scenario`, `background`, `given`, `when`, `then`, `given.each`, and `outline` API.
+- **[Generating Feature Files](/docs/blackbox/guides/generating-feature-files)**: Emit and check `.feature` files from the DSL.
+- **[Effects and Catalogs](/docs/blackbox/concepts/effects-and-catalogs)**: Decide which observed effects become required or forbidden behavior.

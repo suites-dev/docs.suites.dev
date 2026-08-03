@@ -1,0 +1,104 @@
+---
+title: Effects and Catalogs
+description: "Define the core Blackbox contract: System Effects, Catalogs, and behavioral assertions (Requires/Forbids)."
+sidebar_position: 3
+---
+
+import Aside from '@/components/mdx/Aside.astro';
+
+Blackbox turns a real system run into a reviewable contract. The contract starts with observed effects, then records which effects must happen and which effects must stay absent.
+
+An effect catalog is not a trace dump or a **mock**, which is a fake replacement for a collaborator inside a lower-level test. It is a recorded commitment about system behavior at the boundaries your team cares about.
+
+## What are System Effects?
+
+A **System Effect** is an observable behavior produced by a running system at a boundary. It is the thing the run left behind, attempted, or avoided while a scenario executed.
+
+In the Blackbox showcase, `subscribe-flow` runs through the 5-service topology. `alice` posts to `/subscriptions`, and the system produces boundary behavior: a subscription row is written, a Redis value is set, a Stripe-compatible payment call is made, an order-service call happens, and a LocalStack SQS message is queued.
+
+Those observations are system effects because they cross boundaries. They are not private helper calls, branch names, or implementation details. A span can be evidence for an effect, but the effect is the behavior a reviewer can evaluate.
+
+Good effects share three properties:
+
+1. **Observable**: the run can capture evidence for the behavior.
+2. **Meaningful**: the behavior matters to the system contract.
+3. **Reviewable**: a developer can decide whether the behavior should be required, allowed, or forbidden.
+
+## The Effect Catalog: Your Behavioral Contract
+
+An **Effect Catalog** is the reviewed behavioral contract for a scenario. It records the effects that future runs must prove, plus the effects that future runs must not produce.
+
+The catalog is the point where observation becomes a decision. A first run can show what happened. A reviewer then decides what belongs in the contract:
+
+1. Keep effects that represent expected product or system behavior.
+2. Remove incidental effects that are too low-level to review.
+3. Add forbidden effects that should fail the run if they ever appear.
+4. Revisit the catalog when an intentional behavior change lands.
+
+Blackbox does not treat the first observed run as permanent truth. The first run gives you evidence. The catalog turns selected evidence into a durable agreement.
+
+For `subscribe-flow`, the catalog might require the subscription write, the Redis tier cache update, the Stripe-compatible payment call, the order-service handoff, and the SQS message. Those effects describe the behavior the team expects after a successful subscription.
+
+The catalog also gives reviewers a concrete diff. If a later change removes the SQS message or adds an unexpected payment call, the review is not limited to source code. The effect contract shows what changed at the system boundary.
+
+<Aside type="info" title="Contract, Not Recording">
+Treat the catalog as a reviewed behavior contract, not as raw playback. Accepting every observed effect without review turns a useful proof artifact into a snapshot of whatever happened once.
+</Aside>
+
+## Behavioral Assertions: Requires vs. Forbids
+
+A **behavioral assertion** checks what the running system did at a boundary. It is different from a unit-level expectation because it does not ask whether a private method was called. It asks whether the system produced, or avoided, externally visible behavior.
+
+Blackbox splits behavioral assertions into **requires and forbids**.
+
+A **required effect** is a behavior that must appear in a successful run. In `subscribe-flow`, a required effect can say that the subscription write must exist or that the SQS message must be queued. If the run passes at the HTTP layer but misses that required effect, the behavior contract fails.
+
+A **forbidden effect** is a behavior that must not appear. In `subscribe-unknown-user`, `ghost-user` posts to `/subscriptions`, and the expected path rejects the request before downstream work begins. The catalog can forbid a Stripe-compatible payment call and forbid an SQS message for that path.
+
+Use requires when absence would mean the scenario did not complete the behavior it claims to cover. Use forbids when presence would mean the scenario did work it must avoid.
+
+Strong assertions are specific:
+
+1. Tie each assertion to a real boundary effect.
+2. Prefer behavior names a reviewer can understand.
+3. Avoid assertions that only describe internal implementation shape.
+4. Keep the catalog narrow enough that a diff remains readable.
+
+## Proving the Negative (The Power of Forbids)
+
+Proving the negative means showing that a forbidden effect was physically absent from the captured runtime evidence.
+
+That is valuable because many serious regressions are additive. A change can keep the response green while doing extra work: charging `ghost-user`, sending a message for a rejected path, or calling order-service after validation failed.
+
+`subscribe-unknown-user` is the clean example. The response for `ghost-user` should reject the request. The stronger proof is that the payment call and queue message are not present in the run evidence. The absence is the behavior.
+
+Forbids make that absence reviewable. They give the run a negative contract:
+
+1. If the forbidden effect is absent, the assertion passes.
+2. If the forbidden effect appears, the assertion fails.
+3. If instrumentation cannot see the boundary, the proof is weaker and the catalog should not pretend otherwise.
+
+<Aside type="note" title="Boundary Visibility">
+A forbid can only prove absence inside the evidence Blackbox can observe. If a boundary is not captured by the run, keep the claim out of the catalog or improve the instrumentation path first.
+</Aside>
+
+This is where effect catalogs differ from ordinary response assertions. A response assertion can tell you that `ghost-user` received the expected status. A forbid can tell you that the system also avoided the downstream behavior.
+
+## Effect Coverage vs. Code Coverage
+
+**Effect coverage** reports whether cataloged behavior was proved by the run. It asks which required effects appeared, which required effects were missing, which forbidden effects stayed absent, and which forbidden effects appeared.
+
+**Code coverage** reports which source lines, branches, or functions executed. That signal is useful, but it answers a different question. Code can execute without proving that the system wrote the expected row, queued the expected message, or avoided the forbidden payment path.
+
+The difference is the denominator:
+
+| Coverage type | Denominator | Main question |
+| --- | --- | --- |
+| Code coverage | Code structure | Which code ran? |
+| Effect coverage | Reviewed effect catalog | Which behavioral contract did the run prove? |
+
+Effect coverage is stricter about meaning. It does not reward a run for touching implementation code unless the run also proves the cataloged boundary behavior.
+
+This also separates effect coverage from OMC/DC. Effect coverage checks the catalog. OMC/DC asks whether decisions produced distinguishable observed behavior. They use related evidence, but they answer different review questions.
+
+For the decision-coverage layer, read [OMC/DC Coverage](/docs/blackbox/concepts/omc-dc-coverage). For the way catalogs connect to generated specs and BDD-style review, read [Code-First BDD](/docs/blackbox/concepts/code-first-bdd).

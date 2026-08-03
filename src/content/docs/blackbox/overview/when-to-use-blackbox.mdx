@@ -1,0 +1,160 @@
+---
+title: "When to Use Blackbox"
+description: "Clarify the workflows, altitudes, and environments where Blackbox adds useful runtime evidence."
+sidebar_position: 3
+---
+
+import OverviewDiagram from '@/components/blackbox/OverviewDiagram.astro';
+import Aside from '@/components/mdx/Aside.astro';
+import Tabs from '@/components/mdx/Tabs.astro';
+import TabItem from '@/components/mdx/TabItem.astro';
+
+Use Blackbox when you need runtime proof that behavior still matches what matters. Spend system-test cost where runtime evidence improves confidence, not where a local assertion already answers the question.
+
+The best first target is one important flow where a passing response is not enough proof. In the showcase, that is `subscribe-flow`: `alice` posts to `/subscriptions`, and the 5-service topology produces evidence across the BFF, Redis, Postgres, the payment HTTP boundary, and SQS.
+
+<Aside type="info" title="Test-Time Instrumentation">
+Blackbox is strongest when it can instrument the controlled SUT for the test run. In the compose path, the generated overlay injects the bootstrap into compatible Node services and gives the runner debug endpoints for draining spans.
+</Aside>
+
+## The Boundary-Risk Rule (When evidence changes the review)
+
+The **boundary-risk rule** is simple: use Blackbox when the review would change after seeing what the running system did at its boundaries.
+
+A normal test can prove that `POST /subscriptions` returned the expected response. Blackbox helps when the more important question is whether the run also wrote the right Postgres row, updated the Redis tier, reached the payment HTTP boundary, sent the SQS message, and avoided effects that must never happen.
+
+That difference matters most when the workflow crosses process or infrastructure boundaries. Source review can miss a removed effect, an extra effect, or a condition that only appears when the composed system runs. Runtime evidence gives the reviewer something concrete to inspect.
+
+Do not use this rule to expand every test. Use it to choose the few flows where the cost of a system run is justified by the risk at the boundary.
+
+## Good First Fits (Refactors, legacy modernization, service graphs)
+
+Blackbox is a strong first fit when the system already runs and the team needs proof before changing it. Use one stable workflow, build a catalog from observed effects, then make future runs prove the same required behavior and avoid forbidden behavior.
+
+Good first fits include:
+
+1. **Refactors** where the new implementation must preserve behavior that the current system already proves.
+2. **Legacy modernization** where the code is hard to reason about, but the running system still exposes trustworthy boundary behavior.
+3. **Service graphs** where a single request crosses the BFF, Redis, Postgres, the payment HTTP boundary, and SQS.
+4. **Incident regressions** where a missing or extra effect should become a permanent check.
+5. **AI-assisted changes** where reviewers need a deterministic checker outside generated prose and source diffs.
+
+For the canonical refactor path, read [Covering Before Refactor](/docs/blackbox/use-cases/covering-before-refactor). The useful pattern is characterization first: capture the behavior, review the effect catalog, refactor, then rerun the same proof.
+
+The first pass should be narrow. `subscribe-flow` is the right kind of target because it has one business action, a clear response, and several boundary effects that matter. `subscribe-unknown-user` is also valuable because the `ghost-user` path should prove physical absence: no payment effect and no SQS effect.
+
+## System Tests vs E2E Tests (Altitude and reliability)
+
+Blackbox can observe system tests and E2E tests, but they are not the same altitude.
+
+<OverviewDiagram kind="fit" />
+
+| Test shape | What it usually proves | Dependency shape | Blackbox role |
+| --- | --- | --- | --- |
+| System test | A composed service or local topology behaves correctly | Mostly controlled by the test run | Strong fit for a deterministic CI gate |
+| E2E test | A full journey works through a production-like path | Often includes shared or remote dependencies | Strong fit for full-journey realism and smoke evidence |
+
+A system test is usually the better first Blackbox target. It is realistic enough to produce useful runtime evidence and controlled enough to make failures actionable. The 5-service topology is the model: the test run owns the services and dependencies it needs, so the evidence usually points close to the behavior under review.
+
+An E2E test can still be useful. It may prove that a broader deployed journey works, and Blackbox can capture evidence from that journey. The tradeoff is reliability. When more of the environment sits outside the test run, a failure can come from the product, shared state, credentials, remote infrastructure, timing, or an external boundary.
+
+Use system tests when the result should block a merge. Use E2E runs when the value is broader evidence and the team accepts more environmental variance.
+
+## Managed vs Unmanaged Dependencies (The "controlled run" distinction)
+
+**Managed dependencies** are dependencies created, configured, reset, and owned by the test run. In the showcase, the managed shape is the 5-service topology around `subscribe-flow`: BFF, Redis, Postgres, the payment HTTP boundary, and SQS.
+
+**Unmanaged dependencies** are dependencies outside the test run's direct control. The same category of boundary becomes unmanaged when the test reaches a shared, remote, or externally owned version instead of the controlled topology.
+
+<Tabs groupId="dependency-control">
+<TabItem value="managed-compose" label="Managed (docker-compose.yml)" default>
+
+```yaml
+services:
+  bff:
+    image: node:20-alpine
+    working_dir: /app
+    command: ["node", "dist/bff.js"]
+    ports: ["3000:3000"]
+    environment:
+      REDIS_URL: redis://redis:6379
+      DATABASE_URL: postgres://app:app@postgres:5432/app
+      PAYMENT_URL: http://payment-http:8080
+      SQS_ENDPOINT: http://sqs:4566
+    depends_on:
+      redis: { condition: service_healthy }
+      postgres: { condition: service_healthy }
+      payment-http: { condition: service_healthy }
+      sqs: { condition: service_healthy }
+    healthcheck: { test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"], interval: 5s, timeout: 2s, retries: 12 }
+
+  payment-http:
+    image: node:20-alpine
+    working_dir: /app
+    command: ["node", "test/fakes/payment-http.js"]
+    healthcheck: { test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"], interval: 5s, timeout: 2s, retries: 12 }
+
+  redis:
+    image: redis:7-alpine
+    healthcheck: { test: ["CMD", "redis-cli", "ping"], interval: 5s, timeout: 2s, retries: 12 }
+
+  postgres:
+    image: postgres:16-alpine
+    environment: { POSTGRES_USER: app, POSTGRES_PASSWORD: app, POSTGRES_DB: app }
+    healthcheck: { test: ["CMD-SHELL", "pg_isready -U app -d app"], interval: 5s, timeout: 2s, retries: 12 }
+
+  sqs:
+    image: localstack/localstack:3
+    environment: { SERVICES: sqs }
+    healthcheck: { test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"], interval: 5s, timeout: 2s, retries: 12 }
+```
+
+</TabItem>
+<TabItem value="unmanaged-staging" label="Unmanaged (staging env config)">
+
+```dotenv
+# Blackbox observes these endpoints, but the run does not own their state.
+BFF_URL=https://bff.staging.example.com
+EXTERNAL_AUTH_URL=https://auth.staging.example.com
+PAYMENT_PROVIDER_URL=https://payments.staging.example.com
+DATABASE_URL=postgres://blackbox:${STAGING_DB_PASSWORD}@db.staging.example.com:5432/app
+SQS_QUEUE_URL=https://sqs.us-east-1.amazonaws.com/123456789012/staging-subscriptions
+STAGING_AUTH_CLIENT_ID=blackbox-ci
+STAGING_AUTH_CLIENT_SECRET=${STAGING_AUTH_CLIENT_SECRET}
+PAYMENT_PROVIDER_TOKEN=${PAYMENT_PROVIDER_TOKEN}
+```
+
+</TabItem>
+</Tabs>
+
+| Dependency shape | What control you have | What a failure usually means | Best use |
+| --- | --- | --- | --- |
+| Managed dependencies | The run owns startup, state, ports, cleanup, and reset | The behavior under test probably changed, or the local topology is misconfigured | Deterministic CI gate |
+| Unmanaged dependencies | The run observes something it does not fully own | The behavior may have changed, or the environment may have varied | Full-journey realism and release evidence |
+
+This distinction is the most important content absorbed from the old "Where Blackbox Fits" page. Blackbox can observe both shapes, but the meaning of the evidence changes.
+
+With managed dependencies, you can usually trust a failed effect as a product or topology signal. If `subscribe-flow` stops writing the expected Postgres row or stops sending the expected SQS message, the team has a tight investigation surface.
+
+With unmanaged dependencies, the evidence can still be valuable, but the gate is noisier. Treat it as broader journey evidence first. Promote it to a blocking gate only when the environment is stable enough for failures to be actionable.
+
+## When to Stick with Unit Tests (Honest limits and fast feedback)
+
+If a local assertion can answer the review question without starting the system, Blackbox is the wrong first tool. Spend it where the risk crosses a boundary and runtime evidence would change the review.
+
+Alpha limits to spend Blackbox carefully against: Playwright-only first path, serial single-worker until capture is proven, noisier failures in remote or shared environments, and proof only over the effects the run can observe.
+
+## Adoption Strategy (Starting small vs full loop)
+
+Start small. Pick one flow, preferably `subscribe-flow` or a similar existing workflow with clear boundary effects. Run it, inspect the catalog, keep the effects that define correct behavior, add forbids for behavior that must stay absent, then rerun until the coverage signal is satisfied.
+
+Use [Prove Your First Flow](/docs/blackbox/quickstart/first-proven-feature) for that first loop. The stop condition is concrete: one Playwright run, one reviewed effect catalog entry, and one coverage result that proves the required effects happened and the forbidden effects stayed absent.
+
+After that, choose whether to broaden the loop.
+
+1. Add more users only when they reveal meaningful behavior, such as `bob`, `carol`, `dora`, or `eve` in the same scenario family.
+2. Add the `subscribe-unknown-user` negative path when absence matters as much as presence.
+3. Add feature-file generation when reviewers need readable behavior next to runtime proof.
+4. Add more flows only after the first catalog is stable in CI.
+
+The full loop combines tests, effects, and feature files. The test proves the workflow still runs. The effects prove what happened at runtime. The feature file gives humans and agents a readable behavior surface. Read [Tests, Effects, and Feature Files](/docs/blackbox/overview/tests-effects-and-feature-files) when you want that combined review model.

@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import InputOutputGapDiagram from '@/components/blackbox/InputOutputGapDiagram.astro';
 import OverviewDiagram from '@/components/blackbox/OverviewDiagram.astro';
 import CodeFirstBddDiagram from '@/components/blackbox/CodeFirstBddDiagram.astro';
 ---
@@ -17,40 +16,55 @@ import CodeFirstBddDiagram from '@/components/blackbox/CodeFirstBddDiagram.astro
         <span>Suites</span>
       </a>
       <nav class="slide-dots" aria-label="Slides">
-        <a href="#suites" class="slide-dot" data-slide-dot="1"><span>1</span> Suites</a>
-        <a href="#blackbox" class="slide-dot" data-slide-dot="2"><span>2</span> Blackbox</a>
-        <a href="#category" class="slide-dot" data-slide-dot="3"><span>3</span> Review Gap</a>
-        <a href="#architecture" class="slide-dot" data-slide-dot="4"><span>4</span> Run Path</a>
-        <a href="#demo" class="slide-dot" data-slide-dot="5"><span>5</span> Demo Setup</a>
-        <a href="#behavior-specs" class="slide-dot" data-slide-dot="6"><span>6</span> Behavior Specs</a>
-        <a href="#lifecycle" class="slide-dot" data-slide-dot="7"><span>7</span> Report Flow</a>
-        <a href="#baz" class="slide-dot" data-slide-dot="8"><span>8</span> Summary</a>
+        <a href="#intro" class="slide-dot" data-slide-dot="1"><span>1</span> Intro</a>
+        <a href="#suites" class="slide-dot" data-slide-dot="2"><span>2</span> Suites</a>
+        <a href="#sdlc-problem" class="slide-dot" data-slide-dot="3"><span>3</span> SDLC</a>
+        <a href="#evidence-gap" class="slide-dot" data-slide-dot="4"><span>4</span> Gap</a>
+        <a href="#blackbox" class="slide-dot" data-slide-dot="5"><span>5</span> Blackbox</a>
+        <a href="#demo" class="slide-dot" data-slide-dot="6"><span>6</span> Demo</a>
+        <a href="#feature-files" class="slide-dot" data-slide-dot="7"><span>7</span> Feature Files</a>
+        <a href="#agentic-flow" class="slide-dot" data-slide-dot="8"><span>8</span> Agentic Flow</a>
+        <a href="#environments" class="slide-dot" data-slide-dot="9"><span>9</span> Environments</a>
+        <a href="#test-dependency" class="slide-dot" data-slide-dot="10"><span>10</span> Constraints</a>
       </nav>
     </header>
 
     <div class="deck-shell">
       <main class="slides" id="main">
-        <section class="slide slide-intro" id="suites" data-slide="1" aria-label="Suites and Omer">
+        <section class="slide slide-intro" id="intro" data-slide="1" aria-label="Omer introduction">
           <div class="slide-copy">
-            <p class="eyebrow">Slide 1 / Context</p>
-            <h1>Suites is my testing work for TypeScript backend teams.</h1>
+            <p class="eyebrow">Slide 1 / Intro</p>
+            <h1>I build testing tools for TypeScript backend teams.</h1>
             <p class="lead">
-              I am Omer Morad, creator and maintainer of Suites. Suites started by making dependency-injection-heavy
-              unit tests easier to write, type-safe, and consistent. Blackbox continues the same direction at the
-              system-behavior layer.
+              I am Omer Morad, creator and maintainer of Suites. This session is about the next layer I am building:
+              runtime evidence for system behavior, aimed at the review and delivery loop.
             </p>
-            <div class="suites-proof-points" aria-label="Suites credibility points">
-              <div><span>Started with unit testing</span> Automatic mocks, typed dependency access, and a single repeatable pattern for NestJS, InversifyJS, Jest, Vitest, and Sinon.</div>
-              <div><span>Predictable test shape</span> Small APIs and consistent structure reduce how much scaffolding humans and coding agents need to infer.</div>
-              <div><span>System behavior</span> From isolated units to controlled system runs: checking what changed at service boundaries.</div>
-            </div>
           </div>
 
           <div class="slide-visual suites-visual" aria-label="Suites project snapshot">
             <div class="snapshot-card snapshot-main">
-              <span class="snapshot-label">Open source project</span>
-              <h3>Suites</h3>
-              <p>A TypeScript backend testing toolkit focused on dependency injection, consistency, and lower setup cost.</p>
+              <span class="snapshot-label">Speaker</span>
+              <h3>Omer Morad</h3>
+              <p>Maintainer of Suites and builder of a new runtime evidence layer for backend system verification.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide" id="suites" data-slide="2" aria-label="What Suites has been until now">
+          <div class="slide-copy">
+            <p class="eyebrow">Slide 2 / Suites until now</p>
+            <h2>Suites until now.</h2>
+            <p class="lead">
+              Suites made whitebox unit tests easier for TypeScript backend services. But whitebox confidence is
+              collapsing as the only review signal under the throughput of generated code.
+            </p>
+          </div>
+
+          <div class="slide-visual suites-visual" aria-label="Suites lean project snapshot">
+            <div class="snapshot-card snapshot-main">
+              <span class="snapshot-label">Open source</span>
+              <h3>Suites Unit</h3>
+              <p>Typed mocks and repeatable setup for dependency-injection-heavy services.</p>
             </div>
             <div class="snapshot-metrics" aria-label="Suites metrics">
               <div>
@@ -73,95 +87,88 @@ import CodeFirstBddDiagram from '@/components/blackbox/CodeFirstBddDiagram.astro
                 <span class="metric-label">monthly downloads</span>
               </div>
             </div>
-            <div class="snapshot-ladder">
-              <div><span>Suites Unit</span> Check one class in isolation.</div>
-              <div><span>Suites Blackbox</span> Check a system change at runtime.</div>
+          </div>
+        </section>
+
+        <section class="slide slide-intro" id="sdlc-problem" data-slide="3" aria-label="SDLC problem">
+          <div class="slide-copy">
+            <p class="eyebrow">Slide 3 / SDLC problem</p>
+            <h1>Agentic development makes verification the critical gate.</h1>
+            <p class="lead">
+              Agents can implement quickly. The harder question is whether a change really preserved behavior across the
+              system boundary before it reaches merge.
+            </p>
+          </div>
+
+          <div class="slide-visual baz-flow" aria-label="SDLC trust bottleneck">
+            <div class="flow-card">
+              <span class="flow-label">1</span>
+              <h3>Spec</h3>
+              <p>Intent is written in a ticket, design, or planning document.</p>
+            </div>
+            <div class="flow-card">
+              <span class="flow-label">2</span>
+              <h3>Agent change</h3>
+              <p>The implementation arrives quickly and may look reasonable in the diff.</p>
+            </div>
+            <div class="flow-card flow-proof">
+              <span class="flow-label">3</span>
+              <h3>Review</h3>
+              <p>The reviewer still needs to know what the running system actually did.</p>
+            </div>
+            <div class="flow-card">
+              <span class="flow-label">4</span>
+              <h3>Merge gate</h3>
+              <p>The delivery decision needs evidence, not only a green visible assertion.</p>
             </div>
           </div>
         </section>
 
-        <section class="slide" id="blackbox" data-slide="2" aria-label="What Blackbox adds to system and E2E flows">
+        <section class="slide" id="evidence-gap" data-slide="4" aria-label="Spec drift and missing runtime evidence">
           <div class="slide-copy">
-            <p class="eyebrow">Slide 2 / What Blackbox adds</p>
-            <h2>Blackbox checks the backend effects behind a system or E2E flow.</h2>
+            <p class="eyebrow">Slide 4 / Spec drift</p>
+            <h2>Specs describe intent. Runtime evidence keeps them honest.</h2>
             <p class="lead">
-              Today, E2E drives the visible flow. Blackbox instruments the controlled run, records configured
-              runtime effects, matches them against a reviewable behavior catalog, and returns an effect report for that run.
+              Spec-driven development improves planning, but the spec is usually written before implementation. After
+              code changes, refactors, and agent edits, the team still needs proof that the running system matches the
+              intended behavior.
             </p>
-            <div class="blackbox-definition">
-              <div><span>Visible check</span> The UI or API assertion says the flow completed.</div>
-              <div><span>Runtime effects</span> DB writes, queue publishes, cache changes, and outbound calls are recorded.</div>
-              <div><span>Effect report</span> Observed, missing required, forbidden, and covered effects are attached to the run.</div>
-            </div>
           </div>
 
-          <div class="slide-visual deck-diagram" aria-label="Input output gap and captured runtime effects">
-            <InputOutputGapDiagram />
-          </div>
-        </section>
-
-        <section class="slide slide-intro" id="category" data-slide="3" aria-label="Review gap and integration boundary">
-          <div class="slide-copy">
-            <p class="eyebrow">Slide 3 / Review gap and boundary</p>
-            <h1>Verifier agents infer. Blackbox records runtime facts.</h1>
-            <p class="lead">
-              When agents produce code quickly, review still slows down if the system behavior behind a requirement is
-              not visible. A verifier workflow can select the requirement and run the flow. Blackbox adds deterministic
-              checks over configured runtime evidence from that same controlled run.
-            </p>
-            <p class="lead lead-compact">
-              <strong>The verifier owns intent and execution. Blackbox owns the runtime-effect evidence.</strong>
-            </p>
-            <div class="sensor-outcomes">
-              <div><span>Verifier input</span> Requirement, branch preview, base behavior, and the flow to exercise.</div>
-              <div><span>Blackbox input</span> Run identity, configured instrumentation, and the reviewed behavior catalog.</div>
-              <div><span>Blackbox output</span> Observed, missing required, forbidden, and covered effects for the run.</div>
-            </div>
-          </div>
-
-          <div class="slide-visual sensor-visual" aria-label="Spec review and Blackbox cooperation">
-            <div class="sensor-card sensor-baz">
-              <div class="sensor-label">Requirement review layer</div>
-              <h3>Verifier agents</h3>
-              <p>Turns specs into verification work and runs requirement-focused agents against preview environments.</p>
-              <ul>
-                <li>Extracts requirements and failure cases.</li>
-                <li>Splits verification across agents.</li>
-                <li>Grounds review in base code and scope.</li>
-              </ul>
-            </div>
-            <div class="sensor-plus">+</div>
-            <div class="sensor-card sensor-blackbox">
-              <div class="sensor-label">Runtime evidence layer</div>
-              <h3>Suites Blackbox</h3>
-              <p>Observes the same controlled run and returns cataloged evidence for backend and system effects.</p>
-              <ul>
-                <li>Observed effects.</li>
-                <li>Missing required effects.</li>
-                <li>Forbidden effects and coverage.</li>
-              </ul>
-            </div>
-            <div class="sensor-result">
-              <strong>Shared handoff</strong>
-              <span>The verifier checks the requirement. Blackbox returns the effects produced by the run.</span>
+          <div class="slide-visual spec-visual" aria-label="Spec drift and runtime evidence">
+            <div class="spec-flow">
+              <div class="spec-card">
+                <span>1</span>
+                <h3>Intent</h3>
+                <p>A ticket, design, SDD spec, or feature file says what should happen.</p>
+              </div>
+              <div class="spec-card">
+                <span>2</span>
+                <h3>Implementation</h3>
+                <p>A human or agent changes code, often faster than reviewers can inspect deeply.</p>
+              </div>
+              <div class="spec-card spec-card-accent">
+                <span>3</span>
+                <h3>Drift</h3>
+                <p>The spec can stay readable while the running system has moved away from it.</p>
+              </div>
+              <div class="spec-card spec-card-good">
+                <span>4</span>
+                <h3>The gap</h3>
+                <p>There is no shared runtime artifact tying intent, executable checks, and actual system behavior together.</p>
+              </div>
             </div>
           </div>
         </section>
 
-        <section class="slide" id="architecture" data-slide="4" aria-label="Architecture and constraints">
+        <section class="slide" id="blackbox" data-slide="5" aria-label="What Suites Blackbox is">
           <div class="slide-copy">
-            <p class="eyebrow">Slide 4 / Run path</p>
-            <h2>The verifier runs the flow. Blackbox records the effects.</h2>
+            <p class="eyebrow">Slide 5 / What Blackbox is</p>
+            <h2>Blackbox adds runtime-effect evidence to controlled system flows.</h2>
             <p class="lead">
-              For a requirement-scoped run, Blackbox returns a trace-scoped effect report from the configured
-              instrumentation boundary: observed effects, missing required effects, forbidden effects, and coverage.
+              The goal is simple: when a test drives a real flow, Blackbox records configured effects, compares them to a
+              reviewable behavior catalog, and returns evidence the reviewer can inspect.
             </p>
-            <div class="constraint-row">
-              <span>Requirement scoped</span>
-              <span>Branch scoped</span>
-              <span>Effect report</span>
-              <span>Reviewable catalog</span>
-            </div>
           </div>
 
           <div class="slide-visual deck-diagram">
@@ -169,35 +176,21 @@ import CodeFirstBddDiagram from '@/components/blackbox/CodeFirstBddDiagram.astro
           </div>
         </section>
 
-        <section class="slide demo-break-slide" id="demo" data-slide="5" aria-label="Demo setup">
+        <section class="slide demo-break-slide" id="demo" data-slide="6" aria-label="Demo time">
           <div class="demo-break-copy">
-            <p class="eyebrow">Slide 5 / Demo setup</p>
-            <h1>Demo: one requirement run produces one effect report.</h1>
-            <div class="demo-watch-list" aria-label="What to watch in the demo">
-              <span>requirement result</span>
-              <span>observed effects</span>
-              <span>missing required</span>
-              <span>forbidden effects</span>
-              <span>coverage state</span>
-            </div>
+            <p class="eyebrow">Slide 6 / Demo time</p>
+            <h1>Now let's watch a short demo.</h1>
           </div>
         </section>
 
-        <section class="slide" id="behavior-specs" data-slide="6" aria-label="Behavior specs and stale specifications">
+        <section class="slide" id="feature-files" data-slide="7" aria-label="Feature files from executed behavior">
           <div class="slide-copy">
-            <p class="eyebrow">Slide 6 / Behavior specs</p>
-            <h2>Feature files are complementary to spec-driven development.</h2>
+            <p class="eyebrow">Slide 7 / Feature files</p>
+            <h2>Feature files come from executed behavior, not the other way around.</h2>
             <p class="lead">
-              Specs describe intended behavior before implementation. After implementation and over time, they can drift
-              from what the system actually does. Blackbox can emit feature files from executable runs, so readable
-              behavior specs stay connected to tests and runtime evidence.
+              This is the reverse of classic feature-file-first BDD. The executable test and runtime evidence can emit a
+              readable behavior file, so the spec-like artifact stays tied to code that actually runs.
             </p>
-            <div class="lifecycle-points">
-              <div><span>Before code</span> A ticket, design, or SDD spec describes the intended behavior.</div>
-              <div><span>After code</span> A Playwright run exercises the branch and Blackbox records configured effects.</div>
-              <div><span>Readable artifact</span> A generated `.feature` file is optional; it gives humans and agents a compact behavior view.</div>
-              <div><span>Drift check</span> When tests, effects, and feature files separate, the change needs review.</div>
-            </div>
           </div>
 
           <div class="slide-visual deck-diagram" aria-label="System tests effects and feature files triangle">
@@ -205,155 +198,137 @@ import CodeFirstBddDiagram from '@/components/blackbox/CodeFirstBddDiagram.astro
           </div>
         </section>
 
-        <section class="slide" id="lifecycle" data-slide="7" aria-label="Lifecycle">
+        <section class="slide slide-wide" id="agentic-flow" data-slide="8" aria-label="Agentic workflow">
           <div class="slide-copy">
-            <p class="eyebrow">Slide 7 / Report flow</p>
-            <h2>Where the effect report travels.</h2>
-            <p class="lead">
-              The lifecycle matters because the report is not just terminal output. It becomes review input: what was
-              observed, what was required but missing, what was forbidden, and what catalog or coverage state changed.
-            </p>
-            <div class="lifecycle-points">
-              <div><span>Observed</span> Effects recorded from the configured system boundary during the run.</div>
-              <div><span>Missing</span> Required catalog entries that did not appear for the checked flow.</div>
-              <div><span>Forbidden</span> Effects that appeared even though the catalog says they should not.</div>
-              <div><span>Decision</span> Implementation fix, catalog review, rerun, or gate-ready evidence.</div>
-            </div>
+            <p class="eyebrow">Slide 8 / Agentic workflow</p>
+            <h2>In an agentic loop, evidence has to be readable by humans and agents.</h2>
           </div>
 
-          <div class="slide-visual lifecycle-visual" aria-label="Blackbox and verifier lifecycle">
-            <div class="lifecycle-frame" data-life-step="0">
-              <svg viewBox="0 0 980 560" role="img" aria-labelledby="lifeTitle lifeDesc">
-                <title id="lifeTitle">Spec review and Blackbox lifecycle</title>
-                <desc id="lifeDesc">A planner prepares requirement verification, runs a sandbox, Blackbox observes system effects, and a reviewer agent reads runtime evidence.</desc>
+          <div class="slide-visual agent-loop-visual" aria-label="Agentic verification loop">
+            <div class="agent-loop-frame">
+              <svg viewBox="0 0 1260 540" role="img" aria-labelledby="agentLoopTitle agentLoopDesc">
+                <title id="agentLoopTitle">Agentic implementation loop with Blackbox evidence</title>
+                <desc id="agentLoopDesc">A product spec is planned and implemented, deployed to an instrumented sandbox, exercised by E2E, converted into Blackbox evidence, and reviewed for merge or another fix loop.</desc>
                 <defs>
-                  <marker id="lifeArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                  <marker id="agentLoopArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto">
                     <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"></path>
+                  </marker>
+                  <marker id="agentLoopReturnArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#60a5fa"></path>
                   </marker>
                 </defs>
 
-                <path class="life-lane" d="M140 118 H348"></path>
-                <path class="life-lane" d="M502 118 H710"></path>
-                <path class="life-lane" d="M795 186 V304"></path>
-                <path class="life-lane" d="M710 373 H502"></path>
-                <path class="life-lane" d="M348 373 H140"></path>
+                <rect class="agent-loop-surface" x="34" y="46" width="1192" height="390" rx="28"></rect>
+                <rect class="agent-loop-runtime-band" x="486" y="96" width="562" height="266" rx="22"></rect>
+                <text class="agent-loop-label" x="68" y="86">developer / agent work</text>
+                <text class="agent-loop-label" x="512" y="130">instrumented runtime</text>
 
-                <g class="life-node life-node-1">
-                  <rect x="30" y="62" width="150" height="112" rx="10"></rect>
-                  <text class="life-title" x="105" y="102" text-anchor="middle">Specs + base</text>
-                  <text class="life-sub" x="105" y="130" text-anchor="middle">intent</text>
-                  <text class="life-sub" x="105" y="152" text-anchor="middle">known behavior</text>
+                <path class="agent-loop-arrow" d="M228 220 H268"></path>
+                <path class="agent-loop-arrow" d="M452 220 H506"></path>
+                <path class="agent-loop-arrow" d="M724 220 H768"></path>
+                <path class="agent-loop-arrow" d="M1028 220 H1068"></path>
+                <path class="agent-loop-return" d="M1142 300 C1142 456 360 456 360 312"></path>
+                <text class="agent-loop-return-label" x="728" y="462" text-anchor="middle">if evidence fails, fix and run again</text>
+
+                <g class="agent-loop-node">
+                  <rect x="70" y="162" width="158" height="116" rx="14"></rect>
+                  <text class="agent-loop-title" x="149" y="207" text-anchor="middle">Product spec</text>
+                  <text class="agent-loop-sub" x="149" y="234" text-anchor="middle">intent and acceptance</text>
                 </g>
 
-                <g class="life-node life-node-2">
-                  <rect x="332" y="42" width="190" height="152" rx="10"></rect>
-                  <text class="life-title" x="427" y="82" text-anchor="middle">Planner agent</text>
-                  <text class="life-sub" x="427" y="112" text-anchor="middle">requirement plan</text>
-                  <text class="life-sub" x="427" y="134" text-anchor="middle">failure cases</text>
-                  <text class="life-chip" x="427" y="164" text-anchor="middle">scoped</text>
+                <g class="agent-loop-node">
+                  <rect x="268" y="142" width="184" height="156" rx="14"></rect>
+                  <text class="agent-loop-title" x="360" y="186" text-anchor="middle">Plan</text>
+                  <text class="agent-loop-sub" x="360" y="213" text-anchor="middle">choose the change</text>
+                  <line class="agent-loop-divider" x1="296" y1="232" x2="424" y2="232"></line>
+                  <text class="agent-loop-title" x="360" y="266" text-anchor="middle">Implement</text>
                 </g>
 
-                <g class="life-node life-node-3">
-                  <rect x="698" y="42" width="194" height="152" rx="10"></rect>
-                  <text class="life-title" x="795" y="82" text-anchor="middle">Sandbox</text>
-                  <text class="life-sub" x="795" y="112" text-anchor="middle">branch preview</text>
-                  <text class="life-sub" x="795" y="134" text-anchor="middle">isolated execution</text>
-                  <text class="life-chip" x="795" y="164" text-anchor="middle">ephemeral</text>
+                <g class="agent-loop-node agent-loop-runtime-node">
+                  <rect x="506" y="142" width="218" height="156" rx="14"></rect>
+                  <text class="agent-loop-title" x="615" y="184" text-anchor="middle">Sandbox deploy</text>
+                  <text class="agent-loop-sub" x="615" y="211" text-anchor="middle">SUT with OTEL instrumentation</text>
+                  <line class="agent-loop-divider" x1="534" y1="232" x2="696" y2="232"></line>
+                  <text class="agent-loop-title" x="615" y="266" text-anchor="middle">E2E run</text>
                 </g>
 
-                <g class="life-node life-node-4">
-                  <rect x="698" y="298" width="194" height="150" rx="10"></rect>
-                  <text class="life-title" x="795" y="338" text-anchor="middle">Verifier flow</text>
-                  <text class="life-sub" x="795" y="368" text-anchor="middle">critical path</text>
-                  <text class="life-sub" x="795" y="390" text-anchor="middle">UI or API driver</text>
-                  <text class="life-chip" x="795" y="420" text-anchor="middle">repeatable</text>
+                <g class="agent-loop-node agent-loop-evidence-node">
+                  <rect x="768" y="116" width="260" height="208" rx="18"></rect>
+                  <text class="agent-loop-title agent-loop-evidence-title" x="898" y="164" text-anchor="middle">Blackbox evidence</text>
+                  <text class="agent-loop-sub" x="898" y="192" text-anchor="middle">runtime facts the reviewer can read</text>
+                  <rect class="agent-loop-chip" x="808" y="222" width="84" height="30" rx="8"></rect>
+                  <text class="agent-loop-chip-text" x="850" y="242" text-anchor="middle">effects</text>
+                  <rect class="agent-loop-chip" x="904" y="222" width="84" height="30" rx="8"></rect>
+                  <text class="agent-loop-chip-text" x="946" y="242" text-anchor="middle">catalog</text>
+                  <rect class="agent-loop-chip" x="808" y="264" width="84" height="30" rx="8"></rect>
+                  <text class="agent-loop-chip-text" x="850" y="284" text-anchor="middle">coverage</text>
+                  <rect class="agent-loop-chip" x="904" y="264" width="84" height="30" rx="8"></rect>
+                  <text class="agent-loop-chip-text" x="946" y="284" text-anchor="middle">feature file</text>
                 </g>
 
-                <g class="life-node life-node-5">
-                  <rect x="332" y="298" width="190" height="150" rx="10"></rect>
-                  <text class="life-title" x="427" y="338" text-anchor="middle">Effect report</text>
-                  <text class="life-sub" x="427" y="368" text-anchor="middle">effects + coverage</text>
-                  <text class="life-sub" x="427" y="390" text-anchor="middle">catalog match</text>
-                  <text class="life-chip good" x="427" y="420" text-anchor="middle">observed facts</text>
+                <g class="agent-loop-node">
+                  <rect x="1068" y="162" width="136" height="116" rx="14"></rect>
+                  <text class="agent-loop-title" x="1136" y="207" text-anchor="middle">Review</text>
+                  <text class="agent-loop-sub" x="1136" y="234" text-anchor="middle">merge or fix</text>
                 </g>
-
-                <g class="life-node life-node-6">
-                  <rect x="30" y="298" width="150" height="150" rx="10"></rect>
-                  <text class="life-title" x="105" y="338" text-anchor="middle">Reviewer agent</text>
-                  <text class="life-sub" x="105" y="368" text-anchor="middle">review evidence</text>
-                  <text class="life-sub" x="105" y="390" text-anchor="middle">fix or review</text>
-                  <text class="life-chip good" x="105" y="420" text-anchor="middle">review input</text>
-                </g>
-
-                <g class="life-contract">
-                  <rect x="378" y="212" width="98" height="56" rx="28"></rect>
-                  <text x="427" y="236" text-anchor="middle">catalog</text>
-                  <text x="427" y="254" text-anchor="middle">reviewed</text>
-                </g>
-
-                <path class="life-contract-line" d="M427 268 V298"></path>
-
-                <g class="life-tail">
-                  <rect x="248" y="492" width="150" height="42" rx="8"></rect>
-                  <text x="323" y="518" text-anchor="middle">fix/rerun</text>
-                  <rect x="416" y="492" width="150" height="42" rx="8"></rect>
-                  <text x="491" y="518" text-anchor="middle">PR evidence</text>
-                  <rect x="584" y="492" width="150" height="42" rx="8"></rect>
-                  <text x="659" y="518" text-anchor="middle">feature file</text>
-                </g>
-
-                <path class="life-tail-line" d="M105 448 C105 514 210 514 248 514"></path>
-                <path class="life-tail-line" d="M398 514 H416"></path>
-                <path class="life-tail-line" d="M566 514 H584"></path>
               </svg>
-              <div class="lifecycle-caption">
-                <strong>Report path:</strong> the run is short-lived, the report is reusable, and catalog changes are
-                reviewed because they redefine expected behavior.
+              <div class="agent-loop-caption">
+                The loop can be automated, but the handoff stays concrete: a reviewer sees what ran, which effects were
+                observed, and whether the change is ready to merge.
               </div>
             </div>
           </div>
         </section>
 
-        <section class="slide slide-final" id="baz" data-slide="8" aria-label="Summary">
+        <section class="slide" id="environments" data-slide="9" aria-label="Ephemeral environments and mocks">
           <div class="slide-copy">
-            <p class="eyebrow">Slide 8 / Summary</p>
-            <h2>What the review gets back.</h2>
+            <p class="eyebrow">Slide 9 / Ephemeral environments</p>
+            <h2>Ephemeral environments are the natural place to run this.</h2>
             <p class="lead">
-              After the run, the reviewer has the requirement result, the effect report, and the catalog/coverage state
-              for the same branch.
+              The run can be short-lived and controlled. Mocks can be useful, as long as the report makes the boundary
+              clear: what was real, what was simulated, and what unmanaged dependencies were intentionally omitted.
             </p>
-            <div class="constraint-row">
-              <span>Requirement result</span>
-              <span>Effect report</span>
-              <span>Catalog coverage</span>
-              <span>Branch evidence</span>
-            </div>
           </div>
 
           <div class="slide-visual baz-flow">
-            <div class="flow-card">
+            <div class="flow-card flow-proof">
               <span class="flow-label">1</span>
-              <h3>Requirement selected</h3>
-              <p>The planner extracts requirements and failure cases from specs, designs, base code, and review scope.</p>
+              <h3>Controlled SUT</h3>
+              <p>The system under test runs in a shape the workflow can create and tear down.</p>
             </div>
             <div class="flow-card">
               <span class="flow-label">2</span>
-              <h3>Branch exercised</h3>
-              <p>Verifier agents exercise the relevant flow in an ephemeral preview or sandbox environment.</p>
+              <h3>Managed dependencies</h3>
+              <p>Databases, queues, caches, and internal services can be part of the evidence boundary.</p>
             </div>
-            <div class="flow-card flow-proof">
+            <div class="flow-card">
               <span class="flow-label">3</span>
-              <h3>Effects recorded</h3>
-              <p>Blackbox reports required effects, forbidden effects, missing effects, and coverage for that run.</p>
+              <h3>Mocks</h3>
+              <p>Mocks are acceptable when they are explicit and the report does not pretend they are external truth.</p>
             </div>
             <div class="flow-card">
               <span class="flow-label">4</span>
-              <h3>Evidence attached</h3>
-              <p>The reviewer can cite runtime facts, request an implementation fix, or pass the report into a PR gate.</p>
+              <h3>Unmanaged dependencies</h3>
+              <p>Auth providers, email, payment, and remote systems need clear policy before they enter the run.</p>
             </div>
           </div>
-
         </section>
+
+        <section class="slide" id="test-dependency" data-slide="10" aria-label="Dependency on executable tests">
+          <div class="slide-copy">
+            <p class="eyebrow">Slide 10 / What to consider</p>
+            <h2>Blackbox depends on flows that actually exercise behavior.</h2>
+            <p class="lead">
+              This is not magic observation of the whole system. If the flow does not run, Blackbox cannot observe it.
+              Scenario quality, instrumentation boundaries, and catalog review still matter.
+            </p>
+          </div>
+
+          <div class="slide-visual deck-diagram">
+            <OverviewDiagram kind="fit" />
+          </div>
+        </section>
+
       </main>
     </div>
 
@@ -543,6 +518,28 @@ import CodeFirstBddDiagram from '@/components/blackbox/CodeFirstBddDiagram.astro
     align-items: center;
     padding: calc(clamp(42px, 7vw, 96px) + 48px) clamp(42px, 7vw, 96px) clamp(42px, 7vw, 96px);
     border-bottom: 1px solid var(--border);
+  }
+
+  .slide-wide {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    align-content: center;
+  }
+
+  .slide-wide .slide-copy {
+    max-width: 960px;
+    justify-self: center;
+    text-align: center;
+  }
+
+  .slide-wide .slide-copy h2 {
+    max-width: 24ch;
+    margin-inline: auto;
+  }
+
+  .slide-wide .slide-visual {
+    width: min(1160px, 100%);
+    justify-self: center;
   }
 
   .slide-copy {
@@ -1569,122 +1566,126 @@ import CodeFirstBddDiagram from '@/components/blackbox/CodeFirstBddDiagram.astro
     font-weight: var(--fw-bold);
   }
 
-  .lifecycle-visual {
+  .agent-loop-visual {
     min-width: 0;
   }
 
-  .lifecycle-frame {
+  .agent-loop-frame {
     overflow: hidden;
     border: 1px solid var(--border);
     border-radius: 8px;
     background:
-      linear-gradient(180deg, rgba(239, 71, 121, 0.08), transparent 36%),
+      radial-gradient(circle at 72% 44%, rgba(34, 211, 238, 0.1), transparent 34%),
+      linear-gradient(180deg, rgba(148, 163, 184, 0.08), transparent 52%),
       var(--surface);
     box-shadow: var(--shadow);
   }
 
-  .lifecycle-frame svg {
+  .agent-loop-frame svg {
     display: block;
     width: 100%;
     height: auto;
   }
 
-  .life-lane,
-  .life-tail-line,
-  .life-contract-line {
+  .agent-loop-surface {
+    fill: rgba(15, 23, 42, 0.44);
+    stroke: rgba(148, 163, 184, 0.18);
+    stroke-width: 1;
+  }
+
+  .agent-loop-runtime-band {
+    fill: rgba(37, 99, 235, 0.06);
+    stroke: rgba(96, 165, 250, 0.22);
+    stroke-width: 1;
+  }
+
+  .agent-loop-label {
+    fill: #94a3b8;
+    font: 700 12px var(--font-code);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .agent-loop-arrow,
+  .agent-loop-return {
     fill: none;
+    stroke-width: 2.5;
+  }
+
+  .agent-loop-arrow {
     stroke: #94a3b8;
-    stroke-width: 2;
-    marker-end: url(#lifeArrow);
+    marker-end: url(#agentLoopArrow);
   }
 
-  .life-lane {
-    stroke-dasharray: 10 7;
-    animation: laneFlow 1.6s linear infinite;
+  .agent-loop-return {
+    stroke: #60a5fa;
+    stroke-dasharray: 9 8;
+    marker-end: url(#agentLoopReturnArrow);
   }
 
-  .life-node rect {
+  .agent-loop-return-label {
+    fill: #93c5fd;
+    font: 700 12px var(--font-code);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .agent-loop-node rect {
     fill: #111827;
-    stroke: #334155;
+    stroke: rgba(148, 163, 184, 0.36);
     stroke-width: 1.5;
-    filter: drop-shadow(0 18px 26px rgba(0, 0, 0, 0.24));
+    filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.22));
   }
 
-  .life-node-2 rect {
-    fill: rgba(239, 71, 121, 0.1);
-    stroke: var(--primary);
+  .agent-loop-runtime-node rect {
+    fill: rgba(15, 23, 42, 0.88);
+    stroke: rgba(96, 165, 250, 0.44);
   }
 
-  .life-node-5 rect,
-  .life-node-6 rect {
-    fill: rgba(134, 239, 172, 0.08);
-    stroke: rgba(134, 239, 172, 0.68);
+  .agent-loop-evidence-node > rect {
+    fill: rgba(8, 145, 178, 0.15);
+    stroke: rgba(34, 211, 238, 0.82);
+    stroke-width: 2;
+    filter: drop-shadow(0 0 26px rgba(34, 211, 238, 0.16));
   }
 
-  .life-node {
-    transform-origin: center;
-    animation: lifePulse 9.6s ease-in-out infinite;
-  }
-
-  .life-node-2 { animation-delay: 1.2s; }
-  .life-node-3 { animation-delay: 2.4s; }
-  .life-node-4 { animation-delay: 3.6s; }
-  .life-node-5 { animation-delay: 4.8s; }
-  .life-node-6 { animation-delay: 6s; }
-
-  .life-title {
-    fill: #f4f4f5;
+  .agent-loop-title {
+    fill: #f8fafc;
     font: 700 18px var(--font-body);
   }
 
-  .life-sub {
+  .agent-loop-evidence-title {
+    font-size: 20px;
+  }
+
+  .agent-loop-sub {
     fill: #a1a1aa;
     font: 500 13px var(--font-body);
   }
 
-  .life-chip {
-    fill: var(--primary-light);
+  .agent-loop-divider {
+    stroke: rgba(148, 163, 184, 0.24);
+    stroke-width: 1;
+  }
+
+  .agent-loop-chip {
+    fill: rgba(34, 211, 238, 0.1);
+    stroke: rgba(103, 232, 249, 0.32);
+    stroke-width: 1;
+  }
+
+  .agent-loop-chip-text {
+    fill: #cffafe;
     font: 700 12px var(--font-code);
     text-transform: uppercase;
   }
 
-  .life-chip.good {
-    fill: #86efac;
-  }
-
-  .life-contract rect {
-    fill: #17171c;
-    stroke: var(--primary-border);
-    stroke-width: 1.5;
-  }
-
-  .life-contract text {
-    fill: var(--primary-light);
-    font: 700 12px var(--font-code);
-    text-transform: uppercase;
-  }
-
-  .life-tail rect {
-    fill: rgba(255, 255, 255, 0.04);
-    stroke: #334155;
-    stroke-width: 1.5;
-  }
-
-  .life-tail text {
-    fill: #cbd5e1;
-    font: 700 12px var(--font-body);
-  }
-
-  .lifecycle-caption {
+  .agent-loop-caption {
     padding: 14px 18px 16px;
     border-top: 1px solid var(--border);
     color: var(--text-muted);
     font-size: 14px;
     line-height: 1.5;
-  }
-
-  .lifecycle-caption strong {
-    color: var(--text);
   }
 
   .demo-break-slide {
@@ -1933,30 +1934,4 @@ import CodeFirstBddDiagram from '@/components/blackbox/CodeFirstBddDiagram.astro
     }
   }
 
-  @keyframes laneFlow {
-    from {
-      stroke-dashoffset: 0;
-    }
-
-    to {
-      stroke-dashoffset: -17;
-    }
-  }
-
-  @keyframes lifePulse {
-    0%, 18%, 100% {
-      opacity: 0.82;
-    }
-
-    8% {
-      opacity: 1;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .life-lane,
-    .life-node {
-      animation: none;
-    }
-  }
 </style>

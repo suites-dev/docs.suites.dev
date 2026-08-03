@@ -1,0 +1,137 @@
+---
+title: Code-First BDD
+description: "Blackbox's unique approach to BDD: starting with system tests and projecting behavior into readable feature files."
+sidebar_position: 5
+---
+
+import CodeFirstBddDiagram from '@/components/blackbox/CodeFirstBddDiagram.astro';
+import BlackboxDemo from '@/components/blackbox/BlackboxDemo.astro';
+import Tabs from '@/components/mdx/Tabs.astro';
+import TabItem from '@/components/mdx/TabItem.astro';
+
+**Code-First BDD** starts with executable behavior instead of a hand-written promise. You write or keep the system test, run the composed system, capture the runtime evidence, and let Blackbox project that tested behavior into readable Gherkin.
+
+Classic BDD asks you to write the promise first. Code-First BDD lets you write the reality first, then turns that reality into a readable promise that can stay synchronized by default.
+
+<CodeFirstBddDiagram kind="loop" />
+
+This matters because most teams do not begin from a clean BDD workflow. They begin with Playwright tests, system tests, generated changes, stale feature files, or no feature files at all. Blackbox gives those teams a path into BDD without making Gherkin the master source.
+
+<BlackboxDemo />
+
+## The Code-First Flip
+
+Traditional Cucumber-style BDD usually starts with a `.feature` file. A person writes the feature, engineers bind steps to code, and the team keeps the feature file, step definitions, test behavior, and implementation aligned over time.
+
+That direction can work, but it is expensive when behavior changes quickly. A feature file can keep reading well after the system has stopped doing the thing it describes.
+
+Blackbox flips the direction:
+
+1. A system test runs a behavior, such as `subscribe-flow`.
+2. The runtime emits evidence from the five-service topology: BFF, Redis, Postgres, payment HTTP, and SQS.
+3. Blackbox maps the evidence into effects and catalog coverage.
+4. Blackbox emits or checks a feature file as a readable behavior surface.
+
+The test is still the executable source. The runtime evidence is still the proof. The feature file becomes a readable projection of behavior that actually ran.
+
+## Feature Files as Readable Projections
+
+A generated `.feature` file is useful because it gives humans and agents a compact behavior surface. Product, QA, platform, and code reviewers can read the scenario without opening the Playwright source or tracing through spans.
+
+For the showcase `subscribe-flow`, the executable test and its readable projection sit side by side:
+
+<Tabs groupId="dsl-to-gherkin">
+<TabItem value="dsl" label="Playwright + Scenario DSL" default>
+
+```ts
+import { scenario } from './testbed.js';
+import { postJson } from './_http.js';
+
+scenario('subscribe-flow', 'subscribing to the pro tier', ({ given, when, then, background }) => {
+  background('the system is reset', async ({ system }) => {
+    await system.reset();
+  });
+
+  given('alice is an existing user with no active subscription', async ({ db }) => {
+    await db.users.insert({ name: 'alice', tier: 'free' });
+  });
+
+  when('alice POSTs /subscriptions with a valid card', async ({ http, capture }) => {
+    capture.response = await postJson(http, '/subscriptions', { user: 'alice', card: 'valid' });
+  });
+
+  then('the response status is 201', ({ capture }) => {
+    expect(capture.response.status).toBe(201);
+  });
+});
+```
+
+</TabItem>
+<TabItem value="gherkin" label="Generated feature file">
+
+```gherkin
+@flow:subscribe-flow
+Feature: subscribing to the pro tier
+
+  Background:
+    Given the system is reset
+
+  Scenario: alice is an existing user with no active subscription
+    When alice POSTs /subscriptions with a valid card
+    Then the response status is 201
+```
+
+</TabItem>
+</Tabs>
+
+Read the generated file as a projection, not as runtime proof. It says what the test source expresses in behavior language. It does not prove by itself that Postgres inserted the subscription, Redis cached the tier, the payment HTTP boundary was called, or SQS received the subscription message.
+
+That proof belongs to runtime evidence and the effect catalog. For the core contract behind those effects, read [Effects and Catalogs](/docs/blackbox/concepts/effects-and-catalogs).
+
+## AAA vs. Given-When-Then
+
+Blackbox connects the familiar **AAA pattern**, arrange, act, assert, to Gherkin's Given-When-Then shape.
+
+| Test structure | Gherkin shape | Purpose |
+| --- | --- | --- |
+| Arrange | `Given` | Prepare state and preconditions |
+| Act | `When` | Exercise the behavior |
+| Assert | `Then` | State the observable conclusion |
+
+The mapping keeps feature generation honest. A scenario must not become a loose narrative of steps. It needs setup, an action, and an observable conclusion.
+
+In `subscribe-flow`, `alice is an existing user with no active subscription` is the setup. `alice POSTs /subscriptions with a valid card` is the action. `the response status is 201` is the visible assertion. The effect catalog can then add stronger boundary assertions, such as the required payment call, subscription insert, Redis write, and SQS message.
+
+The negative showcase path uses the same grammar. In `subscribe-unknown-user`, `ghost-user` is rejected. The readable feature can describe that rejection, while runtime effects prove that forbidden downstream behavior stayed absent.
+
+## The BDD Loop: Test -> Evidence -> Catalog -> Feature
+
+The **BDD loop** in Blackbox is intentionally narrow:
+
+1. **Test:** Run a real system behavior through Playwright or the Blackbox scenario DSL.
+2. **Evidence:** Capture the observed runtime facts from the run.
+3. **Catalog:** Review the important effects and mark what the behavior requires or forbids.
+4. **Feature:** Emit or check the Gherkin projection for readability and drift.
+
+Each artifact has a job. The test executes the behavior. Evidence records what happened in the topology. The catalog turns important effects into a behavior contract. The feature file makes that behavior readable in review.
+
+That separation is the value. A plain test pass can prove that `POST /subscriptions` returned `201`, but it may not show whether the message reached SQS. A feature file can describe the expected user story, but it may drift from the source test. A catalog can prove boundary behavior, but it is not always the best surface for a product or QA review.
+
+Code-First BDD keeps those surfaces connected without pretending they are the same artifact.
+
+## Why Specs are Optional (but Powerful)
+
+Blackbox does not require feature files before it can create value. You can start with one system test, capture effects, review the catalog, and use coverage as the behavioral gate.
+
+Specs become powerful when readability matters. Use generated feature files when the team needs:
+
+- A Gherkin view of `subscribe-flow` or `subscribe-unknown-user`.
+- A review surface for product, QA, platform, or agent workflows.
+- A stable text artifact next to effect catalogs and coverage reports.
+- A drift gate that catches stale behavior language before it reaches a pull request.
+
+Skip feature files when nobody will read or gate them. A generated spec that does not change review behavior becomes another artifact to ignore.
+
+When you do use specs, keep the authority chain clear. The test drives the system. Runtime evidence proves what happened. The effect catalog states the behavior contract. The feature file makes that contract readable.
+
+That is the Code-First BDD model: write the executable behavior first, prove it at runtime, then project it into readable language. To understand how Blackbox prevents that readable layer from going stale, read [Feature Staleness and Drift](/docs/blackbox/concepts/feature-staleness-and-drift).

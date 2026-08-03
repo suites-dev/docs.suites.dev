@@ -19,6 +19,11 @@ export default defineConfig({
   site: 'https://suites.dev',
   trailingSlash: 'ignore',
   output: 'static',
+  vite: {
+    server: {
+      allowedHosts: ['7fcf-77-125-115-106.ngrok-free.app'],
+    },
+  },
   adapter: vercel({
     webAnalytics: { enabled: true },
     imageService: true,

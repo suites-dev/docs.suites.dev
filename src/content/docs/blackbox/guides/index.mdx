@@ -1,0 +1,51 @@
+---
+title: Guides Overview
+description: Practical guides for setting up, authoring, and operationalizing Blackbox behavior proof.
+sidebar_position: 1
+---
+
+import OverviewDiagram from '@/components/blackbox/OverviewDiagram.astro';
+
+Blackbox guides are organized by the job you need to do right now. Start here when you need a practical path from one proof run to a repeatable workflow for scenarios, generated features, reports, and CI.
+
+The examples stay on the showcase path: `subscribe-flow`, `subscribe-unknown-user`, `alice`, `ghost-user`, and the five-service topology with the BFF, Redis, Postgres, payment HTTP boundary, and SQS.
+
+## Choose the job
+
+### Setup
+
+- **[Set Up the Testbed](/docs/blackbox/guides/set-up-the-testbed)**: Configure the controlled Playwright and OpenTelemetry testbed so Blackbox can collect runtime evidence from the showcase topology.
+
+### Authoring
+
+- **[Writing Scenarios](/docs/blackbox/guides/writing-scenarios)**: Write the **scenario DSL**, the Given/When/Then-shaped API that names the flow, drives the system, and asserts required or forbidden effects.
+
+### Artifacts
+
+- **[Generating Feature Files](/docs/blackbox/guides/generating-feature-files)**: Generate reviewable `.feature` files from the executable `subscribe-flow` test, then check Gherkin syntax and feature-file drift.
+- **[Reading Coverage Reports](/docs/blackbox/guides/reading-coverage-reports)**: Read `.blackbox-coverage/` artifacts, connect OMC/DC verdicts to `POST /subscriptions`, and decide whether the run produced enough effect coverage.
+
+### Operations
+
+- **[Configure CI Gates](/docs/blackbox/guides/ci-behavioral-gates)**: Turn feature drift, missing required effects, observed forbidden effects, and report artifacts into a pull-request gate.
+
+## The common workflow
+
+<OverviewDiagram kind="proof-loop" />
+
+Use the guides as one loop, not as disconnected tasks.
+
+1. Configure the testbed so the showcase services start in a controlled run.
+2. Write a scenario for `subscribe-flow` in the scenario DSL.
+3. Run Playwright so `alice` exercises the BFF, Redis, Postgres, payment HTTP boundary, and SQS.
+4. Review the generated feature file so the behavior is readable outside the test source.
+5. Inspect coverage reports to see which required effects were observed, which forbidden effects stayed absent, and where proof is still missing.
+6. Move the same checks into CI when the catalog and reports are ready for review.
+
+For `subscribe-unknown-user`, the same loop proves the negative side of the contract. `ghost-user` should be rejected, and the report should show that forbidden payment, database, cache, and queue effects did not appear.
+
+## Guided by effect proof
+
+**Runtime evidence** is the observed fact base from the system run. **Effect coverage** is the signal that tells you whether reviewed effects were observed, missing, failed, or uncovered. **Behavioral proof** is the stronger claim you get when those signals match the behavior your team declared.
+
+Every guide in this section moves you toward that proof. Setup makes the run observable. Authoring gives the run intent. Generated feature files make the behavior readable. Reports show whether the proof is strong enough. CI keeps the same runtime evidence visible when the system changes.
