@@ -11,15 +11,9 @@ seo:
   snippet_angle: "walk through topology, bootstrap, node wrapper, trace propagation, and artifact checks for empty span reports"
 ---
 
-## Abstract
-
 Diagnose uninstrumented systems, missing trace propagation, and empty reports.
 
 If the report is empty, the run may still have happened, but Blackbox did not see the runtime evidence it needed. This page helps you separate "the system did nothing" from "the instrumentation path was missing."
-
-## Audience
-
-These pages help users recover from common failures without opening an issue.
 
 ## Common Causes
 
@@ -69,9 +63,3 @@ If spans are empty or startup fails with a tracer-provider error, disable the pr
 2. The expected boundary.
 3. The actual output or log excerpt.
 4. The config that controls instrumentation or tracing.
-
-## Figure Placeholder
-
-**Caption:** The empty-report failure mode: request reaches the service, but the bootstrap, wrapper, trace propagation, or debug span collection path is broken.
-
-**Slot:** `<!-- TODO: insert troubleshooting screenshot or debug-log walkthrough here -->`

@@ -1,0 +1,172 @@
+---
+title: "Specs, Tests, and Runtime Evidence"
+description: "Understand the verification gap Blackbox addresses: specs describe intent, tests exercise behavior, and runtime evidence shows what the system actually did."
+sidebar_position: 2
+keywords: ["runtime evidence", "spec driven development verification", "behavioral verification", "e2e test evidence", "agentic coding verification"]
+toc_min_heading_level: 2
+seo:
+  primary_keyword: "runtime evidence"
+  secondary_keywords: ["spec driven development verification", "behavioral verification", "agentic coding verification", "e2e test evidence"]
+  search_intent: "developers and teams trying to understand how runtime evidence complements specs, system tests, E2E tests, and AI-assisted implementation"
+  snippet_angle: "specs and tests are useful, but Blackbox adds runtime evidence from the running system so behavior can be reviewed and gated"
+---
+
+import OverviewDiagram from '@/components/blackbox/OverviewDiagram.astro';
+import CodeFirstBddDiagram from '@/components/blackbox/CodeFirstBddDiagram.astro';
+import Aside from '@/components/mdx/Aside.astro';
+
+Specs describe intent. Tests exercise selected behavior. Runtime evidence shows what the running system actually did at the boundaries.
+
+Blackbox exists for the gap between those three things. A spec can be clear, a Playwright assertion can pass, and the implementation can still skip a queue message, write the wrong row, call payment after a rejection, or leave a generated feature file out of sync with the executable behavior.
+
+<OverviewDiagram kind="blind-spot" />
+
+## The Verification Gap
+
+Modern development has made the front half of delivery stronger. Teams write issues, acceptance criteria, SDD specs, plans, tasks, and agent prompts before implementation. That gives humans and coding agents shared intent.
+
+The weak point is the back half:
+
+```text
+intent is written
+code is changed
+tests pass
+but the system has not shown reviewable runtime evidence
+```
+
+That gap matters in normal refactors, legacy modernization, and incident regression work. It matters more in agentic development because one loop can draft the spec, write the implementation, and generate tests. A green result from artifacts produced inside the same loop is useful, but it can become circular validation.
+
+Blackbox adds an outside signal: runtime facts from the system during a controlled system or E2E run.
+
+## The Loop
+
+The Blackbox loop is not "write more tests." The goal is to keep intent, executable behavior, runtime effects, and review artifacts connected.
+
+```text
+intent or spec
+  -> executable system flow
+  -> observed runtime effects
+  -> reviewed catalog
+  -> coverage and reports
+  -> CI or agent gate
+  -> repair, accept, or update intent
+```
+
+<OverviewDiagram kind="proof-loop" />
+
+Each step has a different owner:
+
+| Step | Owner | Job |
+| --- | --- | --- |
+| Intent | Human, product process, or SDD tool | Say what behavior should matter |
+| Executable flow | Developer or agent | Drive the selected behavior through Playwright |
+| Runtime evidence | Blackbox | Capture effects from the running system |
+| Reviewed catalog | Human reviewer | Decide which effects are required or forbidden |
+| Gate | CI, reviewer, or agent workflow | Compare the run to the contract and act on the result |
+
+The catalog is the review point. Blackbox can record what happened, but the team decides what must happen and what must never happen.
+
+## Concrete Example
+
+The `subscribe-unknown-user` path is useful because the important behavior is negative. The request should fail, and the system should not continue into payment or downstream processing.
+
+```ts
+import { effect } from '@suites/blackbox';
+import { expect, scenario } from './testbed.js';
+import { postJson } from './_http.js';
+
+scenario('subscribe-unknown-user', 'rejecting a ghost user', ({ given }) => {
+  given('ghost-user is not present in the system', async ({ system, capture, when }) => {
+    await when('ghost-user POSTs /subscriptions', async ({ then }) => {
+      const response = await postJson(`${system.bff.hostBaseUrl}/subscriptions`, {
+        userId: 'ghost-user',
+        paymentMethodId: 'pm_card_visa',
+      });
+
+      await then('the request stops before payment or queue work', async () => {
+        expect(response.status).toBe(404);
+        await expect(capture).toObserveEffects({
+          requires: [
+            effect.postgres('SELECT', { table: 'users' }),
+          ],
+          forbids: [
+            effect.http('POST', { path: '/v1/payment_intents' }),
+            effect.sqs('SendMessage', { queue: 'subscription-orders' }),
+          ],
+        });
+      });
+    });
+  });
+});
+```
+
+The HTTP assertion checks the visible result. The effect assertion checks the behavior behind it:
+
+```yaml
+subscribe-unknown-user:
+  requires:
+    - { boundary: postgres, op: SELECT, key: users }
+  forbids:
+    - { boundary: http, op: POST, key: /v1/payment_intents }
+    - { boundary: sqs, op: SendMessage, key: subscription-orders }
+```
+
+This is the missing evidence in many E2E suites. The test can say the request was rejected. The runtime evidence can also say payment and queue work were physically absent from the captured run.
+
+<Aside type="note" title="Feature Files Are Optional">
+Feature files are not required to get value from Blackbox. Effects and catalogs are the core track. Generated feature files become valuable when the team wants readable behavior specs that are checked against executable tests.
+</Aside>
+
+## Why Specs Still Matter
+
+Blackbox does not replace SDD tools, tickets, design docs, or Gherkin. Those artifacts explain intent and help teams decide what to build.
+
+Blackbox works after selected intent becomes an executable system flow:
+
+| Artifact | Question it answers |
+| --- | --- |
+| Spec or issue | What should the behavior mean? |
+| System or E2E test | Can we exercise the behavior? |
+| Runtime effects | What did the system actually do? |
+| Effect catalog | Which effects are required or forbidden? |
+| Coverage and reports | Which declared behavior did this run prove or miss? |
+| Generated feature file | How can reviewers read the executed behavior? |
+
+That division keeps the docs honest. A written spec is not runtime proof. A generated feature file is not runtime proof. A response assertion is not complete boundary proof. They become stronger when the running system feeds evidence back into the review loop.
+
+## Why This Matters For Agents
+
+Coding agents change implementation quickly. They can also produce plausible summaries, plausible tests, and plausible feature text. That is useful labor, but it should not be the final evidence.
+
+In an agentic workflow, Blackbox gives the agent and reviewer the same external artifacts:
+
+1. The system test or scenario that ran.
+2. The observed effects from the run.
+3. The catalog of required and forbidden effects.
+4. The effect coverage and OMC/DC reports.
+5. The generated feature file and drift result, when feature files are part of review.
+
+The agent can repair code against those artifacts. The human still owns meaning: changing required or forbidden behavior is a review decision, not a hidden agent fix.
+
+## How It Connects To BDD
+
+Classic BDD often started with a `.feature` file, then relied on teams to keep step definitions, tests, and runtime behavior aligned. That can work, but it is easy for readable specs to become stale.
+
+Blackbox uses a code-first direction for system-test BDD:
+
+1. Run or write the system test.
+2. Capture runtime evidence.
+3. Review the effect catalog.
+4. Emit or check the feature file from executable behavior.
+5. Gate drift when the readable file no longer matches the test source.
+
+<CodeFirstBddDiagram kind="staleness" />
+
+That means feature files complement specs instead of replacing them. They give humans and agents a readable view of behavior that is still tied to executable tests and runtime evidence.
+
+## What To Read Next
+
+1. [Tests, Effects, and Feature Files](/docs/blackbox/overview/tests-effects-and-feature-files)
+2. [5-Minute Quickstart](/docs/blackbox/quickstart/first-proven-feature)
+3. [Code-First BDD](/docs/blackbox/concepts/code-first-bdd)
+4. [Spec-Driven and Agentic Verification](/docs/blackbox/guides/spec-driven-and-agentic-verification)

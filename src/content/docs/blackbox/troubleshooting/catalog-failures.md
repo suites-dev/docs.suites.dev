@@ -7,19 +7,13 @@ toc_min_heading_level: 2
 seo:
   primary_keyword: "Catalog Failures"
   secondary_keywords: ["catalog failures", "requires forbids"]
-  search_intent: "TODO"
-  snippet_angle: "TODO"
+  search_intent: "troubleshooting intent from users whose required effects are missing, forbidden effects appeared, or catalog matching failed"
+  snippet_angle: "compare observed effects to the catalog, decide whether implementation or contract changed, then rerun the scenario"
 ---
-
-## Abstract
 
 Explain missing required effects, forbidden effects, and inline shapes that should be promoted.
 
 Catalog failures mean the run did not satisfy the effect contract the team wrote down. The system may have behaved differently, omitted a required boundary effect, or emitted something that should have been forbidden.
-
-## Audience
-
-These pages help users recover from common failures without opening an issue.
 
 ## Common Causes
 
@@ -42,22 +36,9 @@ These pages help users recover from common failures without opening an issue.
 3. Promote repeated inline shapes into named catalog entries when they become part of the workflow.
 4. Re-run the scenario to confirm the gate now matches the intended behavior.
 
-## Content Outline
-
-1. Identify the symptom.
-2. List likely causes in order.
-3. Provide diagnostic commands and artifact checks.
-4. Explain when to report a bug and what to include.
-
 ## What To Report If It Still Fails
 
 1. The scenario or catalog entry name.
 2. The required or forbidden effect that failed.
 3. The observed output from the run.
 4. Any report or propagation artifact that explains the mismatch.
-
-## Evidence To Add
-
-- Real commands, APIs, or artifacts from the Blackbox showcase system.
-- Links to related concept, guide, reference, or troubleshooting pages.
-- Clear limits and prerequisites where the page touches alpha behavior.

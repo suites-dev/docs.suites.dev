@@ -11,11 +11,7 @@ seo:
   snippet_angle: "map feature files, effects YAML, spans, V8 coverage, OMC/DC reports, and CI artifacts to their purpose and git policy"
 ---
 
-## Abstract
-
 This page tells you what lives in the workspace, what gets generated, what is ephemeral, and what is likely worth committing.
-
-## Audience
 
 Developers deciding what to commit, what to ignore, what to archive from CI, and what to review when behavior changes.
 
@@ -112,9 +108,3 @@ The file sink writes artifacts under the configured artifact directory. For back
 3. Archive `.blackbox-coverage/` in CI when a failure needs investigation.
 4. Attach `omcdc/verdict.html` and `omcdc/verdict.md` to CI or PRs when reviewers need branch-level context.
 5. Treat span and V8 files as diagnostic evidence, not hand-edited source.
-
-## Figure Placeholder
-
-**Caption:** The Blackbox artifact map: feature files and effects as durable behavior surfaces; spans, V8 coverage, and reports as generated runtime evidence.
-
-**Slot:** `<!-- TODO: insert artifact map diagram or interactive file tree here -->`

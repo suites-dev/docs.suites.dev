@@ -17,34 +17,37 @@ While a passing E2E test proves your system *responded*, it does not prove it *b
 
 Blackbox captures **physical runtime evidence** (database writes, HTTP calls, and queue messages) and turns it into a durable behavioral contract.
 
-## Reality vs. Intent
+## Runtime Evidence vs. Reviewed Intent
 
-The "Intent Oracle" compares observed runtime reality against a declared catalog of required and forbidden effects.
+Blackbox compares observed runtime effects against a reviewed catalog of required and forbidden effects.
 
 <div style="margin: 1.5rem 0 2rem;">
 
-### The Evidence (Reality)
-The raw runtime signals captured from the wire during a test run.
+### The Test Assertion
+The Playwright flow still owns the visible assertion.
 
-```json
-{
-  "scenario": "subscribe-flow",
-  "boundary": "postgres",
-  "effect":   "subscription.insert",
-  "fields":   { "user": "alice", "tier": "pro" }
-}
+```ts
+await expect(capture).toObserveEffects({
+  requires: [
+    effect.postgres('SELECT', { table: 'users' }),
+  ],
+  forbids: [
+    effect.http('POST', { path: '/v1/payment_intents' }),
+    effect.sqs('SendMessage', { queue: 'subscription-orders' }),
+  ],
+});
 ```
 
 ### The Contract (Intent)
 The reviewed catalog of required and forbidden behavior.
 
 ```yaml
-scenario: subscribe-flow
-requires:
-  - { boundary: "payment-http", effect: "payment intent created" }
-  - { boundary: "postgres", effect: "subscription inserted for alice" }
-forbids:
-  - { boundary: "postgres", effect: "subscription inserted for ghost-user" }
+subscribe-unknown-user:
+  requires:
+    - { boundary: postgres, op: SELECT, key: users }
+  forbids:
+    - { boundary: http, op: POST, key: /v1/payment_intents }
+    - { boundary: sqs, op: SendMessage, key: subscription-orders }
 ```
 
 </div>
@@ -81,4 +84,4 @@ The catalog is the durable contract. Runtime evidence is the fact base. Coverage
 
 The fastest way to feel the difference: one flow, one catalog, one coverage signal.
 
-_See also: [Runtime Evidence](/docs/blackbox/concepts/runtime-evidence), [Tests, Effects, and Feature Files](/docs/blackbox/overview/tests-effects-and-feature-files), [When to Use Blackbox](/docs/blackbox/overview/when-to-use-blackbox)._
+_See also: [Specs, Tests, and Runtime Evidence](/docs/blackbox/overview/specs-tests-runtime-evidence), [Runtime Evidence](/docs/blackbox/concepts/runtime-evidence), [Tests, Effects, and Feature Files](/docs/blackbox/overview/tests-effects-and-feature-files), [When to Use Blackbox](/docs/blackbox/overview/when-to-use-blackbox)._

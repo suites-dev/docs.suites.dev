@@ -50,8 +50,8 @@ Playwright calls this surface the Playwright Test API. These are the constructs 
 | --- | --- | --- |
 | `test(title, body)` | Registers one executable test | A behavior candidate with a label, catalog entry, trace, and effects |
 | `test.describe(...)` | Groups tests | Context for grouping, tags, and feature generation |
-| `test.describe.parallel(...)` | Allows sibling tests to run concurrently | Maps to independent isolation groups when reshaped into `scenario.isolated(...)` |
-| `test.describe.serial(...)` | Runs sibling tests as a dependent chain | Maps to `scenario.shared(parentSlug, ...)` when state is intentionally shared |
+| `test.describe.parallel(...)` | Allows sibling tests to run concurrently | Independent leaves map to plain `scenario(...)` entries with fresh isolation groups |
+| `test.describe.serial(...)` | Runs sibling tests as a dependent chain | Reshape can emit `scenario.chain(...)` when shared state is intentional |
 | `test.beforeEach(...)` | Runs setup before each test | Can become `background(...)` in the Scenario DSL |
 | `test.step(...)` | Adds explicit named substeps | Useful signal for readable behavior traces |
 | fixtures such as `request`, `system`, `capture`, `isolation` | Inject runner resources into tests | Drive the SUT, propagate trace identity, reset groups, and collect evidence |
@@ -82,8 +82,7 @@ The important parts are:
 | `capture` fixture | Captures spans/effects for the active test and enables catalog matchers |
 | `isolation` fixture | Forces the per-test isolation lifecycle even when no effects are captured |
 | `scenario(...)` | Defines a behavior flow with a fresh isolation group |
-| `scenario.isolated(...)` | Documents and enforces independent sibling behavior |
-| `scenario.shared(...)` | Joins a dependent flow to a parent scenario's group |
+| `scenario.chain(...)` | Defines an ordered shared-state chain that runs serially on one worker |
 | `outline(...)` / `given.each(...)` | Runs one behavior shape across example rows |
 
 Use this layer when the test is meant to produce Blackbox evidence. Plain Playwright can still run, but the Blackbox API is what gives system tests their isolation and artifact semantics.
@@ -122,8 +121,7 @@ The isolation group decides when the testbed should reset the SUT and when state
 | Shape | Isolation behavior | Use it when |
 | --- | --- | --- |
 | `scenario(...)` | Fresh group for the scenario slug | Normal independent behavior |
-| `scenario.isolated(...)` | Fresh group, explicit independence | Parallel siblings must not share backend state |
-| `scenario.shared(parentSlug, ...)` | Reuses the parent group | A serial chain intentionally depends on previous state |
+| `scenario.chain(...)` | One shared group for all nested scenarios, co-located on one worker in serial order | A later scenario intentionally depends on state from an earlier scenario |
 | `outline(...)` | One behavior shape over rows | The same rule should be exercised with examples |
 
 This is how Blackbox connects Playwright scheduling to behavior ownership.
@@ -134,8 +132,8 @@ If you start from native Playwright tests, the feature tooling uses the Playwrig
 
 | Native Playwright | Blackbox scenario shape |
 | --- | --- |
-| `test.describe.parallel(...)` siblings | `scenario.isolated(...)` per sibling |
-| `test.describe.serial(...)` chain | First scenario is fresh; later scenarios use `scenario.shared(parentSlug, ...)` |
+| `test.describe.parallel(...)` siblings | Plain `scenario(...)` per independent sibling |
+| `test.describe.serial(...)` chain | `scenario.chain(...)` with ordered nested scenarios |
 | `test.beforeEach(...)` | `background(...)` when it is part of the behavior setup |
 | Repeated row tests | `outline(...)` or `given.each(...)` |
 | `expect(...)` after an action | `then(...)` |
@@ -216,8 +214,8 @@ For the strongest system-test gate:
 
 1. Use `BLACKBOX_ISOLATION=compose` or an equivalent custom isolation adapter.
 2. Prefer `system.request` or the wrapped Playwright `request` fixture.
-3. Use `scenario.isolated(...)` for independent parallel behaviors.
-4. Use `scenario.shared(...)` only when the dependency between flows is intentional.
+3. Use plain `scenario(...)` for independent behavior.
+4. Use `scenario.chain(...)` only when the dependency between flows is intentional.
 5. Keep managed dependencies inside the testbed when the result should block CI.
 6. Use remote E2E environments as evidence first, then gate only when the environment is stable enough.
 

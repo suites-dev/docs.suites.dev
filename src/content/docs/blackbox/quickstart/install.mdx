@@ -9,8 +9,6 @@ import InstrumentationFlowDiagram from '@/components/blackbox/InstrumentationFlo
 import Tabs from '@/components/mdx/Tabs.astro';
 import TabItem from '@/components/mdx/TabItem.astro';
 
-## Abstract
-
 Installation is the first step toward visibility. A **project-local install** adds Blackbox to the workspace package that owns your system tests, not to a global toolchain or production dependency set.
 
 Blackbox has two install surfaces:
@@ -143,10 +141,10 @@ The **bootstrap image** carries the OpenTelemetry preload code and wrapper files
 If your repo exposes a local build script for the image, run it before the first testbed proof:
 
 ```bash
-pnpm build:otel-image
+pnpm build:instr-image
 ```
 
-Local development commonly uses an image such as `blackbox-otel-bootstrap:local`. CI can pull a published image instead, or set `BLACKBOX_OTEL_IMAGE` to the image your pipeline should use.
+Local development commonly uses `blackbox-instr-node:local`. CI can pull a published image instead, or set `BLACKBOX_INSTR_IMAGE` to the image your pipeline should use.
 
 Treat this image as test infrastructure. Rebuild or repull it when you upgrade Blackbox packages, when bootstrap files are missing, or when no spans arrive even though the SUT started.
 

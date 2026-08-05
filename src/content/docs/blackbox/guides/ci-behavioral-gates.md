@@ -62,7 +62,7 @@ jobs:
 
     env:
       CI: true
-      BLACKBOX_OTEL_IMAGE: blackbox-otel-bootstrap:local
+      BLACKBOX_INSTR_IMAGE: blackbox-instr-node:local
       BLACKBOX_COVERAGE_DIR: .blackbox-coverage
 
     steps:
@@ -97,7 +97,7 @@ jobs:
           DOCKER_BUILDKIT: "1"
         run: |
           mkdir -p /tmp/.buildx-cache
-          pnpm exec blackbox build-bootstrap --tag "$BLACKBOX_OTEL_IMAGE"
+          pnpm build:instr-image
 
       - name: Lint feature grammar
         run: pnpm exec blackbox features lint ./e2e/tests --fail-on error

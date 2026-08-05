@@ -11,13 +11,9 @@ seo:
   snippet_angle: "capture current system behavior before a refactor, then compare runtime effects after the change"
 ---
 
-## Abstract
-
 Covering before refactor means capturing current behavior before changing the implementation. This is the classic characterization testing move: when the system is valuable but hard to reason about, first document what it does.
 
 Blackbox applies that idea to system behavior. It records runtime effects before the refactor, then lets the team compare what changed after the implementation moves.
-
-## Audience
 
 Teams about to rewrite, extract, modularize, upgrade, or clean up a system that already has user value and should not accidentally change behavior.
 

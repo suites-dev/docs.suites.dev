@@ -11,11 +11,7 @@ seo:
   snippet_angle: "document command-specific Blackbox exit codes for clean runs, drift, findings, write safety, and fatal errors"
 ---
 
-## Abstract
-
 This page documents command-specific exit codes that CI and scripts can use without parsing prose.
-
-## Audience
 
 Developers writing shell scripts, CI jobs, and agent loops around the `blackbox` CLI.
 

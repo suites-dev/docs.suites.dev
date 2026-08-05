@@ -1,6 +1,6 @@
 ---
 title: "Scenario DSL"
-description: "Reference the Blackbox BDD scenario DSL, including scenario, background, given, when, then, given.each, outline, shared, and isolated flows."
+description: "Reference the Blackbox BDD scenario DSL, including scenario, scenario.chain, background, given, when, then, given.each, and outline."
 sidebar_position: 2
 keywords: ["scenario dsl", "scenario api", "bdd dsl reference", "given when then"]
 toc_min_heading_level: 2
@@ -27,20 +27,22 @@ Given*  When+  Then+
 
 ```ts
 import { expect, scenario } from './testbed.js';
+import { postJson } from './_http.js';
 
 scenario('subscribe-flow', 'subscribing to the pro tier', ({ given, background }) => {
   background('the system is reset', async ({ system }) => {
     await system.reset();
   });
 
-  given('alice is an existing user with no active subscription', async ({ request, system, when }) => {
+  given('alice is an existing user with no active subscription', async ({ system, when }) => {
     await when('alice POSTs /subscriptions with a valid card', async ({ then }) => {
-      const response = await request.post(`${system.bff.hostBaseUrl}/subscriptions`, {
-        data: { userId: 'alice', paymentMethodId: 'pm_card_visa' },
+      const response = await postJson(`${system.bff.hostBaseUrl}/subscriptions`, {
+        userId: 'alice',
+        paymentMethodId: 'pm_card_visa',
       });
 
       await then('the response status is 201', async () => {
-        expect(response.status()).toBe(201);
+        expect(response.status).toBe(201);
       });
     });
   });
@@ -65,15 +67,14 @@ Feature: subscribing to the pro tier
 
 | Verb | Purpose | Gherkin mapping |
 | --- | --- | --- |
-| `scenario(slug, description, body)` | Define a behavior flow with a stable slug and human description | `@flow:<slug>` and `Feature: <description>` |
+| `scenario(slug, description, body)` | Define an independent behavior flow with a stable slug and human description | `@flow:<slug>` and `Feature: <description>` |
+| `scenario.chain(slug, description, register)` | Define an ordered set of scenarios that share one isolation group and run serially on one worker | Outer grouping with per-scenario `@flow:<slug>` tags |
 | `background(label, fn)` | Shared setup that runs before each scenario inside the scenario body | `Background: Given <label>` |
 | `given(precondition, fn)` | Define the scenario precondition and arrangement frame | `Scenario: <precondition>` plus arrangement lines |
 | `when(action, fn)` | Define the action being exercised | `When <action>` |
 | `then(expectation, fn)` | Define an observable assertion | `Then <expectation>` or `And <expectation>` |
 | `given.each(rows)(precondition, fn)` | Define a scenario outline from row data | `Scenario Outline` and `Examples` |
 | `outline(slug, description, rows, body)` | Define a parameterized flow directly | `Scenario Outline` and `Examples` |
-| `scenario.isolated(...)` | Mark a scenario that needs a fresh isolation group | Same Gherkin; isolation is runtime metadata |
-| `scenario.shared(parentSlug, slug, description, body)` | Join a serial flow to a parent scenario's isolation group | Same Gherkin; shared-state chain is runtime metadata |
 
 ## Runtime Mapping
 
@@ -82,6 +83,7 @@ The DSL is not only a feature-file writer. It registers Playwright tests with ru
 | DSL element | Runtime mapping |
 | --- | --- |
 | `scenario(slug, description, body)` | `test.describe(description, { tag: ['@flow:<slug>', '@isolation-group:bdd:<slug>'] }, body)` |
+| `scenario.chain(slug, description, register)` | One serial outer `test.describe(...)` carrying a shared isolation group; each nested scenario carries its own `@flow:<slug>` |
 | `background(label, fn)` | `test.beforeEach(...)` inside the scenario describe |
 | `given(label, fn)` | `test('GIVEN <label>', ...)` |
 | `when(label, fn)` | `test.step('WHEN <label>', ...)` |
@@ -91,13 +93,37 @@ The DSL is not only a feature-file writer. It registers Playwright tests with ru
 
 The `@isolation-group` tag is what lets the testbed decide whether to reset state or keep state for the next test in the group.
 
-## Isolation Verbs
+## Isolation And Chains
 
-Use `scenario.isolated` when sibling scenarios must not share system state. This is the shape the reshaper uses for `test.describe.parallel(...)` siblings, and it documents that the behavior is safe to run beside other isolated behavior.
+Use plain `scenario(...)` for normal independent behavior. It mints a fresh isolation group from the scenario slug.
 
-Use `scenario.shared(parentSlug, ...)` when a serial chain intentionally carries state from one scenario to the next. The parent slug must already be registered. This is the shape the reshaper uses for serial describe chains, and it should be reserved for flows where state sharing is part of the behavior.
+Use `scenario.chain(...)` when a later scenario intentionally depends on state created by an earlier scenario. The chain creates one shared isolation group and co-locates the nested scenarios on one worker in serial order.
 
 Use `outline` or `given.each` when the same behavior should run over rows of examples.
+
+```ts
+scenario.chain('subscription-admin-chain', 'subscription admin workflow', ({ scenario }) => {
+  scenario('create-subscription', 'create subscription', ({ given }) => {
+    given('alice is ready to subscribe', async ({ when }) => {
+      await when('alice subscribes', async ({ then }) => {
+        await then('the subscription is created', async () => {
+          // assertions
+        });
+      });
+    });
+  });
+
+  scenario('cancel-subscription', 'cancel subscription', ({ given }) => {
+    given('alice has an active subscription from the previous scenario', async ({ when }) => {
+      await when('the subscription is cancelled', async ({ then }) => {
+        await then('the subscription is inactive', async () => {
+          // assertions
+        });
+      });
+    });
+  });
+});
+```
 
 For the full Playwright worker model, read [Playwright, Isolation, and Parallelism](/docs/blackbox/guides/playwright-isolation-and-parallelism).
 
@@ -160,5 +186,5 @@ The DSL surface is alpha. The core grammar is stable enough to document: scenari
 
 1. [Writing Scenarios](/docs/blackbox/guides/writing-scenarios)
 2. [Generating Feature Files](/docs/blackbox/guides/generating-feature-files)
-3. [Feature Files, BDD, and Staleness](/docs/blackbox/concepts/feature-staleness-and-drift)
+3. [Code-First BDD](/docs/blackbox/concepts/code-first-bdd)
 4. [CLI Reference](/docs/blackbox/reference/cli)

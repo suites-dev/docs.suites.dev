@@ -11,11 +11,7 @@ seo:
   snippet_angle: "catalog the Blackbox CLI commands, what they read and write, JSON support, dry-run support, and CI safety"
 ---
 
-## Abstract
-
 This page is the machine-facing contract for the `blackbox` CLI. It answers three questions quickly: what command should I run, what does it change, and is it safe to script.
-
-## Audience
 
 Developers and automation authors wiring Blackbox into local scripts, CI gates, and agent workflows.
 

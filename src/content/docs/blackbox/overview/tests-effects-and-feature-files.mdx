@@ -1,7 +1,7 @@
 ---
 title: "Tests, Effects, and Feature Files"
 description: "Understand the combined Blackbox loop: tests execute behavior, effects prove the physical reality, and feature files make the intent readable."
-sidebar_position: 2
+sidebar_position: 3
 ---
 
 import OverviewDiagram from '@/components/blackbox/OverviewDiagram.astro';
@@ -30,9 +30,9 @@ Classic BDD promised **living documentation**: write behavior in Gherkin, execut
 
 Blackbox inverts the direction. Instead of starting from Gherkin, the team starts from a test that already runs the system. Blackbox reads that executable behavior, matches the physical reality of the effects, and emits a feature file from evidence.
 
-That inversion changes the maintenance contract. A human still has to translate product intent into a real scenario. For spec-driven development, the useful phrase is **translate once, proven forever**: write the scenario once, then let proof and readable documentation regenerate from the run.
+That inversion changes the maintenance contract. A human still has to translate product intent into a real scenario. For spec-driven development, the useful pattern is: translate selected intent into an executable flow once, then let runtime evidence and readable documentation regenerate from the run.
 
-Documentation that regenerates from evidence cannot go stale in the same quiet way as a hand-maintained `.feature` file. If the test source changes, the emitted feature file changes. If the physical reality changes, the effects change. If the readable scenario no longer matches the source test, **Gherkin drift** becomes a gateable failure instead of a stale wiki sentence.
+Documentation that regenerates from evidence has a different failure mode than a hand-maintained `.feature` file. If the test source changes, the emitted feature file changes. If the physical reality changes, the effects change. If the readable scenario no longer matches the source test, **Gherkin drift** becomes a gateable failure instead of a stale wiki sentence.
 
 This does not make a generated feature file automatically correct. If the source test encodes the wrong behavior, Blackbox preserves that wrong intent. The value is narrower: documentation stays tied to executable behavior and runtime proof.
 
@@ -68,7 +68,7 @@ Blackbox gates are layered. Teams can start with runtime proof, then add feature
 | Feature drift check | Feature file | The `.feature` file still matches the test |
 | CI behavioral gate | Full loop | Proof and documentation stay aligned |
 
-For the concrete CI workflow, see [CI Behavioral Gates](/docs/blackbox/guides/ci-behavioral-gates). For the drift model behind the feature-file gate, see [Feature Staleness and Drift](/docs/blackbox/concepts/feature-staleness-and-drift).
+For the concrete CI workflow, see [CI Behavioral Gates](/docs/blackbox/guides/ci-behavioral-gates). For the drift model behind the feature-file gate, see [Code-First BDD](/docs/blackbox/concepts/code-first-bdd).
 
 The important sequence is from execution to evidence to readable output. A plain test pass says the workflow completed. Effect matchers say the physical reality at the boundaries behaved as declared. Feature-file checks say the readable artifact still reflects the test source.
 

@@ -11,15 +11,9 @@ seo:
   snippet_angle: "diagnose compose startup, bootstrap image, init container, mounted node wrapper, ports, waits, and stale volumes"
 ---
 
-## Abstract
-
 Diagnose container startup, ports, waits, compose overlays, and local environment failures.
 
 This page covers the failures that happen before the run can even be trusted: containers not starting, ports colliding, waits never resolving, or the local testbed not matching the scenario.
-
-## Audience
-
-These pages help users recover from common failures without opening an issue.
 
 ## Common Causes
 
@@ -43,7 +37,7 @@ These pages help users recover from common failures without opening an issue.
 
 ## Bootstrap Image Checks
 
-In local development, the bootstrap image is commonly tagged as `blackbox-otel-bootstrap:local`. In packaged or CI usage, the image may come from a registry or from `BLACKBOX_OTEL_IMAGE`.
+In local development, the bootstrap image is commonly tagged as `blackbox-instr-node:local`. In packaged or CI usage, the image may come from a registry or from `BLACKBOX_INSTR_IMAGE`.
 
 The image must contain:
 
@@ -74,9 +68,3 @@ If your image puts Node somewhere else, configure the testbed to shadow the corr
 2. The failing container or port.
 3. The wait condition or startup step that timed out.
 4. Any logs that show why the testbed never reached a ready state.
-
-## Figure Placeholder
-
-**Caption:** The generated testbed overlay and the failures that can happen before the first span is captured: image, volume, wrapper, debug port, and wait strategy.
-
-**Slot:** `<!-- TODO: insert Docker/testbed troubleshooting screenshot or compose overlay diagram here -->`

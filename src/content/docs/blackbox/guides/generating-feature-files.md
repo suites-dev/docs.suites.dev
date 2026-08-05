@@ -190,4 +190,4 @@ Feature-file drift has four kinds:
 
 Treat a drift failure as a review signal. The system test may still pass, but the Gherkin artifact no longer matches the executable behavior.
 
-For the deeper model, read [Feature Files, BDD, and Staleness](/docs/blackbox/concepts/feature-staleness-and-drift). In CI, keep `features lint` before `features check` so malformed scenario shape fails before stale files reach review.
+For the deeper model, read [Code-First BDD](/docs/blackbox/concepts/code-first-bdd). In CI, keep `features lint` before `features check` so malformed scenario shape fails before stale files reach review.

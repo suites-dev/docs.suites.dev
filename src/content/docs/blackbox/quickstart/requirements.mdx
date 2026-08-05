@@ -6,8 +6,6 @@ sidebar_position: 1
 
 import InstrumentationFlowDiagram from '@/components/blackbox/InstrumentationFlowDiagram.astro';
 
-## Abstract
-
 Blackbox needs one thing before its reports matter: **runtime evidence**, the spans and observable facts captured while a real test drives the running system. Your **system under test (SUT)** is the service or topology Blackbox observes during that run.
 
 In the documented alpha path, Blackbox captures that evidence by instrumenting compatible Node SUT containers at test time. Your service code does not need OpenTelemetry imports, and your production Dockerfile does not need Blackbox-specific setup.
@@ -35,7 +33,7 @@ Before you continue, confirm:
 
 1. Playwright can drive the workflow against the same SUT that Blackbox instruments.
 2. The SUT service image starts through a Node binary the overlay can shadow.
-3. The bootstrap image is available locally or through `BLACKBOX_OTEL_IMAGE`.
+3. The bootstrap image is available locally as `blackbox-instr-node:local` or through `BLACKBOX_INSTR_IMAGE`.
 4. Service names and trace context are stable enough for Blackbox to attribute effects.
 5. You can isolate one workflow before expanding to a larger suite.
 

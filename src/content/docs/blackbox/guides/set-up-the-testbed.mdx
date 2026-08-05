@@ -27,7 +27,7 @@ pnpm add -D @suites/blackbox testcontainers
 
 `@suites/blackbox` provides `createBlackboxTestbed()` and the Playwright reporter. `testcontainers` gives the testbed the Docker and Compose lifecycle primitives it uses during setup and teardown.
 
-The compose testbed also needs the bootstrap **image** that the generated overlay mounts into SUT containers. In local development that image is usually tagged as `blackbox-otel-bootstrap:local`; CI can set `BLACKBOX_OTEL_IMAGE` to a registry image. The npm package `@suites/blackbox.otel.bootstrap` is only needed when you use the legacy direct-bind `observed()` helper directly.
+The compose testbed also needs the bootstrap **image** that the generated overlay mounts into SUT containers. In local development that image is usually tagged as `blackbox-instr-node:local`; CI can set `BLACKBOX_INSTR_IMAGE` to a registry image.
 
 ## Step 2: Create `blackbox-testbed.ts`
 
@@ -156,4 +156,4 @@ Then check the setup in this order:
 
 If Playwright passes but `.blackbox-coverage/` is empty, treat that as a setup failure. Check the compose file path, service names, bootstrap image, and debug port readback before changing the scenario.
 
-For the full factory surface, read [Testbed API](/docs/blackbox/reference/testbed-api).
+If this verification step fails, use [Troubleshooting](/docs/blackbox/troubleshooting) before changing the scenario or catalog.

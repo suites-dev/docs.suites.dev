@@ -11,11 +11,7 @@ seo:
   snippet_angle: "explain each Blackbox report file, its producer, format, consumer, and stability expectation"
 ---
 
-## Abstract
-
 Blackbox writes several report formats from the same run. This page explains which file belongs to which stage, what each file is for, and how stable each output is.
-
-## Audience
 
 People who need to consume, parse, archive, or compare the artifacts Blackbox produces.
 
@@ -46,7 +42,7 @@ Contains endpoints, branch coordinates, true-arm test IDs, false-arm test IDs, n
 
 ### `omcdc/verdict.md`
 
-Contains the same OMC/DC story in a reviewable form: endpoint sections, verdict counts, branch tables, hints, and oracle data per branch. Use it when a reviewer needs to understand the result without opening the interactive report.
+Contains the same OMC/DC story in a reviewable form: endpoint sections, verdict counts, branch tables, hints, and branch evidence. Use it when a reviewer needs to understand the result without opening the interactive report.
 
 ### `omcdc/verdict.html`
 
@@ -103,9 +99,3 @@ The GitHub Actions sink reads `omcdc/verdict.json` and emits workflow annotation
 2. Check whether the output is JSON, Markdown, HTML, or XML.
 3. Check whether it is intended for humans or automation.
 4. Use the related concept pages if you need the model behind it.
-
-## Figure Placeholder
-
-**Caption:** The artifact family Blackbox emits for review and automation.
-
-**Slot:** `<!-- TODO: insert artifact gallery or report-format comparison image here -->`

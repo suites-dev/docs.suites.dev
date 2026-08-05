@@ -7,8 +7,6 @@ sidebar_position: 4
 import QuickstartTrackDiagram from '@/components/blackbox/QuickstartTrackDiagram.astro';
 import BddReverseDemo from '@/components/blackbox/BddReverseDemo.astro';
 
-## Abstract
-
 Feature files should be a reflection of reality, not a separate maintenance burden. Blackbox generates Gherkin `.feature` files from system and E2E tests, then checks whether those files drift from the test source.
 
 Use this page when you already have a Playwright system test and want a **readable behavior layer** for review. The current alpha path is focused on Playwright-style tests and Blackbox BDD-DSL sources. You can use Blackbox without feature files, but generated Gherkin helps when product, QA, platform, or agent workflows need behavior expressed in a stable text format.
@@ -126,6 +124,6 @@ Also skip them when you need runtime proof. Feature files describe behavior from
 
 ## What To Read Next
 
-- **[Feature Files, BDD, and Staleness](/docs/blackbox/concepts/feature-staleness-and-drift)**: Understand why generated feature files can still become stale and how Blackbox treats drift.
+- **[Code-First BDD](/docs/blackbox/concepts/code-first-bdd)**: Understand why generated feature files can still become stale and how Blackbox treats drift.
 - **[Generating Feature Files](/docs/blackbox/guides/generating-feature-files)**: Go deeper on source structure, generated output, and review workflow.
 - **[CLI Reference](/docs/blackbox/reference/cli)**: Check the exact command flags for `features emit`, `features check`, and related feature commands.
