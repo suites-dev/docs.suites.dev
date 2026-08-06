@@ -1,0 +1,40 @@
+---
+title: "Reference"
+description: "Find the current Blackbox CLI, Playwright and testbed APIs, matchers, configuration, artifact schemas, report formats, and exit codes."
+sidebar_position: 1
+keywords:
+  [
+    "Suites Blackbox reference",
+    "Blackbox CLI",
+    "Blackbox Playwright API",
+    "effect catalog schema",
+    "Blackbox artifacts",
+  ]
+---
+
+Use reference pages to confirm exact names, flags, files, and contracts. Start with the quickstart or guides when you need a workflow.
+
+## Commands
+
+- [CLI Reference](/docs/blackbox/reference/cli): `requirements`, `features`, `coverage`, and `otel` command families.
+- [Exit Codes](/docs/blackbox/reference/exit-codes): clean, findings, and usage/environment outcomes.
+
+## Playwright and Testbed
+
+- [Testbed API](/docs/blackbox/reference/testbed-api): `createBlackboxTestbed`, sources, services, reset, grouping, and coverage directory.
+- [API Reference](/docs/blackbox/reference/api): package entry points and public runtime surfaces.
+- [Scenario DSL](/docs/blackbox/reference/scenario-dsl): `test.system`, `scenario`, `scenario.chain`, `outline`, and AAA/Given-When-Then structure.
+- [Matchers and Effect Builders](/docs/blackbox/reference/matchers-and-effect-builders): `toObserveEffects`, `toMatchCatalog`, predicates, and supported boundaries.
+
+## Configuration
+
+- [Configuration](/docs/blackbox/reference/configuration): Playwright, testbed, requirements, and reporter configuration.
+- [Environment Variables](/docs/blackbox/reference/environment-variables): instrumentation image, Node path, coverage, feature, and diagnostic overrides.
+
+## Artifacts and Reports
+
+- [Files and Artifacts](/docs/blackbox/reference/files-and-artifacts): repository artifacts versus per-run evidence.
+- [Catalog Schema](/docs/blackbox/reference/catalog-schema): effect sidecar format and required/forbidden clauses.
+- [Report Formats](/docs/blackbox/reference/report-formats): catalog, shape, OMC/DC, requirement, HTML, Markdown, JSON, and JUnit outputs.
+
+The alpha surface changes. Prefer this reference and the exported TypeScript types over older package README examples.

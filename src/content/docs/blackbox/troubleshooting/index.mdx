@@ -2,11 +2,19 @@
 title: Troubleshooting
 description: "Start here when a Blackbox run is empty, blocked, drifting, or failing in Docker, CI, catalog matching, or report generation."
 sidebar_position: 1
-keywords: ["blackbox troubleshooting", "no spans captured", "catalog failures", "feature drift", "docker testbed"]
+keywords:
+  [
+    "blackbox troubleshooting",
+    "no spans captured",
+    "catalog failures",
+    "feature drift",
+    "docker testbed",
+  ]
 toc_min_heading_level: 2
 seo:
   primary_keyword: "blackbox troubleshooting"
-  secondary_keywords: ["no spans captured", "catalog failures", "feature drift", "docker testbed"]
+  secondary_keywords:
+    ["no spans captured", "catalog failures", "feature drift", "docker testbed"]
   search_intent: "developers diagnosing failed Blackbox setup, empty runtime evidence, catalog mismatches, feature drift, or CI output"
   snippet_angle: "choose the symptom, run the first checks, and follow the focused Blackbox troubleshooting page"
 ---
@@ -17,14 +25,14 @@ Most failures fall into one of four groups: the system did not run the intended 
 
 ## Choose The Symptom
 
-| Symptom | Start with |
-| --- | --- |
-| The test passed, but the report is empty or no spans were captured | [No Spans Captured](/docs/blackbox/troubleshooting/no-spans-captured) |
-| Docker starts fail, ports collide, services stay unhealthy, or the bootstrap image is missing | [Docker and Testbed](/docs/blackbox/troubleshooting/docker-and-testbed) |
-| `toMatchCatalog()` fails, required effects are missing, or forbidden effects appeared | [Catalog Failures](/docs/blackbox/troubleshooting/catalog-failures) |
-| `.feature` files are stale, missing, orphaned, or unparseable | [Feature Drift](/docs/blackbox/troubleshooting/feature-drift) |
-| The run fails in CI and you need useful logs before filing an issue | [Diagnostics and Debug Logs](/docs/blackbox/troubleshooting/diagnostics-and-debug-logs) |
-| You have a reproducible issue and need to report it cleanly | [Reporting a Bug](/docs/blackbox/troubleshooting/reporting-a-bug) |
+| Symptom                                                                                       | Start with                                                                              |
+| --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| The test passed, but the report is empty or no spans were captured                            | [No Spans Captured](/docs/blackbox/troubleshooting/no-spans-captured)                   |
+| Docker starts fail, ports collide, services stay unhealthy, or the bootstrap image is missing | [Docker and Testbed](/docs/blackbox/troubleshooting/docker-and-testbed)                 |
+| `toMatchCatalog()` fails, required effects are missing, or forbidden effects appeared         | [Catalog Failures](/docs/blackbox/troubleshooting/catalog-failures)                     |
+| `.feature` files are stale, missing, orphaned, or unparseable                                 | [Feature Drift](/docs/blackbox/troubleshooting/feature-drift)                           |
+| The run fails in CI and you need useful logs before filing an issue                           | [Diagnostics and Debug Logs](/docs/blackbox/troubleshooting/diagnostics-and-debug-logs) |
+| You have a reproducible issue and need to report it cleanly                                   | [Reporting a Bug](/docs/blackbox/troubleshooting/reporting-a-bug)                       |
 
 ## First Checks
 
@@ -38,17 +46,17 @@ Most failures fall into one of four groups: the system did not run the intended 
 
 When debugging, keep these artifacts from the failing run:
 
-| Artifact | Why it helps |
-| --- | --- |
-| Test command and output | Shows the runner, flags, and first failure signal |
-| `.blackbox-coverage/` | Shows captured spans, coverage summaries, and report inputs |
-| Generated compose overlay | Shows whether the SUT was instrumented for the run |
-| Effect catalog diff | Shows whether the reviewed behavior contract changed |
-| Generated `.feature` diff | Shows whether readable behavior specs drifted |
+| Artifact                  | Why it helps                                                |
+| ------------------------- | ----------------------------------------------------------- |
+| Test command and output   | Shows the runner, flags, and first failure signal           |
+| `.blackbox-coverage/`     | Shows captured spans, coverage summaries, and report inputs |
+| Generated compose overlay | Shows whether the SUT was instrumented for the run          |
+| Effect catalog diff       | Shows whether the reviewed behavior contract changed        |
+| Generated `.feature` diff | Shows whether readable behavior specs drifted               |
 
 ## Useful Next Pages
 
-1. [Requirements and Supported Stacks](/docs/blackbox/quickstart/requirements)
-2. [Set Up the Testbed](/docs/blackbox/guides/set-up-the-testbed)
+1. [Prerequisites and Supported Systems](/docs/blackbox/quickstart/prerequisites-and-supported-systems)
+2. [Testbed and Instrumentation](/docs/blackbox/guides/set-up-the-testbed)
 3. [Effects, Catalogs, and Coverage](/docs/blackbox/concepts/effects-and-catalogs)
-4. [Configure CI Gates](/docs/blackbox/guides/ci-behavioral-gates)
+4. [Reports and CI Gates](/docs/blackbox/guides/reports-and-ci-gates)

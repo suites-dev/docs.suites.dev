@@ -2,12 +2,19 @@
 title: Writing Scenarios
 description: Write scenarios and effect assertions using the Blackbox DSL to connect system tests to behavioral proof.
 sidebar_position: 3
+keywords:
+  [
+    "Blackbox Scenario DSL",
+    "Given When Then Playwright",
+    "code-first BDD",
+    "system test scenarios",
+  ]
 ---
 
-import Tabs from '@/components/mdx/Tabs.astro';
-import TabItem from '@/components/mdx/TabItem.astro';
+import Tabs from "@/components/mdx/Tabs.astro";
+import TabItem from "@/components/mdx/TabItem.astro";
 
-The **scenario DSL** is Blackbox's authoring surface for behavior-shaped system tests. You write the executable test in TypeScript, Blackbox reads the scenario structure, and the run can produce feature files plus effect assertions that prove the behavior at system boundaries.
+The **Scenario DSL** is Blackbox's optional BDD-shaped authoring surface. Plain Playwright `test.system(...)` flows remain the core path. Use the DSL when explicit Given/When/Then structure should drive readable feature generation as well as runtime effect assertions.
 
 This guide uses the showcase `subscribe-flow`: an existing user posts to `/subscriptions`, the system creates a pro subscription, writes the supporting state, and proves that the expected boundary effects appeared.
 
@@ -19,13 +26,17 @@ Start with `scenario(slug, description, body)`. The **slug** is the stable ident
 <TabItem value="dsl" label="Scenario DSL (TypeScript)" default>
 
 ```ts
-import { scenario } from './testbed.js';
+import { scenario } from "./testbed.js";
 
-scenario('subscribe-flow', 'subscribing as a pro tier user', ({ given, background }) => {
-  background('the system is reset', async ({ system }) => {
-    await system.reset();
-  });
-});
+scenario(
+  "subscribe-flow",
+  "subscribing as a pro tier user",
+  ({ given, background }) => {
+    background("the system is reset", async ({ system }) => {
+      await system.reset();
+    });
+  },
+);
 ```
 
 </TabItem>
@@ -51,35 +62,48 @@ The DSL is closure-based. `scenario()` registers the behavior, `background()` re
 The real `subscribe-flow` test starts with the alice path:
 
 ```ts
-import { expect, scenario } from './testbed.js';
-import { postJson } from './_http.js';
+import { expect, scenario } from "./testbed.js";
+import { postJson } from "./_http.js";
 
-scenario('subscribe-flow', 'subscribing as a pro tier user', ({ given, background }) => {
-  background('the system is reset', async ({ system }) => {
-    await system.reset();
-  });
-
-  given('alice is an existing user with no active subscription', async ({ system, capture, when }) => {
-    await when('alice POSTs /subscriptions with a valid card', async ({ then }) => {
-      const res = await postJson(
-        `${system.bff.hostBaseUrl}/subscriptions`,
-        { userId: 'alice', paymentMethodId: 'pm_card_visa' },
-      );
-
-      await then('the response status is 201', () => {
-        expect(res.status).toBe(201);
-      });
-
-      await then('the tier is cached in redis', async () => {
-        expect(await system.cache.get('user:alice:tier')).toBe('pro');
-      });
-
-      await then('the captured effects satisfy the subscribe-flow catalog entry', async () => {
-        await expect(capture).toMatchCatalog();
-      });
+scenario(
+  "subscribe-flow",
+  "subscribing as a pro tier user",
+  ({ given, background }) => {
+    background("the system is reset", async ({ system }) => {
+      await system.reset();
     });
-  });
-});
+
+    given(
+      "alice is an existing user with no active subscription",
+      async ({ system, capture, when }) => {
+        await when(
+          "alice POSTs /subscriptions with a valid card",
+          async ({ then }) => {
+            const res = await postJson(
+              `${system.bff.hostBaseUrl}/subscriptions`,
+              { userId: "alice", paymentMethodId: "pm_card_visa" },
+            );
+
+            await then("the response status is 201", () => {
+              expect(res.status).toBe(201);
+            });
+
+            await then("the tier is cached in redis", async () => {
+              expect(await system.cache.get("user:alice:tier")).toBe("pro");
+            });
+
+            await then(
+              "the captured effects satisfy the subscribe-flow catalog entry",
+              async () => {
+                await expect(capture).toMatchCatalog();
+              },
+            );
+          },
+        );
+      },
+    );
+  },
+);
 ```
 
 Each closure controls the fixtures available to the next step. The `given()` body receives `system`, `capture`, and `when`. The `when()` body receives `then`. That keeps the test readable in the same order reviewers see in the generated Gherkin.
@@ -93,42 +117,40 @@ An **effect assertion** checks captured boundary behavior. A **required effect**
 Use inline `toObserveEffects()` assertions while you are shaping the scenario. The bob and carol outline in the showcase asserts the read path, the payment call, the write path, and the forbidden cleanup behavior directly in the test:
 
 ```ts
-import {
-  effect,
-  glob,
-  exactly,
-  atLeast,
-} from '@suites/blackbox';
-import { expect } from './testbed.js';
+import { effect, glob, exactly, atLeast } from "@suites/blackbox";
+import { expect } from "./testbed.js";
 
-await then('read path: cache lookup then user lookup', async () => {
+await then("read path: cache lookup then user lookup", async () => {
   await expect(capture).toObserveEffects([
-    effect.redis('GET', { key: glob('user:*:tier') }),
-    effect.postgres('SELECT', { table: 'users' }),
+    effect.redis("GET", { key: glob("user:*:tier") }),
+    effect.postgres("SELECT", { table: "users" }),
   ]);
 });
 
-await then('exactly one Stripe payment_intent is created', async () => {
+await then("exactly one Stripe payment_intent is created", async () => {
   await expect(capture).toObserveEffects(
-    effect.http('POST', { path: '/v1/payment_intents', count: exactly(1) }),
+    effect.http("POST", { path: "/v1/payment_intents", count: exactly(1) }),
   );
 });
 
-await then('write path: persist, cache tier, enqueue order', async () => {
+await then("write path: persist, cache tier, enqueue order", async () => {
   await expect(capture).toObserveEffects([
-    effect.postgres('INSERT', { table: 'subscriptions' }),
-    effect.redis('SET', { key: glob('user:*:tier') }),
-    effect.http('POST', { path: '/orders' }),
-    effect.sqs('SendMessage', { queue: 'subscription-orders', count: atLeast(1) }),
+    effect.postgres("INSERT", { table: "subscriptions" }),
+    effect.redis("SET", { key: glob("user:*:tier") }),
+    effect.http("POST", { path: "/orders" }),
+    effect.sqs("SendMessage", {
+      queue: "subscription-orders",
+      count: atLeast(1),
+    }),
   ]);
 });
 
-await then('no refund and no DELETE', async () => {
+await then("no refund and no DELETE", async () => {
   await expect(capture).toObserveEffects({
     requires: [],
     forbids: [
-      effect.http('POST', { path: '/v1/refunds' }),
-      effect.postgres('DELETE'),
+      effect.http("POST", { path: "/v1/refunds" }),
+      effect.postgres("DELETE"),
     ],
   });
 });
@@ -137,18 +159,21 @@ await then('no refund and no DELETE', async () => {
 Use the object form when you need both sides of the contract in one assertion:
 
 ```ts
-await then('cache and users were consulted; Stripe and SQS were not', async () => {
-  await expect(capture).toObserveEffects({
-    requires: [
-      effect.redis('GET', { key: glob('user:*:tier') }),
-      effect.postgres('SELECT', { table: 'users' }),
-    ],
-    forbids: [
-      effect.http('POST', { path: '/v1/payment_intents' }),
-      effect.sqs('SendMessage'),
-    ],
-  });
-});
+await then(
+  "cache and users were consulted; Stripe and SQS were not",
+  async () => {
+    await expect(capture).toObserveEffects({
+      requires: [
+        effect.redis("GET", { key: glob("user:*:tier") }),
+        effect.postgres("SELECT", { table: "users" }),
+      ],
+      forbids: [
+        effect.http("POST", { path: "/v1/payment_intents" }),
+        effect.sqs("SendMessage"),
+      ],
+    });
+  },
+);
 ```
 
 That ghost-user path proves the negative behavior for `subscribe-unknown-user`: the system consults cache and users, returns `404`, and does not create a Stripe payment intent or send an SQS message.
@@ -156,9 +181,12 @@ That ghost-user path proves the negative behavior for `subscribe-unknown-user`: 
 After review, promote stable inline assertions into the catalog. The alice path then uses the slug-backed catalog assertion:
 
 ```ts
-await then('the captured effects satisfy the subscribe-flow catalog entry', async () => {
-  await expect(capture).toMatchCatalog();
-});
+await then(
+  "the captured effects satisfy the subscribe-flow catalog entry",
+  async () => {
+    await expect(capture).toMatchCatalog();
+  },
+);
 ```
 
 Keep exploratory assertions inline until the team agrees they belong in the contract. Then move the required and forbidden effects into the catalog so future runs fail when the behavior drifts. Read [Effects and Catalogs](/docs/blackbox/concepts/effects-and-catalogs) for the catalog model.
@@ -168,25 +196,31 @@ Keep exploratory assertions inline until the team agrees they belong in the cont
 Use `given.each` when one scenario shape should run over example rows. The showcase runs the same subscription behavior for bob and carol:
 
 ```ts
-import { expect, scenario } from './testbed.js';
-import { postJson } from './_http.js';
+import { expect, scenario } from "./testbed.js";
+import { postJson } from "./_http.js";
 
-scenario('subscribe-flow', 'subscribing as a pro tier user', ({ given }) => {
+scenario("subscribe-flow", "subscribing as a pro tier user", ({ given }) => {
   given.each([
-    { user: 'bob', card: 'pm_card_visa' },
-    { user: 'carol', card: 'pm_card_visa' },
-  ])('<user> is an existing user (inline contract)', async ({ system, when }, row) => {
-    await when('<user> POSTs /subscriptions with <card>', async ({ then }) => {
-      const res = await postJson(
-        `${system.bff.hostBaseUrl}/subscriptions`,
-        { userId: row.user, paymentMethodId: row.card },
-      );
+    { user: "bob", card: "pm_card_visa" },
+    { user: "carol", card: "pm_card_visa" },
+  ])(
+    "<user> is an existing user (inline contract)",
+    async ({ system, when }, row) => {
+      await when(
+        "<user> POSTs /subscriptions with <card>",
+        async ({ then }) => {
+          const res = await postJson(
+            `${system.bff.hostBaseUrl}/subscriptions`,
+            { userId: row.user, paymentMethodId: row.card },
+          );
 
-      await then('the response status is 201', () => {
-        expect(res.status).toBe(201);
-      });
-    });
-  });
+          await then("the response status is 201", () => {
+            expect(res.status).toBe(201);
+          });
+        },
+      );
+    },
+  );
 });
 ```
 

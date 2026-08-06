@@ -1,49 +1,67 @@
 ---
 title: "Environment Variables"
-description: "List supported environment variables and how they affect capture, reports, and testbed behavior."
-sidebar_position: 7
-keywords: ["environment variables", "blackbox env vars", "otel config"]
-toc_min_heading_level: 2
-seo:
-  primary_keyword: "Environment Variables"
-  secondary_keywords: ["environment variables", "blackbox env vars"]
-  search_intent: "TODO"
-  snippet_angle: "TODO"
+description: "Supported Blackbox environment variables for the testbed, instrumentation payload, artifacts, reporting, debugging, and advanced Node coverage."
+sidebar_position: 6
+keywords:
+  [
+    "Blackbox environment variables",
+    "BLACKBOX_INSTR_IMAGE",
+    "BLACKBOX_COVERAGE_DIR",
+    "OpenTelemetry test config",
+  ]
 ---
 
-## Abstract
+Prefer typed configuration and CLI flags. Use environment variables for environment-specific paths, CI behavior, and diagnostics.
 
-List supported environment variables and how they affect capture, reports, and testbed behavior.
+## Testbed and Instrumentation
 
-This page should explain which variables influence capture, reporting, and the testbed, and how they interact with config files and CLI flags.
+| Variable                              | Default                     | Purpose                                                          |
+| ------------------------------------- | --------------------------- | ---------------------------------------------------------------- |
+| `BLACKBOX_INSTR_IMAGE`                | `blackbox-instr-node:local` | Instrumentation payload image used by the Node overlay           |
+| `BLACKBOX_NODE_BINARY_PATH`           | `/usr/local/bin/node`       | Node binary path to shadow in every configured SUT               |
+| `BLACKBOX_NODE_BINARY_PATH_<SERVICE>` | global value                | Per-service Node path; service name becomes uppercase snake case |
+| `BLACKBOX_KEEP_STACK=1`               | off                         | Leave worker containers running after teardown for diagnosis     |
 
-## Audience
+For service `fraud-check`, the override is `BLACKBOX_NODE_BINARY_PATH_FRAUD_CHECK`.
 
-These pages are complete references for commands, APIs, configuration, files, reports, and exit codes.
+## Artifact Locations
 
-## What This Page Should Contain
+| Variable                         | Default                                | Purpose                                            |
+| -------------------------------- | -------------------------------------- | -------------------------------------------------- |
+| `BLACKBOX_COVERAGE_DIR`          | `.blackbox-coverage`                   | Coverage root in connect mode and report lifecycle |
+| `BLACKBOX_COVERAGE_OUTPUT`       | `<coverage-dir>/catalog/coverage.json` | Override the catalog coverage JSON path            |
+| `BLACKBOX_SHAPE_COVERAGE_OUTPUT` | `<coverage-dir>/shape/coverage.json`   | Override shape coverage output                     |
+| `BLACKBOX_FEATURES_DIR`          | `features`                             | Runtime Scenario DSL feature output                |
 
-1. Each supported variable and its purpose.
-2. Whether it affects capture, reporting, or testbed behavior.
-3. Whether it is required, optional, or experimental.
-4. The precedence relative to config files and CLI flags.
+Prefer `coverageDir` and `blackboxReporter({ outputDir })` over setting output variables directly.
 
-## Content Outline
+## Reporting
 
-1. List the complete surface area.
-2. Mark stable public API versus internal or alpha behavior.
-3. Document inputs, outputs, defaults, errors, and versioning.
-4. Point back to guides for examples.
+| Variable             | Default                                   | Purpose                                   |
+| -------------------- | ----------------------------------------- | ----------------------------------------- |
+| `BLACKBOX_REPORTERS` | `effects-report`                          | Comma-separated registered reporter names |
+| `BLACKBOX_SINKS`     | `file`, plus GitHub Actions when detected | Comma-separated registered sink names     |
 
-## Practical Guidance
+Unknown reporter or sink names produce a warning and are skipped. The core registry exposes `effects-report`, `junit`, `file`, `stdout`, and `github-actions`; adapter-registered coverage modules produce their own artifacts.
 
-1. Group variables by subsystem.
-2. State defaults clearly.
-3. Call out the variables that are only for debugging or CI.
-4. Explain what happens if a variable is missing or conflicting.
+## Diagnostics
 
-## Evidence To Add
+| Variable                 | Purpose                                             |
+| ------------------------ | --------------------------------------------------- |
+| `BLACKBOX_DEBUG=1`       | Include raw span detail in matcher failure output   |
+| `BLACKBOX_DEBUG_TRACE=1` | Print per-test trace and debug-endpoint diagnostics |
+| `BLACKBOX_KEEP_STACK=1`  | Preserve the failing topology for manual inspection |
 
-- Real commands, APIs, or artifacts from the Blackbox showcase system.
-- Links to related concept, guide, reference, or troubleshooting pages.
-- Clear limits and prerequisites where the page touches alpha behavior.
+Do not enable verbose diagnostics by default in CI; they can expose URLs, query text, and other test data.
+
+## Advanced Node Coverage
+
+| Variable                       | Purpose                                                            |
+| ------------------------------ | ------------------------------------------------------------------ | ---------------------------------------------------- |
+| `BLACKBOX_FUNCTION_SPANS=1`    | Enable the advanced function-span coverage mode                    |
+| `BLACKBOX_FN_SPANS_MODE=loader | build-time`                                                        | Select loader or build-time function instrumentation |
+| `BLACKBOX_STRICT_AST_DRIFT=1`  | Fail instead of warning when source and coverage coordinates drift |
+
+These are advanced alpha controls. Use the default Node adapter path first and inspect OMC/DC limits before enabling function-span instrumentation.
+
+Variables such as internal registry keys, run timestamps, partial-retention flags, and testbed markers are implementation details and are intentionally omitted.

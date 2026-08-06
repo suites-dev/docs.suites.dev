@@ -17,11 +17,14 @@ const slug = entry.slug;
 const data = entry.data;
 
 /* Resolve title and description, allowing meta_* overrides for SEO. */
-const title       = data.meta_title       ?? data.title;
+const title       = data.title;
+const metaTitle   = data.meta_title       ?? data.title;
 const description = data.meta_description ?? data.description;
+const canonicalUrl = new URL(`/docs/${slug}`, Astro.site ?? Astro.url.origin).toString();
 ---
 <DocLayout
   title={title}
+  metaTitle={metaTitle}
   description={description}
   headings={headings}
   slug={slug}
@@ -29,6 +32,9 @@ const description = data.meta_description ?? data.description;
   lastUpdated={data.last_updated}
   editUrl={data.edit_url}
   hideToc={data.hide_toc}
+  keywords={data.keywords}
+  noIndex={data.no_index}
+  canonicalUrl={canonicalUrl}
   rawBody={entry.body}
   entryId={entry.id}
 >

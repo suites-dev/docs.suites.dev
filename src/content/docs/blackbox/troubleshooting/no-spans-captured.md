@@ -2,11 +2,17 @@
 title: "No Spans Captured"
 description: "Diagnose uninstrumented systems, missing trace propagation, and empty reports."
 sidebar_position: 1
-keywords: ["no spans captured", "opentelemetry troubleshooting", "empty reports"]
+keywords:
+  ["no spans captured", "opentelemetry troubleshooting", "empty reports"]
 toc_min_heading_level: 2
 seo:
   primary_keyword: "no spans captured"
-  secondary_keywords: ["opentelemetry troubleshooting", "blackbox empty report", "node options require"]
+  secondary_keywords:
+    [
+      "opentelemetry troubleshooting",
+      "blackbox empty report",
+      "node options require",
+    ]
   search_intent: "troubleshooting intent from users whose system test ran but produced empty Blackbox evidence"
   snippet_angle: "walk through topology, bootstrap, node wrapper, trace propagation, and artifact checks for empty span reports"
 ---

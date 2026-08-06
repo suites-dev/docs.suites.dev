@@ -1,62 +1,63 @@
 ---
 title: "Incident Regression"
-description: "Turn an incident into a durable catalog entry and behavioral gate."
-sidebar_position: 4
-keywords: ["incident regression", "semantic regression", "postmortem testing", "forbidden effects"]
-toc_min_heading_level: 2
-seo:
-  primary_keyword: "Incident Regression"
-  secondary_keywords: ["semantic regression", "incident regression", "postmortem testing"]
-  search_intent: "TODO"
-  snippet_angle: "TODO"
+description: "Turn a known incident into a Playwright flow with required and forbidden runtime effects that fail if the behavior returns."
+sidebar_position: 3
+keywords:
+  [
+    "incident regression test",
+    "postmortem testing",
+    "forbidden effects",
+    "behavioral regression",
+  ]
 ---
 
-## Abstract
+An incident regression test should preserve the behavioral distinction that made the incident harmful, not only the response that happened to accompany it.
 
-Turn an incident into a durable catalog entry and behavioral gate.
+## Example: Rejected User Was Charged
 
-The point is not root-cause analysis. The point is to make the failure visible again if the behavior comes back.
+Suppose the API returned `404` for an unknown user, but a payment request was already sent and an order message was published. A response-only regression test can pass while the incident returns.
 
-## Audience
+Create a named flow and keep the response assertion:
 
-Teams that want a known incident to become a recurring behavioral check.
+```ts
+test.system("subscribe-unknown-user", "rejecting an unknown subscriber", () => {
+  test("stops before downstream work", async ({ capture, request, system }) => {
+    const response = await request.post(
+      `${system.bff.hostBaseUrl}/subscriptions`,
+      {
+        data: { userId: "ghost-user", paymentMethodId: "pm_card_visa" },
+      },
+    );
 
-## The Problem
+    expect(response.status()).toBe(404);
+    await expect(capture).toMatchCatalog();
+  });
+});
+```
 
-An incident often exposes a missing assertion, a silent boundary change, or a behavior the team never encoded explicitly.
+Ratify the incident boundary in the catalog:
 
-## When It Helps
+```yaml
+subscribe-unknown-user:
+  requires:
+    - { boundary: postgres, op: SELECT, key: users, service: bff }
+  forbids:
+    - { boundary: http, op: POST, key: /v1/payment_intents, service: bff }
+    - { boundary: postgres, op: INSERT, service: bff }
+    - { boundary: sqs, op: SendMessage, key: subscription-orders }
+```
 
-1. The failure mode is known and repeatable enough to gate.
-2. The team wants to prevent regression, not just discuss the postmortem.
-3. The runtime effect is observable in a real run.
-4. The check should fail before trust is granted.
+The regression now fails if payment, persistence, or publication returns, even when the API response remains `404`.
 
-## What Blackbox Adds
+## Post-Incident Workflow
 
-1. The failing effect becomes a catalog entry.
-2. The scenario becomes a regression gate.
-3. The report shows whether the behavior is back or still fixed.
+1. Reproduce the narrow flow in a controlled testbed.
+2. Identify the required and forbidden effects that distinguish fixed from broken behavior.
+3. Review the catalog with the incident owner.
+4. Add an EARS requirement when the rule should remain normative and traceable.
+5. Run the flow in CI with catalog baselining disabled.
+6. Retain the failing runtime artifacts when the gate trips.
 
-## What Not To Claim
+Blackbox does not replace monitoring, incident management, or root-cause analysis. It turns one selected failure mode into a recurring pre-merge behavior check.
 
-1. Blackbox does not do incident management.
-2. Blackbox does not replace observability, alerting, or root-cause analysis.
-3. Blackbox does not prevent every future incident.
-
-## Semantic Regression
-
-An incident regression is often a semantic regression: the system still runs, but the meaning of the behavior changed. A response may still be successful while the wrong effect was emitted, skipped, duplicated, or no longer forbidden.
-
-Blackbox is useful when the postmortem can name the runtime effect that should become a permanent gate.
-
-## Evidence To Add
-
-- A concrete post-incident regression example.
-- Links to Requires and Forbids, The Blackbox Lifecycle, and Feature Files and Staleness.
-
-## Figure Placeholder
-
-**Caption:** An incident becoming a recurring regression gate.
-
-**Slot:** `<!-- TODO: insert incident-to-gate before/after demo here -->`
+See [Effects, Catalogs, and Coverage](/docs/blackbox/concepts/effects-and-catalogs) and [Reports and CI Gates](/docs/blackbox/guides/reports-and-ci-gates).

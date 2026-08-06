@@ -1,159 +1,197 @@
 ---
-title: Set Up the Testbed
-description: Use the Blackbox testbed to run your compose SUT, instrument Node services at test time, and write coverage artifacts.
-sidebar_position: 2
+title: "Testbed and Instrumentation"
+description: "Start a Docker Compose or Testcontainers SUT per Playwright worker, inject Node instrumentation for the test run, and write Blackbox artifacts."
+sidebar_position: 1
+keywords:
+  [
+    "Blackbox testbed",
+    "Docker Compose system tests",
+    "OpenTelemetry test instrumentation",
+    "Playwright testbed",
+    "Node SUT instrumentation",
+  ]
 ---
 
-import TestbedArchitectureDiagram from '@/components/blackbox/TestbedArchitectureDiagram.astro';
+import TestbedArchitectureDiagram from "@/components/blackbox/TestbedArchitectureDiagram.astro";
+import InstrumentationFlowDiagram from "@/components/blackbox/InstrumentationFlowDiagram.astro";
+import Aside from "@/components/mdx/Aside.astro";
 
-## When you need the testbed
-
-Use **the testbed**, the Blackbox setup that owns system startup, when you already have a Playwright or Docker Compose path and you want Blackbox to collect runtime evidence from your **system under test (SUT)**, the services Blackbox observes during the run.
-
-This guide is for two readers:
-
-- **Brownfield Playwright owner**: you have system tests and a compose stack, and you want `.blackbox-coverage/` artifacts without rewriting the suite.
-- **Platform engineer**: you want observability depth for Node services that do not yet emit useful test spans.
-
-The testbed injects the **OpenTelemetry bootstrap**, the runtime preload that captures spans during the test, with zero changes to service code. In the showcase, `alice` runs `subscribe-flow` through the BFF, Redis, Postgres, the payment HTTP boundary, and SQS while Playwright drives the request.
-
-## Step 1: Install the Testbed Dependencies
-
-Install the Blackbox package and Testcontainers in the package that owns the system tests:
-
-```bash
-pnpm add -D @suites/blackbox testcontainers
-```
-
-`@suites/blackbox` provides `createBlackboxTestbed()` and the Playwright reporter. `testcontainers` gives the testbed the Docker and Compose lifecycle primitives it uses during setup and teardown.
-
-The compose testbed also needs the bootstrap **image** that the generated overlay mounts into SUT containers. In local development that image is usually tagged as `blackbox-instr-node:local`; CI can set `BLACKBOX_INSTR_IMAGE` to a registry image.
-
-## Step 2: Create `blackbox-testbed.ts`
-
-Start from the showcase shape. Point the testbed at the user compose file, declare the SUT services you want typed in tests, and choose an artifact directory.
+The Blackbox testbed owns the system-test environment. It starts one SUT topology per Playwright worker, injects the Node observation payload into configured services, resets managed state between groups, and finalizes reports after the run.
 
 <TestbedArchitectureDiagram />
 
+## Before You Configure It
+
+The current happy path assumes:
+
+- Playwright system tests;
+- a modern Docker Compose v2 installation, preferably 2.24 or newer;
+- Node SUT containers with a shell and a Node binary the wrapper can shadow;
+- declared Compose ports for SUT endpoints;
+- a test-owned reset strategy for stateful dependencies.
+
+Install the runtime, Node adapter, bootstrap payload package, and test dependencies in the workspace that owns the system tests:
+
+```bash
+pnpm add -D \
+  @suites/blackbox \
+  @suites/blackbox-adapter-node \
+  @suites/blackbox-instr-node \
+  @playwright/test \
+  testcontainers
+```
+
+When working from a Blackbox source checkout, build the local payload image once:
+
+```bash
+pnpm -w build:instr-image
+```
+
+Set `BLACKBOX_INSTR_IMAGE` when CI should use a published or internally mirrored image instead of `blackbox-instr-node:local`.
+
+## Create the Testbed
+
 ```ts title="e2e/blackbox-testbed.ts"
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-import { createBlackboxTestbed } from '@suites/blackbox/testbed';
-
-const here = dirname(fileURLToPath(import.meta.url));
-const userCompose = resolve(here, 'services/compose.user.yml');
+import { resolve } from "node:path";
+import { createBlackboxTestbed } from "@suites/blackbox/testbed";
+import "@suites/blackbox-adapter-node/register";
+import { resetManagedState } from "./reset-managed-state.js";
 
 export const testbed = createBlackboxTestbed({
-  system: {
-    kind: 'compose',
-    file: userCompose,
+  source: {
+    compose: resolve("e2e/services/compose.user.yml"),
     profiles: undefined,
   },
   services: {
     bff: {},
-    'order-service': {
-      srcDir: resolve(here, 'services/order-service/src'),
-      wait: 'healthcheck',
+    "order-service": {},
+    "fraud-check": {
+      wait: { log: /\[fraud-check\] listening on/ },
     },
   } as const,
-  isolation: { kind: 'off' },
-  coverageDir: resolve(here, '.blackbox-coverage'),
+  reset: async ({ infra }) => resetManagedState(infra),
+  grouping: undefined,
+  coverageDir: resolve("e2e/.blackbox-coverage"),
   projectNames: undefined,
+  ambient: null,
 });
 ```
 
-`userCompose` is the showcase compose file path. `services` names the SUT services that tests can access through `system.connect`. `srcDir` is only needed when the default `<build.context>/src` source directory is wrong.
+`resetManagedState` is project-owned. It should clear the Postgres, Redis, queue, or other managed state addressed by the worker-specific `infra` map.
 
-The current compose testbed does not ask you to assign a `debugPort` in this config. It publishes container port `4000` as `0:4000`, then reads back the Docker-assigned host port after startup.
+The alpha input type uses explicit `undefined` for omitted options. Keep those keys until the public type changes.
 
-## Step 3: Understand the Instrumentation Overlay
+The testbed introspects the Compose configuration:
 
-With the compose testbed, you normally do not call `observed()` yourself. The testbed generates a kit-owned Compose overlay for each configured SUT service.
+- services with `build:` become candidate SUT services;
+- image-only services become managed infrastructure;
+- a healthcheck becomes the default wait strategy;
+- `<build-context>/src` becomes the default source directory;
+- Docker-assigned host ports avoid collisions between workers.
 
-That overlay:
+Declare service overrides only when introspection is wrong. The current public sources are Compose and a custom Testcontainers provisioner. A Dockerfile-only source is represented in types but is not implemented as a runnable source yet.
 
-1. Starts `blackbox-otel-init` from the bootstrap image.
-2. Copies `/blackbox-otel` into a named Docker volume.
-3. Mounts that volume read-only into each SUT service.
-4. Shadows the service's Node binary with `bin/node-wrap`.
-5. Sets `OTEL_DEBUG_PORT` inside the container.
-6. Publishes the debug port with a Docker-assigned host port.
+## What Instrumentation Does
 
-When the service command runs, `node-wrap` prepends `--require=/blackbox-otel/bootstrap.cjs` and then executes the real Node binary from the bootstrap volume. The bootstrap loads before application code, registers supported OpenTelemetry instrumentations, captures spans, and exposes them through the debug server.
+<InstrumentationFlowDiagram />
 
-`observed()` is the lower-level injection primitive behind the legacy direct-bind path. It returns three things:
+For each configured Node SUT service, the adapter-generated overlay:
 
-| Value | What it supplies |
-| --- | --- |
-| `bindMount` | A read-only mount of the bootstrap into `/blackbox-otel` |
-| `env.NODE_OPTIONS` | `--require=/blackbox-otel/bootstrap.cjs` |
-| `env.OTEL_DEBUG_PORT` | The in-container port used by the bootstrap debug server |
-| `debugPort` | The port the test side polls for spans |
+1. starts an init container from the instrumentation image;
+2. copies `/blackbox-otel` into a named volume;
+3. mounts the volume read-only into the SUT container;
+4. shadows the configured Node binary with `node-wrap`;
+5. preloads `bootstrap.cjs` before application code;
+6. publishes the in-container debug endpoint on a Docker-assigned host port.
 
-The result is the same contract: the bootstrap loads before application code, spans become available through the debug port, and the service Dockerfile stays unaware of the instrumentation.
+Production source and production Dockerfiles do not need Blackbox imports. This is test-environment instrumentation.
 
-## Step 4: Wire Playwright
+The default Node path is `/usr/local/bin/node`. Override it globally with `BLACKBOX_NODE_BINARY_PATH` or for one service with `BLACKBOX_NODE_BINARY_PATH_<SERVICE>` when the image uses a different path.
 
-Export the lifecycle functions from small setup files:
+<Aside type="note" title="The Node Adapter Is Explicit">
+  Import `@suites/blackbox-adapter-node/register` in the testbed configuration.
+  It registers the Node observation and OMC/DC producers. Remove it only when
+  you intentionally provide a different runtime adapter.
+</Aside>
 
-```ts title="e2e/global-setup.ts"
-import { testbed } from './blackbox-testbed.js';
-
-export default testbed.globalSetup;
-```
-
-```ts title="e2e/global-teardown.ts"
-import { testbed } from './blackbox-testbed.js';
-
-export default testbed.globalTeardown;
-```
-
-Point Playwright at those files and register the Blackbox reporter:
+## Wire Playwright
 
 ```ts title="e2e/playwright.config.ts"
-import { defineConfig } from '@playwright/test';
-import { createRequire } from 'node:module';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const here = dirname(fileURLToPath(import.meta.url));
-const requireFromHere = createRequire(import.meta.url);
-const blackboxReporterPath = requireFromHere.resolve(
-  '@suites/blackbox/runners/playwright/reporter',
-);
+import { defineConfig } from "@playwright/test";
+import {
+  blackboxReporter,
+  defineBlackboxConfig,
+} from "@suites/blackbox/playwright";
+import { testbed } from "./blackbox-testbed.js";
 
 export default defineConfig({
-  testDir: here,
-  testMatch: ['tests/**/*.system.test.ts'],
-  globalSetup: resolve(here, 'global-setup.ts'),
-  globalTeardown: resolve(here, 'global-teardown.ts'),
-  workers: 1,
+  ...defineBlackboxConfig({ mode: "testbed", testbed }),
+  testDir: "./e2e",
+  testMatch: ["tests/**/*.system.test.ts"],
+  fullyParallel: true,
+  workers: 4,
   reporter: [
-    ['list'],
-    [blackboxReporterPath, { outputDir: resolve(here, '.blackbox-coverage') }],
+    ["list"],
+    blackboxReporter({
+      outputDir: "./e2e/.blackbox-coverage",
+      failOnUncovered: true,
+      failOnAlwaysFailing: true,
+    }),
   ],
 });
 ```
 
-Keep the first run serial. After the testbed proves the setup path, use [Writing Scenarios](/docs/blackbox/guides/writing-scenarios) to move from raw Playwright tests into `scenario`, `given`, `when`, and `then`.
+`defineBlackboxConfig()` contributes the packaged global setup and teardown. `blackboxReporter()` contributes the reporter tuple without replacing Playwright reporters you already use.
 
-## Step 5: Verify the setup
+Use `workers: 1` while diagnosing first setup. Raise the worker count when the topology starts and resets correctly; parallel execution is a supported testbed shape.
 
-Run the showcase system tests:
+## Expose the System Fixture
 
-```bash
-pnpm test:system
+Use `defineSystemTest({ provision: { bootstrap } })` to turn the per-worker connect map into the `system` fixture your tests need:
+
+```ts title="e2e/tests/testbed.ts"
+import { defineSystemTest } from "@suites/blackbox/runners/playwright";
+import "../blackbox-testbed.js";
+
+const { test, expect } = defineSystemTest({
+  provision: {
+    bootstrap: async ({ perWorker }) => {
+      if (perWorker === null)
+        throw new Error("worker stack was not provisioned");
+
+      return {
+        app: perWorker.connect.bff,
+        debugUrls: () =>
+          Object.values(perWorker.connect).map((service) => service.debugUrl),
+        dispose: async () => {},
+      };
+    },
+  },
+});
+
+export { test, expect };
 ```
 
-Then check the setup in this order:
+The showcase has a richer fixture with typed Postgres, Redis, and SQS helpers. Keep your fixture limited to the controls and inspection surfaces tests actually use.
 
-1. Playwright runs with `globalSetup` and `globalTeardown`.
-2. The compose stack starts and the BFF is reachable.
-3. The debug port exposes spans for `subscribe-flow`.
-4. `.blackbox-coverage/` exists after teardown.
-5. The reporter wrote coverage artifacts for the run.
+## Verify the Environment
 
-If Playwright passes but `.blackbox-coverage/` is empty, treat that as a setup failure. Check the compose file path, service names, bootstrap image, and debug port readback before changing the scenario.
+Run one file first:
 
-If this verification step fails, use [Troubleshooting](/docs/blackbox/troubleshooting) before changing the scenario or catalog.
+```bash
+npx playwright test \
+  --config ./e2e/playwright.config.ts \
+  ./e2e/tests/subscribe.system.test.ts \
+  --workers 1
+```
+
+Verify, in order:
+
+1. the worker stack starts;
+2. the public SUT endpoint is reachable;
+3. each configured SUT has a readable debug endpoint;
+4. the request carries trace context;
+5. the effect sidecar is loaded or baselined;
+6. `catalog/coverage.json` is written at teardown.
+
+Continue with [Playwright Flows, Isolation, and Parallelism](/docs/blackbox/guides/playwright-isolation-and-parallelism) to structure flows across workers. Use [Troubleshooting](/docs/blackbox/troubleshooting) if the test passes but observations or artifacts are missing.

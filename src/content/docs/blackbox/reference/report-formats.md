@@ -1,38 +1,45 @@
 ---
 title: "Report Formats"
-description: "Describe coverage, shape coverage, and propagation outputs as machine-readable artifacts."
+description: "Reference for Blackbox effect, requirement, shape, OMC/DC, JUnit, Markdown, and HTML report artifacts."
 sidebar_position: 5
 keywords: ["report formats", "coverage json", "shape coverage json"]
 toc_min_heading_level: 2
 seo:
   primary_keyword: "report formats"
-  secondary_keywords: ["coverage json", "omcdc json", "shape coverage json", "junit coverage report"]
+  secondary_keywords:
+    [
+      "coverage json",
+      "omcdc json",
+      "shape coverage json",
+      "junit coverage report",
+    ]
   search_intent: "reference intent from users and automation authors consuming Blackbox generated reports"
   snippet_angle: "explain each Blackbox report file, its producer, format, consumer, and stability expectation"
 ---
 
-Blackbox writes several report formats from the same run. This page explains which file belongs to which stage, what each file is for, and how stable each output is.
-
-People who need to consume, parse, archive, or compare the artifacts Blackbox produces.
+Blackbox produces machine-readable verdicts and human-readable reports from the same test run. Use JSON for gates and repair loops; use Markdown or HTML to understand why a gate failed.
 
 ## Artifact Family
 
-| Reporter token | Artifact | Format | Purpose |
-| --- | --- | --- | --- |
-| `json` | `omcdc/verdict.json` | JSON | Machine-readable OMC/DC propagation report. |
-| `markdown` | `omcdc/verdict.md` | Markdown | Human-readable OMC/DC report for reviews and editor inspection. |
-| `html` | `omcdc/verdict.html` | HTML | Interactive OMC/DC report with branch-level inspection. |
-| `catalog-json` | `catalog/coverage.json` | JSON | Effect catalog coverage summary. |
-| `shape-json` | `shape/coverage.json` | JSON | Boundary-shape coverage summary. |
-| `junit` | `omcdc.junit.xml` | XML | CI-facing test-result view of OMC/DC verdicts. |
+| Producer or setting       | Artifact                     | Format   | Purpose                                                 |
+| ------------------------- | ---------------------------- | -------- | ------------------------------------------------------- |
+| Catalog coverage module   | `catalog/coverage.json`      | JSON     | Per-flow effect contract verdicts and totals.           |
+| Shape coverage module     | `shape/coverage.json`        | JSON     | Declared, asserted, and observed boundary shapes.       |
+| `effects-report` reporter | `effects-report.md`          | Markdown | Reviewable effect and shape coverage summary.           |
+| `effects-report` reporter | `effects-report.html`        | HTML     | Browser view of the same summary.                       |
+| Node OMC/DC producer      | `omcdc/verdict.json`         | JSON     | Machine-readable decision-propagation report.           |
+| Node OMC/DC producer      | `omcdc/verdict.md`           | Markdown | Human-readable OMC/DC report.                           |
+| Node OMC/DC producer      | `omcdc/verdict.html`         | HTML     | Interactive branch-level OMC/DC report.                 |
+| `requirements coverage`   | `requirements/coverage.json` | JSON     | EARS requirement verdicts joined through flow bindings. |
+| `junit`                   | `omcdc.junit.xml`            | XML      | CI-facing test-result view of OMC/DC verdicts.          |
 
 ## Stability Notes
 
-1. `catalog/coverage.json` and `shape/coverage.json` are compact summaries and are the safest starting point for automation.
-2. `omcdc/verdict.json` is machine-readable but carries detailed branch and verdict data that may evolve while the alpha engine evolves.
-3. Markdown and HTML reports are review artifacts. They are meant to be read, attached, and linked, not parsed as stable APIs.
-4. `omcdc.junit.xml` is designed for CI systems that already understand JUnit XML.
-5. Per-test span and V8 files are diagnostic inputs, not public report formats.
+1. `catalog/coverage.json` and `requirements/coverage.json` are the direct inputs for CI and agent repair loops.
+2. `shape/coverage.json` explains whether catalog shapes were actually named by matchers.
+3. `omcdc/verdict.json` carries detailed branch evidence and may evolve while the engine is alpha.
+4. Markdown and HTML are presentation artifacts; do not parse them as APIs.
+5. Raw span and `node/v8` files are producer inputs, not public report contracts.
 
 ## What Each Artifact Is For
 
@@ -55,8 +62,10 @@ Summarizes effect catalog entry coverage. It answers whether catalog entries wer
 The shape is based on:
 
 1. `catalog`: service name, entry count, and catalog API version.
-2. `totals`: seen, satisfied, failed, and uncovered counts.
-3. `perEntry`: per-catalog-entry state, run count, pass count, and failure count.
+2. `totals`: seen, satisfied, failed, uncovered, and forbidden-entry counts.
+3. `perEntry`: state, run/pass/failure counts, and `forbidViolations` with the matched shape and last observed location.
+
+Entry states are `satisfied`, `failed`, or `uncovered`. A flow can fail because a required effect is missing, a forbidden effect appeared, or a count constraint did not match.
 
 ### `shape/coverage.json`
 
@@ -68,26 +77,37 @@ Shape states are:
 2. `unasserted`: declared in the catalog but never named by a matcher.
 3. `inline`: named by a matcher but not declared in the catalog.
 
+### `requirements/coverage.json`
+
+Joins EARS requirement IDs to the runtime result of their bound flows. A requirement is:
+
+1. `proven` when every bound flow is satisfied.
+2. `violated` when at least one bound flow failed.
+3. `unproven` when no bound flow failed but at least one was not exercised.
+4. `unbound` when the requirement has no flow binding.
+
+When multiple flows bind to one requirement, the worst verdict wins.
+
 ### `omcdc.junit.xml`
 
 Maps OMC/DC verdicts into CI test-result vocabulary:
 
-| OMC/DC verdict | JUnit mapping |
-| --- | --- |
-| `propagating` | pass |
-| `masking-candidate` | failure |
-| `coverage-gap` | skipped |
-| `undecidable` | pass with `system-out` |
-| `multi-arm` | pass with `system-out` |
-| `unsupported-mcdc` | pass with `system-out` |
+| OMC/DC verdict      | JUnit mapping          |
+| ------------------- | ---------------------- |
+| `propagating`       | pass                   |
+| `masking-candidate` | failure                |
+| `coverage-gap`      | skipped                |
+| `undecidable`       | pass with `system-out` |
+| `multi-arm`         | pass with `system-out` |
+| `unsupported-mcdc`  | pass with `system-out` |
 
 ## Artifact Delivery
 
-Reporters render artifacts. Sinks deliver them.
+Coverage modules and reporters render artifacts. Sinks deliver them.
 
 That separation matters: the same proof can become files, stdout output, GitHub Actions annotations, or CI test results without changing the evidence or the coverage model.
 
-The GitHub Actions sink reads `omcdc/verdict.json` and emits workflow annotations for actionable verdicts:
+The default file sink writes below the configured coverage directory. When `GITHUB_ACTIONS=true`, the default also includes the GitHub Actions sink. That sink reads `omcdc/verdict.json` and emits workflow annotations for actionable verdicts:
 
 1. `masking-candidate` becomes a warning.
 2. `coverage-gap` becomes a notice.

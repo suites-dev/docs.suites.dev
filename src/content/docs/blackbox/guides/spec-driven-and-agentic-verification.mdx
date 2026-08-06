@@ -1,248 +1,127 @@
 ---
 title: "Spec-Driven and Agentic Verification"
-description: "Use Blackbox as the runtime evidence gate for spec-driven development, agent-authored code, generated tests, and behavior specs."
-sidebar_position: 8
-keywords: ["spec driven development verification", "agentic coding verification", "github spec kit verification", "runtime evidence gate", "ai output verification"]
-toc_min_heading_level: 2
-seo:
-  primary_keyword: "spec driven development verification"
-  secondary_keywords: ["agentic coding verification", "github spec kit verification", "ai output verification", "runtime evidence gate"]
-  search_intent: "teams adopting SDD or AI coding agents and looking for a deterministic runtime verification gate before merge"
-  snippet_angle: "Blackbox complements spec-driven and agentic workflows by checking selected system behavior against runtime evidence"
+description: "Use EARS requirements, Playwright flows, runtime effect contracts, stable JSON, and optional Gherkin to verify human- or agent-authored changes."
+sidebar_position: 3
+keywords:
+  [
+    "agentic coding verification",
+    "spec driven development runtime evidence",
+    "EARS requirements",
+    "executable specification",
+    "AI coding agent testing",
+  ]
 ---
 
-import AgenticBddWizard from '@/components/blackbox/AgenticBddWizard.astro';
-import CodeFirstBddDiagram from '@/components/blackbox/CodeFirstBddDiagram.astro';
-import Aside from '@/components/mdx/Aside.astro';
-import Tabs from '@/components/mdx/Tabs.astro';
-import TabItem from '@/components/mdx/TabItem.astro';
+import VerificationLoopDiagram from "@/components/blackbox/VerificationLoopDiagram.astro";
+import AgenticBddWizard from "@/components/blackbox/AgenticBddWizard.astro";
+import Aside from "@/components/mdx/Aside.astro";
 
-Spec-driven development makes intent explicit before implementation. Agentic coding makes implementation faster. Blackbox fits after both: it runs the selected behavior, captures runtime effects, and gives the reviewer a concrete gate over what the system actually did.
+Spec-driven development makes intent explicit before implementation. Blackbox adds a verification step after selected intent becomes an executable Playwright flow: the running system must produce the reviewed boundary behavior.
 
-It does not replace Spec Kit, Kiro, Tessl, Cucumber, Playwright, or your product spec. It adds the runtime verification step those workflows still need after code exists.
+<VerificationLoopDiagram />
 
-<CodeFirstBddDiagram kind="sdd" />
+## Keep the Surfaces Separate
 
-## The Problem
+| Surface                               | Owner                               | Job                                                 |
+| ------------------------------------- | ----------------------------------- | --------------------------------------------------- |
+| Product spec, ticket, or SDD artifact | Product and engineering             | Explain intent and constraints                      |
+| EARS requirement                      | Human-ratified requirements process | Give normative behavior a stable ID                 |
+| Requirement sidecar                   | Reviewer                            | Bind requirement IDs to explicit flow IDs           |
+| Playwright flow                       | Developer or agent                  | Exercise the system through a real boundary         |
+| Effect catalog                        | Reviewer                            | Declare required and forbidden runtime effects      |
+| Runtime reports                       | Blackbox                            | Produce deterministic evidence and verdicts         |
+| Generated Gherkin                     | Test source plus reviewer           | Project executable behavior into readable scenarios |
 
-SDD and agentic coding share a useful pattern: more work becomes explicit artifacts. A team may have a spec, acceptance criteria, a plan, task files, generated tests, and a pull request summary.
+Blackbox does not replace planning specs, GitHub Spec Kit, Tessl, tickets, or design documents. It adds the missing verification relationship between selected intent and runtime evidence.
 
-Those artifacts still leave a verification gap:
+## Existing-Behavior Loop
 
-```text
-spec says what should happen
-agent or developer changes code
-tests pass
-but boundary behavior was not reviewed from runtime evidence
-```
+Use this loop for refactors, migrations, and agent-authored maintenance:
 
-The gap is not theoretical. A response assertion can pass while the system silently skips a queue publish, writes the wrong row, calls a downstream service after rejection, or adds an effect nobody reviewed.
+1. Select a boundary-risk flow that already runs.
+2. Capture and review its effect catalog.
+3. Bind relevant EARS requirement IDs when normative traceability matters.
+4. Let the developer or agent change the implementation.
+5. Run the same Playwright flow in the isolated testbed.
+6. Repair implementation failures from test output and JSON verdicts.
+7. Stop for review when the repair would change a requirement, binding, or accepted effect.
+8. Optionally emit Gherkin so the behavior remains easy to inspect later.
 
-Blackbox adds a deterministic check outside the authoring loop. The model or developer may write the code. The running system supplies the evidence.
+The agent can iterate on implementation because the accepted contract stays fixed. A new effect is not permission to rewrite the catalog automatically.
 
-## The Working Loop
+## New-Behavior Loop
 
-Use this loop when a spec, issue, or agent task describes behavior that deserves system-level proof:
+For a feature that does not exist yet, an agent can draft the executable behavior before implementation:
 
-1. Capture the intent in the existing workflow, such as a ticket, SDD spec, acceptance criteria, or feature request.
-2. Select one behavior worth proving, such as `subscribe-flow` or `subscribe-unknown-user`.
-3. Drive that behavior with a Playwright system test or Blackbox Scenario DSL test.
-4. Run the system through the Blackbox testbed or another Blackbox-aware setup.
-5. Review the observed effects.
-6. Promote the meaningful effects into a catalog with `requires` and `forbids`.
-7. Run the gate in CI or in an agent repair loop.
-8. Emit or check feature files when readable behavior specs are part of review.
+1. A human expresses intent and constraints.
+2. The agent proposes EARS requirements or reuses the team's existing spec format.
+3. The agent writes a narrow Playwright flow with a stable flow ID.
+4. Blackbox emits a Gherkin projection from the test for human review, when that reading surface is useful.
+5. The human refines the behavior language and ratifies the requirement binding.
+6. The agent implements the feature.
+7. The testbed runs the system and Blackbox records effects.
+8. A human reviews the first catalog contract.
+9. The agent repairs implementation until runtime and requirement verdicts pass.
 
 <AgenticBddWizard />
 
-The human owns behavior decisions. An agent can draft scenarios, repair implementation, summarize reports, or regenerate feature files, but catalog changes that redefine required or forbidden behavior should go through review.
+The current stable Gherkin direction is test-to-feature. Feature-to-test scaffolding is experimental and should be treated as a draft accelerator, not as proof.
 
-## Map Specs To Blackbox Artifacts
+## Deterministic Inputs for Agents
 
-The bridge from a spec to Blackbox is authored translation. Blackbox does not read natural-language specs and prove them automatically.
+Use JSON command output instead of asking an agent to interpret colored terminal prose:
 
-| Spec-side artifact | Blackbox artifact | Job |
-| --- | --- | --- |
-| Requirement or acceptance criterion | Scenario slug | Gives the behavior a stable identity |
-| Given/When/Then or EARS-style trigger | System test or Scenario DSL flow | Exercises the selected behavior |
-| Required outcome | Catalog `requires` | Declares effects that must appear |
-| Forbidden outcome | Catalog `forbids` | Declares effects that must stay absent |
-| Implementation task | Project system-test command | Runs the real flow |
-| Review packet | Coverage, reports, feature files | Shows what changed and what passed |
-
-For now, keep the mapping simple and explicit in names, comments, or adjacent docs. Requirement-ID-to-scenario binding is a useful future integration point, but it is not a current public gate.
-
-## Example: Requirement To Runtime Contract
-
-<Tabs groupId="sdd-agentic-example">
-<TabItem value="intent" label="Intent" default>
-
-```md
-Requirement: Unknown users cannot start subscription processing.
-
-When `ghost-user` attempts to subscribe:
-- the request is rejected
-- the system does not create a payment intent
-- the system does not enqueue subscription work
+```bash
+pnpm exec blackbox requirements check --tests e2e --json
+pnpm exec blackbox requirements drift --tests e2e --json
+pnpm exec blackbox requirements coverage \
+  --tests e2e \
+  --coverage e2e/.blackbox-coverage/catalog/coverage.json \
+  --fail-on violated \
+  --json
+pnpm exec blackbox features check \
+  --features e2e/features \
+  --tests e2e/tests \
+  --json
 ```
 
-</TabItem>
-<TabItem value="scenario" label="Scenario">
+The envelope has `schemaVersion: 1`, a command name, a status, and structured `data`, `findings`, or `error`. Findings carry rule, severity, message, file, and line fields.
 
-```ts
-import { effect } from '@suites/blackbox';
-import { expect, scenario } from './testbed.js';
-import { postJson } from './_http.js';
+That gives an agent a bounded repair task:
 
-scenario('subscribe-unknown-user', 'rejecting a ghost user', ({ given }) => {
-  given('ghost-user is not present in the system', async ({ system, capture, when }) => {
-    await when('ghost-user POSTs /subscriptions', async ({ then }) => {
-      const response = await postJson(`${system.bff.hostBaseUrl}/subscriptions`, {
-        userId: 'ghost-user',
-        paymentMethodId: 'pm_card_visa',
-      });
+- a `requirement-violated` finding points to implementation or accepted contract conflict;
+- `unproven` points to missing runtime evidence;
+- requirement drift points to missing or stale bindings;
+- feature drift points to a stale readable projection;
+- a catalog failure points to missing required or observed forbidden effects.
 
-      await then('the request stops before downstream work', async () => {
-        expect(response.status).toBe(404);
-        await expect(capture).toObserveEffects({
-          requires: [
-            effect.postgres('SELECT', { table: 'users' }),
-          ],
-          forbids: [
-            effect.http('POST', { path: '/v1/payment_intents' }),
-            effect.sqs('SendMessage', { queue: 'subscription-orders' }),
-          ],
-        });
-      });
-    });
-  });
-});
-```
+## Human Ratification Boundary
 
-</TabItem>
-<TabItem value="catalog" label="Catalog">
+Agents may safely regenerate derived artifacts and repair code while the accepted behavior remains stable. Require review for:
 
-```yaml
-subscribe-unknown-user:
-  requires:
-    - { boundary: postgres, op: SELECT, key: users }
-  forbids:
-    - { boundary: http, op: POST, key: /v1/payment_intents }
-    - { boundary: sqs, op: SendMessage, key: subscription-orders }
-```
+- new or changed EARS text;
+- requirement-to-flow binding changes;
+- new or removed catalog clauses;
+- a changed forbidden effect;
+- ambiguous generated Gherkin;
+- broadening the flow scope to make a verdict pass.
 
-</TabItem>
-</Tabs>
-
-The intent explains why the behavior matters. The scenario drives the system. The catalog records the reviewed effect contract. Runtime evidence decides whether the run satisfies it.
-
-## Agentic Workflow
-
-The agent loop should treat Blackbox artifacts as external evidence, not as prose to trust.
-
-```text
-agent changes implementation
-  -> project tests pass
-  -> system flow runs
-  -> Blackbox compares effects to the catalog
-  -> agent repairs implementation when evidence fails
-  -> human reviews catalog changes and ambiguous behavior
-```
-
-Useful agent tasks:
-
-1. Draft a Playwright system test from a reviewed requirement.
-2. Reshape a plain Playwright test into the Scenario DSL.
-3. Run the project system-test command.
-4. Read `.blackbox-coverage/` artifacts and summarize missing required effects or observed forbidden effects.
-5. Regenerate feature files from executable tests.
-6. Stop when new behavior needs catalog review.
-
-Risky agent tasks:
-
-1. Adding forbidden effects without human review.
-2. Deleting catalog entries only to make a run pass.
-3. Treating generated tests as enough proof.
-4. Treating a feature file as proof without runtime evidence.
-
-<Aside type="warning" title="Do Not Let The Agent Rewrite The Contract Silently">
-An agent can draft a catalog from observation, but accepting the catalog is a behavior decision. `forbids` are especially human-owned because they describe what must never happen, not what happened once.
+<Aside type="warning" title="Do Not Let One Agent Grade Its Own Intent">
+  The value of runtime evidence is reduced when the same automation can silently
+  rewrite requirements, tests, and catalogs until they agree. Keep accepted
+  behavior changes visible in the diff and owned by review.
 </Aside>
 
-## Commands In Today's CLI
+## What Belongs in the Repository
 
-There is no public `blackbox verify --json` command in the current alpha. Use the actual surfaces Blackbox exposes today.
+Repository memory helps both future humans and future agent sessions:
 
-Run the project-owned system test command:
+- requirement sources;
+- requirement binding sidecars;
+- Playwright flows and stable flow IDs;
+- reviewed effect catalogs;
+- generated feature files only when they are an active review surface.
 
-```bash
-pnpm test:system
-```
+Coverage JSON, OMC/DC reports, raw spans, and observation outputs are normally CI artifacts. Upload them with a useful retention policy rather than committing every run.
 
-Generate feature files from executable tests:
-
-```bash
-pnpm exec blackbox features emit ./e2e/tests --out ./e2e/features
-```
-
-Check Gherkin syntax and feature-file drift:
-
-```bash
-pnpm exec blackbox features check --features ./e2e/features --tests ./e2e/tests --json
-```
-
-Replay coverage reports from saved artifacts:
-
-```bash
-pnpm exec blackbox coverage replay --coverage-dir .blackbox-coverage --out reports
-```
-
-Use the project system-test command as the runtime gate. Use feature commands only when generated `.feature` files are part of the review surface.
-
-## How This Fits SDD Tools
-
-Blackbox should sit beside SDD tools, not inside them.
-
-| Workflow | Where Blackbox fits |
-| --- | --- |
-| Spec Kit-style workflow | After implementation tasks, run selected system flows and attach effect evidence to review |
-| EARS/Kiro-style requirements | Map `shall` to required effects and `shall not` to forbidden effects when a behavior deserves runtime proof |
-| Tessl-style spec and implementation loop | Use Blackbox as a runtime evidence gate for selected critical flows after generated implementation and tests run |
-| Internal RFC or ticket process | Treat the effect catalog and coverage report as the concrete review packet for one behavior |
-
-The common rule is the same: the spec describes product intent; Blackbox verifies selected system behavior after the system runs.
-
-## What To Gate
-
-Choose the gate by risk.
-
-| Risk | Gate |
-| --- | --- |
-| Response passes but boundary work may be wrong | Effect matcher or catalog matcher in the system test |
-| Required or forbidden effects are part of review | Effect catalog and effect coverage |
-| Feature files are committed | `blackbox features check` |
-| Scenario text is too weak to review | `blackbox features lint` |
-| Refactor should preserve observed behavior | Observation comparison, currently experimental |
-| Decision-sensitive paths matter | OMC/DC report review |
-
-Do not put every gate into the first run. Start with one behavior, one catalog, and one report. Add feature-file and OMC/DC gates when they change review behavior.
-
-## What Success Looks Like
-
-A useful SDD or agentic review packet contains:
-
-1. The original intent artifact or requirement reference.
-2. The system test or scenario slug that exercised the behavior.
-3. The effect catalog diff, if the behavior contract changed.
-4. The runtime report showing required, forbidden, missing, and covered effects.
-5. The generated feature-file diff, if readable behavior specs are part of review.
-6. The CI result or agent summary that points back to those artifacts.
-
-That packet does not ask the reviewer to trust a model's summary. It gives the reviewer concrete behavior evidence.
-
-## What To Read Next
-
-1. [Specs, Tests, and Runtime Evidence](/docs/blackbox/overview/specs-tests-runtime-evidence)
-2. [Code-First BDD](/docs/blackbox/concepts/code-first-bdd)
-3. [Writing Scenarios](/docs/blackbox/guides/writing-scenarios)
-4. [Configure CI Gates](/docs/blackbox/guides/ci-behavioral-gates)
+Finish the workflow with [Reports and CI Gates](/docs/blackbox/guides/reports-and-ci-gates).

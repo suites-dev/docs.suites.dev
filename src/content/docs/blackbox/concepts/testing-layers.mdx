@@ -1,83 +1,77 @@
 ---
-title: Testing Layers
-description: "Positioning Blackbox within the testing pyramid: Unit, Integration, System, and E2E testing."
+title: "Testing Layers"
+description: "Place Blackbox across unit, integration, system, and E2E testing, with managed dependencies defining the strongest runtime-evidence gate."
 sidebar_position: 1
+keywords:
+  [
+    "unit integration system E2E tests",
+    "testing pyramid",
+    "managed dependencies",
+    "system testing",
+    "Suites Blackbox",
+  ]
 ---
 
-import TestingPyramidDiagram from '@/components/blackbox/TestingPyramidDiagram.astro';
+import TestingPyramidDiagram from "@/components/blackbox/TestingPyramidDiagram.astro";
 
-Testing layers answer different confidence questions. A fast unit test can tell you where local logic broke. A system or E2E test can tell you whether composed behavior still appears when the running system crosses real boundaries.
-
-Blackbox does not replace your unit tests. It adds a **Proof Layer** where the pyramid is most vulnerable: at the **runtime boundaries** where isolated units meet composed reality.
-
-## The Testing Pyramid
+Testing layers trade speed and failure locality for realism. Blackbox belongs where a running, composed system crosses boundaries whose behavior matters.
 
 <TestingPyramidDiagram />
 
-The testing pyramid is a cost and feedback model. Lower layers run quickly and isolate failures. Higher layers cost more, but they prove assembled behavior.
+## Four Different Questions
 
-A **unit** is the class under test. A **test double** is a fake replacement used by a test.
+| Layer       | Main question                                                       | Typical dependency shape                                      |
+| ----------- | ------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Unit        | Does local logic behave correctly?                                  | Collaborators replaced with doubles                           |
+| Integration | Do selected components or adapters collaborate correctly?           | A small number of real providers or infrastructure components |
+| System      | Does the composed SUT behave correctly through its public boundary? | Topology and dependencies owned by the test                   |
+| E2E         | Does the full deployed journey work?                                | May include shared, remote, or third-party dependencies       |
 
-Use the control boundary to choose the layer. If the test still runs close to one class, keep it low in the pyramid. If it runs a composed system and you care about external effects, move it toward the top.
+Use lower layers for fast feedback and precise diagnosis. Use system and E2E tests for behavior that only exists after services, stores, caches, queues, and remote calls are composed.
 
-## Managed vs. Unmanaged Dependencies
+## Managed and Unmanaged Dependencies
 
-A **dependency** is a collaborator, service, or infrastructure component that a unit or system needs to complete behavior.
+A **managed dependency** is started, configured, reset, and cleaned up by the test environment. Examples include a Postgres container, Redis container, LocalStack queue, or payment stub in a per-worker Compose stack.
 
-A **managed dependency** is a dependency the test owns during the run. In the showcase 5-service topology, the BFF, Redis, Postgres, payment HTTP boundary, and SQS boundary are managed when the testbed starts them, isolates them, routes traffic through them, and cleans them up.
+An **unmanaged dependency** is outside the run's control: a shared identity provider, a remote email service, a staging database, or a vendor endpoint.
 
-An **unmanaged dependency** is a dependency outside the test's direct control. The test may call it, but it does not own its state, network conditions, cleanup, or timing.
+The distinction affects confidence:
 
-This split changes the evidence:
+- controlled state makes missing and forbidden effects reproducible;
+- per-worker stacks keep parallel flows isolated;
+- shared dependencies add realism but can make failures environmental;
+- remote side effects may be observable without being safely resettable.
 
-1. Managed dependencies make failures easier to reproduce.
-2. Managed dependencies make CI gates more trustworthy.
-3. Unmanaged dependencies can add realism, but they also add variance.
-4. Unmanaged dependency failures may be environment failures, not product failures.
+## The Blackbox Sweet Spot
 
-System tests usually work best when they include managed dependencies and replace, sandbox, or omit unmanaged dependencies. E2E tests are useful when the full journey matters, but they often produce noisier gates.
+Blackbox is strongest around **controlled system tests**. Playwright drives a real public boundary while the testbed owns the SUT topology and managed dependencies. Runtime observations can then become deterministic catalog and coverage results.
 
-## System Testing: The Blackbox Sweet Spot
+The same model can support broader E2E tests. Treat those results according to the control you actually have. A remote vendor timeout and a missing queue publication in an isolated testbed do not carry the same diagnostic meaning.
 
-A **system test** runs a composed system under controlled conditions. It drives real behavior through production-like boundaries while keeping enough ownership to make the result repeatable.
+## What Blackbox Adds
 
-That is the Blackbox sweet spot. A `subscribe-flow` system test can drive `alice` through the showcase topology, then let Blackbox collect runtime evidence from the run and prove the effects behind the response.
+At the system and E2E layers, a test usually checks input and output. Blackbox adds four questions about the middle:
 
-Blackbox turns those observations into reviewable artifacts: effects, catalogs, matcher results, and coverage reports. Read [Runtime Evidence](/docs/blackbox/concepts/runtime-evidence) for the evidence model, and [System Effects](/docs/blackbox/concepts/effects-and-catalogs) for the catalog and effect coverage model.
-
-Keep the first proof narrow. The documented alpha path is Playwright-only, and the first proof should run serially with one worker. Parallel Playwright runs belong after the evidence path works and the isolation model can attribute state and spans to the correct behavior.
-
-## Why the Top of the Pyramid Needs Proof
-
-The Overview explains the E2E Blind Spot in full: a passing workflow can still leave important runtime effects unverified. Read [When to Use Blackbox](/docs/blackbox/overview/when-to-use-blackbox) for the adoption criteria and full positioning. This page uses that idea only to place Blackbox in the pyramid.
-
-Each top-layer run should produce more than a pass/fail result. A strong system or E2E run should answer:
-
-1. Which required effects appeared?
+1. Which required boundary effects appeared?
 2. Which required effects were missing?
 3. Which forbidden effects appeared?
-4. Which new effects need review?
-5. Which decision-sensitive behavior was visible at the boundary?
+4. Which cataloged flows or effect shapes were not exercised?
 
-Blackbox makes that run a verification gate. The implementation is accepted when the observed runtime evidence matches the behavior the team reviewed.
+OMC/DC adds a fifth, advanced question: did important decisions produce distinguishable observed behavior?
 
-## Suites Unit vs. Suites Blackbox
+## Suites Unit and Suites Blackbox
 
-Suites Unit and Suites Blackbox serve different layers of the same strategy.
+Suites Unit and Suites Blackbox cover different confidence surfaces.
 
-A **mock** is a fake replacement of an entire class. A **stub** is a single method that returns predefined values. A **solitary test** is a unit test where all dependencies are mocks. A **sociable test** is a unit test where selected dependencies are real.
+| Need                                           | Suites Unit | Suites Blackbox |
+| ---------------------------------------------- | ----------- | --------------- |
+| Isolate a TypeScript class or provider         | Yes         | No              |
+| Generate type-safe mocks and stubs             | Yes         | No              |
+| Diagnose local logic quickly                   | Yes         | No              |
+| Drive a Playwright system or E2E flow          | No          | Yes             |
+| Check required and forbidden runtime effects   | No          | Yes             |
+| Produce system-level effect and OMC/DC reports | No          | Yes             |
 
-Suites Unit helps you build solitary and sociable tests around TypeScript classes, providers, and dependency graphs. Use it when you need fast feedback, type-safe test doubles, and precise failure locality.
+The pyramid still matters. Keep local correctness cheap. Add Blackbox where composed behavior needs evidence from a real run.
 
-Suites Blackbox helps you prove composed behavior from the outside. Use it when the behavior crosses runtime boundaries and the review needs evidence from a real run.
-
-| Need | Use Suites Unit | Use Suites Blackbox |
-| --- | --- | --- |
-| Fast feedback on one class | Yes | No |
-| Type-safe mocks and stubs | Yes | No |
-| Provider or module collaboration | Yes | Sometimes, when the run becomes system-level |
-| Proof for `subscribe-flow` across the 5-service topology | No | Yes |
-| Required and forbidden runtime effects | No | Yes |
-| CI verification gate for system behavior | No | Yes |
-
-Keep the split simple. Use Suites Unit to make local behavior cheap to test. Use Blackbox when behavior crosses runtime boundaries and the team needs proof that the composed system did what the test alone could not show.
+Next, read [Runtime Evidence](/docs/blackbox/concepts/runtime-evidence).

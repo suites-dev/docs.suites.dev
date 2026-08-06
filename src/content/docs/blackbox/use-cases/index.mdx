@@ -1,0 +1,44 @@
+---
+title: "Use Cases"
+description: "Choose a Blackbox adoption path for refactors, legacy modernization, incident regressions, or distributed system workflows."
+sidebar_position: 1
+keywords:
+  [
+    "system test use cases",
+    "refactor regression testing",
+    "legacy modernization testing",
+    "microservices verification",
+    "incident regression",
+  ]
+---
+
+Blackbox is most valuable where a visible response can stay green while important boundary behavior changes. Choose the use case closest to the risk you need to control.
+
+## Choose a Starting Point
+
+| Use case                           | First contract                                                               | Read next                                                                     |
+| ---------------------------------- | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Refactor a working system          | Capture one consequential flow before changing internals                     | [Covering Before Refactor](/docs/blackbox/use-cases/covering-before-refactor) |
+| Modernize a legacy system          | Preserve reviewed effects while replacing components in stages               | [Legacy Modernization](/docs/blackbox/use-cases/legacy-modernization)         |
+| Prevent an incident from returning | Encode the effect that must happen and the effect that must never recur      | [Incident Regression](/docs/blackbox/use-cases/incident-regression)           |
+| Verify a microservice workflow     | Check the database, cache, HTTP, and queue behavior behind one public result | [Microservices Regression](/docs/blackbox/use-cases/microservices-regression) |
+
+## Common Pattern
+
+Every use case follows the same small loop:
+
+1. Choose one stable Playwright flow.
+2. Run it in a controlled topology.
+3. Capture the boundary effects.
+4. Review required and forbidden clauses.
+5. Change the implementation.
+6. Rerun against the same contract.
+7. Ratify any intentional behavior change.
+
+EARS requirements and generated Gherkin are optional additions. Use EARS when requirement-level verdicts matter. Use Gherkin when a readable behavior projection will be reviewed. Runtime effects remain the proof layer in every path.
+
+## Do Not Start With the Entire Suite
+
+Pick flows where the cost of silent behavior drift is clear: payment, authorization, publication, persistence, destructive operations, retries, or compensation.
+
+The [5-Minute Quickstart](/docs/blackbox/quickstart/first-proven-feature) shows the loop. [When to Use Blackbox](/docs/blackbox/overview/when-to-use-blackbox) explains where a lower-level test is the better choice.

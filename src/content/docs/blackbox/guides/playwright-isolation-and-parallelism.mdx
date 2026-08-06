@@ -1,227 +1,141 @@
 ---
-title: "Playwright, Isolation, and Parallelism"
-description: "Understand how Blackbox maps Playwright workers, describe modes, fixtures, and hooks into isolated system-test evidence."
+title: "Playwright Flows, Isolation, and Parallelism"
+description: "Use Playwright test.system blocks, fixtures, trace propagation, reset groups, and per-worker SUT stacks without mixing runtime evidence."
 sidebar_position: 2
-keywords: ["playwright parallelism", "playwright workers", "system test isolation", "blackbox test api"]
-toc_min_heading_level: 2
-seo:
-  primary_keyword: "playwright parallelism"
-  secondary_keywords: ["playwright workers", "system test isolation", "playwright fixtures", "blackbox test api"]
-  search_intent: "developers running Blackbox system tests under Playwright parallel workers and needing isolation guidance"
-  snippet_angle: "Blackbox supports Playwright parallelism by mapping tests into worker testbeds, isolation groups, runtime effects, and merged reports"
+keywords:
+  [
+    "Playwright parallel system tests",
+    "test.system flow ID",
+    "per worker Docker Compose",
+    "trace isolation",
+    "Blackbox Playwright API",
+  ]
 ---
 
-import PlaywrightParallelismSimulator from '@/components/blackbox/PlaywrightParallelismSimulator.astro';
-import Aside from '@/components/mdx/Aside.astro';
+import PlaywrightParallelismSimulator from "@/components/blackbox/PlaywrightParallelismSimulator.astro";
+import Aside from "@/components/mdx/Aside.astro";
 
-Blackbox supports parallel system tests by separating scheduling from evidence ownership.
-
-Playwright decides which tests run at the same time. Blackbox gives those tests system-test semantics: worker-scoped testbeds, scenario isolation groups, trace attribution, effect catalogs, coverage partials, and merged reports.
+Playwright owns scheduling. Blackbox owns the connection between a scheduled test, its SUT state, its trace, and its runtime artifacts.
 
 <PlaywrightParallelismSimulator />
 
-## The Mental Model
+## Playwright Primitives Still Apply
 
-Parallelism is scheduling. Isolation is ownership.
+Blackbox builds on Playwright Test rather than replacing it:
 
-Playwright can run tests across worker processes, projects, shards, files, and `test.describe.parallel(...)` groups. That answers "what can run at the same time?"
+- `test()` defines a runnable case;
+- `test.describe()` groups cases;
+- `test.beforeEach()` and fixtures prepare state;
+- `test.step()` names actions and assertions;
+- `request` drives HTTP while carrying the active Blackbox trace;
+- `expect` includes Blackbox matchers.
 
-Blackbox answers a different question:
-
-> Which system state and runtime evidence belong to this behavior?
-
-The supported path is to run Playwright through the Blackbox test API and testbed:
-
-1. Playwright starts worker processes.
-2. `createBlackboxTestbed()` prepares the system topology.
-3. `defineSystemTest()` exposes the Blackbox-aware `test`, `expect`, `scenario`, and `outline` surfaces.
-4. Each worker gets its own system boundary when compose isolation is enabled.
-5. Each scenario or test receives an isolation group key.
-6. `capture` attributes spans and effects to the active test.
-7. Worker partials merge into the final reports during teardown.
-
-That is why the docs should not tell users to disable parallelism as the default answer. The better answer is: use the Blackbox isolation model so parallel tests remain attributable.
-
-## Playwright Test API Constructs
-
-Playwright calls this surface the Playwright Test API. These are the constructs Blackbox cares about most:
-
-| Playwright construct | What Playwright does | What Blackbox reads or adds |
-| --- | --- | --- |
-| `test(title, body)` | Registers one executable test | A behavior candidate with a label, catalog entry, trace, and effects |
-| `test.describe(...)` | Groups tests | Context for grouping, tags, and feature generation |
-| `test.describe.parallel(...)` | Allows sibling tests to run concurrently | Independent leaves map to plain `scenario(...)` entries with fresh isolation groups |
-| `test.describe.serial(...)` | Runs sibling tests as a dependent chain | Reshape can emit `scenario.chain(...)` when shared state is intentional |
-| `test.beforeEach(...)` | Runs setup before each test | Can become `background(...)` in the Scenario DSL |
-| `test.step(...)` | Adds explicit named substeps | Useful signal for readable behavior traces |
-| fixtures such as `request`, `system`, `capture`, `isolation` | Inject runner resources into tests | Drive the SUT, propagate trace identity, reset groups, and collect evidence |
-| `expect(...)` | Makes assertions | Strong signal for `Then` and for effect matchers |
-| `workers`, `fullyParallel`, projects, sharding | Controls scheduling | Determines how many worker testbeds and partial reports are produced |
-
-Reference: [Playwright Test API](https://playwright.dev/docs/api/class-test), [Playwright parallelism](https://playwright.dev/docs/test-parallel).
-
-## The Blackbox Test API Layer
-
-Blackbox adds a system-test layer on top of Playwright.
+The Blackbox addition is `test.system(flowId, description, fn)`:
 
 ```ts
-const { test, expect, scenario, outline } = defineSystemTest({
-  bootstrap: async ({ workerInfo, perWorker }) => {
-    return connectToSystem(workerInfo, perWorker);
-  },
+test.system("subscribe-unknown-user", "rejecting an unknown user", () => {
+  test("ghost-user is rejected before downstream work", async ({
+    capture,
+    request,
+    system,
+  }) => {
+    const response = await request.post(
+      `${system.bff.hostBaseUrl}/subscriptions`,
+      {
+        data: { userId: "ghost-user", paymentMethodId: "pm_card_visa" },
+      },
+    );
+
+    expect(response.status()).toBe(404);
+    await expect(capture).toMatchCatalog();
+  });
 });
 ```
 
-The important parts are:
+Every test inside the block inherits `@flow:subscribe-unknown-user`. The capture fixture uses that ID to load the matching effect-catalog entry, record coverage, and connect optional requirement bindings and generated feature tags.
 
-| Blackbox API | Role |
-| --- | --- |
-| `defineSystemTest(...)` | Creates the Playwright test fixture shape used by the suite |
-| `bootstrap(ctx)` | Connects the worker process to the correct SUT boundary |
-| `system` fixture | User-facing handle for the running system |
-| `capture` fixture | Captures spans/effects for the active test and enables catalog matchers |
-| `isolation` fixture | Forces the per-test isolation lifecycle even when no effects are captured |
-| `scenario(...)` | Defines a behavior flow with a fresh isolation group |
-| `scenario.chain(...)` | Defines an ordered shared-state chain that runs serially on one worker |
-| `outline(...)` / `given.each(...)` | Runs one behavior shape across example rows |
+## Parallelism Model
 
-Use this layer when the test is meant to produce Blackbox evidence. Plain Playwright can still run, but the Blackbox API is what gives system tests their isolation and artifact semantics.
+With the standard testbed:
 
-## Worker Isolation
+1. Playwright starts N workers.
+2. Blackbox starts one isolated SUT stack per worker.
+3. The stack is reused by tests scheduled to that worker.
+4. The configured reset function runs when the isolation group changes.
+5. Each worker writes coverage partials.
+6. global teardown merges partials into canonical reports.
 
-With compose isolation enabled, each Playwright worker gets its own composed system boundary.
+Different `test.system` blocks may run in parallel across workers. Tests inside one `test.system` block use Playwright's default in-order mode so OMC/DC branch arms do not interleave inside the same worker SUT.
 
 ```bash
-BLACKBOX_ISOLATION=compose npx playwright test --workers 2
+npx playwright test --config ./e2e/playwright.config.ts --workers 4
 ```
 
-That means:
+There is no `BLACKBOX_ISOLATION` switch. The worker count and testbed source determine the topology.
 
-1. Worker 0 can run against one compose project.
-2. Worker 1 can run against another compose project.
-3. Docker-assigned host ports prevent worker port collisions.
-4. `bootstrap(ctx)` receives worker context so test code connects to the right boundary.
-5. Coverage, shape coverage, and feature traces are written as worker partials and merged later.
+## State Isolation
 
-This is the core reason Blackbox can support parallel system tests. A parallel test is only trustworthy when its state and evidence are attributable.
+Per-worker containers prevent workers from sharing databases, caches, queue state, debug buffers, and V8 counters. They do not reset state between every test automatically.
 
-## Scenario Isolation Groups
+The testbed computes an isolation group key:
 
-Worker isolation separates concurrent worker processes. Scenario isolation separates behavior inside a worker.
+- Blackbox Scenario DSL cases carry an explicit group tag;
+- plain Playwright tests fall back to file plus title path;
+- a manual grouping policy can override the key.
 
-The Scenario DSL emits runtime tags such as:
+When the key changes, the testbed calls your `reset({ connect, infra, groupKey, identity })` function for that worker's stack.
 
-```text
-@flow:refund-flow
-@isolation-group:bdd:refund-flow
-```
+Reset all managed state that can affect the next flow. A database truncation without a queue purge is partial isolation.
 
-The isolation group decides when the testbed should reset the SUT and when state should persist.
+## Evidence Isolation
 
-| Shape | Isolation behavior | Use it when |
-| --- | --- | --- |
-| `scenario(...)` | Fresh group for the scenario slug | Normal independent behavior |
-| `scenario.chain(...)` | One shared group for all nested scenarios, co-located on one worker in serial order | A later scenario intentionally depends on state from an earlier scenario |
-| `outline(...)` | One behavior shape over rows | The same rule should be exercised with examples |
+The normal fixture resets each worker stack's observation buffers before a test and drains them after the test. Because one worker runs one test at a time against its own stack, that boundary isolates the captured evidence from other workers.
 
-This is how Blackbox connects Playwright scheduling to behavior ownership.
+The wrapped Playwright `request` fixture also propagates `traceparent` into the SUT, preserving the distributed trace across services. Use explicit propagation with custom clients when trace relationships or `captureAcross()` filtering matter:
 
-## Native Playwright Mapping
-
-If you start from native Playwright tests, the feature tooling uses the Playwright structure to recover intent:
-
-| Native Playwright | Blackbox scenario shape |
-| --- | --- |
-| `test.describe.parallel(...)` siblings | Plain `scenario(...)` per independent sibling |
-| `test.describe.serial(...)` chain | `scenario.chain(...)` with ordered nested scenarios |
-| `test.beforeEach(...)` | `background(...)` when it is part of the behavior setup |
-| Repeated row tests | `outline(...)` or `given.each(...)` |
-| `expect(...)` after an action | `then(...)` |
-
-This mapping matters for generated feature files. Gherkin gives the readable language; Playwright gives the execution structure; Blackbox supplies the isolation and runtime evidence.
-
-Reference: [Gherkin language reference](https://cucumber.io/docs/gherkin/reference/).
-
-## Trace And Effect Attribution
-
-For effects to be useful, Blackbox must know which test caused them.
-
-The preferred path is to use the Blackbox-wrapped Playwright request path through `system` or the Playwright `request` fixture. Trace propagation is automatic there.
-
-When a test uses a custom HTTP client, raw `fetch`, `axios`, or another client Blackbox does not wrap, add the Blackbox `traceparent()` header:
+For a custom HTTP helper:
 
 ```ts
-import { traceparent } from '@suites/blackbox/runners/playwright';
+import { traceparent } from "@suites/blackbox/runners/playwright";
 
 await fetch(url, {
-  method: 'POST',
-  headers: { 'content-type': 'application/json', ...traceparent() },
-  body: JSON.stringify(payload),
+  headers: { traceparent: traceparent() },
 });
 ```
 
-That keeps runtime spans attributable to the active test even when the test does not use Playwright's request fixture.
+Prefer the wrapped `request` fixture. A raw client can still be observed inside the isolated reset-to-drain window, but without propagation its downstream trace graph may be incomplete.
 
-## What Can Still Break Parallel Proof
-
-Blackbox can provide worker isolation and group isolation. It cannot make an unmanaged shared external dependency deterministic.
-
-Be careful when a parallel run touches:
-
-1. A shared remote database that the testbed does not own.
-2. A shared queue without per-worker queue names or per-worker stacks.
-3. A shared cache namespace.
-4. A third-party auth, email, payment, or vendor API.
-5. A custom client that does not propagate trace identity.
-
-This does not mean Blackbox lacks parallel support. It means the test environment must route state and evidence through the isolation model.
-
-## Concurrent Runs on One Host
-
-<Aside type="warning" title="Known limitation: two runs sharing the same projectNames base">
-Each worker-process incarnation gets a unique compose project name in the form `<base>-w<parallelIndex>-i<workerIndex>`. At `globalSetup` and `globalTeardown`, Blackbox sweeps all compose projects matching that pattern and runs `docker compose down -v` on each match.
-
-Project names are unique per incarnation within a single run, not across two overlapping runs on the same host.
-
-**When the hazard triggers (all three must be true):**
-
-- Two Blackbox runs are active at the same time on the same host.
-- Both runs share the same `projectNames.baseline` (or `projectNames.functionSpans`) base string.
-- One run's `globalSetup` or `globalTeardown` fires while the other run's workers are still up.
-
-In that situation the sweeping run matches and downs the live stacks of the other run, deleting their volumes.
-
-A single local run, or CI with one job per machine, is not affected.
-
-**Mitigation:** set a distinct `projectNames` per concurrent run. For CI, inject the job identifier:
-
-```ts
-createBlackboxTestbed({
-  projectNames: {
-    baseline: `blackbox-e2e-${process.env.CI_JOB_ID ?? 'local'}`,
-    functionSpans: `blackbox-fn-${process.env.CI_JOB_ID ?? 'local'}`,
-  },
-  // ...
-});
-```
-
-With distinct base names the sweep for one run cannot match the other run's projects.
+<Aside type="warning" title="Detached Work Needs a Join Point">
+  Fire-and-forget work can outlive the capture window or escape async context.
+  Wait for a durable completion signal, poll the managed dependency, or expose a
+  test synchronization point before asserting effects.
 </Aside>
 
-## Practical Defaults
+## Catalog and Feature Writes Under Parallelism
 
-For the strongest system-test gate:
+Effect sidecars follow the test file:
 
-1. Use `BLACKBOX_ISOLATION=compose` or an equivalent custom isolation adapter.
-2. Prefer `system.request` or the wrapped Playwright `request` fixture.
-3. Use plain `scenario(...)` for independent behavior.
-4. Use `scenario.chain(...)` only when the dependency between flows is intentional.
-5. Keep managed dependencies inside the testbed when the result should block CI.
-6. Use remote E2E environments as evidence first, then gate only when the environment is stable enough.
+```text
+tests/checkout.system.test.ts
+tests/__effects__/checkout.system.effects.yaml
+```
 
-## What To Read Next
+Keep one flow ID owned by one test file. Multiple workers writing the same catalog path create an avoidable ownership conflict.
 
-1. [Run with the Testbed](/docs/blackbox/guides/set-up-the-testbed)
-2. [Writing Scenarios](/docs/blackbox/guides/writing-scenarios)
-3. [Scenario DSL](/docs/blackbox/reference/scenario-dsl)
-4. [Feature Files From Tests](/docs/blackbox/quickstart/feature-files-from-tests)
+Coverage does not have that problem. Workers write partial catalog and shape summaries, then teardown merges them with deterministic state priority: `failed` outranks `satisfied`, which outranks `uncovered`.
+
+Generated feature files also need one owning source. Use the dedicated `features emit` step outside the parallel test run, or rely on Playwright snapshot update modes in a controlled update job.
+
+## CI Verification Mode
+
+Local development may baseline a missing catalog entry. CI should verify, not invent, accepted behavior:
+
+```ts
+export default defineConfig({
+  updateSnapshots: process.env.CI ? "none" : "missing",
+});
+```
+
+With `none`, a missing flow entry fails and the recorder does not write it. Intentional catalog updates happen in a reviewed local or dedicated update workflow.
+
+Continue with [Reports and CI Gates](/docs/blackbox/guides/reports-and-ci-gates).

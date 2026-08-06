@@ -1,67 +1,35 @@
 ---
 title: "5-Minute Quickstart"
-description: "Run one flow with Blackbox, capture effects, review a catalog, and see your first effect coverage signal."
+description: "Add Blackbox to one Playwright system flow, capture a first effect catalog, review it, and rerun against the behavioral contract."
 sidebar_position: 3
+keywords:
+  [
+    "Suites Blackbox quickstart",
+    "Playwright effect coverage",
+    "system test runtime evidence",
+    "effect catalog tutorial",
+  ]
 ---
 
-import QuickstartTracks from '@/components/blackbox/QuickstartTracks.astro';
-import OverviewDiagram from '@/components/blackbox/OverviewDiagram.astro';
+import QuickstartTracks from "@/components/blackbox/QuickstartTracks.astro";
 
-The first run is about visibility, not perfection. Pick the track that matches your repo, run one flow, and stop when Blackbox turns runtime evidence into a durable behavioral contract.
-
-A **first proof run** is the smallest useful Blackbox loop: execute one system flow, capture runtime evidence, review one effect catalog entry, and rerun until the catalog is satisfied. An **effect coverage signal** is the result that tells you whether the reviewed effects for that flow were observed, missing, failed, or uncovered.
-
-Blackbox instruments compatible Node SUT containers during the test run. In the compose testbed path, the generated overlay mounts the bootstrap, shadows the service's Node binary with `node-wrap`, and preloads `bootstrap.cjs` before application code so the runner can drain spans from the debug endpoints.
-
-Use this page when the install is done and you want one concrete proof trail. You should leave with one satisfied catalog entry, one coverage artifact, and enough confidence to decide whether to add readable feature files next.
-
-<OverviewDiagram kind="quickstart" />
-
-## Choose Your Path
-
-Choose the existing-tests track when you already have a runnable Playwright system test. Keep the request and response assertions you trust, add the Blackbox wrapper, and let `toMatchCatalog()` seed the first effect catalog entry for review.
-
-Choose the showcase track when you want to learn the loop before changing your repo. The showcase uses `subscribe-flow`, with `alice` subscribing through the five-service topology: BFF, Redis, Postgres, payment HTTP boundary, and SQS.
-
-Both tracks have the same stop condition:
-
-1. Run one flow.
-2. Inspect the generated showcase artifacts or repo-local artifacts.
-3. Review the effect catalog.
-4. Rerun the same flow.
-5. Confirm one satisfied effect coverage signal.
-
-Do not broaden the suite during this pass. A narrow first proof run makes the catalog easier to review and the signal easier to trust.
-
-Treat the first success as a reviewable gate. You should be able to point at the flow name, the catalog entry, and the coverage result without reading the implementation.
-
-A satisfied entry in `catalog/coverage.json` looks like this:
-
-```json
-{
-  "scenario": "subscribe-flow",
-  "actor": "alice",
-  "verdict": "satisfied",
-  "required": {
-    "postgres.subscription.insert": "observed",
-    "redis.tier.write":            "observed",
-    "payment-http.intent.create":  "observed",
-    "order-service.handoff":       "observed",
-    "sqs.subscription.message":    "observed"
-  },
-  "forbidden": {},
-  "uncataloged": []
-}
-```
-
-When you see `verdict: "satisfied"` against your one chosen flow, the first proof run is done. Stop here and keep the catalog narrow.
+Choose the path that matches your repo. Both paths end at the same first success: **one Playwright flow, one reviewed catalog entry, and one satisfied effect-coverage result.**
 
 <QuickstartTracks />
 
-## What To Read Next
+## What You Proved
 
-After the component shows one satisfied entry, choose the next page based on the artifact you want to understand or add.
+The ordinary test assertion still proves the public result. The Blackbox result now also proves that the selected required effects appeared and the selected forbidden effects did not.
 
-1. [Feature Files From Tests](/docs/blackbox/quickstart/feature-files-from-tests): turn the proven system test into a readable Gherkin artifact and drift-check it against the source test.
-2. [System Effects](/docs/blackbox/concepts/effects-and-catalogs): understand how runtime evidence becomes effects, catalogs, matchers, and coverage.
-3. [Files and Artifacts](/docs/blackbox/reference/files-and-artifacts): decide which catalogs, reports, and showcase artifacts to review, commit, ignore, or archive.
+That is enough for a first run. Do not baseline the entire suite yet. Add the next flow only after the first catalog diff is understandable in review.
+
+## Connect Intent Next
+
+Runtime effects work independently of a specification format. When the team wants to connect the proof to written intent, continue with [Connect Specifications to Runtime Evidence](/docs/blackbox/quickstart/connect-specifications-to-runtime-evidence).
+
+That page offers two optional paths:
+
+- bind EARS requirement IDs to the flow and compute requirement verdicts;
+- emit Gherkin from the executable test and check the readable behavior for drift.
+
+For the artifact formats behind this quickstart, use the [Reference hub](/docs/blackbox/reference).

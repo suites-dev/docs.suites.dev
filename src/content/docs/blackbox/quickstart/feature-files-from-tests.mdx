@@ -1,129 +1,148 @@
 ---
-title: "Feature Files From Tests"
-description: "Generate Gherkin .feature files from system and E2E tests, then check feature-file drift without making BDD mandatory."
+title: "Connect Specifications to Runtime Evidence"
+slug: "blackbox/quickstart/connect-specifications-to-runtime-evidence"
+description: "Connect a proven Blackbox flow to normative EARS requirements, readable Gherkin behavior, or both without making either format mandatory."
 sidebar_position: 4
+keywords:
+  [
+    "EARS requirements",
+    "Gherkin from Playwright tests",
+    "runtime evidence specification",
+    "requirement coverage",
+    "code-first BDD",
+  ]
 ---
 
-import QuickstartTrackDiagram from '@/components/blackbox/QuickstartTrackDiagram.astro';
-import BddReverseDemo from '@/components/blackbox/BddReverseDemo.astro';
+import CodeFirstBddDiagram from "@/components/blackbox/CodeFirstBddDiagram.astro";
+import BddReverseDemo from "@/components/blackbox/BddReverseDemo.astro";
+import Aside from "@/components/mdx/Aside.astro";
 
-Feature files should be a reflection of reality, not a separate maintenance burden. Blackbox generates Gherkin `.feature` files from system and E2E tests, then checks whether those files drift from the test source.
+Prerequisite: have an executable Playwright flow. EARS requirement coverage also requires that flow to produce catalog coverage; Gherkin emission does not.
 
-Use this page when you already have a Playwright system test and want a **readable behavior layer** for review. The current alpha path is focused on Playwright-style tests and Blackbox BDD-DSL sources. You can use Blackbox without feature files, but generated Gherkin helps when product, QA, platform, or agent workflows need behavior expressed in a stable text format.
+If you have not captured effects yet, complete the [5-Minute Quickstart](/docs/blackbox/quickstart/first-proven-feature) before taking the EARS path. Specifications add context around the core proof, but both specification paths remain optional and can be adopted separately.
 
-This is **code-first BDD**: the executable test remains the source of truth, and the `.feature` file follows it. The feature file is not runtime proof by itself. Runtime proof still comes from the system test, effect assertions, effect catalogs, and coverage reports.
+| Path                               | Use it to answer                                                      |
+| ---------------------------------- | --------------------------------------------------------------------- |
+| EARS requirements and bindings     | Which normative requirement does this runtime flow prove?             |
+| Generated Gherkin and drift checks | How can a reviewer read the behavior encoded by this executable test? |
 
-<QuickstartTrackDiagram kind="specs" />
+## Path A: Bind an EARS Requirement
 
-## The Code-First BDD Loop
+EARS gives requirements a constrained, identifiable form. A source file can express both positive and negative behavior:
 
-Blackbox keeps the loop small:
+```text
+REQ-001: When a known user subscription is accepted, the bff shall persist an active subscription record.
+REQ-004: When an unknown user subscribes, the bff shall not request payment, persist a subscription record, or publish a subscription order.
+```
 
-1. Start with a real system or E2E test, such as `subscribe-flow`.
-2. Run `features emit` against the test source.
-3. Review the generated Gherkin syntax.
-4. Commit the `.feature` file only if it is part of your review surface.
-5. Run `features check` in CI so feature-file drift cannot linger.
+Create a requirement binding beside the test's effect catalog:
 
-The important decision is where authorship lives. You do not hand-maintain the feature file as a parallel spec. You keep the test readable, generate the behavior file from it, then let drift checks tell you when the generated artifact no longer matches the test.
+```yaml
+specVersion: "0.1"
+entries:
+  subscribe-flow:
+    requirements: [REQ-001]
+  subscribe-unknown-user:
+    requirements: [REQ-004]
+```
 
-That means the generated file should read like behavior, not implementation trivia. If the output is too vague, improve the scenario names, action labels, or assertions in the source test, then run `features emit` again.
+The binding is human-ratified repository intent. Blackbox does not infer that `REQ-004` belongs to `subscribe-unknown-user`; a person or agent proposes the mapping and review accepts it.
 
-## Generate Your First Feature File
+Validate the requirement syntax, IDs, sidecar shape, and references:
 
-Run `features emit` against the showcase system tests:
+```bash
+pnpm exec blackbox requirements check --tests e2e
+```
+
+With the canonical example, a successful check reports:
+
+```text
+4 requirement(s) across 1 source file(s), 2 binding(s) in 1 sidecar(s), 0 finding(s)
+```
+
+Then join the bindings with the catalog coverage produced by the Playwright run:
+
+```bash
+pnpm exec blackbox requirements coverage \
+  --tests e2e \
+  --coverage e2e/.blackbox-coverage/catalog/coverage.json \
+  --fail-on violated
+```
+
+The command writes `e2e/.blackbox-coverage/requirements/coverage.json`. Each requirement receives one verdict:
+
+- `proven`: every bound flow has satisfied runtime evidence;
+- `violated`: at least one bound flow failed its effect contract;
+- `unproven`: a binding exists, but the current coverage does not prove it;
+- `unbound`: the requirement has no flow binding.
+
+Use `--fail-on unproven` or `--fail-on unbound` only when the suite and binding set are mature enough for stricter gating.
+
+<Aside type="warning" title="Current Drift Scope Matters">
+  `requirements drift` reports effect-catalog flows that have no requirement
+  binding. In a repository that mixes product flows with infrastructure or
+  OMC/DC fixtures, point `--tests` at the intended scope or expect those extra
+  flows to appear as findings.
+</Aside>
+
+## Path B: Emit Gherkin From the Test
+
+Blackbox can decompile Playwright or Blackbox BDD-DSL test sources into Gherkin. This is a code-first path: the executable test is the source, and the feature file is a readable projection.
+
+<CodeFirstBddDiagram kind="triangle" />
+
+Generate the feature file:
 
 ```bash
 pnpm exec blackbox features emit ./e2e/tests --out ./e2e/features
 ```
 
-The command reads test files from `./e2e/tests` and writes generated `.feature` files under `./e2e/features`. For `subscribe-flow`, the generated artifact is the behavior file your reviewers can read without opening the Playwright source.
-
-A small generated slice looks like this:
+A generated file follows normal Gherkin structure:
 
 ```gherkin
 @flow:subscribe-flow
-Feature: subscribing to the pro tier
+Feature: subscribing a user to the pro tier
 
-  Scenario: alice is an existing user with no active subscription
-    When alice POSTs /subscriptions with a valid card
-    Then the response status is 201
+  Scenario: alice subscribes with a valid card
+    When alice POSTs /subscriptions with a fresh card
+    Then the HTTP response describes a created pro-tier subscription
+    And the subscription is persisted in postgres
 ```
 
-Read this as a projection from the test source. It is useful because it puts behavior into a familiar shape, but it still depends on the test staying meaningful. If the source test only says "works", Blackbox cannot infer product intent that the test never expressed.
-
-Review the generated file before committing it. Keep it when the `.feature` file will help humans or automation discuss behavior. Leave it uncommitted when the team only needs local inspection.
+Review the language. If the result exposes vague test names, improve the executable source and emit again. Do not hand-edit the generated file as a second, independent implementation of the scenario.
 
 <BddReverseDemo />
 
-## Check for Feature File Drift
-
-Run `features check` after generation:
+Check syntax and source-to-feature drift:
 
 ```bash
-pnpm exec blackbox features check --features ./e2e/features --tests ./e2e/tests
+pnpm exec blackbox features check \
+  --features ./e2e/features \
+  --tests ./e2e/tests
 ```
 
-`features check` is read-only. It validates the generated Gherkin syntax and compares the feature files against the test source. If `subscribe-flow` changes in `./e2e/tests` but `./e2e/features/subscribe-flow.feature` is stale, the command reports feature-file drift.
+Use `--json` when CI or an agent needs the stable command envelope. A drift finding means the readable projection is missing, stale, orphaned, or unparseable; it does not replace the Playwright result or the runtime effect verdict.
 
-A failing drift check looks like this:
+<Aside type="note" title="Spec-First Scaffolding Is Experimental">
+  The `features experimental scaffold` and `features experimental wrap` commands
+  explore feature-to-test workflows. Their command names, output, and semantics
+  may change. The stable documented path is test-to-feature emission and drift
+  checking.
+</Aside>
 
-```diff
-$ pnpm exec blackbox features check --features ./e2e/features --tests ./e2e/tests
-checking 1 feature file against 1 source test...
+## Use Both Without Conflating Them
 
-DRIFT  e2e/features/subscribe-flow.feature
-  test source:    e2e/tests/subscribe-flow.spec.ts
-  scenario:       alice is an existing user with no active subscription
+The complete chain can be:
 
-- Then the response status is 201
-+ Then the response status is 201
-+ And the subscription tier is cached for alice
-
-1 feature file drifted from its test source.
-exit 1
+```text
+EARS requirement
+  -> reviewed flow binding
+  -> Playwright system test
+  -> runtime effects and catalog verdict
+  -> requirement coverage
+  -> optional generated Gherkin
 ```
 
-Treat that diff as a normal review surface. Either the source test changed and the generated feature is stale, or the feature file was hand-edited and no longer matches the test. Regenerate with `features emit` to bring them back in sync.
+EARS remains normative intent. Gherkin remains a readable behavioral example. The Playwright test remains executable. Runtime evidence remains the observed fact base.
 
-Use JSON output when CI, scripts, or agents need structured results:
-
-```bash
-pnpm exec blackbox features check --features ./e2e/features --tests ./e2e/tests --json
-```
-
-For a dedicated drift gate, run:
-
-```bash
-pnpm exec blackbox features drift --tests ./e2e/tests --features ./e2e/features
-```
-
-Drift findings are practical review signals:
-
-| Finding | Meaning |
-| --- | --- |
-| `missing` | A test source exists but the matching `.feature` file does not. |
-| `stale` | A `.feature` file no longer matches the current test source. |
-| `orphan` | A `.feature` file exists without a matching test source. |
-| `unparseable` | Blackbox cannot parse the feature file or source input well enough to compare it. |
-
-Treat drift as a documentation failure, not a test failure. The test may still pass, but the readable behavior layer is no longer synchronized with the executable behavior.
-
-## When to Use Feature Files
-
-Use generated feature files when they create a real review surface:
-
-- You want reviewers to read `subscribe-flow` and `subscribe-unknown-user` in behavior terms.
-- You want a Gherkin syntax artifact for product, QA, platform, or agent handoff.
-- You want CI to catch feature-file drift before stale behavior text reaches a pull request.
-- You want a concise behavior index next to effect catalogs and coverage artifacts.
-
-Skip feature files when nobody will read or gate them. A generated artifact that no one reviews becomes noise, even if it is technically accurate.
-
-Also skip them when you need runtime proof. Feature files describe behavior from the test source. They do not prove that alice caused Postgres, Redis, SQS, or Stripe effects during a run. Use effect assertions and coverage reports for that proof.
-
-## What To Read Next
-
-- **[Code-First BDD](/docs/blackbox/concepts/code-first-bdd)**: Understand why generated feature files can still become stale and how Blackbox treats drift.
-- **[Generating Feature Files](/docs/blackbox/guides/generating-feature-files)**: Go deeper on source structure, generated output, and review workflow.
-- **[CLI Reference](/docs/blackbox/reference/cli)**: Check the exact command flags for `features emit`, `features check`, and related feature commands.
+Continue with [Generate Gherkin From Playwright Tests](/docs/blackbox/guides/generating-feature-files) for the complete generation workflow, [Specifications, Flows, and Verdicts](/docs/blackbox/concepts/specifications-flows-and-verdicts) for the mental model, or [Spec-Driven and Agentic Verification](/docs/blackbox/guides/spec-driven-and-agentic-verification) for the development loop.

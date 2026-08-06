@@ -2,11 +2,18 @@
 title: "Covering Before Refactor"
 description: "Use characterization testing and Blackbox runtime evidence to capture behavior before changing internals."
 sidebar_position: 1
-keywords: ["characterization testing", "golden master testing", "refactor safety", "cover before refactor"]
+keywords:
+  [
+    "characterization testing",
+    "golden master testing",
+    "refactor safety",
+    "cover before refactor",
+  ]
 toc_min_heading_level: 2
 seo:
   primary_keyword: "characterization testing"
-  secondary_keywords: ["golden master testing", "refactor safety", "cover before refactor"]
+  secondary_keywords:
+    ["golden master testing", "refactor safety", "cover before refactor"]
   search_intent: "legacy and refactor safety intent from teams capturing current behavior before changing internals"
   snippet_angle: "capture current system behavior before a refactor, then compare runtime effects after the change"
 ---
@@ -79,5 +86,5 @@ Blackbox does not make refactors risk-free. It does not replace unit tests for l
 
 1. [Runtime Evidence](/docs/blackbox/concepts/runtime-evidence)
 2. [System Effects](/docs/blackbox/concepts/effects-and-catalogs)
-3. [Reading Coverage Reports](/docs/blackbox/guides/reading-coverage-reports)
+3. [Reports and CI Gates](/docs/blackbox/guides/reports-and-ci-gates)
 4. [Feature Drift](/docs/blackbox/troubleshooting/feature-drift)

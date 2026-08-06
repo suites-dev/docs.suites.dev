@@ -2,24 +2,34 @@
 title: "Install Blackbox"
 description: "Show project-local installation, CLI verification, upgrade notes, and uninstall expectations."
 sidebar_position: 2
+keywords:
+  [
+    "install Suites Blackbox",
+    "Blackbox CLI",
+    "Playwright runtime evidence",
+    "OpenTelemetry test instrumentation",
+  ]
 ---
 
-import Aside from '@/components/mdx/Aside.astro';
-import InstrumentationFlowDiagram from '@/components/blackbox/InstrumentationFlowDiagram.astro';
-import Tabs from '@/components/mdx/Tabs.astro';
-import TabItem from '@/components/mdx/TabItem.astro';
+import Aside from "@/components/mdx/Aside.astro";
+import InstrumentationFlowDiagram from "@/components/blackbox/InstrumentationFlowDiagram.astro";
+import Tabs from "@/components/mdx/Tabs.astro";
+import TabItem from "@/components/mdx/TabItem.astro";
 
 Installation is the first step toward visibility. A **project-local install** adds Blackbox to the workspace package that owns your system tests, not to a global toolchain or production dependency set.
 
 Blackbox has two install surfaces:
 
-1. `@suites/blackbox`, the runtime and testbed package used by Playwright system tests.
+1. `@suites/blackbox` plus a runtime adapter and test dependencies for Playwright system tests.
 2. `@suites/blackbox-cli`, the package that provides the `blackbox` binary for feature checks, coverage replay, and instrumentation commands.
 
 Your **system under test (SUT)** is the service or topology Blackbox observes during the run. Install the packages, then verify the binary before you run a proof flow.
 
 <Aside type="info" title="Test-Time Instrumentation">
-Blackbox instruments compatible Node SUT containers during the test run. The compose testbed mounts the bootstrap, shadows the service's Node binary with `node-wrap`, and preloads `bootstrap.cjs` before application code. Service source and production Dockerfiles do not need OpenTelemetry imports.
+  Blackbox instruments compatible Node SUT containers during the test run. The
+  compose testbed mounts the bootstrap, shadows the service's Node binary with
+  `node-wrap`, and preloads `bootstrap.cjs` before application code. Service
+  source and production Dockerfiles do not need OpenTelemetry imports.
 </Aside>
 
 <InstrumentationFlowDiagram />
@@ -30,35 +40,35 @@ Install Blackbox in the same package where you run Playwright or your system-tes
 
 ### Core Runtime
 
-Add the runtime package as a development dependency:
+For the documented Node testbed path, install the runtime, Node adapter, bootstrap payload, Playwright, and Testcontainers as development dependencies:
 
 <Tabs groupId="pkg">
 <TabItem value="pnpm" label="pnpm" default>
 
 ```bash
-pnpm add -D @suites/blackbox
+pnpm add -D @suites/blackbox @suites/blackbox-adapter-node @suites/blackbox-instr-node @playwright/test testcontainers
 ```
 
 </TabItem>
 <TabItem value="npm" label="npm">
 
 ```bash
-npm install --save-dev @suites/blackbox
+npm install --save-dev @suites/blackbox @suites/blackbox-adapter-node @suites/blackbox-instr-node @playwright/test testcontainers
 ```
 
 </TabItem>
 <TabItem value="yarn" label="yarn">
 
 ```bash
-yarn add --dev @suites/blackbox
+yarn add --dev @suites/blackbox @suites/blackbox-adapter-node @suites/blackbox-instr-node @playwright/test testcontainers
 ```
 
 </TabItem>
 </Tabs>
 
-Use `@suites/blackbox` when test code imports the testbed, Playwright runner helpers, diagnostics, mocks, or runtime APIs. The package is an alpha surface, so pin it through your lockfile and update it intentionally.
+`@suites/blackbox-adapter-node` registers Node observation and OMC/DC producers. `@suites/blackbox-instr-node` supplies the bootstrap payload used by the test image. Add database, cache, queue, or LocalStack Testcontainers packages only when the test fixture imports them directly.
 
-You usually do not need to add OpenTelemetry packages manually for the default testbed path. Blackbox can inject its bootstrap when the SUT is a compatible Node container.
+You usually do not need to add OpenTelemetry packages manually for the default testbed path. The package surface is alpha, so pin it through the lockfile and update intentionally.
 
 ### CLI Tooling
 
@@ -88,7 +98,13 @@ yarn add --dev @suites/blackbox-cli
 </TabItem>
 </Tabs>
 
-`@suites/blackbox-cli` provides command families for `features`, `coverage`, and `otel`. Keep the CLI version aligned with `@suites/blackbox` so generated feature files, coverage replay, and testbed output agree on artifact formats.
+`@suites/blackbox-cli` provides command families for `requirements`, `features`, `coverage`, and `otel`. Keep the CLI version aligned with `@suites/blackbox` so requirements verdicts, generated feature files, coverage replay, and testbed output agree on artifact formats.
+
+When using the optional EARS requirement path, install the external parser in the same workspace:
+
+```bash
+pnpm add -D @earsyntax/cli
+```
 
 ## Verification
 
@@ -101,24 +117,22 @@ pnpm exec blackbox --help
 pnpm exec blackbox features check --help
 ```
 
-A successful run prints the topics and commands the CLI exposes:
+A successful run prints the topics the CLI exposes:
 
 ```text
-Blackbox CLI - alpha
+Unified blackbox CLI. Aggregates oclif plugins from @suites engine packages.
 
 USAGE
   $ blackbox [COMMAND]
 
 TOPICS
-  features  Decompile, lint, drift-check, and reshape feature files.
-  coverage  Replay coverage and recompute OMC/DC reports.
-  otel      Static OpenTelemetry instrumentation utilities.
-
-COMMANDS
-  help  Display help for blackbox.
+  coverage      Observable Decision Coverage analysis and reports.
+  features      Derive, lint, drift-check, and reshape feature traces.
+  otel          Static OpenTelemetry source instrumentation.
+  requirements  Validate EARS requirements and flow bindings.
 ```
 
-You should see the `features`, `coverage`, and `otel` command topics. This does not prove that the SUT is observable, but it does verify the binary and confirm that the CLI is in the right workspace location.
+You should see the `requirements`, `features`, `coverage`, and `otel` command topics. This does not prove that the SUT is observable, but it does verify the binary and confirm that the CLI is in the right workspace location.
 
 If `pnpm exec` cannot find `blackbox`, check the current directory first. In a multi-package workspace, installing the CLI at the root does not always make it available inside the package that runs your system tests.
 

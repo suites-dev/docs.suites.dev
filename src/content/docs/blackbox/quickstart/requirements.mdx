@@ -1,10 +1,19 @@
 ---
-title: "Requirements and Supported Stacks"
-description: "List the runtime, Playwright, Docker, and test-time instrumentation assumptions before the first run."
+title: "Prerequisites and Supported Systems"
+slug: "blackbox/quickstart/prerequisites-and-supported-systems"
+description: "Check the Playwright, Node, Docker, SUT, and test-time instrumentation assumptions for the current Blackbox alpha."
 sidebar_position: 1
+keywords:
+  [
+    "Blackbox prerequisites",
+    "Playwright system tests",
+    "Node OpenTelemetry instrumentation",
+    "Docker testbed",
+    "supported systems",
+  ]
 ---
 
-import InstrumentationFlowDiagram from '@/components/blackbox/InstrumentationFlowDiagram.astro';
+import InstrumentationFlowDiagram from "@/components/blackbox/InstrumentationFlowDiagram.astro";
 
 Blackbox needs one thing before its reports matter: **runtime evidence**, the spans and observable facts captured while a real test drives the running system. Your **system under test (SUT)** is the service or topology Blackbox observes during that run.
 
@@ -49,25 +58,25 @@ Blackbox is alpha software. Keep the first run close to this stack, prove one wo
 
 ### Runtime and Tooling
 
-| Requirement | Current expectation |
-| --- | --- |
-| Node | `package.json` declares Node `>=20`. Use a current LTS release in the package that owns system tests. |
-| pnpm | `package.json` declares pnpm `>=9`. Use the package manager your workspace standardizes on. |
-| Playwright | The documented alpha path is Playwright-only. It drives the workflow that creates evidence. |
-| TypeScript or JavaScript tests | The quickstart path assumes a Node test project with Playwright tests and local scripts. |
-| Test-time instrumentation | Blackbox injects the bootstrap into compatible Node SUT containers and captures spans through debug endpoints. |
-| A first workflow | Start with one stable scenario, such as `subscribe-flow`, instead of the whole suite. |
+| Requirement                    | Current expectation                                                                                                              |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| Node                           | The current Blackbox workspace and showcase require Node `>=22`. Consumer packages should use a compatible current Node release. |
+| Package manager                | Examples use pnpm 9. Install commands for npm and Yarn are also shown where the package surface supports them.                   |
+| Playwright                     | The documented alpha path is Playwright-only. It drives the workflow that creates evidence.                                      |
+| TypeScript or JavaScript tests | The quickstart path assumes a Node test project with Playwright tests and local scripts.                                         |
+| Test-time instrumentation      | Blackbox injects the bootstrap into compatible Node SUT containers and captures spans through debug endpoints.                   |
+| A first workflow               | Start with one stable scenario, such as `subscribe-flow`, instead of the whole suite.                                            |
 
 ### Container Requirements
 
-| Requirement | Why it matters |
-| --- | --- |
-| Docker availability | The testbed path starts the SUT and dependencies in containers. Docker must work locally or in CI. |
-| Runnable SUT image | Blackbox observes a running system. The image must start without hand-edited steps. |
-| Normal Node startup | The wrapper expects the service to start through a Node binary path it can shadow. |
-| Shell-capable image | The current wrapper is a shell script. Distroless images are not the happy path. |
-| Controlled topology | The first run should own the SUT, dependencies, network, ports, and cleanup. The showcase 5-service topology is the model. |
-| Writable artifact directory | Blackbox needs a place to write files such as `.blackbox-coverage/` reports. |
+| Requirement                 | Why it matters                                                                                                             |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Docker availability         | The testbed path starts the SUT and dependencies in containers. Docker must work locally or in CI.                         |
+| Runnable SUT image          | Blackbox observes a running system. The image must start without hand-edited steps.                                        |
+| Normal Node startup         | The wrapper expects the service to start through a Node binary path it can shadow.                                         |
+| Shell-capable image         | The current wrapper is a shell script. Distroless images are not the happy path.                                           |
+| Controlled topology         | The first run should own the SUT, dependencies, network, ports, and cleanup. The showcase 5-service topology is the model. |
+| Writable artifact directory | Blackbox needs a place to write files such as `.blackbox-coverage/` reports.                                               |
 
 ## Environment Verification
 

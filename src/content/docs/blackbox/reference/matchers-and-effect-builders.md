@@ -1,49 +1,98 @@
 ---
 title: "Matchers and Effect Builders"
-description: "Document matchers, effect builders, shape helpers, and stable public imports."
-sidebar_position: 3
-keywords: ["effect builders", "matchers", "toMatchCatalog"]
-toc_min_heading_level: 2
-seo:
-  primary_keyword: "Matchers and Effect Builders"
-  secondary_keywords: ["effect builders", "matchers"]
-  search_intent: "TODO"
-  snippet_angle: "TODO"
+description: "Reference for toObserveEffects, toMatchCatalog, effect builders, required and forbidden contracts, patterns, and count constraints."
+sidebar_position: 4
+keywords:
+  [
+    "toObserveEffects",
+    "toMatchCatalog",
+    "effect builders",
+    "required forbidden effects",
+    "Playwright matcher",
+  ]
 ---
 
-## Abstract
+Import Playwright matchers through the Blackbox runner and effect vocabulary through the core entry point:
 
-Document matchers, effect builders, shape helpers, and stable public imports.
+```ts
+import { atLeast, between, effect, exactly, glob } from "@suites/blackbox/core";
+import { expect } from "./testbed.js";
+```
 
-This page should explain how tests express effect assertions and how those assertions connect to the catalog and report formats.
+## `toObserveEffects()`
 
-## Audience
+All forms normalize to `{ requires, forbids }`.
 
-These pages are complete references for commands, APIs, configuration, files, reports, and exit codes.
+```ts
+await expect(capture).toObserveEffects(effect.redis("SET"));
 
-## What This Page Should Contain
+await expect(capture).toObserveEffects([
+  effect.postgres("INSERT", { table: "subscriptions" }),
+  effect.forbid(effect.redis("DEL")),
+]);
 
-1. The supported matcher functions.
-2. The supported effect builders or shape helpers.
-3. Examples of asserting required and forbidden effects.
-4. The stable import surface versus internal helpers.
+await expect(capture).toObserveEffects({
+  requires: [effect.sqs("SendMessage", { queue: "subscription-orders" })],
+  forbids: [effect.http("POST", { path: "/v1/refunds" })],
+});
+```
 
-## Content Outline
+The matcher fails when a required shape is missing, a forbidden shape matches, or a count constraint is violated. Every call feeds effect-shape coverage, including failures.
 
-1. List the complete surface area.
-2. Mark stable public API versus internal or alpha behavior.
-3. Document inputs, outputs, defaults, errors, and versioning.
-4. Point back to guides for examples.
+## `toMatchCatalog()`
 
-## Practical Guidance
+```ts
+await expect(capture).toMatchCatalog();
+```
 
-1. Show the simplest matcher first.
-2. Pair each matcher with one effect example.
-3. Keep the output shape consistent with the report pages.
-4. Explain the failure mode when a matcher does not find the expected effect.
+The matcher reads the active flow ID, loads the entry from the test file's effect sidecar, and evaluates the same contract kernel as `toObserveEffects()`.
 
-## Evidence To Add
+A missing entry is baselined in local update modes. In Playwright `updateSnapshots: 'none'`, it fails and no catalog write occurs.
 
-- Real commands, APIs, or artifacts from the Blackbox showcase system.
-- Links to related concept, guide, reference, or troubleshooting pages.
-- Clear limits and prerequisites where the page touches alpha behavior.
+## `toMatchEffectsSnapshot()`
+
+Use the snapshot matcher when a raw normalized effect snapshot is useful for diagnostics or migration. Prefer catalogs for reviewed required/forbidden behavior because a catalog expresses intent instead of preserving every observed detail.
+
+## Effect Builders
+
+| Builder                     | Options                                      |
+| --------------------------- | -------------------------------------------- |
+| `effect.redis(op, opts)`    | `key`, `ttl`, `count`                        |
+| `effect.postgres(op, opts)` | `key` or `table`, `schema`, `count`          |
+| `effect.http(op, opts)`     | `key` or `path`, `host`, `status`, `count`   |
+| `effect.sqs(op, opts)`      | `key` or `queue`, `count`                    |
+| `effect.s3(op, opts)`       | `bucket`, `key`, `count`                     |
+| `effect.rabbitmq(op, opts)` | `key`, `exchange`, `routingKey`, `count`     |
+| `effect.forbid(shape)`      | Wraps a shape for single/array matcher input |
+
+HTTP and HTTPS both normalize to the `http` boundary.
+
+## String Patterns
+
+```ts
+equals("user:alice:tier");
+glob("user:*:tier");
+regex("^user:[a-z]+:tier$");
+```
+
+Bare strings use catalog glob semantics. Use `equals()` when `*` or path matching must not be interpreted as a pattern.
+
+## Numeric and Count Constraints
+
+```ts
+eq(1);
+lt(5);
+lte(5);
+gt(0);
+gte(1);
+between(60, 3600);
+
+exactly(1);
+atLeast(1);
+atMost(3);
+never();
+```
+
+Bare numbers mean exact equality.
+
+For concepts and examples, read [Effects, Catalogs, and Coverage](/docs/blackbox/concepts/effects-and-catalogs).

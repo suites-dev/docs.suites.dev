@@ -2,7 +2,12 @@
 title: "Diagnostics and Debug Logs"
 description: "Explain how to collect useful logs, debug failed runs, and decide whether the issue is setup, traces, catalog drift, or Blackbox."
 sidebar_position: 5
-keywords: ["blackbox diagnostics", "blackbox debug logs", "effect coverage troubleshooting"]
+keywords:
+  [
+    "blackbox diagnostics",
+    "blackbox debug logs",
+    "effect coverage troubleshooting",
+  ]
 toc_min_heading_level: 2
 seo:
   primary_keyword: "Diagnostics and Debug Logs"

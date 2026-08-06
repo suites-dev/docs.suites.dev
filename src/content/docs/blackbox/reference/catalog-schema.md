@@ -1,49 +1,92 @@
 ---
 title: "Catalog Schema"
-description: "Specify the effect catalog format, versioning, requires, forbids, and shape syntax."
-sidebar_position: 4
-keywords: ["catalog schema", "effect catalog v0.1", "yaml schema"]
-toc_min_heading_level: 2
-seo:
-  primary_keyword: "Catalog Schema"
-  secondary_keywords: ["catalog schema", "effect catalog v0.1"]
-  search_intent: "TODO"
-  snippet_angle: "TODO"
+description: "Effect catalog v0.1 envelope, flow entries, required and forbidden shapes, matching patterns, and write behavior."
+sidebar_position: 7
+keywords:
+  [
+    "effect catalog schema",
+    "effect catalog v0.1",
+    "Blackbox YAML",
+    "requires forbids",
+  ]
 ---
 
-## Abstract
+The live effect catalog format is a per-test-file YAML sidecar.
 
-Specify the effect catalog format, versioning, requires, forbids, and shape syntax.
+```text
+tests/checkout.system.test.ts
+tests/__effects__/checkout.system.effects.yaml
+```
 
-This page should specify the effect catalog format, versioning, requires, forbids, and shape syntax.
+## Complete Example
 
-## Audience
+```yaml
+specVersion: "0.1"
+entries:
+  subscribe-flow:
+    requires:
+      - { boundary: redis, op: GET, service: bff }
+      - { boundary: postgres, op: INSERT, key: subscriptions, service: bff }
+      - {
+          boundary: sqs,
+          op: SendMessage,
+          key: subscription-orders,
+          service: order-service,
+        }
+    forbids:
+      - { boundary: http, op: POST, key: /v1/refunds, service: bff }
 
-These pages are complete references for commands, APIs, configuration, files, reports, and exit codes.
+  subscribe-unknown-user:
+    requires:
+      - { boundary: postgres, op: SELECT, key: users, service: bff }
+    forbids:
+      - { boundary: http, op: POST, key: /v1/payment_intents, service: bff }
+      - { boundary: postgres, op: INSERT, service: bff }
+      - { boundary: sqs, op: SendMessage, key: subscription-orders }
+```
 
-## What This Page Should Contain
+## Envelope
 
-1. The schema version and envelope.
-2. Required and optional fields.
-3. Requires and forbids structure.
-4. How shapes and catalog entries are represented.
+| Field         | Meaning                                            |
+| ------------- | -------------------------------------------------- |
+| `specVersion` | Catalog format version; current writer emits `0.1` |
+| `entries`     | Map from stable flow ID to a contract              |
 
-## Content Outline
+The loader also accepts the legacy flat-map form and ignores recognized metadata keys such as `$schema`, `otelSchemaUrl`, and `catalogId`. New docs and recorder output use the `entries` envelope.
 
-1. List the complete surface area.
-2. Mark stable public API versus internal or alpha behavior.
-3. Document inputs, outputs, defaults, errors, and versioning.
-4. Point back to guides for examples.
+## Contract
 
-## Practical Guidance
+| Field      | Required | Meaning                                                            |
+| ---------- | -------- | ------------------------------------------------------------------ |
+| `requires` | Yes      | Shapes that must match at least once unless constrained by `count` |
+| `forbids`  | No       | Shapes that must match zero times                                  |
 
-1. Show one complete catalog example.
-2. Explain versioning at the top of the page.
-3. Keep the schema terms aligned with the concept pages.
-4. State what happens when a field is missing or unsupported.
+## Shape Fields
 
-## Evidence To Add
+`boundary` is structurally required. Other fields depend on the boundary:
 
-- Real commands, APIs, or artifacts from the Blackbox showcase system.
-- Links to related concept, guide, reference, or troubleshooting pages.
-- Clear limits and prerequisites where the page touches alpha behavior.
+- common: `op`, `key`, `service`, `count`;
+- Redis: `ttl`;
+- Postgres: `schema`;
+- HTTP: `host`, `status`;
+- S3: `bucket`;
+- RabbitMQ: `exchange`, `routingKey`.
+
+Unknown fields remain forward-compatible in the parsed shape, but only fields understood by the evaluator affect matching.
+
+## Pattern Syntax
+
+```yaml
+key: "user:*:tier"          # bare string uses glob matching
+key: { equals: "literal" }  # exact match
+key: { regex: "^user:" }    # regular expression
+count: 1                     # exact numeric match
+count: { gte: 1 }
+ttl: { gte: 60, lte: 3600 }
+```
+
+## Recorder Behavior
+
+Missing flow entries can be added during local snapshot update modes. Refreshing an entry updates observed `requires`; existing `forbids` remain sticky. Verify-only CI mode writes nothing.
+
+Catalog files are review artifacts. Format changes during alpha may require regeneration or migration.

@@ -1,12 +1,20 @@
 ---
 title: "OMC/DC Coverage"
 description: "Deep decision coverage for system tests: proving that code changes produce distinguishable behavioral effects."
-sidebar_position: 4
+sidebar_position: 5
+keywords:
+  [
+    "OMC/DC coverage",
+    "observable MC/DC",
+    "system test decision coverage",
+    "effect propagation",
+    "masking candidate",
+  ]
 ---
 
 ## What is OMC/DC?
 
-**OMC/DC coverage** is Blackbox's Deep Coverage layer for system tests. It asks whether a decision in the running system produced behavior that the test could distinguish at the boundary.
+**OMC/DC coverage** is Blackbox's observable decision-coverage layer for system tests. It asks whether a decision in the running system produced behavior that the test could distinguish in the captured effects.
 
 Line coverage can tell you that a branch ran. Branch coverage can tell you that both arms ran. OMC/DC asks a stronger question: did either arm change the observed effects of the system?
 
@@ -22,7 +30,7 @@ OMC/DC treats a system test as evidence, not as a coverage percentage to admire.
 
 The core comparison is between decision arms and effect signatures. An **effect signature** is the set of observed boundary effects Blackbox can associate with a test or branch arm. Distinguishable signatures create stronger proof. Indistinguishable effects point to masking.
 
-Use the five-service showcase topology as the mental model. In `subscribe-flow`, a known user such as `alice` posts to `/subscriptions` and the system crosses the expected subscription boundaries. In `subscribe-unknown-user`, `ghost-user` posts to the same endpoint and the flow should stop much earlier. Those paths should not look identical at the boundary.
+Use the subscription showcase topology as the mental model. In `subscribe-flow`, a known user such as `alice` posts to `/subscriptions` and the system crosses the expected subscription boundaries. In `subscribe-unknown-user`, `ghost-user` posts to the same endpoint and the flow should stop much earlier. Those paths should not look identical at the boundary.
 
 If the known-user and unknown-user paths leave different observed effects, OMC/DC can use that difference as decision proof. The branch did more than execute. Its outcome changed what the system did.
 
@@ -36,14 +44,14 @@ It is also why OMC/DC is not the same thing as effect coverage. Effect coverage 
 
 Read OMC/DC verdicts as a hierarchy of proof strength. They are not a replacement for the test result, and they are not all bugs. They tell you how much decision proof the current run can support.
 
-| Verdict | Proof strength | What it means |
-| --- | --- | --- |
-| `propagating` | Strongest | The branch arms produced distinguishable observed effects. |
-| `masking-candidate` | Exercised but weak | Both arms ran, but their effect signatures were indistinguishable. |
-| `coverage-gap` | Missing evidence | The run did not observe enough arm coverage to prove the decision. |
-| `undecidable` | Evidence could not be classified | Blackbox could not make a useful decision from the available evidence. |
-| `multi-arm` | Needs manual review | The decision shape is more complex than a simple two-arm comparison. |
-| `unsupported-mcdc` | Alpha limitation | The current engine does not support this decision shape yet. |
+| Verdict             | Proof strength                   | What it means                                                          |
+| ------------------- | -------------------------------- | ---------------------------------------------------------------------- |
+| `propagating`       | Strongest                        | The branch arms produced distinguishable observed effects.             |
+| `masking-candidate` | Exercised but weak               | Both arms ran, but their effect signatures were indistinguishable.     |
+| `coverage-gap`      | Missing evidence                 | The run did not observe enough arm coverage to prove the decision.     |
+| `undecidable`       | Evidence could not be classified | Blackbox could not make a useful decision from the available evidence. |
+| `multi-arm`         | Needs manual review              | The decision shape is more complex than a simple two-arm comparison.   |
+| `unsupported-mcdc`  | Alpha limitation                 | The current engine does not support this decision shape yet.           |
 
 The hierarchy starts with `propagating` because the report can show a meaningful behavioral difference. `masking-candidate` is weaker because the test may have exercised both arms without proving a behavioral distinction. Gaps and undecidable states sit lower because the run did not provide enough usable evidence.
 
@@ -75,12 +83,13 @@ The current alpha engine reports what the captured Playwright run can support. I
 
 ## Reading the OMC/DC Report
 
-Start with the human report, then drill down only where needed.
+OMC/DC is an advanced view over an already working runtime-evidence flow. Start with the test and effect contract, then drill into decision evidence only where it changes a review decision.
 
-1. Open `omcdc/verdict.md` for endpoint summaries, verdict counts, branch rows, and hints.
-2. Open `omcdc/verdict.html` when you need source snippets, branch-level inspection, or a faster way to compare rows.
-3. Use `omcdc/verdict.json` when automation or an agent needs the full structured result.
-4. Read `catalog/coverage.json` and `shape/coverage.json` after the OMC/DC verdicts, because those files answer catalog and shape questions.
+1. Read the failing Playwright assertion or effect matcher.
+2. Open `catalog/coverage.json` and `shape/coverage.json` to confirm the flow and contract result.
+3. Open `omcdc/verdict.md` for endpoint summaries, verdict counts, branch rows, and hints.
+4. Open `omcdc/verdict.html` when you need source snippets or branch-level inspection.
+5. Use `omcdc/verdict.json` when automation or an agent needs the full structured result.
 
 For each important endpoint, ask:
 
@@ -92,4 +101,18 @@ For the showcase, inspect the rows around `subscribe-flow` and `subscribe-unknow
 
 Use the OMC/DC report before you argue from a coverage number. A high line-coverage result can still miss a masked decision.
 
-For the practical artifact workflow, continue to [Reading Coverage Reports](/docs/blackbox/guides/reading-coverage-reports).
+## Parallel Runs and the Evidence Boundary
+
+Blackbox supports Playwright parallelism through isolated per-worker SUT stacks. Each worker receives its own topology, so its V8 branch counters and runtime effects can be merged without mixing concurrent tests in one Node process.
+
+OMC/DC cannot separate isolate-wide V8 counters from concurrent tests that share the same SUT process. That is a property of V8 coverage, not a serial-only Blackbox design. Use the standard per-worker testbed topology for parallel OMC/DC runs.
+
+Other limits are equally important:
+
+- OMC/DC currently covers JavaScript executed in supported Node SUTs, not native addons or other languages.
+- Behavior that never reaches an observed sink can remain indistinguishable.
+- detached asynchronous work can escape trace attribution.
+- race and interleaving coverage are outside MC/DC semantics.
+- multi-arm and unsupported decision shapes remain explicit non-proof verdicts.
+
+For the practical artifact workflow, continue to [Reports and CI Gates](/docs/blackbox/guides/reports-and-ci-gates).

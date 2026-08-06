@@ -60,10 +60,24 @@ blackbox: emits the feature file again`,
 effect coverage: satisfied 1 (100%)`,
   },
   {
+    id: 'catalog',
+    label: 'Ratify effects',
+    title: 'A reviewer accepts the first effect contract',
+    body: 'The first capture is a candidate, not truth. A person keeps required effects, removes incidental noise, and adds forbidden behavior before the catalog becomes a gate.',
+    artifact: 'Effect catalog',
+    snippet: `entries:
+  subscribe-flow:
+    requires:
+      - { boundary: postgres, op: INSERT, key: subscriptions }
+      - { boundary: sqs, op: SendMessage, key: subscription-orders }
+    forbids:
+      - { boundary: http, op: POST, key: /v1/refunds }`,
+  },
+  {
     id: 'gate',
     label: 'Gate',
     title: 'CI gates the closed loop',
-    body: 'The merge gate can check feature-file drift, effect catalog matchers, coverage, and optional observation comparison.',
+    body: 'The merge gate checks the Playwright flow and reviewed effect contract. Feature-file drift and requirement coverage are added only when those specification layers are active.',
     artifact: 'Verification gate',
     snippet: `features check: no drift detected
 system tests: passed
@@ -116,7 +130,7 @@ review: human signoff required`,
   </div>
 </section>
 
-<script define:vars={{ steps }}>
+<script is:inline define:vars={{ steps }}>
   const wizards = Array.from(document.querySelectorAll('[data-agent-wizard]'));
 
   wizards.forEach((wizard) => {

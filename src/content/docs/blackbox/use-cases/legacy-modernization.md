@@ -1,63 +1,50 @@
 ---
 title: "Legacy Modernization"
-description: "Show how Blackbox creates the first honest behavior map for an older system."
+description: "Build a reviewed behavior map around a legacy system, then modernize components without silently changing critical boundary effects."
 sidebar_position: 2
-keywords: ["legacy modernization", "legacy refactor", "brownfield testing"]
-toc_min_heading_level: 2
-seo:
-  primary_keyword: "Legacy Modernization"
-  secondary_keywords: ["legacy modernization", "legacy refactor"]
-  search_intent: "TODO"
-  snippet_angle: "TODO"
+keywords:
+  [
+    "legacy modernization testing",
+    "legacy refactor",
+    "brownfield system tests",
+    "characterization testing",
+  ]
 ---
 
-## Abstract
+Legacy modernization is risky when the implementation is the only reliable description of behavior. Blackbox can turn selected running behavior into a smaller, reviewed contract before components move.
 
-Show how Blackbox creates the first honest behavior map for an older system.
+## Start With a Boundary, Not the Codebase
 
-Legacy systems often still make money or keep operations alive, but they are hard to change because the team does not fully trust the behavior boundary anymore. Blackbox makes that boundary visible again.
+Choose a workflow the business already depends on: subscription, invoice generation, account closure, reconciliation, or webhook processing.
 
-## Audience
+The first run records what the system currently does at supported boundaries. Review that recording into three sets:
 
-Teams modernizing a brownfield system without rewriting it all at once.
+- behavior that must survive the migration;
+- behavior that is incidental and should not be frozen;
+- behavior that is wrong and should become forbidden or be fixed before baselining.
 
-This includes old services, mixed stacks, and systems where the source of truth is partly in code and partly in tribal knowledge.
+Capturing the present is characterization. Approving selected effects is contract work. Keep those steps separate.
 
-## The Problem
+## Incremental Migration Loop
 
-Legacy systems accumulate invisible behavior. Some behavior is only known because "the old code has always done it that way." That is a weak contract when the team needs to replace pieces, move infrastructure, or decompose a monolith.
+1. Drive the legacy path through one Playwright flow.
+2. Review its effect catalog.
+3. Bind existing requirements to the flow when traceability matters.
+4. Replace one component, datastore, queue, or service boundary.
+5. Run the same flow against the candidate topology.
+6. Repair missing or forbidden behavior.
+7. Ratify an intentional catalog change before moving to the next slice.
 
-A map of what the system actually does is more reliable than what the code seems to imply.
+The catalog can remain stable even when implementation technology changes. If a Postgres write intentionally becomes a queue publication, the contract should change through review rather than being silently accepted as migration noise.
 
-## When It Helps
+## Parallel Old/New Comparison
 
-1. The system is important enough that behavior changes are costly.
-2. The team wants to modernize in stages.
-3. The existing tests are incomplete or hard to trust.
-4. The boundary behavior needs to be observed before a migration step.
+When both systems can run, execute the same flow against each controlled topology and compare the behavior that should remain equivalent. Blackbox's experimental observation comparison can help during a test reshape or migration, but the effect catalog remains the stable reviewed contract.
 
-## What Blackbox Adds
+Generated Gherkin can provide a readable inventory for domain reviewers. EARS can retain normative requirements. Neither should be generated and ignored; use only artifacts that participate in migration decisions.
 
-1. A behavioral baseline for the legacy system.
-2. A way to compare the old path and the new path.
-3. A review artifact that can survive incremental modernization.
-4. A practical gate for migration steps and regression checks.
+## Limits
 
-## What Not To Claim
+Blackbox does not discover the whole legacy domain, make an unsupported runtime observable, or decide whether historical behavior is correct. It gives the team runtime facts and a gate for the slices they deliberately cover.
 
-1. Blackbox does not rewrite the legacy system.
-2. Blackbox does not eliminate the need to understand the domain.
-3. Blackbox does not turn a brittle system into a clean one by itself.
-
-## Content Outline
-
-1. Describe the modernization situation.
-2. Show the legacy behavior map.
-3. Show how the map supports incremental change.
-4. Describe the review or CI outcome.
-
-## Evidence To Add
-
-- A legacy-system example that produces a baseline report.
-- A comparison between the old path and a migrated path.
-- Links to Runtime Evidence, Feature Files and Staleness, and The Blackbox Lifecycle.
+Start with [Covering Before Refactor](/docs/blackbox/use-cases/covering-before-refactor), then use [Testbed and Instrumentation](/docs/blackbox/guides/set-up-the-testbed) to build the controlled topology.

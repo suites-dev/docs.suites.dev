@@ -1,87 +1,101 @@
 ---
 title: "What is Blackbox?"
-description: "Blackbox is a system-testing framework that turns runtime evidence into a behavioral verification gate, proving what your system actually did at its boundaries."
+description: "Suites Blackbox adds runtime evidence to Playwright system and E2E tests, so required and forbidden boundary behavior can become a reviewable verification gate."
 sidebar_position: 1
+keywords:
+  [
+    "runtime evidence",
+    "Playwright system testing",
+    "E2E behavioral verification",
+    "effect coverage",
+    "Suites Blackbox",
+  ]
 ---
 
-import OverviewDiagram from '@/components/blackbox/OverviewDiagram.astro';
-import InputOutputGapDiagram from '@/components/blackbox/InputOutputGapDiagram.astro';
-import TestingPyramidDiagram from '@/components/blackbox/TestingPyramidDiagram.astro';
-import Aside from '@/components/mdx/Aside.astro';
+import OpeningProofClip from "@/components/blackbox/OpeningProofClip.astro";
+import OverviewDiagram from "@/components/blackbox/OverviewDiagram.astro";
+import Aside from "@/components/mdx/Aside.astro";
 
-**Suites Blackbox** is a system-testing framework for verifying that a running system produces the side effects its implementation claims. A `200 OK` response shows the system replied, but not that it produced the expected downstream effects.
+**Suites Blackbox turns Playwright system and E2E tests into behavioral verification gates.** It observes the running system's boundary effects and checks them against reviewed required and forbidden expectations, so a passing response is no longer the only proof behind a change.
 
-While a passing E2E test proves your system *responded*, it does not prove it *behaved*. AI coding agents and human refactors can change implementations in seconds, and a green checkmark can easily hide a silent failure at your system boundaries.
+<OpeningProofClip />
 
-<InputOutputGapDiagram />
+Your Playwright test still drives the workflow and checks its visible result. Blackbox adds evidence for what happened behind that result: database operations, cache access, outgoing HTTP calls, queue messages, and other supported boundary effects.
 
-Blackbox captures **physical runtime evidence** (database writes, HTTP calls, and queue messages) and turns it into a durable behavioral contract.
+## The Problem It Solves
 
-## Runtime Evidence vs. Reviewed Intent
+An assertion such as `expect(response.status()).toBe(404)` proves that the system rejected a request. It does not prove that the rejected request stopped before payment, persistence, and publication.
 
-Blackbox compares observed runtime effects against a reviewed catalog of required and forbidden effects.
-
-<div style="margin: 1.5rem 0 2rem;">
-
-### The Test Assertion
-The Playwright flow still owns the visible assertion.
+That distinction matters for behavior such as `subscribe-unknown-user`:
 
 ```ts
 await expect(capture).toObserveEffects({
-  requires: [
-    effect.postgres('SELECT', { table: 'users' }),
-  ],
+  requires: [effect.postgres("SELECT", { table: "users" })],
   forbids: [
-    effect.http('POST', { path: '/v1/payment_intents' }),
-    effect.sqs('SendMessage', { queue: 'subscription-orders' }),
+    effect.http("POST", { path: "/v1/payment_intents" }),
+    effect.postgres("INSERT"),
+    effect.sqs("SendMessage", { queue: "subscription-orders" }),
   ],
 });
 ```
 
-### The Contract (Intent)
-The reviewed catalog of required and forbidden behavior.
+The response assertion and the effect assertion answer different questions:
 
-```yaml
-subscribe-unknown-user:
-  requires:
-    - { boundary: postgres, op: SELECT, key: users }
-  forbids:
-    - { boundary: http, op: POST, key: /v1/payment_intents }
-    - { boundary: sqs, op: SendMessage, key: subscription-orders }
-```
+| Evidence                        | Question                                    |
+| ------------------------------- | ------------------------------------------- |
+| Playwright assertion            | Did the caller receive the expected result? |
+| Runtime effects                 | What did the running topology actually do?  |
+| Required and forbidden contract | Was the observed behavior acceptable?       |
+| Coverage and verdicts           | Which reviewed behavior did this run prove? |
 
-</div>
+Blackbox does not replace the test runner or the test. It strengthens the test's conclusion.
 
-<Aside type="info" title="Test-Time Instrumentation">
-Blackbox instruments compatible Node SUT containers during the test run. The compose testbed mounts a bootstrap volume, shadows the service's Node binary with `node-wrap`, and preloads the instrumentation before application code. You do not need to add OpenTelemetry SDKs or SDK imports to your production code.
-</Aside>
+## The Core Model
 
-## The Silent Failure Problem
+Blackbox uses five main objects:
 
-Many serious behavior requirements are negative. The system must *not* create a subscription for `ghost-user`. It must *not* create a payment intent for a rejected user.
-
-This is **proving a non-event**. Ordinary assertions check the response, not what the system avoided doing in the background. A response can confirm rejection while a forbidden side effect still occurs undetected.
-
-Blackbox makes the negative space reviewable. It checks captured evidence for the **physical absence** of forbidden effects. If a flow rejects a user, the proof is not only the error response; the proof is that the cataloged forbidden Postgres, Redis, and SQS effects never appeared in the run evidence.
-
-## Where it Fits
-
-Blackbox sits at the "Evidence Boundary" of your testing strategy. It complements unit and integration tests by proving behavior that only appears when the composed system runs against real dependencies.
-
-<TestingPyramidDiagram />
-
-Use Blackbox when a green assertion is too thin for the risk: refactors, migrations, and AI-assisted implementation. It is strongest when the topology is controlled, the boundaries emit useful signals, and the team reviews the catalog instead of accepting every observed detail.
-
-## How it Works
-
-Blackbox follows a simple chain: evidence becomes effects, effects become a catalog, and the catalog becomes coverage.
+1. A **flow** gives one system behavior a stable identity, such as `subscribe-flow`.
+2. A **capture** contains runtime observations collected for that flow.
+3. An **effect** is a normalized boundary operation, such as a Postgres `INSERT` or SQS `SendMessage`.
+4. A **catalog** records reviewed required and forbidden effects for each flow.
+5. A **report** explains whether the run satisfied, missed, or violated the contract.
 
 <OverviewDiagram kind="workflow" />
 
-The catalog is the durable contract. Runtime evidence is the fact base. Coverage is the result that tells you whether the run satisfied the contract.
+The first run can record a catalog candidate. A reviewer decides which effects are contractual and which are incidental. Later runs compare fresh evidence with that reviewed catalog. New, missing, or forbidden behavior becomes a visible decision instead of a hidden implementation detail.
 
-**[Prove Your First Feature →](/docs/blackbox/quickstart/first-proven-feature)**
+<Aside type="info" title="Instrumentation Belongs to the Test Environment">
+  For compatible Node services, the Blackbox testbed injects OpenTelemetry
+  instrumentation into SUT containers for the test run. Production source does
+  not need Blackbox imports. Other runtimes require an equivalent source of
+  Blackbox-readable evidence.
+</Aside>
 
-The fastest way to feel the difference: one flow, one catalog, one coverage signal.
+## Specifications Are Complementary
 
-_See also: [Specs, Tests, and Runtime Evidence](/docs/blackbox/overview/specs-tests-runtime-evidence), [Runtime Evidence](/docs/blackbox/concepts/runtime-evidence), [Tests, Effects, and Feature Files](/docs/blackbox/overview/tests-effects-and-feature-files), [When to Use Blackbox](/docs/blackbox/overview/when-to-use-blackbox)._
+Runtime effects are the core capability. You can use them without adopting a specification format.
+
+When a team wants to connect intent to evidence, Blackbox supports two complementary surfaces:
+
+- **EARS requirements** use an optional constrained requirement syntax to give normative rules stable IDs. Bindings connect those IDs to flow IDs, and requirement coverage joins them with runtime results to produce `proven`, `violated`, `unproven`, or `unbound` verdicts.
+- **Gherkin feature files** provide a readable behavior projection. Blackbox can emit them from executable Playwright or Blackbox BDD-DSL tests and detect drift. Feature files do not replace runtime proof.
+
+EARS answers, "Which requirement does this flow verify?" Gherkin answers, "How can a person read the executable behavior?" Effects answer, "What did the running system actually do?"
+
+OMC/DC sits one layer later. It uses the same captured evidence to ask whether important code decisions produced distinguishable boundary behavior.
+
+## Why It Matters Now
+
+The need predates coding agents: legacy refactors, service migrations, incident regressions, and distributed workflows have always needed stronger system-level evidence.
+
+Agentic development raises the stakes because implementation and test code can change faster than a reviewer can reconstruct behavior from a diff. Blackbox produces evidence that both humans and automation can inspect, while keeping changes to reviewed intent under human control.
+
+That makes the merge question more precise: not only "Did the tests pass?" but "Did the running system produce the required effects, avoid the forbidden effects, and prove the requirements attached to this flow?"
+
+## Start With One Flow
+
+Blackbox is most useful when the first contract is narrow and consequential. Choose a stable system flow, capture its effects, review one catalog entry, and rerun it.
+
+**[Prove your first flow ->](/docs/blackbox/quickstart/first-proven-feature)**
+
+Next, read [The Runtime Evidence Gap](/docs/blackbox/overview/runtime-evidence-gap) to see why ordinary specs and assertions leave this behavior unverified.

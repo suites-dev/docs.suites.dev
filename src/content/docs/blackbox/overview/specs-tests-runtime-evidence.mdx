@@ -1,172 +1,95 @@
 ---
-title: "Specs, Tests, and Runtime Evidence"
-description: "Understand the verification gap Blackbox addresses: specs describe intent, tests exercise behavior, and runtime evidence shows what the system actually did."
+title: "The Runtime Evidence Gap"
+slug: "blackbox/overview/runtime-evidence-gap"
+description: "Specs state intent and Playwright tests drive a system, but runtime evidence is what shows whether required and forbidden boundary behavior actually occurred."
 sidebar_position: 2
-keywords: ["runtime evidence", "spec driven development verification", "behavioral verification", "e2e test evidence", "agentic coding verification"]
-toc_min_heading_level: 2
-seo:
-  primary_keyword: "runtime evidence"
-  secondary_keywords: ["spec driven development verification", "behavioral verification", "agentic coding verification", "e2e test evidence"]
-  search_intent: "developers and teams trying to understand how runtime evidence complements specs, system tests, E2E tests, and AI-assisted implementation"
-  snippet_angle: "specs and tests are useful, but Blackbox adds runtime evidence from the running system so behavior can be reviewed and gated"
+keywords:
+  [
+    "runtime evidence gap",
+    "E2E test blind spot",
+    "specification drift",
+    "behavioral verification",
+    "system test evidence",
+  ]
 ---
 
-import OverviewDiagram from '@/components/blackbox/OverviewDiagram.astro';
-import CodeFirstBddDiagram from '@/components/blackbox/CodeFirstBddDiagram.astro';
-import Aside from '@/components/mdx/Aside.astro';
+import InputOutputGapDiagram from "@/components/blackbox/InputOutputGapDiagram.astro";
+import OverviewDiagram from "@/components/blackbox/OverviewDiagram.astro";
+import Aside from "@/components/mdx/Aside.astro";
 
-Specs describe intent. Tests exercise selected behavior. Runtime evidence shows what the running system actually did at the boundaries.
-
-Blackbox exists for the gap between those three things. A spec can be clear, a Playwright assertion can pass, and the implementation can still skip a queue message, write the wrong row, call payment after a rejection, or leave a generated feature file out of sync with the executable behavior.
+A specification can be clear and a Playwright test can pass while important boundary behavior remains unverified. The missing piece is evidence from the running system.
 
 <OverviewDiagram kind="blind-spot" />
 
-## The Verification Gap
+## Input and Output Are Not the Whole Behavior
 
-Modern development has made the front half of delivery stronger. Teams write issues, acceptance criteria, SDD specs, plans, tasks, and agent prompts before implementation. That gives humans and coding agents shared intent.
-
-The weak point is the back half:
-
-```text
-intent is written
-code is changed
-tests pass
-but the system has not shown reviewable runtime evidence
-```
-
-That gap matters in normal refactors, legacy modernization, and incident regression work. It matters more in agentic development because one loop can draft the spec, write the implementation, and generate tests. A green result from artifacts produced inside the same loop is useful, but it can become circular validation.
-
-Blackbox adds an outside signal: runtime facts from the system during a controlled system or E2E run.
-
-## The Loop
-
-The Blackbox loop is not "write more tests." The goal is to keep intent, executable behavior, runtime effects, and review artifacts connected.
-
-```text
-intent or spec
-  -> executable system flow
-  -> observed runtime effects
-  -> reviewed catalog
-  -> coverage and reports
-  -> CI or agent gate
-  -> repair, accept, or update intent
-```
-
-<OverviewDiagram kind="proof-loop" />
-
-Each step has a different owner:
-
-| Step | Owner | Job |
-| --- | --- | --- |
-| Intent | Human, product process, or SDD tool | Say what behavior should matter |
-| Executable flow | Developer or agent | Drive the selected behavior through Playwright |
-| Runtime evidence | Blackbox | Capture effects from the running system |
-| Reviewed catalog | Human reviewer | Decide which effects are required or forbidden |
-| Gate | CI, reviewer, or agent workflow | Compare the run to the contract and act on the result |
-
-The catalog is the review point. Blackbox can record what happened, but the team decides what must happen and what must never happen.
-
-## Concrete Example
-
-The `subscribe-unknown-user` path is useful because the important behavior is negative. The request should fail, and the system should not continue into payment or downstream processing.
+Most E2E assertions observe the outside of a workflow:
 
 ```ts
-import { effect } from '@suites/blackbox';
-import { expect, scenario } from './testbed.js';
-import { postJson } from './_http.js';
-
-scenario('subscribe-unknown-user', 'rejecting a ghost user', ({ given }) => {
-  given('ghost-user is not present in the system', async ({ system, capture, when }) => {
-    await when('ghost-user POSTs /subscriptions', async ({ then }) => {
-      const response = await postJson(`${system.bff.hostBaseUrl}/subscriptions`, {
-        userId: 'ghost-user',
-        paymentMethodId: 'pm_card_visa',
-      });
-
-      await then('the request stops before payment or queue work', async () => {
-        expect(response.status).toBe(404);
-        await expect(capture).toObserveEffects({
-          requires: [
-            effect.postgres('SELECT', { table: 'users' }),
-          ],
-          forbids: [
-            effect.http('POST', { path: '/v1/payment_intents' }),
-            effect.sqs('SendMessage', { queue: 'subscription-orders' }),
-          ],
-        });
-      });
-    });
-  });
-});
+const response = await request.post("/subscriptions", { data });
+expect(response.status()).toBe(201);
+expect(await response.json()).toMatchObject({ tier: "pro" });
 ```
 
-The HTTP assertion checks the visible result. The effect assertion checks the behavior behind it:
+Those assertions matter. They prove the public result. They do not necessarily prove that the system persisted the subscription, cached the tier, called the intended payment endpoint, published the order exactly once, or avoided a refund path.
 
-```yaml
-subscribe-unknown-user:
-  requires:
-    - { boundary: postgres, op: SELECT, key: users }
-  forbids:
-    - { boundary: http, op: POST, key: /v1/payment_intents }
-    - { boundary: sqs, op: SendMessage, key: subscription-orders }
-```
+<InputOutputGapDiagram />
 
-This is the missing evidence in many E2E suites. The test can say the request was rejected. The runtime evidence can also say payment and queue work were physically absent from the captured run.
+Blackbox collects observations from the SUT during each isolated flow and makes those boundary effects inspectable. The test remains green only when both its ordinary assertions and its reviewed behavior contract are satisfied.
 
-<Aside type="note" title="Feature Files Are Optional">
-Feature files are not required to get value from Blackbox. Effects and catalogs are the core track. Generated feature files become valuable when the team wants readable behavior specs that are checked against executable tests.
+## Written Intent Can Drift Too
+
+Specifications help humans and agents decide what to build. Their weakness is temporal: after implementation, a requirement, ticket, plan, or feature file can stop describing the system that actually runs.
+
+Tests can drift in a different way. A test may continue checking the same `201` response after a refactor changes a queue, database, or vendor interaction that the assertion never named.
+
+| Surface                       | Strength                                          | Blind spot                                           |
+| ----------------------------- | ------------------------------------------------- | ---------------------------------------------------- |
+| Requirement or product spec   | Explains intended behavior                        | Can become stale and is not executable proof         |
+| Playwright system or E2E test | Exercises the running workflow                    | May assert only selected inputs and outputs          |
+| Runtime evidence              | Records boundary behavior from the run            | Facts still need reviewed meaning                    |
+| Effect catalog                | Declares required and forbidden effects           | Must be ratified when behavior legitimately changes  |
+| EARS binding and verdict      | Connects a normative requirement to runtime proof | Only proves requirements with bound, executed flows  |
+| Generated Gherkin             | Makes executable behavior readable                | Reflects its source test; it is not runtime evidence |
+
+No single surface should pretend to answer all six jobs.
+
+## Independent Evidence, Not Circular Confidence
+
+In an agentic change, the same agent may read the requirement, write the implementation, and add a test. That accelerates delivery, but it can also make the validation circular: generated code is accepted by generated assertions that share the same mistaken interpretation.
+
+Blackbox adds an independently observed input to the decision. The report is derived from what the instrumented system did during the flow, not from the implementation summary or the test name.
+
+This does not make the evidence self-interpreting. A human still decides which effects are required, forbidden, incidental, or ambiguous. The useful division of labor is:
+
+1. Humans ratify intent and behavior changes.
+2. Playwright drives the workflow.
+3. Blackbox records and classifies runtime facts.
+4. CI and agents consume deterministic results.
+5. Ambiguous or new behavior returns to review.
+
+<Aside type="note" title="A Catalog Is Reviewed Intent">
+  The first capture can reveal candidate effects, but observed behavior is not
+  automatically correct behavior. Review catalog changes with the same care as
+  an API or schema change.
 </Aside>
 
-## Why Specs Still Matter
+## The Gap in Existing E2E Methodology
 
-Blackbox does not replace SDD tools, tickets, design docs, or Gherkin. Those artifacts explain intent and help teams decide what to build.
+Traditional E2E testing is often described as a user journey through a deployed environment. That is useful for proving that a full path works, including unmanaged dependencies such as identity providers, email systems, or external vendors.
 
-Blackbox works after selected intent becomes an executable system flow:
+Blackbox is strongest first in a controlled **system test**, where the run owns the SUT and managed dependencies. The controlled topology makes missing and forbidden effects deterministic enough to gate a pull request. The same evidence model can support broader E2E flows, but shared and unmanaged dependencies introduce noise that must be accounted for.
 
-| Artifact | Question it answers |
-| --- | --- |
-| Spec or issue | What should the behavior mean? |
-| System or E2E test | Can we exercise the behavior? |
-| Runtime effects | What did the system actually do? |
-| Effect catalog | Which effects are required or forbidden? |
-| Coverage and reports | Which declared behavior did this run prove or miss? |
-| Generated feature file | How can reviewers read the executed behavior? |
+The category is therefore not "another assertion library." It is a runtime-evidence layer for system and E2E verification.
 
-That division keeps the docs honest. A written spec is not runtime proof. A generated feature file is not runtime proof. A response assertion is not complete boundary proof. They become stronger when the running system feeds evidence back into the review loop.
+## Close the Gap
 
-## Why This Matters For Agents
+The verification chain becomes:
 
-Coding agents change implementation quickly. They can also produce plausible summaries, plausible tests, and plausible feature text. That is useful labor, but it should not be the final evidence.
+```text
+intent -> executable flow -> runtime effects -> reviewed contract -> verdict
+```
 
-In an agentic workflow, Blackbox gives the agent and reviewer the same external artifacts:
+Optional EARS requirements bind normative intent to the flow. Optional Gherkin files project executable behavior into a readable format. Neither is required to start capturing and checking effects.
 
-1. The system test or scenario that ran.
-2. The observed effects from the run.
-3. The catalog of required and forbidden effects.
-4. The effect coverage and OMC/DC reports.
-5. The generated feature file and drift result, when feature files are part of review.
-
-The agent can repair code against those artifacts. The human still owns meaning: changing required or forbidden behavior is a review decision, not a hidden agent fix.
-
-## How It Connects To BDD
-
-Classic BDD often started with a `.feature` file, then relied on teams to keep step definitions, tests, and runtime behavior aligned. That can work, but it is easy for readable specs to become stale.
-
-Blackbox uses a code-first direction for system-test BDD:
-
-1. Run or write the system test.
-2. Capture runtime evidence.
-3. Review the effect catalog.
-4. Emit or check the feature file from executable behavior.
-5. Gate drift when the readable file no longer matches the test source.
-
-<CodeFirstBddDiagram kind="staleness" />
-
-That means feature files complement specs instead of replacing them. They give humans and agents a readable view of behavior that is still tied to executable tests and runtime evidence.
-
-## What To Read Next
-
-1. [Tests, Effects, and Feature Files](/docs/blackbox/overview/tests-effects-and-feature-files)
-2. [5-Minute Quickstart](/docs/blackbox/quickstart/first-proven-feature)
-3. [Code-First BDD](/docs/blackbox/concepts/code-first-bdd)
-4. [Spec-Driven and Agentic Verification](/docs/blackbox/guides/spec-driven-and-agentic-verification)
+Read [Testing Layers](/docs/blackbox/concepts/testing-layers) for where this evidence sits beside unit, integration, system, and remote E2E tests. Then continue to [The Verification Loop](/docs/blackbox/overview/verification-loop) to see how these surfaces stay connected through development and CI.

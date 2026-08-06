@@ -48,40 +48,41 @@ test.system('subscribe-flow', 'subscribing a user to the pro tier', () => {
 });`;
 
 const existingCatalogSnippet = `specVersion: "0.1"
-
-checkout-flow:
-  requires:
-    - { boundary: postgres, op: INSERT, key: orders }
-    - { boundary: http, op: POST, key: /payments }
-    - { boundary: sqs, op: SendMessage }`;
+entries:
+  checkout-flow:
+    requires:
+      - { boundary: postgres, op: INSERT, key: orders }
+      - { boundary: http, op: POST, key: /payments }
+      - { boundary: sqs, op: SendMessage }`;
 
 const existingReviewedCatalogSnippet = `specVersion: "0.1"
-
-checkout-flow:
-  requires:
-    - { boundary: postgres, op: INSERT, key: orders }
-  forbids:
-    - { boundary: http, op: POST, key: /refunds }`;
+entries:
+  checkout-flow:
+    requires:
+      - { boundary: postgres, op: INSERT, key: orders }
+    forbids:
+      - { boundary: http, op: POST, key: /refunds }`;
 
 const showcaseCatalogSnippet = `specVersion: "0.1"
-
-subscribe-flow:
-  requires:
-    - { boundary: redis, op: GET, key: "user:*:tier" }
-    - { boundary: postgres, op: INSERT, key: subscriptions }
-    - { boundary: sqs, op: SendMessage }
-  forbids:
-    - { boundary: postgres, op: DELETE }
-    - { boundary: http, op: POST, key: /v1/refunds }`;
+entries:
+  subscribe-flow:
+    requires:
+      - { boundary: redis, op: GET, service: bff }
+      - { boundary: postgres, op: INSERT, service: bff }
+      - { boundary: sqs, op: SendMessage, key: subscription-orders }
+    forbids:
+      - { boundary: postgres, op: DELETE }
+      - { boundary: http, op: POST, key: /v1/refunds }`;
 
 const playwrightExampleCommand = `npx playwright test --config ./e2e/playwright.config.ts`;
 
-const showcaseRunCommand = `pnpm test:system`;
+const showcaseRunCommand = `pnpm --filter @suites/blackbox-e2e-subscription-service test -- \
+  tests/00-baseline-subscribe.system.test.ts`;
 
-const baselineMessage = `toMatchCatalog: no catalog entry for "checkout-flow"; baseline pending.
-Will be written at fixture teardown.`;
+const baselineMessage = `[blackbox] baselined 1 catalog entry into
+e2e/tests/__effects__/checkout.system.effects.yaml: "checkout-flow"`;
 
-const generatedCatalogPath = `created: e2e/tests/__effects__/checkout-flow.system.effects.yaml
+const generatedCatalogPath = `created: e2e/tests/__effects__/checkout.system.effects.yaml
 next: review requires and forbids before committing`;
 
 const coverageRows = [
@@ -92,34 +93,38 @@ const coverageRows = [
 ];
 
 const coverageJsonSnippet = `{
-  "catalog": { "entries": 1 },
-  "summary": { "satisfied": 1, "failed": 0, "uncovered": 0 },
-  "perEntry": {
-    "checkout-flow": { "state": "satisfied", "runs": 1 }
-  }
+  "catalog": { "service": "unknown", "entryCount": 1, "apiVersion": "effect-catalog/v0.2" },
+  "totals": { "seen": 1, "satisfied": 1, "failed": 0, "uncovered": 0, "forbidden": 0 },
+  "perEntry": [
+    {
+      "id": "checkout-flow",
+      "state": "satisfied",
+      "runs": 1,
+      "passes": 1,
+      "failures": 0,
+      "forbidViolations": []
+    }
+  ]
 }`;
 
-const showcaseRunOutput = `✓ subscribe-flow › alice subscribes
+const showcaseRunOutput = `effect coverage
+metric           value
+catalog entries  2
+satisfied        2  (100%)
+failed           0
+uncovered        0
 
-captured effects
-  redis       GET user:alice:tier
-  postgres   INSERT subscriptions
-  http        POST /v1/payment_intents
-  sqs         SendMessage subscription.created
-
-written: e2e/tests/__effects__/00-baseline-subscribe.system.effects.yaml
 written: e2e/.blackbox-coverage/catalog/coverage.json`;
 
 const showcaseProofArtifacts = `e2e/tests/__effects__/00-baseline-subscribe.system.effects.yaml
 e2e/.blackbox-coverage/catalog/coverage.json
 e2e/.blackbox-coverage/omcdc/verdict.md`;
 
-const featureCommands = `pnpm exec blackbox features emit ./e2e/tests --out ./e2e/features
+const featureCommands = `pnpm exec blackbox requirements check --tests e2e
+pnpm exec blackbox requirements coverage --tests e2e
+pnpm exec blackbox features emit ./e2e/tests --out ./e2e/features
 pnpm exec blackbox features check --features ./e2e/features --tests ./e2e/tests`;
 
-const featureOutput = `emitted: e2e/features/subscribe-flow.feature
-checked: 1 feature file, 1 source test
-status: in sync`;
 ---
 
 <section class="bb-quickstart" id="quickstart-track" data-active-track="existing">
@@ -197,9 +202,9 @@ status: in sync`;
       <p>Blackbox does not need to replace your runner. Use the command your project already uses; the Playwright command below is only an example.</p>
       <Code code={playwrightExampleCommand} lang="bash" />
       <Aside type="note" title="Expected first-run signal">
-        You should see a baseline-pending message the first time the catalog entry does not exist.
+        At fixture teardown, Blackbox reports that it baselined the previously missing flow into the test file's effect sidecar.
       </Aside>
-      <p>That message means Blackbox has seen this flow, but there is no reviewed effect contract for it yet. The run continues, records the observed effects, and writes a draft catalog entry for you to review before the next run enforces it.</p>
+      <p>The first successful run records observed effects because there is no reviewed entry yet. The generated entry is a draft to review before the next run enforces it. In strict CI mode, missing entries fail instead of being baselined.</p>
       <Code code={baselineMessage} lang="text" />
       <Code code={generatedCatalogPath} lang="text" />
     </section>
@@ -253,7 +258,7 @@ status: in sync`;
       <p>The same run also writes a machine-readable summary for CI, dashboards, and agent context.</p>
       <Code code={coverageJsonSnippet} lang="json" />
       <Aside type="tip" title="First quickstart win">
-        The same flow now proves something about the behavior inside the system, not only its response. Read <a href="/docs/blackbox/concepts/system-effects">System Effects</a> when you want the mental model behind catalog coverage and OMC/DC.
+        The same flow now proves something about the behavior inside the system, not only its response. Read <a href="/docs/blackbox/concepts/effects-and-catalogs">Effects, Catalogs, and Coverage</a> for the model behind catalog coverage.
       </Aside>
     </section>
   </article>
@@ -275,7 +280,7 @@ status: in sync`;
 
     <section id="new-step-2" data-track-section="new">
       <h3><span aria-hidden="true">2</span>Inspect the proof trail</h3>
-      <p>A successful showcase run should produce a catalog and coverage artifacts. Start with these three; spans and V8 payloads are diagnostics for later.</p>
+      <p>A successful showcase run should produce a catalog and coverage artifacts. Start with these three; spans and Node V8 payloads are diagnostics for later.</p>
       <Code code={showcaseProofArtifacts} lang="text" />
       <Aside type="info" title="What to inspect first">
         Open the effect catalog before the OMC/DC report. The catalog tells you what behavior the test observed; OMC/DC tells you where decision evidence is still thin. See <a href="/docs/blackbox/reference/files-and-artifacts">Files and Artifacts</a> for the full inventory.
@@ -338,21 +343,20 @@ status: in sync`;
     <div class="bb-after-success-head">
       <span>After first success</span>
       <h2 id="after-first-success">Pick one next signal</h2>
-      <p>The first loop proves Blackbox can observe your system and enforce one reviewed effect contract. Most teams should add readable behavior specs next. Add OMC/DC or CI gates when a specific review needs them.</p>
+      <p>The first loop proves Blackbox can observe your system and enforce one reviewed effect contract. If your team reviews specifications, connect them next. Otherwise, put the effect contract in CI before adding another layer.</p>
     </div>
 
     <div class="bb-next-signal">
-      <a class="bb-next-primary" href="/docs/blackbox/quickstart/feature-files-from-tests">
-        <span class="bb-next-kicker">Recommended next</span>
-        <strong>Continue to Feature Files From Tests</strong>
-        <p>Turn the proven system test into a readable behavior spec, then drift-check that the feature file and test source still describe the same behavior.</p>
+      <a class="bb-next-primary" href="/docs/blackbox/quickstart/connect-specifications-to-runtime-evidence">
+        <span class="bb-next-kicker">Recommended for SDD teams</span>
+        <strong>Connect Specifications to Runtime Evidence</strong>
+        <p>Bind EARS requirements to the proven flow, emit readable Gherkin from the test, or adopt both specification surfaces.</p>
         <span class="bb-next-link">Open guide</span>
       </a>
 
       <details class="bb-next-command">
         <summary>Show command preview</summary>
         <Code code={featureCommands} lang="bash" />
-        <Code code={featureOutput} lang="text" />
       </details>
 
       <div class="bb-next-secondary" aria-label="Optional next signals">
@@ -362,7 +366,7 @@ status: in sync`;
           <p>Use it for feature flags, authorization, compensation paths, retries, and forbidden side effects.</p>
           <span class="bb-next-link">Read OMC/DC guide</span>
         </a>
-        <a href="/docs/blackbox/guides/ci-behavioral-gates">
+        <a href="/docs/blackbox/guides/reports-and-ci-gates">
           <span class="bb-next-kicker">When review needs a gate</span>
           <strong>Publish CI evidence</strong>
           <p>Archive the catalog coverage summary and OMC/DC reports where reviewers can inspect failures.</p>
@@ -391,7 +395,7 @@ status: in sync`;
     let activeTrack = 'existing';
     let activeStep = 0;
 
-    const setProgress = (index) => {
+    const setProgress = (index: number) => {
       const list = root.querySelector(`[data-progress-list="${activeTrack}"]`);
       const items = list === null ? [] : Array.from(list.querySelectorAll('li'));
       activeStep = Math.max(0, Math.min(index, items.length - 1));
@@ -419,7 +423,7 @@ status: in sync`;
       }
     };
 
-    const setTrack = (track, push, hash) => {
+    const setTrack = (track: string, push: boolean, hash?: string) => {
       activeTrack = track === 'new' ? 'new' : 'existing';
       root.dataset.activeTrack = activeTrack;
 

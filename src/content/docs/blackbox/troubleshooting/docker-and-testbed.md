@@ -6,7 +6,8 @@ keywords: ["docker troubleshooting", "testbed errors", "compose testing"]
 toc_min_heading_level: 2
 seo:
   primary_keyword: "docker testbed troubleshooting"
-  secondary_keywords: ["docker troubleshooting", "testbed errors", "docker compose testing"]
+  secondary_keywords:
+    ["docker troubleshooting", "testbed errors", "docker compose testing"]
   search_intent: "troubleshooting intent from developers whose Blackbox container topology fails before evidence can be trusted"
   snippet_angle: "diagnose compose startup, bootstrap image, init container, mounted node wrapper, ports, waits, and stale volumes"
 ---

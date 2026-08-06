@@ -30,9 +30,24 @@ function humanize(segment: string): string {
   return decoded.charAt(0).toUpperCase() + decoded.slice(1);
 }
 
-const segments = slug.split('/').filter(Boolean);
+const rawSegments = slug.split('/').filter(Boolean);
+const isBlackbox = rawSegments[0] === 'blackbox';
+const segments = isBlackbox ? rawSegments.slice(1) : rawSegments;
+const blackboxSectionRoots: Record<string, string> = {
+  overview: '/docs/blackbox/overview/what-is-blackbox',
+  quickstart: '/docs/blackbox/quickstart/prerequisites-and-supported-systems',
+  concepts: '/docs/blackbox/concepts/testing-layers',
+  guides: '/docs/blackbox/guides/set-up-the-testbed',
+  'use-cases': '/docs/blackbox/use-cases',
+  reference: '/docs/blackbox/reference',
+  troubleshooting: '/docs/blackbox/troubleshooting',
+};
 const items = segments.map((seg, i) => {
-  const href = '/docs/' + segments.slice(0, i + 1).join('/');
+  const href = isBlackbox
+    ? i === 0
+      ? (blackboxSectionRoots[seg] ?? `/docs/blackbox/${seg}`)
+      : '/docs/blackbox/' + segments.slice(0, i + 1).join('/')
+    : '/docs/' + segments.slice(0, i + 1).join('/');
   const isLast = i === segments.length - 1;
   const label = isLast && title ? title : humanize(seg);
   return { label, href, isLast };

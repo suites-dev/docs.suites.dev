@@ -44,8 +44,8 @@ no lint findings`;
 <section class="bb-bdd-demo" aria-label="Test to feature file demo">
   <div class="bb-bdd-demo-head">
     <div>
-      <strong>Test to Feature REPL</strong>
-      <p>Future package-backed REPL flow: load a test, analyze the AAA/Given-When-Then shape, emit Gherkin, then run the gates.</p>
+      <strong>Test to Feature Simulation</strong>
+      <p>Step through the package workflow: load a test, analyze its AAA/Given-When-Then shape, emit Gherkin, then run syntax and drift gates.</p>
     </div>
     <div class="bb-bdd-demo-steps" aria-label="REPL stages">
       <button type="button" class="is-active" data-bdd-stage="source">1 Source</button>
@@ -76,7 +76,7 @@ no lint findings`;
 
     <article class="bb-bdd-stage" data-bdd-panel="gate" hidden>
       <h3>Verification Gate</h3>
-      <p>The gate is two-part: Cucumber-compatible Gherkin syntax validation, plus feature-file drift detection against the test source. Runtime effects and observation comparison can add stronger gates later.</p>
+      <p>The feature gate combines Cucumber-compatible Gherkin syntax validation with test-to-feature drift detection. Runtime effect contracts are a separate layer and remain the core Blackbox behavioral gate.</p>
       <Code code={gateOutput} lang="bash" />
     </article>
   </div>
@@ -89,7 +89,7 @@ no lint findings`;
     const buttons = Array.from(demo.querySelectorAll('[data-bdd-stage]'));
     const panels = Array.from(demo.querySelectorAll('[data-bdd-panel]'));
 
-    const activate = (stage) => {
+    const activate = (stage: string) => {
       buttons.forEach((button) => {
         const active = button.getAttribute('data-bdd-stage') === stage;
         button.classList.toggle('is-active', active);

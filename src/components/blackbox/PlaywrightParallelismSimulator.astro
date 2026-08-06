@@ -10,15 +10,13 @@ const steps = [
   fullyParallel: true,
 });
 
-test.describe.parallel('subscription changes', () => {
-  test('upgrade to pro', async ({ system, capture }) => {});
-  test('cancel subscription', async ({ system, capture }) => {});
-});`,
+test.system('upgrade-flow', 'upgrade subscription', () => { ... });
+test.system('cancel-flow', 'cancel subscription', () => { ... });`,
   },
   {
     label: 'Workers',
     title: 'Blackbox gives each worker its own system boundary',
-    body: 'With compose isolation, every Playwright worker gets a separate compose project and docker-assigned host ports.',
+    body: 'The standard testbed gives every Playwright worker a separate compose project and Docker-assigned host ports.',
     artifact: 'Worker testbeds',
     snippet: `worker 0 -> blackbox-e2e-w0
 worker 1 -> blackbox-e2e-w1
@@ -30,17 +28,17 @@ bootstrap({ workerInfo, perWorker })`,
     title: 'Scenarios become isolation groups',
     body: 'Blackbox tags scenario describes with @flow and @isolation-group, then resets or shares state according to the group key.',
     artifact: 'Runtime tags',
-    snippet: `scenario.isolated('refund-flow', ...)
+    snippet: `scenario('refund-flow', ...)
   -> @flow:refund-flow
   -> @isolation-group:bdd:refund-flow
 
-scenario.shared('create-order', 'approve-order', ...)
-  -> joins the parent group`,
+scenario.chain('order-lifecycle', () => { ... })
+  -> nested scenarios reuse one group`,
   },
   {
     label: 'Evidence',
     title: 'Effects stay attributable to the running test',
-    body: 'The capture fixture injects trace identity, drains spans for that test, and maps observed runtime facts into effects.',
+    body: 'The capture fixture resets and drains this worker stack around the test. The wrapped request also propagates trace identity across services.',
     artifact: 'Captured effects',
     snippet: `postgres INSERT subscriptions
 redis SET user:alice:tier
@@ -105,7 +103,7 @@ expect(capture).toMatchCatalog();`,
   </div>
 </section>
 
-<script define:vars={{ steps }}>
+<script is:inline define:vars={{ steps }}>
   const simulators = Array.from(document.querySelectorAll('[data-parallel-sim]'));
 
   simulators.forEach((simulator) => {

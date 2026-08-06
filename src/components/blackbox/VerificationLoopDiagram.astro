@@ -1,0 +1,87 @@
+<figure class="bb-verification-loop" aria-label="Blackbox verification loop from intent to reviewed runtime verdict">
+  <svg viewBox="0 0 960 420" role="img" aria-labelledby="bb-vl-title bb-vl-desc">
+    <title id="bb-vl-title">The Blackbox verification loop</title>
+    <desc id="bb-vl-desc">Reviewed intent becomes a Playwright flow and implementation. The flow runs in an instrumented test environment, producing effects and verdicts. Implementation failures loop back for repair while behavior changes stop for human review.</desc>
+    <defs>
+      <marker id="bb-vl-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"></path>
+      </marker>
+    </defs>
+
+    <rect x="8" y="8" width="944" height="404" rx="18" fill="#111827" stroke="#374151"></rect>
+    <text x="36" y="45" fill="#f8fafc" font-size="20" font-weight="800">Intent becomes evidence before a change is trusted</text>
+    <text x="36" y="71" fill="#cbd5e1" font-size="13">Automation may repair implementation. A person ratifies new or changed behavior.</text>
+
+    <rect x="36" y="112" width="156" height="82" rx="12" fill="#1f2937" stroke="#94a3b8"></rect>
+    <text x="114" y="143" text-anchor="middle" fill="#f8fafc" font-size="15" font-weight="800">Reviewed intent</text>
+    <text x="114" y="166" text-anchor="middle" fill="#cbd5e1" font-size="12">spec or EARS</text>
+    <text x="114" y="183" text-anchor="middle" fill="#94a3b8" font-size="11">human ratifies meaning</text>
+
+    <line x1="204" y1="153" x2="250" y2="153" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-vl-arrow)"></line>
+
+    <rect x="262" y="112" width="156" height="82" rx="12" fill="#172554" stroke="#60a5fa"></rect>
+    <text x="340" y="143" text-anchor="middle" fill="#eff6ff" font-size="15" font-weight="800">Playwright flow</text>
+    <text x="340" y="166" text-anchor="middle" fill="#bfdbfe" font-size="12">stable flow ID</text>
+    <text x="340" y="183" text-anchor="middle" fill="#93c5fd" font-size="11">ordinary assertions stay</text>
+
+    <line x1="430" y1="153" x2="476" y2="153" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-vl-arrow)"></line>
+
+    <rect x="488" y="112" width="156" height="82" rx="12" fill="#164e63" stroke="#67e8f9"></rect>
+    <text x="566" y="143" text-anchor="middle" fill="#ecfeff" font-size="15" font-weight="800">Implementation</text>
+    <text x="566" y="166" text-anchor="middle" fill="#cffafe" font-size="12">human or agent change</text>
+    <text x="566" y="183" text-anchor="middle" fill="#a5f3fc" font-size="11">candidate behavior</text>
+
+    <line x1="656" y1="153" x2="702" y2="153" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-vl-arrow)"></line>
+
+    <rect x="714" y="100" width="202" height="106" rx="13" fill="#14532d" stroke="#86efac"></rect>
+    <text x="815" y="132" text-anchor="middle" fill="#f0fdf4" font-size="15" font-weight="800">Instrumented test run</text>
+    <text x="815" y="155" text-anchor="middle" fill="#bbf7d0" font-size="12">managed topology</text>
+    <text x="815" y="176" text-anchor="middle" fill="#86efac" font-size="11">runtime observations for the flow</text>
+    <text x="815" y="193" text-anchor="middle" fill="#86efac" font-size="11">required and forbidden effects</text>
+
+    <line x1="815" y1="218" x2="815" y2="256" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-vl-arrow)"></line>
+
+    <rect x="658" y="268" width="258" height="88" rx="13" fill="#78350f" stroke="#fbbf24"></rect>
+    <text x="787" y="299" text-anchor="middle" fill="#fef3c7" font-size="15" font-weight="800">Verdicts and review artifacts</text>
+    <text x="787" y="322" text-anchor="middle" fill="#fde68a" font-size="12">coverage + JSON + requirement verdicts</text>
+    <text x="787" y="341" text-anchor="middle" fill="#fcd34d" font-size="11">optional generated Gherkin</text>
+
+    <path d="M646 312 C560 312 550 239 566 208" fill="none" stroke="#67e8f9" stroke-width="2" stroke-dasharray="7 6" marker-end="url(#bb-vl-arrow)"></path>
+    <text x="535" y="292" text-anchor="middle" fill="#a5f3fc" font-size="12" font-weight="700">repair implementation</text>
+
+    <path d="M646 340 C394 398 104 364 104 208" fill="none" stroke="#fbbf24" stroke-width="2" stroke-dasharray="7 6" marker-end="url(#bb-vl-arrow)"></path>
+    <text x="357" y="375" text-anchor="middle" fill="#fde68a" font-size="12" font-weight="700">new or ambiguous behavior returns to human ratification</text>
+
+    <rect x="36" y="234" width="318" height="82" rx="12" fill="#0f172a" stroke="#475569"></rect>
+    <text x="55" y="261" fill="#e2e8f0" font-size="12" font-weight="800">Repository memory</text>
+    <text x="55" y="284" fill="#cbd5e1" font-size="12">requirements + bindings + flow IDs + catalogs</text>
+    <text x="55" y="303" fill="#94a3b8" font-size="11">readable by future humans and agent sessions</text>
+  </svg>
+  <figcaption>Runtime verdicts can drive repeated implementation repair. Contract changes follow the longer path back to human review.</figcaption>
+</figure>
+
+<style>
+  .bb-verification-loop {
+    margin: 28px 0;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    overflow-x: auto;
+  }
+
+  .bb-verification-loop svg {
+    display: block;
+    width: 100%;
+    min-width: 760px;
+    height: auto;
+  }
+
+  .bb-verification-loop figcaption {
+    margin-top: 10px;
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.55;
+    text-align: center;
+  }
+</style>

@@ -1,0 +1,207 @@
+{
+  "schemaVersion": 1,
+  "updated": "2026-08-05",
+  "productDefinition": "Suites Blackbox turns Playwright system and E2E tests into behavioral verification gates by observing the running system's boundary effects and checking them against reviewed expectations.",
+  "specificationModel": {
+    "ears": "Normative requirements bind to executable flow IDs and receive runtime-backed requirement verdicts.",
+    "gherkin": "Behavioral examples connect with executable Playwright or Blackbox DSL tests through generation, analysis, drift checks, and an experimental scaffold path.",
+    "relationship": "EARS and Gherkin are complementary specification surfaces. Neither is required to use effect verification."
+  },
+  "claims": [
+    {
+      "id": "BB-001",
+      "capability": "category",
+      "claim": "Blackbox adds runtime behavioral verification to Playwright system and E2E tests.",
+      "status": "implemented",
+      "stability": "alpha-public",
+      "evidence": [
+        "blackbox:e2e/tests/00-baseline-subscribe.system.test.ts",
+        "blackbox:packages/blackbox/src/runners/playwright/system-fixture.ts",
+        "blackbox:packages/blackbox/src/playwright.ts"
+      ]
+    },
+    {
+      "id": "BB-002",
+      "capability": "runtime-evidence",
+      "claim": "A response assertion and an effect assertion answer different questions: what came back and what the running system did at its boundaries.",
+      "status": "implemented",
+      "stability": "conceptual-contract",
+      "evidence": [
+        "blackbox:e2e/tests/00-baseline-subscribe.system.test.ts",
+        "blackbox:packages/blackbox/src/core/catalog.ts"
+      ]
+    },
+    {
+      "id": "BB-003",
+      "capability": "instrumentation",
+      "claim": "The compose testbed can inject the Node OpenTelemetry bootstrap into compatible SUT containers during the test run without adding OpenTelemetry imports to application source.",
+      "status": "implemented",
+      "stability": "alpha-public",
+      "evidence": [
+        "blackbox:packages/blackbox-instr-node/Dockerfile",
+        "blackbox:packages/blackbox-instr-node/node-wrap.sh",
+        "blackbox:packages/blackbox-adapter-node/src/overlay-generator.ts"
+      ],
+      "prohibitedWording": [
+        "zero instrumentation",
+        "no instrumentation",
+        "any language"
+      ]
+    },
+    {
+      "id": "BB-004",
+      "capability": "effect-catalog",
+      "claim": "A missing catalog entry can be baselined from observed effects; after review, the catalog entry becomes the persisted requires-and-forbids contract used by later runs.",
+      "status": "implemented",
+      "stability": "alpha-public",
+      "evidence": [
+        "blackbox:packages/blackbox/src/core/catalog.ts",
+        "blackbox:packages/blackbox/src/runners/playwright/system-fixture.ts",
+        "blackbox:e2e/tests/__effects__/00-baseline-subscribe.system.effects.yaml"
+      ]
+    },
+    {
+      "id": "BB-005",
+      "capability": "effect-matchers",
+      "claim": "toObserveEffects() checks inline effect expectations and toMatchCatalog() checks the flow's reviewed catalog entry using the same evaluation kernel.",
+      "status": "implemented",
+      "stability": "alpha-public",
+      "evidence": [
+        "blackbox:packages/blackbox/src/core/catalog.ts",
+        "blackbox:e2e/tests/00-baseline-subscribe.system.test.ts"
+      ]
+    },
+    {
+      "id": "BB-006",
+      "capability": "effect-coverage",
+      "claim": "Effect coverage reports whether reviewed required effects were observed and whether forbidden effects remained absent for exercised flows.",
+      "status": "implemented",
+      "stability": "alpha-public",
+      "evidence": [
+        "blackbox:packages/blackbox/src/runners/playwright/catalog-module.ts",
+        "blackbox:packages/blackbox/src/reporting/reporters/effects-report-reporter.ts"
+      ]
+    },
+    {
+      "id": "BB-007",
+      "capability": "omcdc",
+      "claim": "OMC/DC compares exercised decision arms with observed effect signatures and reports propagating, masking-candidate, coverage-gap, or undecidable verdicts.",
+      "status": "implemented",
+      "stability": "advanced-alpha",
+      "evidence": [
+        "blackbox:packages/blackbox/src/omcdc",
+        "blackbox:e2e/.blackbox-coverage/omcdc/verdict.json"
+      ],
+      "prohibitedWording": [
+        "complete formal proof",
+        "all reachable decisions"
+      ]
+    },
+    {
+      "id": "BB-008",
+      "capability": "ears-requirements",
+      "claim": "Blackbox validates EARS requirements, binds requirement IDs to effect flow IDs, detects binding drift, and joins runtime effect coverage into requirement verdicts.",
+      "status": "implemented",
+      "stability": "alpha-public",
+      "evidence": [
+        "blackbox:packages/blackbox-requirements/src/cli/commands/requirements/check.ts",
+        "blackbox:packages/blackbox-requirements/src/cli/commands/requirements/drift.ts",
+        "blackbox:packages/blackbox-requirements/src/cli/commands/requirements/coverage.ts"
+      ]
+    },
+    {
+      "id": "BB-009",
+      "capability": "requirements-verdicts",
+      "claim": "Requirement coverage emits proven, violated, unproven, and unbound verdicts and writes requirements/coverage.json.",
+      "status": "implemented",
+      "stability": "alpha-public",
+      "evidence": [
+        "blackbox:packages/blackbox-requirements/src/bridge/coverage.ts",
+        "blackbox:packages/blackbox-requirements/src/cli/commands/requirements/coverage.ts"
+      ]
+    },
+    {
+      "id": "BB-010",
+      "capability": "machine-contract",
+      "claim": "JSON-capable CLI commands use a schema-versioned envelope with deterministic key ordering and distinct ok, findings, and error states.",
+      "status": "implemented",
+      "stability": "alpha-public",
+      "evidence": [
+        "blackbox:packages/blackbox-cli-contract/src/envelope.ts",
+        "blackbox:packages/blackbox-cli-contract/test/envelope.test.ts"
+      ]
+    },
+    {
+      "id": "BB-011",
+      "capability": "gherkin-code-first",
+      "claim": "Blackbox can analyze Playwright or Blackbox DSL tests, emit canonical Gherkin feature files, lint scenario structure, and detect source-to-feature drift.",
+      "status": "implemented",
+      "stability": "alpha-public",
+      "evidence": [
+        "blackbox:packages/blackbox-features/src/cli/oclif/features/emit.ts",
+        "blackbox:packages/blackbox-features/src/cli/oclif/features/check.ts",
+        "blackbox:packages/blackbox-features/src/cli/oclif/features/drift.ts",
+        "blackbox:packages/blackbox-features/src/cli/oclif/features/lint.ts"
+      ]
+    },
+    {
+      "id": "BB-012",
+      "capability": "gherkin-spec-first",
+      "claim": "Blackbox can scaffold a Blackbox DSL test with TODO bodies from a Gherkin feature file.",
+      "status": "experimental-implemented",
+      "stability": "experimental",
+      "evidence": [
+        "blackbox:packages/blackbox-features/src/cli/oclif/features/experimental/scaffold.ts",
+        "blackbox:packages/blackbox-features/src/core/scaffold-bdd.ts"
+      ]
+    },
+    {
+      "id": "BB-013",
+      "capability": "parallelism",
+      "claim": "Blackbox supports concurrent Playwright workers by isolating worker-owned SUT state and merging worker evidence into canonical suite artifacts.",
+      "status": "implemented",
+      "stability": "alpha-public",
+      "evidence": [
+        "blackbox:e2e/package.json",
+        "blackbox:packages/blackbox/src/runners/playwright/system-fixture.ts",
+        "blackbox:packages/blackbox/src/runners/playwright/merge-coverage.ts"
+      ]
+    },
+    {
+      "id": "BB-014",
+      "capability": "adoption",
+      "claim": "Effects, EARS requirement bindings, and Gherkin feature workflows can be adopted separately; the combined loop provides the strongest trace from intent to runtime verdict.",
+      "status": "implemented",
+      "stability": "product-model",
+      "evidence": [
+        "blackbox:packages/blackbox/package.json",
+        "blackbox:packages/blackbox-requirements/package.json",
+        "blackbox:packages/blackbox-features/package.json"
+      ]
+    },
+    {
+      "id": "BB-015",
+      "capability": "support-boundary",
+      "claim": "The current public path targets Node 22+, TypeScript, Playwright, Docker or a compatible container runtime, and Node SUT containers that the testbed can instrument.",
+      "status": "implemented",
+      "stability": "alpha-public",
+      "evidence": [
+        "blackbox:package.json",
+        "blackbox:e2e/package.json",
+        "blackbox:packages/blackbox/package.json"
+      ],
+      "prohibitedWording": [
+        "framework agnostic today",
+        "Vitest support today",
+        "enterprise ready"
+      ]
+    }
+  ],
+  "ratificationPoints": [
+    "Requirement meaning",
+    "Requirement-to-flow binding",
+    "Required and forbidden effect changes",
+    "New or ambiguous observed behavior",
+    "Experimental capability promotion"
+  ]
+}

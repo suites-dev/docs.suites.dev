@@ -113,18 +113,18 @@ const sidebar: SidebarConfig = {
       label: 'Overview',
       items: [
         { label: 'What is Blackbox?', href: '/docs/blackbox/overview/what-is-blackbox' },
-        { label: 'The Verification Gap', href: '/docs/blackbox/overview/specs-tests-runtime-evidence' },
-        { label: 'Tests, Effects, and Feature Files', href: '/docs/blackbox/overview/tests-effects-and-feature-files' },
+        { label: 'The Runtime Evidence Gap', href: '/docs/blackbox/overview/runtime-evidence-gap' },
+        { label: 'The Verification Loop', href: '/docs/blackbox/overview/verification-loop' },
         { label: 'When to Use Blackbox', href: '/docs/blackbox/overview/when-to-use-blackbox' },
       ],
     },
     {
       label: 'Quickstart',
       items: [
-        { label: 'Requirements and Supported Stacks', href: '/docs/blackbox/quickstart/requirements' },
+        { label: 'Prerequisites and Supported Systems', href: '/docs/blackbox/quickstart/prerequisites-and-supported-systems' },
         { label: 'Install Blackbox', href: '/docs/blackbox/quickstart/install' },
         { label: '5-Minute Quickstart', href: '/docs/blackbox/quickstart/first-proven-feature' },
-        { label: 'Feature Files From Tests', href: '/docs/blackbox/quickstart/feature-files-from-tests' },
+        { label: 'Connect Specifications to Runtime Evidence', href: '/docs/blackbox/quickstart/connect-specifications-to-runtime-evidence' },
       ],
     },
     {
@@ -133,26 +133,29 @@ const sidebar: SidebarConfig = {
         { label: 'Testing Layers', href: '/docs/blackbox/concepts/testing-layers' },
         { label: 'Runtime Evidence', href: '/docs/blackbox/concepts/runtime-evidence' },
         { label: 'Effects, Catalogs, and Coverage', href: '/docs/blackbox/concepts/effects-and-catalogs' },
+        { label: 'Specifications, Flows, and Verdicts', href: '/docs/blackbox/concepts/specifications-flows-and-verdicts' },
         { label: 'OMC/DC Coverage', href: '/docs/blackbox/concepts/omc-dc-coverage' },
-        { label: 'Code-First BDD', href: '/docs/blackbox/concepts/code-first-bdd' },
       ],
     },
     {
       label: 'Guides',
       items: [
-        { label: 'Set Up the Testbed', href: '/docs/blackbox/guides/set-up-the-testbed' },
-        { label: 'Playwright, Isolation, and Parallelism', href: '/docs/blackbox/guides/playwright-isolation-and-parallelism' },
-        { label: 'Writing Scenarios', href: '/docs/blackbox/guides/writing-scenarios' },
-        { label: 'Reading Coverage Reports', href: '/docs/blackbox/guides/reading-coverage-reports' },
-        { label: 'Configure CI Gates', href: '/docs/blackbox/guides/ci-behavioral-gates' },
+        { label: 'Testbed and Instrumentation', href: '/docs/blackbox/guides/set-up-the-testbed' },
+        { label: 'Playwright Flows, Isolation, and Parallelism', href: '/docs/blackbox/guides/playwright-isolation-and-parallelism' },
+        { label: 'Spec-Driven and Agentic Verification', href: '/docs/blackbox/guides/spec-driven-and-agentic-verification' },
+        { label: 'Reports and CI Gates', href: '/docs/blackbox/guides/reports-and-ci-gates' },
+      ],
+    },
+    {
+      label: 'Use Cases',
+      items: [
+        { label: 'Use Cases', href: '/docs/blackbox/use-cases' },
       ],
     },
     {
       label: 'Reference',
       items: [
-        { label: 'CLI Reference', href: '/docs/blackbox/reference/cli' },
-        { label: 'Scenario DSL', href: '/docs/blackbox/reference/scenario-dsl' },
-        { label: 'Files and Artifacts', href: '/docs/blackbox/reference/files-and-artifacts' },
+        { label: 'Reference', href: '/docs/blackbox/reference' },
       ],
     },
     {

@@ -1,51 +1,83 @@
 ---
 title: "API Reference"
-description: "Define the public package API surface, stability expectations, and how it maps to the CLI."
+description: "Public package entry points for Blackbox core effects, Playwright fixtures, testbeds, diagnostics, mocks, and extensibility."
 sidebar_position: 2
-keywords: ["blackbox api reference", "blackbox package api", "effect coverage api"]
-toc_min_heading_level: 2
-seo:
-  primary_keyword: "API Reference"
-  secondary_keywords: ["blackbox api reference", "blackbox package api"]
-  search_intent: "TODO"
-  snippet_angle: "TODO"
+keywords:
+  [
+    "Blackbox API reference",
+    "@suites/blackbox exports",
+    "Playwright Blackbox API",
+    "effect coverage API",
+  ]
 ---
 
-## Abstract
+Blackbox is alpha. Treat documented package exports as the public surface and deep `dist/` imports as internal.
 
-Define the public package API surface, stability expectations, and how it maps to the CLI.
+## Package Entry Points
 
-This page is the boundary between supported public APIs and internal implementation details. If a symbol or import path is not described here, treat it as unstable unless the project says otherwise.
+| Import                                | Purpose                                                                       |
+| ------------------------------------- | ----------------------------------------------------------------------------- |
+| `@suites/blackbox`                    | Main convenience exports                                                      |
+| `@suites/blackbox/core`               | Effect builders, catalog model, evaluator, and predicates                     |
+| `@suites/blackbox/runners/playwright` | `defineSystemTest`, Playwright matchers, captures, and trace helpers          |
+| `@suites/blackbox/playwright`         | `defineBlackboxConfig` and `blackboxReporter` config helpers                  |
+| `@suites/blackbox/testbed`            | `createBlackboxTestbed`, testbed types, connect helpers, and disposal helpers |
+| `@suites/blackbox/runners/bdd`        | BDD runner and Scenario DSL surfaces                                          |
+| `@suites/blackbox/diagnostics`        | Topology and sequence diagnostics                                             |
+| `@suites/blackbox/mocks`              | Test-environment boundary mocks                                               |
+| `@suites/blackbox/extensibility`      | Runtime adapter, coverage producer, reporter, and sink contracts              |
 
-## Audience
+Packaged Playwright global setup and teardown subpaths are implementation-facing config targets returned by `defineBlackboxConfig()`. Prefer the helper instead of importing those subpaths directly.
 
-Developers who want to call Blackbox from code, build wrappers, or understand which exports are supported across releases.
+## Minimal Runtime Use
 
-## What This Page Should Contain
+```ts
+import { effect } from "@suites/blackbox/core";
+import { defineSystemTest } from "@suites/blackbox/runners/playwright";
 
-1. Stable public imports.
-2. Exported types and helpers.
-3. Async behavior and error shape.
-4. Mapping to the CLI.
-5. Explicit internal boundaries.
+export const { test, expect } = defineSystemTest({
+  provision: {
+    bootstrap: async ({ perWorker }) => createSystemFixture(perWorker),
+  },
+});
 
-## Content Outline
+test.system("checkout-flow", "customer completes checkout", () => {
+  test("creates an order", async ({ capture }) => {
+    await expect(capture).toObserveEffects([
+      effect.postgres("INSERT", { table: "orders" }),
+      effect.forbid(effect.http("POST", { path: "/refunds" })),
+    ]);
+  });
+});
+```
 
-1. State whether a stable public library API ships in the current alpha.
-2. List the supported imports, exported types, async behavior, and error shape.
-3. Map common API calls to their equivalent CLI workflows.
-4. Explain versioning guarantees and which modules are internal.
-5. Link to the Testbed API, Scenario DSL, catalog schema, and report format pages.
+The `effect.forbid()` wrapper is for the single or array matcher form. In `{ requires, forbids }`, put bare effect shapes in `forbids`.
 
-## Practical Guidance
+## Configuration Use
 
-1. Show a minimal import and call example.
-2. Explain which exports are safe for external code.
-3. Keep the internal modules clearly labeled.
-4. Call out any alpha-only behavior explicitly.
+```ts
+import { defineConfig } from "@playwright/test";
+import {
+  blackboxReporter,
+  defineBlackboxConfig,
+} from "@suites/blackbox/playwright";
+import { testbed } from "./blackbox-testbed.js";
 
-## Evidence To Add
+export default defineConfig({
+  ...defineBlackboxConfig({ mode: "testbed", testbed }),
+  reporter: [
+    ["list"],
+    blackboxReporter({ outputDir: "./e2e/.blackbox-coverage" }),
+  ],
+});
+```
 
-- Minimal runnable package API examples.
-- Type signatures generated from the published package.
-- Clear alpha disclaimers for any API that is not yet stable.
+## Error Model
+
+Runtime APIs reject with normal JavaScript errors. Playwright matchers return matcher failures that Playwright reports against the active test. CLI commands use a separate JSON envelope and exit-code contract documented in [CLI Reference](/docs/blackbox/reference/cli) and [Exit Codes](/docs/blackbox/reference/exit-codes).
+
+## Stability
+
+No stable-major compatibility guarantee applies during alpha. Pin versions through the lockfile and update the runtime, CLI, Node adapter, and instrumentation payload together.
+
+For detailed signatures, continue to [Testbed API](/docs/blackbox/reference/testbed-api), [Scenario DSL](/docs/blackbox/reference/scenario-dsl), and [Matchers and Effect Builders](/docs/blackbox/reference/matchers-and-effect-builders).

@@ -2,19 +2,32 @@
 title: Code-First BDD
 description: "Use Gherkin as a generated review surface for system tests, runtime effects, and feature-file drift checks."
 sidebar_position: 5
-keywords: ["code first bdd", "gherkin from tests", "feature file drift", "cucumber gherkin", "bdd system tests"]
+keywords:
+  [
+    "code first bdd",
+    "gherkin from tests",
+    "feature file drift",
+    "cucumber gherkin",
+    "bdd system tests",
+  ]
 toc_min_heading_level: 2
 seo:
   primary_keyword: "code first bdd"
-  secondary_keywords: ["gherkin from tests", "feature file drift", "cucumber gherkin", "bdd system tests"]
+  secondary_keywords:
+    [
+      "gherkin from tests",
+      "feature file drift",
+      "cucumber gherkin",
+      "bdd system tests",
+    ]
   search_intent: "developers who want BDD-style feature files without making stale hand-written Gherkin the source of truth"
   snippet_angle: "Blackbox starts from executable system tests, captures runtime evidence, and emits readable Gherkin that can be drift-checked"
 ---
 
-import CodeFirstBddDiagram from '@/components/blackbox/CodeFirstBddDiagram.astro';
-import BlackboxDemo from '@/components/blackbox/BlackboxDemo.astro';
-import Tabs from '@/components/mdx/Tabs.astro';
-import TabItem from '@/components/mdx/TabItem.astro';
+import CodeFirstBddDiagram from "@/components/blackbox/CodeFirstBddDiagram.astro";
+import BlackboxDemo from "@/components/blackbox/BlackboxDemo.astro";
+import Tabs from "@/components/mdx/Tabs.astro";
+import TabItem from "@/components/mdx/TabItem.astro";
 
 Code-First BDD starts with executable system behavior. You write or keep the Playwright flow, capture runtime evidence, review the effect catalog, and let Blackbox emit a readable Gherkin projection from behavior that actually runs.
 
@@ -54,28 +67,41 @@ The Scenario DSL names the same behavior grammar Gherkin uses, but keeps it insi
 <TabItem value="dsl" label="Scenario DSL" default>
 
 ```ts
-import { expect, scenario } from './testbed.js';
-import { postJson } from './_http.js';
+import { expect, scenario } from "./testbed.js";
+import { postJson } from "./_http.js";
 
-scenario('subscribe-flow', 'subscribing to the pro tier', ({ given, background }) => {
-  background('the system is reset', async ({ system }) => {
-    await system.reset();
-  });
-
-  given('alice is an existing user with no active subscription', async ({ system, capture, when }) => {
-    await when('alice POSTs /subscriptions with a valid card', async ({ then }) => {
-      const response = await postJson(`${system.bff.hostBaseUrl}/subscriptions`, {
-        userId: 'alice',
-        paymentMethodId: 'pm_card_visa',
-      });
-
-      await then('the response status is 201', async () => {
-        expect(response.status).toBe(201);
-        await expect(capture).toMatchCatalog();
-      });
+scenario(
+  "subscribe-flow",
+  "subscribing to the pro tier",
+  ({ given, background }) => {
+    background("the system is reset", async ({ system }) => {
+      await system.reset();
     });
-  });
-});
+
+    given(
+      "alice is an existing user with no active subscription",
+      async ({ system, capture, when }) => {
+        await when(
+          "alice POSTs /subscriptions with a valid card",
+          async ({ then }) => {
+            const response = await postJson(
+              `${system.bff.hostBaseUrl}/subscriptions`,
+              {
+                userId: "alice",
+                paymentMethodId: "pm_card_visa",
+              },
+            );
+
+            await then("the response status is 201", async () => {
+              expect(response.status).toBe(201);
+              await expect(capture).toMatchCatalog();
+            });
+          },
+        );
+      },
+    );
+  },
+);
 ```
 
 </TabItem>
@@ -102,11 +128,11 @@ Read the generated feature file as a projection, not as the full proof. It makes
 
 Blackbox maps the familiar test shape to Gherkin:
 
-| Test structure | Gherkin shape | Job |
-| --- | --- | --- |
-| Arrange | `Given` | Prepare state and preconditions |
-| Act | `When` | Exercise the behavior |
-| Assert | `Then` | State the observable conclusion |
+| Test structure | Gherkin shape | Job                             |
+| -------------- | ------------- | ------------------------------- |
+| Arrange        | `Given`       | Prepare state and preconditions |
+| Act            | `When`        | Exercise the behavior           |
+| Assert         | `Then`        | State the observable conclusion |
 
 This matters because feature generation should not produce loose prose. A scenario needs setup, action, and an observable conclusion. Runtime effects can then strengthen the conclusion with required and forbidden behavior.
 
@@ -116,11 +142,11 @@ For example, a `201` assertion says the visible request completed. The effect ca
 
 Effects are the core Blackbox track. Feature files add a second value when readability and review matter.
 
-| Use only effects when | Add feature files when |
-| --- | --- |
+| Use only effects when                                  | Add feature files when                                           |
+| ------------------------------------------------------ | ---------------------------------------------------------------- |
 | The team needs runtime proof but does not read Gherkin | Product, QA, platform, or agents need a compact behavior surface |
-| The first goal is one catalog and one coverage signal | Feature diffs should appear in pull requests |
-| The workflow is still being stabilized | Generated behavior specs should be checked in CI |
+| The first goal is one catalog and one coverage signal  | Feature diffs should appear in pull requests                     |
+| The workflow is still being stabilized                 | Generated behavior specs should be checked in CI                 |
 
 Do not generate feature files just to have more artifacts. Use them when they change how people review behavior.
 
@@ -130,11 +156,11 @@ Feature-file drift is a synchronization failure. It means the readable Gherkin l
 
 Blackbox reports four practical drift states:
 
-| Finding | Meaning |
-| --- | --- |
-| `missing` | A test exists, but the matching `.feature` file does not |
-| `stale` | The `.feature` file no longer matches the current test source |
-| `orphan` | A `.feature` file exists without a matching test source |
+| Finding       | Meaning                                                                            |
+| ------------- | ---------------------------------------------------------------------------------- |
+| `missing`     | A test exists, but the matching `.feature` file does not                           |
+| `stale`       | The `.feature` file no longer matches the current test source                      |
+| `orphan`      | A `.feature` file exists without a matching test source                            |
 | `unparseable` | Blackbox cannot parse the feature file or source input well enough to compare them |
 
 Run the drift gate when committed feature files are part of review:
@@ -155,10 +181,10 @@ pnpm exec blackbox features drift --tests ./e2e/tests --features ./e2e/features
 
 Feature-file drift is not the same as behavioral drift.
 
-| Drift type | What changed | What catches it |
-| --- | --- | --- |
-| Feature-file drift | The readable `.feature` file is no longer synchronized with the test source | `blackbox features check` or `blackbox features drift` |
-| Behavioral drift | The running system produced different required, forbidden, or newly observed effects | System tests, effect matchers, effect coverage, and observation comparison |
+| Drift type         | What changed                                                                         | What catches it                                        |
+| ------------------ | ------------------------------------------------------------------------------------ | ------------------------------------------------------ |
+| Feature-file drift | The readable `.feature` file is no longer synchronized with the test source          | `blackbox features check` or `blackbox features drift` |
+| Behavioral drift   | The running system produced different required, forbidden, or newly observed effects | System tests, effect matchers, and effect coverage     |
 
 This distinction keeps BDD honest. A synchronized feature file can still describe a weak test. A passing response assertion can still miss a changed side effect. Runtime evidence and catalog coverage are the stronger gate for behavior.
 
@@ -178,7 +204,7 @@ Treat feature-file drift as a documentation failure. Treat catalog failures as b
 
 ## What To Read Next
 
-1. [Specs, Tests, and Runtime Evidence](/docs/blackbox/overview/specs-tests-runtime-evidence)
+1. [The Runtime Evidence Gap](/docs/blackbox/overview/runtime-evidence-gap)
 2. [Effects, Catalogs, and Coverage](/docs/blackbox/concepts/effects-and-catalogs)
 3. [Generating Feature Files](/docs/blackbox/guides/generating-feature-files)
 4. [Scenario DSL](/docs/blackbox/reference/scenario-dsl)

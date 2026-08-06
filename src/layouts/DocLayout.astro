@@ -30,6 +30,7 @@ interface Heading {
 
 interface Props {
   title: string;
+  metaTitle?: string;
   description?: string;
   headings?: Heading[];
   slug: string;
@@ -38,6 +39,9 @@ interface Props {
   lastUpdated?: string;
   editUrl?: string;
   hideToc?: boolean;
+  keywords?: string[];
+  noIndex?: boolean;
+  canonicalUrl?: string;
   /* Raw markdown body, passed in from the dynamic route so PageActions can copy it. */
   rawBody?: string;
   /* Entry id (the file path relative to src/content/docs), used to compute the default Edit URL. */
@@ -46,6 +50,7 @@ interface Props {
 
 const {
   title,
+  metaTitle,
   description,
   headings = [],
   slug,
@@ -53,6 +58,9 @@ const {
   lastUpdated,
   editUrl: editUrlProp,
   hideToc = false,
+  keywords,
+  noIndex = false,
+  canonicalUrl,
   rawBody = '',
   entryId,
 } = Astro.props;
@@ -62,7 +70,15 @@ const editUrl = editUrlProp ?? (entryId ? GITHUB_EDIT_BASE + entryId : GITHUB_ED
 
 const showToc = !hideToc && headings.length > 0;
 ---
-<BaseLayout title={title} description={description} showFooter={false} header="docs">
+<BaseLayout
+  title={metaTitle ?? title}
+  description={description}
+  keywords={keywords}
+  noIndex={noIndex}
+  canonicalUrl={canonicalUrl}
+  showFooter={false}
+  header="docs"
+>
   <div class="shell shell--docs">
     <div class="doc-layout">
       <nav class="sidebar" aria-label="Documentation">
