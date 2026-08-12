@@ -110,8 +110,8 @@ The default Node path is `/usr/local/bin/node`. Override it globally with `BLACK
 
 <Aside type="note" title="The Node Adapter Is Explicit">
   Import `@suites/blackbox-adapter-node/register` in the testbed configuration.
-  It registers the Node observation and OMC/DC producers. Remove it only when
-  you intentionally provide a different runtime adapter.
+  It registers the Node observation and observable decision producers. Remove it
+  only when you intentionally provide a different runtime adapter.
 </Aside>
 
 ## Wire Playwright
@@ -191,7 +191,7 @@ Verify, in order:
 2. the public SUT endpoint is reachable;
 3. each configured SUT has a readable debug endpoint;
 4. the request carries trace context;
-5. the effect sidecar is loaded or baselined;
+5. the accepted effect contract is loaded;
 6. `catalog/coverage.json` is written at teardown.
 
 Continue with [Playwright Flows, Isolation, and Parallelism](/docs/blackbox/guides/playwright-isolation-and-parallelism) to structure flows across workers. Use [Troubleshooting](/docs/blackbox/troubleshooting) if the test passes but observations or artifacts are missing.

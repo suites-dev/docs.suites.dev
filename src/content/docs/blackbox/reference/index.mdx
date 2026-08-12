@@ -16,25 +16,25 @@ Use reference pages to confirm exact names, flags, files, and contracts. Start w
 
 ## Commands
 
-- [CLI Reference](/docs/blackbox/reference/cli): `requirements`, `features`, `coverage`, and `otel` command families.
+- [CLI Reference](/docs/blackbox/reference/cli): Framework facade, flow inspection, and the `requirements`, `features`, `coverage`, and `otel` engines.
 - [Exit Codes](/docs/blackbox/reference/exit-codes): clean, findings, and usage/environment outcomes.
 
 ## Playwright and Testbed
 
 - [Testbed API](/docs/blackbox/reference/testbed-api): `createBlackboxTestbed`, sources, services, reset, grouping, and coverage directory.
 - [API Reference](/docs/blackbox/reference/api): package entry points and public runtime surfaces.
-- [Scenario DSL](/docs/blackbox/reference/scenario-dsl): `test.system`, `scenario`, `scenario.chain`, `outline`, and AAA/Given-When-Then structure.
+- [Playwright Flow Tags](/docs/blackbox/reference/scenario-dsl): native Playwright `test.describe` tags, flow IDs, and Gherkin mapping.
 - [Matchers and Effect Builders](/docs/blackbox/reference/matchers-and-effect-builders): `toObserveEffects`, `toMatchCatalog`, predicates, and supported boundaries.
 
-## Configuration
+## Project Conventions
 
-- [Configuration](/docs/blackbox/reference/configuration): Playwright, testbed, requirements, and reporter configuration.
+- [Project Conventions](/docs/blackbox/reference/configuration): convention discovery, Playwright ownership, effect YAML, and runtime artifacts.
 - [Environment Variables](/docs/blackbox/reference/environment-variables): instrumentation image, Node path, coverage, feature, and diagnostic overrides.
 
 ## Artifacts and Reports
 
 - [Files and Artifacts](/docs/blackbox/reference/files-and-artifacts): repository artifacts versus per-run evidence.
-- [Catalog Schema](/docs/blackbox/reference/catalog-schema): effect sidecar format and required/forbidden clauses.
-- [Report Formats](/docs/blackbox/reference/report-formats): catalog, shape, OMC/DC, requirement, HTML, Markdown, JSON, and JUnit outputs.
+- [Effect Contract Schema](/docs/blackbox/reference/catalog-schema): effect YAML format and required/forbidden clauses.
+- [Report Formats](/docs/blackbox/reference/report-formats): catalog, shape, observable decision, requirement, HTML, Markdown, JSON, and JUnit outputs.
 
 The alpha surface changes. Prefer this reference and the exported TypeScript types over older package README examples.

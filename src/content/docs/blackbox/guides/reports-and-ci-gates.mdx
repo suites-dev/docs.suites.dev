@@ -1,12 +1,12 @@
 ---
 title: "Reports and CI Gates"
-description: "Read Blackbox catalog, shape, OMC/DC, and requirement reports in the right order, then enforce reviewed behavior without baselining in CI."
+description: "Read Blackbox effect, shape, observable decision, and requirement reports in the right order, then enforce reviewed behavior in CI."
 sidebar_position: 4
 keywords:
   [
     "Blackbox CI gate",
     "effect coverage report",
-    "OMC/DC report",
+    "observable decision coverage report",
     "requirement coverage",
     "Playwright behavioral verification",
   ]
@@ -24,19 +24,20 @@ Blackbox reports answer different questions. Read the narrowest failure first in
 | `shape/coverage.json`        | Which catalog clauses were asserted, unasserted, or inline-only?                            |
 | `omcdc/verdict.md`           | Which decisions propagated to distinguishable effects, were masked, or lacked arm coverage? |
 | `omcdc/verdict.html`         | Where in source did those decision verdicts occur?                                          |
-| `omcdc/verdict.json`         | What structured OMC/DC data should automation consume?                                      |
+| `omcdc/verdict.json`         | What structured observable decision data should automation consume?                         |
 | `requirements/coverage.json` | Which EARS requirements are proven, violated, unproven, or unbound?                         |
 | reporter outputs             | What human summary, HTML, JUnit, or CI annotation should be published?                      |
 
-Catalog and shape coverage are the default runtime-evidence views. OMC/DC is available when the Node adapter registers its coverage producer. Requirement coverage is written by the requirements CLI after the Playwright run.
+Catalog and shape coverage are the default runtime-evidence views. Observable decision coverage is available when the Node adapter registers its producer. `blackbox verify` writes requirement coverage after the Playwright run when that layer is configured.
 
 ## Reading Order
 
-1. Start with the failing Playwright test and matcher message.
-2. Open `catalog/coverage.json` to identify the affected flow.
-3. Open `shape/coverage.json` when the issue is an unasserted clause or inline-only effect.
-4. Inspect OMC/DC only when the review question concerns decision propagation or missing arms.
-5. When using EARS, run requirement coverage to see which normative requirements inherit the runtime result.
+1. Start with the `blackbox verify` layer summary and first finding.
+2. Run `blackbox flows show <flow-id>` to assemble the affected flow.
+3. Open `catalog/coverage.json` for the required or forbidden effect result.
+4. Open `shape/coverage.json` when the issue is an unasserted clause or inline-only effect.
+5. Inspect observable decision coverage only when the review question concerns distinguishable arm evidence or missing arms.
+6. Inspect requirement coverage when normative requirements inherit the runtime result.
 
 Do not begin with a global percentage. A single forbidden payment call in a rejected-user flow matters more than a high aggregate count.
 
@@ -65,66 +66,53 @@ blackboxReporter({
 });
 ```
 
-## OMC/DC Reports
+## Observable Decision Reports
 
 Read verdicts as evidence quality:
 
-- `propagating`: both arms were exercised and their effect signatures differed;
+- `propagating`: both arms were exercised and their captured evidence signatures differed;
 - `masking-candidate`: both arms were exercised but the signatures were identical;
 - `coverage-gap`: only one arm was exercised;
 - `undecidable`: the run could not support a sound comparison;
-- `multi-arm` and `unsupported-mcdc`: the decision needs manual treatment.
+- `multi-arm`: more than two branch arms were observed and the binary comparator did not apply;
+- `unsupported-mcdc`: a reserved producer token, not a verdict emitted by the current comparator.
 
 Use `verdict.md` for review, HTML for source inspection, and JSON for automation. Do not automatically fail every non-propagating branch. Choose critical decisions and make the policy explicit.
 
 ## Requirement Verdicts
 
-After the Playwright run:
+Run the configured facade after the Playwright flow and requirements are connected:
 
 ```bash
-pnpm exec blackbox requirements coverage \
-  --tests e2e \
-  --coverage e2e/.blackbox-coverage/catalog/coverage.json \
-  --fail-on violated \
-  --json
+pnpm exec blackbox verify --flow subscribe-unknown-user --json
 ```
 
-`--fail-on violated` is the conservative first gate. Move to `unproven` or `unbound` only when every selected requirement is expected to have complete bindings and runtime evidence in that job.
+Use `--fail-on violated` as the conservative first requirement gate. Move to `unproven` or `unbound` only when every selected requirement is expected to have complete feature tags and runtime evidence in that job.
+
+Use `blackbox requirements coverage` directly when debugging or regenerating only the requirement artifact.
 
 ## Minimal CI Sequence
 
-The core gate is the project-owned Playwright command:
+The facade is the normal CI gate:
 
 ```bash
 pnpm install --frozen-lockfile
 pnpm build:instr-image
-npx playwright test --config ./e2e/playwright.config.ts
+pnpm exec blackbox doctor --json
+pnpm exec blackbox verify --json
 ```
 
-Configure Playwright with `updateSnapshots: 'none'` in CI and fail on uncovered or failing catalog entries when the suite is ready. That creates an effects-only behavioral gate.
+The manifest decides which layers run. An effects-only project runs only Playwright and runtime-effect gates. Adding `requirements`, `features`, or `decisionCoverage` sections extends the same command without replacing the underlying verdicts.
 
-If EARS requirements and bindings are part of review, add the requirement gate after Playwright:
+Use specialized commands in separate jobs only when the pipeline needs independent ownership or faster feedback:
 
 ```bash
-pnpm exec blackbox requirements check --tests e2e --json
-pnpm exec blackbox requirements coverage \
-  --tests e2e \
-  --coverage e2e/.blackbox-coverage/catalog/coverage.json \
-  --fail-on violated \
-  --json
+pnpm exec blackbox requirements check --json
+pnpm exec blackbox features check --json
+pnpm exec blackbox coverage replay --no-html --json
 ```
 
-If committed Gherkin is part of review, add:
-
-```bash
-pnpm exec blackbox features lint ./e2e/tests --fail-on error --json
-pnpm exec blackbox features check \
-  --features ./e2e/features \
-  --tests ./e2e/tests \
-  --json
-```
-
-Do not add feature commands when the team does not maintain feature files.
+Do not configure or gate a layer when the team does not review its artifacts.
 
 ## Prevent CI Baselines
 
@@ -132,16 +120,16 @@ CI verifies reviewed behavior; it should not create it.
 
 ```ts title="e2e/playwright.config.ts"
 export default defineConfig({
-  updateSnapshots: process.env.CI ? "none" : "missing",
+  updateSnapshots: "none",
 });
 ```
 
-In verify-only mode, a missing effect-catalog entry fails and the recorder does not write a baseline. Keep update jobs separate and review their catalog and feature diffs.
+`blackbox verify` writes evidence and reports only. A missing effect contract fails without writing a contract. Use `$blackbox-effects` to propose a contract from evidence, then review the exact diff before accepting it.
 
 <Aside type="warning" title="Upload Evidence on Failure">
   Always retain `.blackbox-coverage/` when the job fails. Without the catalog,
-  shape, OMC/DC, requirement, and diagnostic artifacts, a reviewer sees a red
-  gate without the evidence needed to act.
+  shape, observable decision, requirement, and diagnostic artifacts, a reviewer
+  sees a red gate without the evidence needed to act.
 </Aside>
 
 ## Reporter and Sink Behavior
@@ -150,9 +138,9 @@ The current default reporter is the effects report. The default sink writes file
 
 Use the [Reference hub](/docs/blackbox/reference) for the current reporter, sink, artifact, and exit-code contracts.
 
-## Replay Saved OMC/DC Inputs
+## Replay Saved Decision-Coverage Inputs
 
-When a coverage directory contains the required saved inputs, regenerate OMC/DC outputs without rerunning the SUT:
+When a coverage directory contains the required saved inputs, regenerate observable decision outputs without rerunning the SUT:
 
 ```bash
 pnpm exec blackbox coverage replay \

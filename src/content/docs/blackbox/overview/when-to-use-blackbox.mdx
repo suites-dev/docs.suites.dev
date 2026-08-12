@@ -1,7 +1,7 @@
 ---
 title: "When to Use Blackbox"
-description: "Choose Blackbox for boundary-risk system and E2E flows where a passing response is not enough evidence for a safe change."
-sidebar_position: 4
+description: "Choose Blackbox for boundary-risk system and E2E flows where reviewed intent, executable assertions, and runtime behavior must remain connected."
+sidebar_position: 5
 keywords:
   [
     "when to use system tests",
@@ -15,7 +15,7 @@ keywords:
 import OverviewDiagram from "@/components/blackbox/OverviewDiagram.astro";
 import Aside from "@/components/mdx/Aside.astro";
 
-Use Blackbox when a change can preserve the visible response while breaking important behavior at a system boundary.
+Use Blackbox when a change can preserve the visible response while breaking important behavior at a system boundary, or when reviewed intent needs a durable path to runtime evidence.
 
 <OverviewDiagram kind="fit" />
 
@@ -56,15 +56,6 @@ Prefer a unit or integration test when:
 
 Blackbox complements the test pyramid. It does not make lower-level tests obsolete.
 
-## Adoption Can Be Incremental
-
-The tracks are independent:
-
-1. **Effects only:** capture observations, review a catalog, and gate required or forbidden behavior.
-2. **EARS plus effects:** bind normative requirement IDs to flows and compute requirement verdicts from runtime evidence.
-3. **Gherkin plus tests:** emit readable feature files from executable tests and catch drift.
-4. **Combined loop:** use flows, effects, EARS, and Gherkin when the added review surfaces justify their maintenance.
-
 <Aside type="note" title="Commit Reviewable Intent, Not Raw Noise">
   Catalogs, requirement sources, bindings, and reviewed feature files are useful
   repository artifacts. Raw traces and generated reports are usually build
@@ -81,4 +72,4 @@ Choose a flow that:
 - runs in an environment the test owns or can reset;
 - would block a merge if its behavior changed unexpectedly.
 
-See the [Use Cases](/docs/blackbox/use-cases) for concrete adoption patterns. Then [check the prerequisites](/docs/blackbox/quickstart/prerequisites-and-supported-systems) and [prove the flow](/docs/blackbox/quickstart/first-proven-feature).
+See [Adopt Blackbox in Layers](/docs/blackbox/overview/adopt-blackbox-in-layers) to choose the evidence surfaces your team will maintain. Then use the [Use Cases](/docs/blackbox/use-cases) to select a concrete pattern, [check the prerequisites](/docs/blackbox/quickstart/prerequisites-and-supported-systems), and [prove the flow](/docs/blackbox/quickstart/first-proven-feature).

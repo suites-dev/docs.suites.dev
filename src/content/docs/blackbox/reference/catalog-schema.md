@@ -1,65 +1,39 @@
 ---
-title: "Catalog Schema"
-description: "Effect catalog v0.1 envelope, flow entries, required and forbidden shapes, matching patterns, and write behavior."
+title: "Effect Contract Schema"
+description: "Effect contract v0.1 YAML format for required and forbidden runtime behavior."
 sidebar_position: 7
 keywords:
-  [
-    "effect catalog schema",
-    "effect catalog v0.1",
-    "Blackbox YAML",
-    "requires forbids",
-  ]
+  ["effect contract schema", "effect YAML", "Blackbox YAML", "requires forbids"]
 ---
 
-The live effect catalog format is a per-test-file YAML sidecar.
+An **effect contract** records the required and forbidden runtime effects for one flow. It is the only Blackbox-owned public YAML artifact.
 
 ```text
-tests/checkout.system.test.ts
-tests/__effects__/checkout.system.effects.yaml
+features/subscribe-unknown-user.feature
+features/subscribe-unknown-user.effects.yaml
 ```
 
 ## Complete Example
 
 ```yaml
 specVersion: "0.1"
-entries:
-  subscribe-flow:
-    requires:
-      - { boundary: redis, op: GET, service: bff }
-      - { boundary: postgres, op: INSERT, key: subscriptions, service: bff }
-      - {
-          boundary: sqs,
-          op: SendMessage,
-          key: subscription-orders,
-          service: order-service,
-        }
-    forbids:
-      - { boundary: http, op: POST, key: /v1/refunds, service: bff }
-
-  subscribe-unknown-user:
-    requires:
-      - { boundary: postgres, op: SELECT, key: users, service: bff }
-    forbids:
-      - { boundary: http, op: POST, key: /v1/payment_intents, service: bff }
-      - { boundary: postgres, op: INSERT, service: bff }
-      - { boundary: sqs, op: SendMessage, key: subscription-orders }
+flow: subscribe-unknown-user
+requires:
+  - { boundary: postgres, op: SELECT, key: users, service: bff }
+forbids:
+  - { boundary: http, op: POST, key: /v1/payment_intents, service: bff }
+  - { boundary: postgres, op: INSERT, key: subscriptions, service: bff }
+  - { boundary: sqs, op: SendMessage, key: subscription-orders }
 ```
 
 ## Envelope
 
-| Field         | Meaning                                            |
-| ------------- | -------------------------------------------------- |
-| `specVersion` | Catalog format version; current writer emits `0.1` |
-| `entries`     | Map from stable flow ID to a contract              |
-
-The loader also accepts the legacy flat-map form and ignores recognized metadata keys such as `$schema`, `otelSchemaUrl`, and `catalogId`. New docs and recorder output use the `entries` envelope.
-
-## Contract
-
-| Field      | Required | Meaning                                                            |
-| ---------- | -------- | ------------------------------------------------------------------ |
-| `requires` | Yes      | Shapes that must match at least once unless constrained by `count` |
-| `forbids`  | No       | Shapes that must match zero times                                  |
+| Field         | Meaning                                                               |
+| ------------- | --------------------------------------------------------------------- |
+| `specVersion` | Contract format version. The current public version is `"0.1"`.       |
+| `flow`        | Stable flow ID. Must match the feature basename and `@flow:<id>` tag. |
+| `requires`    | Effects that must match at least once unless constrained by `count`.  |
+| `forbids`     | Effects that must match zero times.                                   |
 
 ## Shape Fields
 
@@ -77,16 +51,25 @@ Unknown fields remain forward-compatible in the parsed shape, but only fields un
 ## Pattern Syntax
 
 ```yaml
-key: "user:*:tier"          # bare string uses glob matching
-key: { equals: "literal" }  # exact match
-key: { regex: "^user:" }    # regular expression
-count: 1                     # exact numeric match
+key: "user:*:tier"
+key: { equals: "literal" }
+key: { regex: "^user:" }
+count: 1
 count: { gte: 1 }
 ttl: { gte: 60, lte: 3600 }
 ```
 
-## Recorder Behavior
+Bare strings use glob matching. Use `equals` for exact matches and `regex` only when a glob would be ambiguous.
 
-Missing flow entries can be added during local snapshot update modes. Refreshing an entry updates observed `requires`; existing `forbids` remain sticky. Verify-only CI mode writes nothing.
+## Review Rules
 
-Catalog files are review artifacts. Format changes during alpha may require regeneration or migration.
+Effect contracts are accepted behavior. A Skill may propose a contract from runtime evidence, but a human decides whether each observed effect is required, forbidden, incidental, or a defect.
+
+`blackbox verify` writes evidence and reports. It does not silently update accepted effect contracts.
+
+## Summary
+
+- **One effect YAML file describes one flow.**
+- **The `flow` field must match the Gherkin and Playwright flow ID.**
+- **`requires` proves expected runtime behavior appeared.**
+- **`forbids` proves unsafe runtime behavior stayed absent.**

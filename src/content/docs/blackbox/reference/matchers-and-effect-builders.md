@@ -45,9 +45,9 @@ The matcher fails when a required shape is missing, a forbidden shape matches, o
 await expect(capture).toMatchCatalog();
 ```
 
-The matcher reads the active flow ID, loads the entry from the test file's effect sidecar, and evaluates the same contract kernel as `toObserveEffects()`.
+The matcher reads the active flow ID, loads `features/<flow>.effects.yaml`, and evaluates the same contract kernel as `toObserveEffects()`.
 
-A missing entry is baselined in local update modes. In Playwright `updateSnapshots: 'none'`, it fails and no catalog write occurs.
+A missing accepted effect contract fails verification. `blackbox verify` writes runtime evidence and reports, not accepted behavior files.
 
 ## `toMatchEffectsSnapshot()`
 

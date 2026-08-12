@@ -1,141 +1,93 @@
 ---
 title: "Playwright Flows, Isolation, and Parallelism"
-description: "Use Playwright test.system blocks, fixtures, trace propagation, reset groups, and per-worker SUT stacks without mixing runtime evidence."
+description: "Use native Playwright flow tags, fixtures, trace propagation, reset groups, and per-worker SUT stacks without mixing runtime evidence."
 sidebar_position: 2
 keywords:
   [
-    "Playwright parallel system tests",
-    "test.system flow ID",
-    "per worker Docker Compose",
-    "trace isolation",
-    "Blackbox Playwright API",
+    "Playwright flow ID",
+    "Blackbox Playwright",
+    "parallel system tests",
+    "testbed isolation",
   ]
 ---
 
 import PlaywrightParallelismSimulator from "@/components/blackbox/PlaywrightParallelismSimulator.astro";
-import Aside from "@/components/mdx/Aside.astro";
 
-Playwright owns scheduling. Blackbox owns the connection between a scheduled test, its SUT state, its trace, and its runtime artifacts.
+Blackbox uses native Playwright APIs. You declare one behavioral flow with `test.describe(..., { tag: "@flow:<id>" })`, then let Playwright schedule the tests normally.
 
 <PlaywrightParallelismSimulator />
 
-## Playwright Primitives Still Apply
-
-Blackbox builds on Playwright Test rather than replacing it:
-
-- `test()` defines a runnable case;
-- `test.describe()` groups cases;
-- `test.beforeEach()` and fixtures prepare state;
-- `test.step()` names actions and assertions;
-- `request` drives HTTP while carrying the active Blackbox trace;
-- `expect` includes Blackbox matchers.
-
-The Blackbox addition is `test.system(flowId, description, fn)`:
+## Declare One Flow
 
 ```ts
-test.system("subscribe-unknown-user", "rejecting an unknown user", () => {
-  test("ghost-user is rejected before downstream work", async ({
-    capture,
-    request,
-    system,
-  }) => {
-    const response = await request.post(
-      `${system.bff.hostBaseUrl}/subscriptions`,
-      {
-        data: { userId: "ghost-user", paymentMethodId: "pm_card_visa" },
-      },
-    );
+import { expect, test } from "./blackbox-testbed";
 
-    expect(response.status()).toBe(404);
-    await expect(capture).toMatchCatalog();
-  });
-});
+test.describe(
+  "Reject an unknown subscriber",
+  { tag: "@flow:subscribe-unknown-user" },
+  () => {
+    test("request stops before payment", async ({ request, capture }) => {
+      const response = await request.post("/subscriptions", {
+        data: { userId: "ghost-user", tier: "pro" },
+      });
+
+      expect(response.status()).toBe(404);
+      await expect(capture).toMatchCatalog();
+    });
+  },
+);
 ```
 
-Every test inside the block inherits `@flow:subscribe-unknown-user`. The capture fixture uses that ID to load the matching effect-catalog entry, record coverage, and connect optional requirement bindings and generated feature tags.
+Every test inside the `describe` inherits `@flow:subscribe-unknown-user`. The capture fixture uses that ID to load `features/subscribe-unknown-user.effects.yaml`, record coverage, and connect optional requirement and feature tags.
 
-## Parallelism Model
+## Keep Flow Scope Narrow
 
-With the standard testbed:
+A flow should describe one reviewable behavior, not an entire user journey. Prefer:
 
-1. Playwright starts N workers.
-2. Blackbox starts one isolated SUT stack per worker.
-3. The stack is reused by tests scheduled to that worker.
-4. The configured reset function runs when the isolation group changes.
-5. Each worker writes coverage partials.
-6. global teardown merges partials into canonical reports.
+- one request and its direct effects;
+- one negative path and its forbids;
+- one webhook or message-handling path;
+- one branch arm that needs observable decision evidence.
 
-Different `test.system` blocks may run in parallel across workers. Tests inside one `test.system` block use Playwright's default in-order mode so OMC/DC branch arms do not interleave inside the same worker SUT.
+Split flows when two scenarios have different required or forbidden effects.
+
+## Run In Parallel Safely
+
+Playwright can still run workers in parallel:
 
 ```bash
 npx playwright test --config ./e2e/playwright.config.ts --workers 4
 ```
 
-There is no `BLACKBOX_ISOLATION` switch. The worker count and testbed source determine the topology.
+Blackbox isolation depends on the testbed. Per-worker SUT stacks prevent spans, databases, queues, and caches from bleeding across flows.
 
-## State Isolation
+## Avoid Shared Writes
 
-Per-worker containers prevent workers from sharing databases, caches, queue state, debug buffers, and V8 counters. They do not reset state between every test automatically.
+Parallel tests must not write accepted artifacts. `blackbox verify` writes runtime evidence and reports only. Requirements, feature files, suite patches, and effect contracts change through Skill proposals and human review.
 
-The testbed computes an isolation group key:
-
-- Blackbox Scenario DSL cases carry an explicit group tag;
-- plain Playwright tests fall back to file plus title path;
-- a manual grouping policy can override the key.
-
-When the key changes, the testbed calls your `reset({ connect, infra, groupKey, identity })` function for that worker's stack.
-
-Reset all managed state that can affect the next flow. A database truncation without a queue purge is partial isolation.
-
-## Evidence Isolation
-
-The normal fixture resets each worker stack's observation buffers before a test and drains them after the test. Because one worker runs one test at a time against its own stack, that boundary isolates the captured evidence from other workers.
-
-The wrapped Playwright `request` fixture also propagates `traceparent` into the SUT, preserving the distributed trace across services. Use explicit propagation with custom clients when trace relationships or `captureAcross()` filtering matter:
-
-For a custom HTTP helper:
-
-```ts
-import { traceparent } from "@suites/blackbox/runners/playwright";
-
-await fetch(url, {
-  headers: { traceparent: traceparent() },
-});
-```
-
-Prefer the wrapped `request` fixture. A raw client can still be observed inside the isolated reset-to-drain window, but without propagation its downstream trace graph may be incomplete.
-
-<Aside type="warning" title="Detached Work Needs a Join Point">
-  Fire-and-forget work can outlive the capture window or escape async context.
-  Wait for a durable completion signal, poll the managed dependency, or expose a
-  test synchronization point before asserting effects.
-</Aside>
-
-## Catalog and Feature Writes Under Parallelism
-
-Effect sidecars follow the test file:
+Generated reports can be merged after the run:
 
 ```text
-tests/checkout.system.test.ts
-tests/__effects__/checkout.system.effects.yaml
+.blackbox-coverage/.coverage-partials/catalog-coverage.w0.json
+.blackbox-coverage/.coverage-partials/catalog-coverage.w1.json
+-> .blackbox-coverage/catalog/coverage.json
 ```
 
-Keep one flow ID owned by one test file. Multiple workers writing the same catalog path create an avoidable ownership conflict.
+## Use Stable Artifact Names
 
-Coverage does not have that problem. Workers write partial catalog and shape summaries, then teardown merges them with deterministic state priority: `failed` outranks `satisfied`, which outranks `uncovered`.
+Keep each flow's reviewed artifacts aligned:
 
-Generated feature files also need one owning source. Use the dedicated `features emit` step outside the parallel test run, or rely on Playwright snapshot update modes in a controlled update job.
-
-## CI Verification Mode
-
-Local development may baseline a missing catalog entry. CI should verify, not invent, accepted behavior:
-
-```ts
-export default defineConfig({
-  updateSnapshots: process.env.CI ? "none" : "missing",
-});
+```text
+features/subscribe-unknown-user.feature
+features/subscribe-unknown-user.effects.yaml
+@flow:subscribe-unknown-user
 ```
 
-With `none`, a missing flow entry fails and the recorder does not write it. Intentional catalog updates happen in a reviewed local or dedicated update workflow.
+The CLI checks that feature basename, Gherkin `@flow`, Playwright tag, and effect YAML `flow` agree.
 
-Continue with [Reports and CI Gates](/docs/blackbox/guides/reports-and-ci-gates).
+## Summary
+
+- **Use native Playwright `test.describe` tags** for flow IDs.
+- **Keep one flow narrow** enough to review.
+- **Run workers in parallel** only when the testbed isolates SUT state.
+- **Never write accepted artifacts during `verify`.**

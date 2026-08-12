@@ -1,6 +1,6 @@
 ---
 title: "Report Formats"
-description: "Reference for Blackbox effect, requirement, shape, OMC/DC, JUnit, Markdown, and HTML report artifacts."
+description: "Reference for Blackbox effect, requirement, shape, observable decision, JUnit, Markdown, and HTML report artifacts."
 sidebar_position: 5
 keywords: ["report formats", "coverage json", "shape coverage json"]
 toc_min_heading_level: 2
@@ -21,17 +21,17 @@ Blackbox produces machine-readable verdicts and human-readable reports from the 
 
 ## Artifact Family
 
-| Producer or setting       | Artifact                     | Format   | Purpose                                                 |
-| ------------------------- | ---------------------------- | -------- | ------------------------------------------------------- |
-| Catalog coverage module   | `catalog/coverage.json`      | JSON     | Per-flow effect contract verdicts and totals.           |
-| Shape coverage module     | `shape/coverage.json`        | JSON     | Declared, asserted, and observed boundary shapes.       |
-| `effects-report` reporter | `effects-report.md`          | Markdown | Reviewable effect and shape coverage summary.           |
-| `effects-report` reporter | `effects-report.html`        | HTML     | Browser view of the same summary.                       |
-| Node OMC/DC producer      | `omcdc/verdict.json`         | JSON     | Machine-readable decision-propagation report.           |
-| Node OMC/DC producer      | `omcdc/verdict.md`           | Markdown | Human-readable OMC/DC report.                           |
-| Node OMC/DC producer      | `omcdc/verdict.html`         | HTML     | Interactive branch-level OMC/DC report.                 |
-| `requirements coverage`   | `requirements/coverage.json` | JSON     | EARS requirement verdicts joined through flow bindings. |
-| `junit`                   | `omcdc.junit.xml`            | XML      | CI-facing test-result view of OMC/DC verdicts.          |
+| Producer or setting           | Artifact                     | Format   | Purpose                                                             |
+| ----------------------------- | ---------------------------- | -------- | ------------------------------------------------------------------- |
+| Catalog coverage module       | `catalog/coverage.json`      | JSON     | Per-flow effect contract verdicts and totals.                       |
+| Shape coverage module         | `shape/coverage.json`        | JSON     | Declared, asserted, and observed boundary shapes.                   |
+| `effects-report` reporter     | `effects-report.md`          | Markdown | Reviewable effect and shape coverage summary.                       |
+| `effects-report` reporter     | `effects-report.html`        | HTML     | Browser view of the same summary.                                   |
+| Node decision producer        | `omcdc/verdict.json`         | JSON     | Machine-readable observable decision report.                        |
+| Node decision producer        | `omcdc/verdict.md`           | Markdown | Human-readable observable decision report.                          |
+| Node decision producer        | `omcdc/verdict.html`         | HTML     | Interactive branch-arm evidence report.                             |
+| Facade or requirements engine | `requirements/coverage.json` | JSON     | EARS requirement verdicts joined through feature tags and flow IDs. |
+| `junit`                       | `omcdc.junit.xml`            | XML      | CI-facing test-result view of decision verdicts.                    |
 
 ## Stability Notes
 
@@ -49,15 +49,15 @@ Contains endpoints, branch coordinates, true-arm test IDs, false-arm test IDs, n
 
 ### `omcdc/verdict.md`
 
-Contains the same OMC/DC story in a reviewable form: endpoint sections, verdict counts, branch tables, hints, and branch evidence. Use it when a reviewer needs to understand the result without opening the interactive report.
+Contains the same observable decision story in a reviewable form: endpoint sections, verdict counts, branch tables, hints, and branch evidence. Use it when a reviewer needs to understand the result without opening the interactive report.
 
 ### `omcdc/verdict.html`
 
-The interactive OMC/DC report. Use it when a developer needs to inspect branches, hints, source snippets when available, and the relationship between decisions and observed effects.
+The interactive observable decision report. Use it when a developer needs to inspect branch arms, hints, source snippets when available, and the relationship between decisions and captured evidence.
 
 ### `catalog/coverage.json`
 
-Summarizes effect catalog entry coverage. It answers whether catalog entries were seen, satisfied, failed, or uncovered.
+Summarizes effect contract coverage. It answers whether accepted contracts were seen, satisfied, failed, or uncovered.
 
 The shape is based on:
 
@@ -84,15 +84,15 @@ Joins EARS requirement IDs to the runtime result of their bound flows. A require
 1. `proven` when every bound flow is satisfied.
 2. `violated` when at least one bound flow failed.
 3. `unproven` when no bound flow failed but at least one was not exercised.
-4. `unbound` when the requirement has no flow binding.
+4. `unbound` when the requirement has no accepted flow connection.
 
 When multiple flows bind to one requirement, the worst verdict wins.
 
 ### `omcdc.junit.xml`
 
-Maps OMC/DC verdicts into CI test-result vocabulary:
+Maps observable decision verdicts into CI test-result vocabulary:
 
-| OMC/DC verdict      | JUnit mapping          |
+| Decision verdict    | JUnit mapping          |
 | ------------------- | ---------------------- |
 | `propagating`       | pass                   |
 | `masking-candidate` | failure                |

@@ -1,7 +1,7 @@
 ---
 import { Code } from 'astro-expressive-code/components';
 
-const sourceTest = `test.system('subscribe-flow', 'alice subscribes to the pro tier', () => {
+const sourceTest = `test.describe('alice subscribes to the pro tier', { tag: '@flow:subscribe-flow' }, () => {
   test('alice is an existing user with no active subscription', async ({ request, system }) => {
     const response = await request.post(\`\${system.bff.hostBaseUrl}/subscriptions\`, {
       data: { userId: 'alice', paymentMethodId: 'pm_card_visa' },

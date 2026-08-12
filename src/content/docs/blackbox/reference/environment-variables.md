@@ -31,7 +31,7 @@ For service `fraud-check`, the override is `BLACKBOX_NODE_BINARY_PATH_FRAUD_CHEC
 | `BLACKBOX_COVERAGE_DIR`          | `.blackbox-coverage`                   | Coverage root in connect mode and report lifecycle |
 | `BLACKBOX_COVERAGE_OUTPUT`       | `<coverage-dir>/catalog/coverage.json` | Override the catalog coverage JSON path            |
 | `BLACKBOX_SHAPE_COVERAGE_OUTPUT` | `<coverage-dir>/shape/coverage.json`   | Override shape coverage output                     |
-| `BLACKBOX_FEATURES_DIR`          | `features`                             | Runtime Scenario DSL feature output                |
+| `BLACKBOX_FEATURES_DIR`          | `features`                             | Feature-file discovery override                    |
 
 Prefer `coverageDir` and `blackboxReporter({ outputDir })` over setting output variables directly.
 
@@ -56,12 +56,12 @@ Do not enable verbose diagnostics by default in CI; they can expose URLs, query 
 
 ## Advanced Node Coverage
 
-| Variable                       | Purpose                                                            |
-| ------------------------------ | ------------------------------------------------------------------ | ---------------------------------------------------- |
-| `BLACKBOX_FUNCTION_SPANS=1`    | Enable the advanced function-span coverage mode                    |
-| `BLACKBOX_FN_SPANS_MODE=loader | build-time`                                                        | Select loader or build-time function instrumentation |
-| `BLACKBOX_STRICT_AST_DRIFT=1`  | Fail instead of warning when source and coverage coordinates drift |
+| Variable                      | Purpose                                                            |
+| ----------------------------- | ------------------------------------------------------------------ |
+| `BLACKBOX_FUNCTION_SPANS=1`   | Enable the advanced function-span coverage mode                    |
+| `BLACKBOX_FN_SPANS_MODE`      | Select `loader` or `build-time` function instrumentation           |
+| `BLACKBOX_STRICT_AST_DRIFT=1` | Fail instead of warning when source and coverage coordinates drift |
 
-These are advanced alpha controls. Use the default Node adapter path first and inspect OMC/DC limits before enabling function-span instrumentation.
+These are advanced alpha controls. Use the default Node adapter path first and inspect observable decision coverage limits before enabling function-span instrumentation.
 
 Variables such as internal registry keys, run timestamps, partial-retention flags, and testbed markers are implementation details and are intentionally omitted.

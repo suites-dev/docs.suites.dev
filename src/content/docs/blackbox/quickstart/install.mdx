@@ -21,7 +21,7 @@ Installation is the first step toward visibility. A **project-local install** ad
 Blackbox has two install surfaces:
 
 1. `@suites/blackbox` plus a runtime adapter and test dependencies for Playwright system tests.
-2. `@suites/blackbox-cli`, the package that provides the `blackbox` binary for feature checks, coverage replay, and instrumentation commands.
+2. `@suites/blackbox-cli`, the package that provides the framework facade and specialized engine commands.
 
 Your **system under test (SUT)** is the service or topology Blackbox observes during the run. Install the packages, then verify the binary before you run a proof flow.
 
@@ -66,7 +66,7 @@ yarn add --dev @suites/blackbox @suites/blackbox-adapter-node @suites/blackbox-i
 </TabItem>
 </Tabs>
 
-`@suites/blackbox-adapter-node` registers Node observation and OMC/DC producers. `@suites/blackbox-instr-node` supplies the bootstrap payload used by the test image. Add database, cache, queue, or LocalStack Testcontainers packages only when the test fixture imports them directly.
+`@suites/blackbox-adapter-node` registers Node observation and observable decision producers. `@suites/blackbox-instr-node` supplies the bootstrap payload used by the test image. Add database, cache, queue, or LocalStack Testcontainers packages only when the test fixture imports them directly.
 
 You usually do not need to add OpenTelemetry packages manually for the default testbed path. The package surface is alpha, so pin it through the lockfile and update intentionally.
 
@@ -98,13 +98,7 @@ yarn add --dev @suites/blackbox-cli
 </TabItem>
 </Tabs>
 
-`@suites/blackbox-cli` provides command families for `requirements`, `features`, `coverage`, and `otel`. Keep the CLI version aligned with `@suites/blackbox` so requirements verdicts, generated feature files, coverage replay, and testbed output agree on artifact formats.
-
-When using the optional EARS requirement path, install the external parser in the same workspace:
-
-```bash
-pnpm add -D @earsyntax/cli
-```
+`@suites/blackbox-cli` provides `init`, `doctor`, `status`, `verify`, `explain`, flow inspection, and the `requirements`, `features`, `coverage`, and `otel` command families. The requirements engine is included. Keep the CLI version aligned with `@suites/blackbox` so the facade, runtime, and artifact formats agree.
 
 ## Verification
 
@@ -114,29 +108,46 @@ Run the binary from the package that owns the install:
 
 ```bash
 pnpm exec blackbox --help
-pnpm exec blackbox features check --help
+pnpm exec blackbox verify --help
 ```
 
-A successful run prints the topics the CLI exposes:
+A successful run prints framework commands and engine topics:
 
 ```text
-Unified blackbox CLI. Aggregates oclif plugins from @suites engine packages.
+Suites Blackbox verifies reviewed behavior against executable flows and runtime evidence.
 
 USAGE
   $ blackbox [COMMAND]
 
+COMMANDS
+  doctor    Check whether configured verification layers can run.
+  explain   Explain a Blackbox diagnostic code.
+  init      Configure Blackbox for this project.
+  status    Read repository and retained-run verification state.
+  verify    Run the configured verification loop.
+
 TOPICS
-  coverage      Observable Decision Coverage analysis and reports.
+  coverage      Observable decision coverage analysis and reports.
   features      Derive, lint, drift-check, and reshape feature traces.
+  flows         Inspect flow IDs and their connected artifacts.
   otel          Static OpenTelemetry source instrumentation.
-  requirements  Validate EARS requirements and flow bindings.
+  requirements  Extract, validate, connect, and verify requirements.
 ```
 
-You should see the `requirements`, `features`, `coverage`, and `otel` command topics. This does not prove that the SUT is observable, but it does verify the binary and confirm that the CLI is in the right workspace location.
+This confirms that the CLI is installed in the right workspace package. It does not prove that the SUT is observable.
 
 If `pnpm exec` cannot find `blackbox`, check the current directory first. In a multi-package workspace, installing the CLI at the root does not always make it available inside the package that runs your system tests.
 
-### Validating the Environment
+### Initialize and Validate the Environment
+
+Begin onboarding, then check the selected environment:
+
+```bash
+pnpm exec blackbox init
+pnpm exec blackbox doctor
+```
+
+The exact `init` flow is intentionally not documented in this wave. `doctor` is the first fully documented readiness contract. It checks the test runner, Docker, instrumentation, discovered artifacts, and artifact paths without running the SUT.
 
 Before the first proof run, confirm that the install can reach the required tools:
 
@@ -146,7 +157,7 @@ Before the first proof run, confirm that the install can reach the required tool
 4. The SUT starts through a Node command that the testbed can wrap.
 5. The repo has a writable artifact directory, usually `.blackbox-coverage/`.
 
-The CLI does not replace the project-owned system-test command. Your script still starts the topology, runs Playwright, and lets Blackbox collect runtime evidence from that run.
+Playwright still executes the tests. `blackbox verify` invokes the configured Playwright project and then coordinates feature, effect, requirement, and decision verdicts around that run.
 
 ## The Bootstrap Image
 
@@ -174,14 +185,14 @@ pnpm up @suites/blackbox @suites/blackbox-cli --latest
 
 If the test starts but no runtime evidence appears, the install is not the likely failure point. Check the bootstrap image, the SUT startup command, and whether spans can reach Blackbox during the test.
 
-If you need to remove Blackbox, remove both packages from the system-test package:
+If you need to remove Blackbox, remove the runtime, adapter, instrumentation payload, and CLI packages from the system-test package:
 
 ```bash
-pnpm remove @suites/blackbox @suites/blackbox-cli
+pnpm remove @suites/blackbox @suites/blackbox-adapter-node @suites/blackbox-instr-node @suites/blackbox-cli
 ```
 
 Then review project scripts, generated feature files, and `.blackbox-coverage/` artifacts separately. Package removal should not delete evidence that may still help debugging.
 
 ## What To Read Next
 
-Run one controlled proof flow next: [Prove Your First Flow](/docs/blackbox/quickstart/first-proven-feature).
+After `blackbox doctor` passes, run one controlled proof flow: [Prove Your First Flow](/docs/blackbox/quickstart/first-proven-feature).

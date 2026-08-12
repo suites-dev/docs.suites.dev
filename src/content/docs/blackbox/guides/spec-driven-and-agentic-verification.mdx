@@ -1,6 +1,6 @@
 ---
 title: "Spec-Driven and Agentic Verification"
-description: "Use EARS requirements, Playwright flows, runtime effect contracts, stable JSON, and optional Gherkin to verify human- or agent-authored changes."
+description: "Use Blackbox Skills, CLI gates, Playwright flows, runtime effects, stable JSON, and human review to verify human- or agent-authored changes."
 sidebar_position: 3
 keywords:
   [
@@ -13,115 +13,121 @@ keywords:
 ---
 
 import VerificationLoopDiagram from "@/components/blackbox/VerificationLoopDiagram.astro";
-import AgenticBddWizard from "@/components/blackbox/AgenticBddWizard.astro";
 import Aside from "@/components/mdx/Aside.astro";
 
-Spec-driven development makes intent explicit before implementation. Blackbox adds a verification step after selected intent becomes an executable Playwright flow: the running system must produce the reviewed boundary behavior.
+Spec-driven development makes intent explicit before implementation. Blackbox turns selected intent into a behavioral harness that agents can work against without silently changing what they are supposed to prove.
 
 <VerificationLoopDiagram />
 
-## Keep the Surfaces Separate
+## Keep the Harness Parts Separate
 
-| Surface                               | Owner                               | Job                                                 |
-| ------------------------------------- | ----------------------------------- | --------------------------------------------------- |
-| Product spec, ticket, or SDD artifact | Product and engineering             | Explain intent and constraints                      |
-| EARS requirement                      | Human-ratified requirements process | Give normative behavior a stable ID                 |
-| Requirement sidecar                   | Reviewer                            | Bind requirement IDs to explicit flow IDs           |
-| Playwright flow                       | Developer or agent                  | Exercise the system through a real boundary         |
-| Effect catalog                        | Reviewer                            | Declare required and forbidden runtime effects      |
-| Runtime reports                       | Blackbox                            | Produce deterministic evidence and verdicts         |
-| Generated Gherkin                     | Test source plus reviewer           | Project executable behavior into readable scenarios |
+| Harness part                                      | Owner                                                         | Job                                             |
+| ------------------------------------------------- | ------------------------------------------------------------- | ----------------------------------------------- |
+| Product spec, ticket, Kiro, OpenSpec, or Spec Kit | Product and engineering                                       | Explain intent and constraints                  |
+| EARS requirements                                 | Human-approved artifact proposed by `$blackbox-requirements`  | Give selected obligations stable IDs            |
+| Gherkin feature                                   | Human-accepted artifact proposed by `$blackbox-gherkin`       | Make the selected behavior readable             |
+| Playwright flow                                   | Human-approved suite patch proposed by `$blackbox-playwright` | Exercise the system through a real boundary     |
+| Effect contract                                   | Human-accepted artifact proposed by `$blackbox-effects`       | Declare required and forbidden runtime behavior |
+| Runtime reports                                   | Blackbox CLI                                                  | Produce deterministic evidence and verdicts     |
 
-Blackbox does not replace planning specs, GitHub Spec Kit, Tessl, tickets, or design documents. It adds the missing verification relationship between selected intent and runtime evidence.
+Blackbox does not replace planning tools. It supplies the harness that connects selected intent to executable flow evidence.
 
 ## Existing-Behavior Loop
 
 Use this loop for refactors, migrations, and agent-authored maintenance:
 
-1. Select a boundary-risk flow that already runs.
-2. Capture and review its effect catalog.
-3. Bind relevant EARS requirement IDs when normative traceability matters.
-4. Let the developer or agent change the implementation.
-5. Run the same Playwright flow in the isolated testbed.
-6. Repair implementation failures from test output and JSON verdicts.
-7. Stop for review when the repair would change a requirement, binding, or accepted effect.
-8. Optionally emit Gherkin so the behavior remains easy to inspect later.
+1. Run `blackbox status --json` before changing implementation.
+2. Select a boundary-risk flow and inspect it with `blackbox flows show <flow-id> --json`.
+3. Run `blackbox verify --flow <flow-id> --json`.
+4. Ask `$blackbox-effects` to propose an effect contract only if the flow has no accepted contract yet.
+5. Review and accept the effect contract before using it as a gate.
+6. Let the developer or agent change implementation.
+7. Run `blackbox verify --flow <flow-id> --json` against the accepted harness.
+8. Repair implementation findings and rerun.
+9. Stop for review when passing would require changing a requirement, feature, suite flow, or effect contract.
 
-The agent can iterate on implementation because the accepted contract stays fixed. A new effect is not permission to rewrite the catalog automatically.
+The agent can iterate on implementation because accepted behavior stays fixed.
 
 ## New-Behavior Loop
 
-For a feature that does not exist yet, an agent can draft the executable behavior before implementation:
+Use this loop when the feature does not exist yet:
 
-1. A human expresses intent and constraints.
-2. The agent proposes EARS requirements or reuses the team's existing spec format.
-3. The agent writes a narrow Playwright flow with a stable flow ID.
-4. Blackbox emits a Gherkin projection from the test for human review, when that reading surface is useful.
-5. The human refines the behavior language and ratifies the requirement binding.
-6. The agent implements the feature.
-7. The testbed runs the system and Blackbox records effects.
-8. A human reviews the first catalog contract.
-9. The agent repairs implementation until runtime and requirement verdicts pass.
+1. A human or planning tool expresses intent and constraints.
+2. `$blackbox-requirements` proposes atomic EARS requirements.
+3. `blackbox requirements validate` checks the requirement file.
+4. A human reviews and approves requirement meaning.
+5. `$blackbox-gherkin` proposes a feature file with `@flow` and `@requirement` tags.
+6. `blackbox features check` validates Gherkin structure and tag consistency.
+7. A human reviews and accepts scenario language.
+8. `$blackbox-playwright` proposes a native Playwright suite patch.
+9. A human approves the exact patch before it changes the suite.
+10. A coding agent implements the behavior.
+11. `blackbox verify --flow <flow-id> --json` runs the flow and captures evidence.
+12. `$blackbox-effects` proposes required and forbidden effects from evidence.
+13. A human reviews and accepts the effect contract.
+14. The CLI computes separate verdicts and the coding agent repairs implementation until the accepted harness passes.
 
-<AgenticBddWizard />
-
-The current stable Gherkin direction is test-to-feature. Feature-to-test scaffolding is experimental and should be treated as a draft accelerator, not as proof.
+No step writes directly to the accepted suite or accepted behavior contract without review.
 
 ## Deterministic Inputs for Agents
 
 Use JSON command output instead of asking an agent to interpret colored terminal prose:
 
 ```bash
-pnpm exec blackbox requirements check --tests e2e --json
-pnpm exec blackbox requirements drift --tests e2e --json
-pnpm exec blackbox requirements coverage \
-  --tests e2e \
-  --coverage e2e/.blackbox-coverage/catalog/coverage.json \
-  --fail-on violated \
-  --json
-pnpm exec blackbox features check \
-  --features e2e/features \
-  --tests e2e/tests \
-  --json
+pnpm exec blackbox status --json
+pnpm exec blackbox flows show subscribe-unknown-user --json
+pnpm exec blackbox requirements validate 'requirements/**/*.ears' --json
+pnpm exec blackbox features check --features ./features --json
+pnpm exec blackbox verify --flow subscribe-unknown-user --json
 ```
 
-The envelope has `schemaVersion: 1`, a command name, a status, and structured `data`, `findings`, or `error`. Findings carry rule, severity, message, file, and line fields.
+The envelope has `schemaVersion`, a command name, a status, structured `data`, optional `findings`, and an `error` when no trustworthy result can be produced. Findings carry layer, flow ID, rule, severity, message, file, and line fields when those locations exist.
 
 That gives an agent a bounded repair task:
 
-- a `requirement-violated` finding points to implementation or accepted contract conflict;
+- a requirement violation points to implementation or accepted contract conflict;
 - `unproven` points to missing runtime evidence;
-- requirement drift points to missing or stale bindings;
-- feature drift points to a stale readable projection;
-- a catalog failure points to missing required or observed forbidden effects.
+- feature drift points to a stale readable behavior artifact;
+- an effect failure points to missing required effects or observed forbidden effects;
+- a decision `coverage-gap` points to missing branch-arm evidence;
+- a `masking-candidate` says different decision arms produced the same evidence signature.
 
-## Human Ratification Boundary
+## Human Review Boundary
 
-Agents may safely regenerate derived artifacts and repair code while the accepted behavior remains stable. Require review for:
+Agents may safely repair code while accepted behavior remains stable. Require review for:
 
 - new or changed EARS text;
-- requirement-to-flow binding changes;
-- new or removed catalog clauses;
+- new or changed Gherkin language;
+- new or changed Playwright flow scope;
+- any suite patch proposed by a Skill;
+- new or removed effect clauses;
 - a changed forbidden effect;
-- ambiguous generated Gherkin;
-- broadening the flow scope to make a verdict pass.
+- broadening the flow scope to make a verdict pass;
+- final interpretation of evidence before the agent stops.
 
 <Aside type="warning" title="Do Not Let One Agent Grade Its Own Intent">
-  The value of runtime evidence is reduced when the same automation can silently
-  rewrite requirements, tests, and catalogs until they agree. Keep accepted
-  behavior changes visible in the diff and owned by review.
+  Runtime evidence loses value when the same automation can silently rewrite
+  requirements, tests, and effects until they agree. Keep accepted behavior
+  changes visible in review and owned by a human gate.
 </Aside>
 
 ## What Belongs in the Repository
 
-Repository memory helps both future humans and future agent sessions:
+Repository memory helps future humans and future agent sessions:
 
-- requirement sources;
-- requirement binding sidecars;
-- Playwright flows and stable flow IDs;
-- reviewed effect catalogs;
-- generated feature files only when they are an active review surface.
+- `requirements/**/*.ears`;
+- `features/**/*.feature`;
+- `features/<flow>.effects.yaml`;
+- Playwright flows with `@flow:<id>` tags;
+- selected generated summaries when they are part of review.
 
-Coverage JSON, OMC/DC reports, raw spans, and observation outputs are normally CI artifacts. Upload them with a useful retention policy rather than committing every run.
+Coverage JSON, observable decision reports, raw spans, and observation outputs are normally CI artifacts. Upload them with a useful retention policy rather than committing every run.
 
-Finish the workflow with [Reports and CI Gates](/docs/blackbox/guides/reports-and-ci-gates).
+## Summary
+
+- **Inferential harnesses** propose artifact changes through Skills.
+- **Computational harnesses** validate, run, observe, and report through the CLI.
+- **Human gates** approve accepted behavior.
+- **Implementation agents** repair code against the fixed harness.
+
+Read [Agent Skills](/docs/blackbox/guides/agent-skills) for the Skill contracts, then enforce the loop with [Reports and CI Gates](/docs/blackbox/guides/reports-and-ci-gates).

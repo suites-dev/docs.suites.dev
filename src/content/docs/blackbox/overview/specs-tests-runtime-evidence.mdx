@@ -1,95 +1,135 @@
 ---
-title: "The Runtime Evidence Gap"
+title: "Intent, Flows, and Runtime Evidence"
 slug: "blackbox/overview/runtime-evidence-gap"
-description: "Specs state intent and Playwright tests drive a system, but runtime evidence is what shows whether required and forbidden boundary behavior actually occurred."
+description: "Understand the three verification surfaces Blackbox connects: reviewed requirements, executable Playwright flows, and evidence from the running system."
 sidebar_position: 2
 keywords:
   [
     "runtime evidence gap",
-    "E2E test blind spot",
+    "executable system behavior",
+    "EARS and Gherkin",
     "specification drift",
-    "behavioral verification",
-    "system test evidence",
+    "system verification",
   ]
+seo:
+  primary_keyword: "runtime evidence gap"
+  secondary_keywords: ["EARS and Gherkin", "executable system behavior"]
+  search_intent: "developers comparing specifications, executable tests, and runtime evidence"
+  snippet_angle: "show why requirements, tests, and observations have separate jobs and how a flow ID connects them"
 ---
 
+import VerificationTriangleDiagram from "@/components/blackbox/VerificationTriangleDiagram.astro";
 import InputOutputGapDiagram from "@/components/blackbox/InputOutputGapDiagram.astro";
-import OverviewDiagram from "@/components/blackbox/OverviewDiagram.astro";
 import Aside from "@/components/mdx/Aside.astro";
 
-A specification can be clear and a Playwright test can pass while important boundary behavior remains unverified. The missing piece is evidence from the running system.
+Blackbox connects three surfaces that software teams often maintain separately: **what the system must do, how a concrete case is exercised, and what the running system actually did**.
 
-<OverviewDiagram kind="blind-spot" />
+<VerificationTriangleDiagram />
 
-## Input and Output Are Not the Whole Behavior
+The framework does not collapse those surfaces into one artifact. It gives each one a precise job and verifies the links between them.
 
-Most E2E assertions observe the outside of a workflow:
+## Reviewed Intent States the Obligation
 
-```ts
-const response = await request.post("/subscriptions", { data });
-expect(response.status()).toBe(201);
-expect(await response.json()).toMatchObject({ tier: "pro" });
+A product specification, ticket, Kiro document, OpenSpec artifact, Spec Kit spec, or design note explains the goal and constraints. EARS can normalize selected obligations into stable, reviewable requirement statements:
+
+```text
+REQ-004: When an unknown user subscribes, the billing system shall not request payment, persist a subscription, or publish a subscription order.
 ```
 
-Those assertions matter. They prove the public result. They do not necessarily prove that the system persisted the subscription, cached the tier, called the intended payment endpoint, published the order exactly once, or avoided a refund path.
+EARS validation can establish that this statement follows an accepted structure and carries a usable ID. It cannot establish that the requirement is complete, approved, internally consistent, or implemented.
+
+That distinction matters. The requirement is **normative intent**, not runtime truth.
+
+## An Executable Flow Exercises One Case
+
+A Playwright system test turns selected intent into a concrete execution:
+
+```ts
+test.describe(
+  "Reject an unknown subscriber",
+  { tag: "@flow:subscribe-unknown-user" },
+  () => {
+    test("request stops before payment", async ({ request, capture }) => {
+      const response = await request.post("/subscriptions", {
+        data: { userId: "missing-user", tier: "pro" },
+      });
+
+      expect(response.status()).toBe(404);
+      await expect(capture).toMatchCatalog();
+    });
+  },
+);
+```
+
+The stable flow ID is more important than textual similarity. The reviewed feature file can connect `REQ-004` to `subscribe-unknown-user` explicitly with tags. Blackbox does not ask a model to infer that the test probably proves the requirement because their wording looks alike.
+
+Gherkin gives the executable behavior a readable review surface:
+
+```gherkin
+@flow:subscribe-unknown-user
+@requirement:REQ-004
+Feature: rejecting unknown subscription users
+
+  Scenario: an unknown user attempts to subscribe
+    When the user posts a pro subscription request
+    Then the response status is 404
+```
+
+The feature file helps humans and agents inspect the concrete behavior. A feature check keeps its tags and flow relationship valid. It is not independent runtime proof.
+
+## Runtime Evidence Shows What Happened
+
+The public assertion still leaves the middle of the workflow unseen:
 
 <InputOutputGapDiagram />
 
-Blackbox collects observations from the SUT during each isolated flow and makes those boundary effects inspectable. The test remains green only when both its ordinary assertions and its reviewed behavior contract are satisfied.
+During the flow, Blackbox records supported boundary operations and compares them with the reviewed effect contract. For the negative subscription path, the meaningful evidence may be:
 
-## Written Intent Can Drift Too
+- the user lookup occurred;
+- no payment request occurred;
+- no subscription row was inserted;
+- no subscription-order message was published.
 
-Specifications help humans and agents decide what to build. Their weakness is temporal: after implementation, a requirement, ticket, plan, or feature file can stop describing the system that actually runs.
+Those observations are facts about this run in this environment. The effect contract supplies reviewed meaning: which facts are required, which are forbidden, and which are incidental.
 
-Tests can drift in a different way. A test may continue checking the same `201` response after a refactor changes a queue, database, or vendor interaction that the assertion never named.
+## The Edges Are What Blackbox Verifies
 
-| Surface                       | Strength                                          | Blind spot                                           |
-| ----------------------------- | ------------------------------------------------- | ---------------------------------------------------- |
-| Requirement or product spec   | Explains intended behavior                        | Can become stale and is not executable proof         |
-| Playwright system or E2E test | Exercises the running workflow                    | May assert only selected inputs and outputs          |
-| Runtime evidence              | Records boundary behavior from the run            | Facts still need reviewed meaning                    |
-| Effect catalog                | Declares required and forbidden effects           | Must be ratified when behavior legitimately changes  |
-| EARS binding and verdict      | Connects a normative requirement to runtime proof | Only proves requirements with bound, executed flows  |
-| Generated Gherkin             | Makes executable behavior readable                | Reflects its source test; it is not runtime evidence |
+| Relationship                   | Mechanism                                     | Failure it exposes                                     |
+| ------------------------------ | --------------------------------------------- | ------------------------------------------------------ |
+| Requirement to flow            | Gherkin `@requirement` and `@flow` tags       | Unbound or unknown requirements and flows              |
+| Test to readable behavior      | Feature check and flow-tag consistency        | Missing, stale, orphaned, or unparseable scenarios     |
+| Flow to runtime behavior       | Instrumentation, effects, and effect coverage | Missing required effects or observed forbidden effects |
+| Requirement to runtime verdict | Feature tags joined with effect coverage      | `violated`, `unproven`, or `unbound` requirements      |
 
-No single surface should pretend to answer all six jobs.
+This is why Blackbox is a framework rather than one matcher. The value is not only in capturing spans; it is in preserving the verification relationships across later changes.
 
-## Independent Evidence, Not Circular Confidence
+## Independent Evidence Reduces Circular Confidence
 
-In an agentic change, the same agent may read the requirement, write the implementation, and add a test. That accelerates delivery, but it can also make the validation circular: generated code is accepted by generated assertions that share the same mistaken interpretation.
+The same developer or coding agent may interpret a requirement, implement it, and write its test. That workflow is fast, but a mistaken interpretation can reproduce itself in all three outputs.
 
-Blackbox adds an independently observed input to the decision. The report is derived from what the instrumented system did during the flow, not from the implementation summary or the test name.
+Blackbox contributes an independently observed input: what the instrumented system did during the flow. The evidence still requires a reviewed contract, but it is not derived from the implementation summary or test name.
 
-This does not make the evidence self-interpreting. A human still decides which effects are required, forbidden, incidental, or ambiguous. The useful division of labor is:
-
-1. Humans ratify intent and behavior changes.
-2. Playwright drives the workflow.
-3. Blackbox records and classifies runtime facts.
-4. CI and agents consume deterministic results.
-5. Ambiguous or new behavior returns to review.
-
-<Aside type="note" title="A Catalog Is Reviewed Intent">
-  The first capture can reveal candidate effects, but observed behavior is not
-  automatically correct behavior. Review catalog changes with the same care as
-  an API or schema change.
+<Aside type="note" title="Runtime Evidence Is Bounded">
+  One execution does not prove every possible state of the system. The verdict
+  applies to the selected flow, captured boundaries, instrumentation, and test
+  environment. Missing visibility should remain `unproven`, not be converted
+  into confidence.
 </Aside>
 
-## The Gap in Existing E2E Methodology
+## EARS and Gherkin Are Complementary
 
-Traditional E2E testing is often described as a user journey through a deployed environment. That is useful for proving that a full path works, including unmanaged dependencies such as identity providers, email systems, or external vendors.
+EARS answers, “What must the system guarantee?” Gherkin answers, “How can a reviewer read a concrete executable example?” They may appear in the same workflow, but neither replaces the other.
 
-Blackbox is strongest first in a controlled **system test**, where the run owns the SUT and managed dependencies. The controlled topology makes missing and forbidden effects deterministic enough to gate a pull request. The same evidence model can support broader E2E flows, but shared and unmanaged dependencies introduce noise that must be accounted for.
-
-The category is therefore not "another assertion library." It is a runtime-evidence layer for system and E2E verification.
-
-## Close the Gap
-
-The verification chain becomes:
+The stronger chain is:
 
 ```text
-intent -> executable flow -> runtime effects -> reviewed contract -> verdict
+reviewed requirement
+  -> explicit feature tags
+  -> executable Playwright behavior
+  -> observed runtime effects
+  -> deterministic requirement verdict
 ```
 
-Optional EARS requirements bind normative intent to the flow. Optional Gherkin files project executable behavior into a readable format. Neither is required to start capturing and checking effects.
+Gherkin sits inside that chain as a readable, checked review artifact.
 
-Read [Testing Layers](/docs/blackbox/concepts/testing-layers) for where this evidence sits beside unit, integration, system, and remote E2E tests. Then continue to [The Verification Loop](/docs/blackbox/overview/verification-loop) to see how these surfaces stay connected through development and CI.
+Continue to [The Verification Loop](/docs/blackbox/overview/verification-loop) to see how these surfaces repeat through implementation and refactoring.

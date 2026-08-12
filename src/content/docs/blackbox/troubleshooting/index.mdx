@@ -36,11 +36,13 @@ Most failures fall into one of four groups: the system did not run the intended 
 
 ## First Checks
 
-1. Confirm the Playwright flow actually reached the system boundary you expected.
-2. Confirm the SUT was started through the Blackbox testbed or another Blackbox-aware setup.
-3. Confirm the instrumentation image is available as `blackbox-instr-node:local` or through `BLACKBOX_INSTR_IMAGE`.
-4. Confirm the SUT container has `/blackbox-otel/bootstrap.cjs` and `/blackbox-otel/bin/node-wrap` mounted when using the compose testbed.
-5. Confirm the failure is about behavior before changing the catalog. Missing required effects and observed forbidden effects should be reviewed, not automatically accepted.
+1. Run `blackbox doctor --json` and resolve setup findings first.
+2. Run `blackbox status --flow <flow-id> --json` to check connected artifacts and evidence age.
+3. Confirm the Playwright flow actually reached the system boundary you expected.
+4. Confirm the SUT was started through the Blackbox testbed or another Blackbox-aware setup.
+5. Confirm the instrumentation image is available as `blackbox-instr-node:local` or through `BLACKBOX_INSTR_IMAGE`.
+6. Confirm the SUT container has `/blackbox-otel/bootstrap.cjs` and `/blackbox-otel/bin/node-wrap` mounted when using the compose testbed.
+7. Confirm the failure is about behavior before changing the catalog. Missing required effects and observed forbidden effects should be reviewed, not automatically accepted.
 
 ## What To Keep
 

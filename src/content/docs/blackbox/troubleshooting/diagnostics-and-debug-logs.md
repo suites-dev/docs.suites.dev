@@ -16,9 +16,15 @@ seo:
   snippet_angle: "separate setup, no-span, catalog, feature drift, and report generation failures before filing an issue"
 ---
 
-Explain how to collect useful logs, debug failed runs, and decide whether the issue is setup, traces, catalog drift, or Blackbox.
+Use the facade before opening raw logs. It separates project readiness, connected-artifact state, and a live verification failure.
 
-This page is the triage hub. It should show users which logs to look at first, what each failure class looks like, and how to reduce the run to something debuggable.
+```bash
+blackbox doctor --json
+blackbox status --flow subscribe-unknown-user --json
+blackbox verify --flow subscribe-unknown-user --json
+```
+
+Run `blackbox explain <finding-rule>` when the JSON output includes an unfamiliar diagnostic code.
 
 ## Common Failure Classes
 
@@ -30,10 +36,12 @@ This page is the triage hub. It should show users which logs to look at first, w
 
 ## First Checks
 
-1. Re-run with verbose or debug output.
-2. Save the report, logs, and any generated artifacts from the failing run.
-3. Identify whether the failure is in setup, evidence collection, comparison, or rendering.
-4. Reduce the case to a minimal reproduction before filing a bug.
+1. Run `blackbox doctor --json` without starting the SUT.
+2. Run `blackbox status --flow <flow-id> --json` to detect stale or disconnected artifacts.
+3. Re-run only the affected flow with `blackbox verify --flow <flow-id> --json`.
+4. Save the layered result, report directory, logs, and generated artifacts from that run.
+5. Identify whether the failure is in setup, execution, evidence collection, comparison, or rendering.
+6. Reduce the case to a minimal reproduction before filing a bug.
 
 ## What To Keep
 

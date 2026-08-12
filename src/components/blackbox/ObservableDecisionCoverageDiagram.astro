@@ -1,0 +1,213 @@
+<figure
+  class="bb-observable-decision-diagram"
+  aria-label="Observable decision coverage compares captured runtime evidence from tests exercising two decision arms"
+>
+  <div
+    class="bb-observable-decision-diagram__viewport"
+    role="region"
+    aria-label="Scrollable observable decision coverage diagram"
+    tabindex="0"
+  >
+    <svg viewBox="0 0 960 500" role="img" aria-labelledby="bb-odc-title bb-odc-desc">
+    <title id="bb-odc-title">Observable decision coverage compares evidence from two decision arms</title>
+    <desc id="bb-odc-desc">
+      A subscription decision splits into a known-user test and an unknown-user
+      test. Each test produces canonical captured span shapes. Blackbox compares
+      the two arm-bucket signatures. Different signatures produce propagating,
+      identical signatures produce masking-candidate, and an untested arm
+      produces coverage-gap.
+    </desc>
+    <defs>
+      <marker
+        id="bb-odc-arrow"
+        viewBox="0 0 10 10"
+        refX="8"
+        refY="5"
+        markerWidth="7"
+        markerHeight="7"
+        orient="auto"
+      >
+        <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"></path>
+      </marker>
+    </defs>
+
+    <rect x="8" y="8" width="944" height="484" rx="18" fill="#111827" stroke="#374151"></rect>
+    <text x="36" y="44" fill="#f8fafc" font-size="20" font-weight="800">
+      Both arms ran. Did they leave distinguishable evidence?
+    </text>
+    <text x="36" y="70" fill="#cbd5e1" font-size="13">
+      Blackbox compares canonical span-shape multisets from tests exercising each arm.
+    </text>
+
+    <rect x="370" y="94" width="220" height="58" rx="8" fill="#1f2937" stroke="#94a3b8"></rect>
+    <text x="480" y="118" text-anchor="middle" fill="#f8fafc" font-size="12" font-weight="700">
+      BINARY DECISION
+    </text>
+    <text x="480" y="139" text-anchor="middle" fill="#e2e8f0" font-size="15" font-weight="800">
+      user found?
+    </text>
+
+    <path
+      d="M410 152 C390 174 304 174 280 198"
+      fill="none"
+      stroke="#60a5fa"
+      stroke-width="2"
+      marker-end="url(#bb-odc-arrow)"
+    ></path>
+    <path
+      d="M550 152 C570 174 656 174 680 198"
+      fill="none"
+      stroke="#c084fc"
+      stroke-width="2"
+      marker-end="url(#bb-odc-arrow)"
+    ></path>
+
+    <text x="347" y="174" text-anchor="middle" fill="#93c5fd" font-size="11" font-weight="700">
+      YES
+    </text>
+    <text x="613" y="174" text-anchor="middle" fill="#d8b4fe" font-size="11" font-weight="700">
+      NO
+    </text>
+
+    <rect x="40" y="196" width="400" height="154" rx="8" fill="#172554" stroke="#60a5fa"></rect>
+    <text x="62" y="222" fill="#eff6ff" font-size="15" font-weight="800">subscribe-flow</text>
+    <text x="62" y="242" fill="#bfdbfe" font-size="11">tests the known-user arm</text>
+    <text x="62" y="270" fill="#93c5fd" font-size="11" font-weight="700">
+      SELECTED CAPTURED SPAN SHAPES
+    </text>
+    <rect x="62" y="282" width="161" height="25" rx="6" fill="#0f172a" stroke="#475569"></rect>
+    <text x="142.5" y="299" text-anchor="middle" fill="#e2e8f0" font-size="10">
+      HTTP POST payment
+    </text>
+    <rect x="233" y="282" width="183" height="25" rx="6" fill="#0f172a" stroke="#475569"></rect>
+    <text x="324.5" y="299" text-anchor="middle" fill="#e2e8f0" font-size="10">
+      Postgres INSERT subscription
+    </text>
+    <rect x="62" y="315" width="161" height="25" rx="6" fill="#0f172a" stroke="#475569"></rect>
+    <text x="142.5" y="332" text-anchor="middle" fill="#e2e8f0" font-size="10">
+      Redis SET cache
+    </text>
+    <rect x="233" y="315" width="183" height="25" rx="6" fill="#0f172a" stroke="#475569"></rect>
+    <text x="324.5" y="332" text-anchor="middle" fill="#e2e8f0" font-size="10">
+      SQS SEND subscription-orders
+    </text>
+
+    <rect x="520" y="196" width="400" height="154" rx="8" fill="#3b1553" stroke="#c084fc"></rect>
+    <text x="542" y="222" fill="#faf5ff" font-size="15" font-weight="800">
+      subscribe-unknown-user
+    </text>
+    <text x="542" y="242" fill="#e9d5ff" font-size="11">tests the missing-user arm</text>
+    <text x="542" y="270" fill="#d8b4fe" font-size="11" font-weight="700">
+      SELECTED CAPTURED SPAN SHAPES
+    </text>
+    <rect x="542" y="282" width="218" height="25" rx="6" fill="#0f172a" stroke="#475569"></rect>
+    <text x="651" y="299" text-anchor="middle" fill="#e2e8f0" font-size="10">
+      Postgres SELECT users
+    </text>
+    <rect x="770" y="282" width="126" height="25" rx="6" fill="#0f172a" stroke="#475569"></rect>
+    <text x="833" y="299" text-anchor="middle" fill="#e2e8f0" font-size="10">
+      no later effects
+    </text>
+    <text x="542" y="330" fill="#cbd5e1" font-size="11">
+      No payment, insert, cache write, or queue publish appears.
+    </text>
+
+    <path
+      d="M240 350 C240 372 325 376 350 390"
+      fill="none"
+      stroke="#60a5fa"
+      stroke-width="2"
+      marker-end="url(#bb-odc-arrow)"
+    ></path>
+    <path
+      d="M720 350 C720 372 635 376 610 390"
+      fill="none"
+      stroke="#c084fc"
+      stroke-width="2"
+      marker-end="url(#bb-odc-arrow)"
+    ></path>
+
+    <rect x="286" y="388" width="388" height="54" rx="8" fill="#0f172a" stroke="#fbbf24"></rect>
+    <text x="480" y="410" text-anchor="middle" fill="#fef3c7" font-size="13" font-weight="800">
+      Compare canonical arm-bucket signatures
+    </text>
+    <text x="480" y="429" text-anchor="middle" fill="#fde68a" font-size="11">
+      these signatures differ
+    </text>
+
+    <line
+      x1="674"
+      y1="415"
+      x2="744"
+      y2="415"
+      stroke="#86efac"
+      stroke-width="2"
+      marker-end="url(#bb-odc-arrow)"
+    ></line>
+    <rect x="756" y="388" width="164" height="54" rx="8" fill="#14532d" stroke="#86efac"></rect>
+    <text x="838" y="410" text-anchor="middle" fill="#bbf7d0" font-size="11" font-weight="700">
+      VERDICT
+    </text>
+    <text x="838" y="430" text-anchor="middle" fill="#f0fdf4" font-size="14" font-weight="800">
+      propagating
+    </text>
+
+    <text x="40" y="468" fill="#94a3b8" font-size="11" font-weight="700">OTHER RESULTS</text>
+    <text x="151" y="468" fill="#fde68a" font-size="11">
+      same signatures → masking-candidate
+    </text>
+    <text x="405" y="468" fill="#fca5a5" font-size="11">
+      one arm missing → coverage-gap
+    </text>
+    </svg>
+  </div>
+  <figcaption>
+    Blackbox compares the full captured evidence attached to tests in each arm
+    bucket. The result is correlated runtime evidence, not a causal data-flow
+    proof from the decision to a particular effect.
+  </figcaption>
+</figure>
+
+<style>
+  .bb-observable-decision-diagram {
+    margin: 24px 0 30px;
+    padding: 16px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    overflow: hidden;
+  }
+
+  .bb-observable-decision-diagram__viewport {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+  }
+
+  .bb-observable-decision-diagram__viewport svg {
+    display: block;
+    width: 100%;
+    min-width: 760px;
+    height: auto;
+  }
+
+  .bb-observable-decision-diagram figcaption {
+    margin-top: 10px;
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.55;
+    text-align: center;
+  }
+
+  @media (max-width: 760px) {
+    .bb-observable-decision-diagram {
+      padding: 12px;
+    }
+  }
+</style>

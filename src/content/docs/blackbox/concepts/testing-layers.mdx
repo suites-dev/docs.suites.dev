@@ -57,7 +57,7 @@ At the system and E2E layers, a test usually checks input and output. Blackbox a
 3. Which forbidden effects appeared?
 4. Which cataloged flows or effect shapes were not exercised?
 
-OMC/DC adds a fifth, advanced question: did important decisions produce distinguishable observed behavior?
+Observable decision coverage adds a fifth, advanced question: did tests exercising important decision arms produce distinguishable runtime evidence?
 
 ## Suites Unit and Suites Blackbox
 
@@ -70,7 +70,7 @@ Suites Unit and Suites Blackbox cover different confidence surfaces.
 | Diagnose local logic quickly                   | Yes         | No              |
 | Drive a Playwright system or E2E flow          | No          | Yes             |
 | Check required and forbidden runtime effects   | No          | Yes             |
-| Produce system-level effect and OMC/DC reports | No          | Yes             |
+| Produce effect and observable decision reports | No          | Yes             |
 
 The pyramid still matters. Keep local correctness cheap. Add Blackbox where composed behavior needs evidence from a real run.
 

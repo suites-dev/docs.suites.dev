@@ -13,7 +13,9 @@ keywords:
 
 import QuickstartTracks from "@/components/blackbox/QuickstartTracks.astro";
 
-Choose the path that matches your repo. Both paths end at the same first success: **one Playwright flow, one reviewed catalog entry, and one satisfied effect-coverage result.**
+This is the runtime-first quickstart. Complete [Install Blackbox](/docs/blackbox/quickstart/install), run `blackbox init`, and make sure `blackbox doctor` passes first.
+
+Choose the path that matches your repo. Both paths end at the same first success: **one Playwright flow, one reviewed effect contract, and one satisfied effect-coverage result.**
 
 <QuickstartTracks />
 
@@ -21,15 +23,12 @@ Choose the path that matches your repo. Both paths end at the same first success
 
 The ordinary test assertion still proves the public result. The Blackbox result now also proves that the selected required effects appeared and the selected forbidden effects did not.
 
-That is enough for a first run. Do not baseline the entire suite yet. Add the next flow only after the first catalog diff is understandable in review.
+That is enough for a first run. Do not expand to the entire suite yet. Add the next flow only after the first effect-contract diff is understandable in review.
 
-## Connect Intent Next
+## Continue Based on Your Goal
 
-Runtime effects work independently of a specification format. When the team wants to connect the proof to written intent, continue with [Connect Specifications to Runtime Evidence](/docs/blackbox/quickstart/connect-specifications-to-runtime-evidence).
+Runtime effects work independently of a specification format. When the team is developing from reviewed intent, continue with the [Spec-Driven Verification Quickstart](/docs/blackbox/quickstart/connect-specifications-to-runtime-evidence).
 
-That page offers two optional paths:
-
-- bind EARS requirement IDs to the flow and compute requirement verdicts;
-- emit Gherkin from the executable test and check the readable behavior for drift.
+That journey takes a requirement through a Playwright flow, readable Gherkin, a reviewed effect contract, and a requirement-level runtime verdict. If the runtime contract is all your team needs, continue directly to [Reports and CI Gates](/docs/blackbox/guides/reports-and-ci-gates).
 
 For the artifact formats behind this quickstart, use the [Reference hub](/docs/blackbox/reference).

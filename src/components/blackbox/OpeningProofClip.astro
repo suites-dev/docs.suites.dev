@@ -6,7 +6,7 @@ interface Props {
 const { autoplay = true, loop = false } = Astro.props;
 ---
 
-<figure class="opc" aria-label="Blackbox developer loop: a Playwright system test plus a matcher that proves runtime effects">
+<figure class="opc" aria-label="Blackbox developer loop: a system test plus a matcher that proves runtime effects">
   <div
     class="opc-card"
     data-scene="0"
@@ -49,7 +49,7 @@ const { autoplay = true, loop = false } = Astro.props;
 
     <button class="opc-replay" type="button" aria-label="Replay clip">replay</button>
   </div>
-  <figcaption>Keep the Playwright assertion that already passes. Add one matcher; the run proves the required and forbidden effects behind the response.</figcaption>
+  <figcaption>Keep the response assertion that already passes. Add one matcher; the run proves the required and forbidden effects behind the response.</figcaption>
 </figure>
 
 <script>

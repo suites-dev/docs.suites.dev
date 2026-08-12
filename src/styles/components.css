@@ -987,7 +987,10 @@ input:focus, select:focus, textarea:focus {
 }
 
 .doc-layout > .sidebar { grid-area: sidebar; }
-.doc-layout > .article { grid-area: content; }
+.doc-layout > .article {
+  grid-area: content;
+  min-width: 0;
+}
 .doc-layout > .toc     { grid-area: toc; }
 
 @media (max-width: 1279px) {

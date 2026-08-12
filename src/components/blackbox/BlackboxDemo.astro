@@ -23,18 +23,15 @@
   <div class="bx-demo__grid">
     <figure class="bx-demo__pane">
       <figcaption>Playwright test (authored once)</figcaption>
-      <pre class="bx-demo__code" data-bx-demo-left><code>{`scenario('subscribe-flow', 'subscribing as a pro tier user', ({ given }) => {
-  given('alice is an existing user', async ({ system, capture, when }) => {
-    await when('alice POSTs /subscriptions', async ({ then }) => {
-      await then('the captured effects satisfy the subscribe-flow catalog entry', async () => {
-        await expect(capture).toMatchCatalog();
-      });
-    });
+      <pre class="bx-demo__code" data-bx-demo-left><code>{`test.describe('subscribing as a pro tier user', { tag: '@flow:subscribe-flow' }, () => {
+  test('alice is an existing user', async ({ capture, request }) => {
+    await request.post('/subscriptions', { data: { userId: 'alice' } });
+    await expect(capture).toMatchCatalog();
   });
 });`}</code></pre>
     </figure>
     <figure class="bx-demo__pane">
-      <figcaption data-bx-demo-right-title>Generated feature file (regenerates every run)</figcaption>
+      <figcaption data-bx-demo-right-title>Reviewed feature file</figcaption>
       <pre class="bx-demo__code" data-bx-demo-right aria-live="polite" aria-atomic="false"><code data-bx-demo-right-body>{`# the file is generated; run the simulation to see it appear`}</code></pre>
     </figure>
   </div>
@@ -224,7 +221,7 @@
     ].join('\n');
 
     const STATES = [
-      { label: 'State 0 of 4. Idle.', title: 'Generated feature file (regenerates every run)', body: '# the file is generated; run the simulation to see it appear' },
+      { label: 'State 0 of 4. Idle.', title: 'Reviewed feature file', body: '# run the simulation to see the accepted behavior surface' },
       { label: 'State 1 of 4. Playwright test executing.', title: 'Capturing spans', body: '# capturing OpenTelemetry spans at the bff, postgres, redis, sqs boundaries' },
       { label: 'State 2 of 4. Spans observed.', title: 'Capturing spans', body: '# 9 spans captured across 4 boundaries' },
       { label: 'State 3 of 4. Feature file generated.', title: 'subscribe-flow.feature', body: FEATURE },

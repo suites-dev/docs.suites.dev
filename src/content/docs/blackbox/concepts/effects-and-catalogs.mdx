@@ -1,11 +1,11 @@
 ---
-title: "Effects, Catalogs, and Coverage"
-description: "Understand how observed boundary effects become reviewed required and forbidden contracts, catalog coverage, and effect-shape coverage."
+title: "Effects, Contracts, and Coverage"
+description: "Understand how observed boundary effects become reviewed required and forbidden contracts, effect coverage, and effect-shape coverage."
 sidebar_position: 3
 keywords:
   [
     "effect coverage",
-    "effect catalog",
+    "effect contract",
     "required forbidden effects",
     "system test coverage",
     "runtime behavior contract",
@@ -15,24 +15,23 @@ keywords:
 import Aside from "@/components/mdx/Aside.astro";
 import OverviewDiagram from "@/components/blackbox/OverviewDiagram.astro";
 
-An **effect** is normalized boundary behavior from a running flow. A **catalog** records which effects are required or forbidden. **Coverage** says whether the suite exercised and satisfied that reviewed contract.
+An **effect** is normalized boundary behavior from a running flow. An **effect contract** records which effects are required or forbidden. **Coverage** says whether the suite exercised and satisfied that reviewed contract.
 
 <OverviewDiagram kind="coverage" />
 
 ## One Flow, One Contract
 
-The effect sidecar follows the Playwright test file and stores entries by flow ID:
+The effect contract sits beside the feature file and names one flow:
 
 ```yaml
 specVersion: "0.1"
-entries:
-  subscribe-unknown-user:
-    requires:
-      - { boundary: postgres, op: SELECT, key: users, service: bff }
-    forbids:
-      - { boundary: http, op: POST, key: /v1/payment_intents, service: bff }
-      - { boundary: postgres, op: INSERT, service: bff }
-      - { boundary: sqs, op: SendMessage, key: subscription-orders }
+flow: subscribe-unknown-user
+requires:
+  - { boundary: postgres, op: SELECT, key: users, service: bff }
+forbids:
+  - { boundary: http, op: POST, key: /v1/payment_intents, service: bff }
+  - { boundary: postgres, op: INSERT, service: bff }
+  - { boundary: sqs, op: SendMessage, key: subscription-orders }
 ```
 
 `requires` describes behavior that must be observed. `forbids` describes behavior that must be absent from the capture.
@@ -41,17 +40,13 @@ The unknown-user contract is stronger than a `404` assertion. It proves that the
 
 ## Recording Is Not Approval
 
-When a successful flow has no catalog entry, the default local update mode records a baseline at fixture teardown. Existing entries are not silently replaced. Playwright's snapshot update mode controls catalog writes:
+`blackbox verify` writes runtime evidence and reports. It does not silently update accepted effect contracts.
 
-- default/missing mode adds previously unseen flow IDs;
-- `--update-snapshots` refreshes changed requirements while keeping forbids sticky;
-- strict CI with `updateSnapshots: 'none'` refuses to baseline missing entries.
-
-Review a new entry before committing it. Remove incidental observations, make important clauses specific, and add forbids for dangerous behavior.
+Review a proposed contract before committing it. Remove incidental observations, make important clauses specific, and add forbids for dangerous behavior.
 
 <Aside type="warning" title="A Baseline Can Preserve a Bug">
   The recorder knows what happened, not what should have happened. Catalog
-  changes need human or designated reviewer ratification.
+  changes need human or designated reviewer approval.
 </Aside>
 
 ## Inline and Catalog Matchers
@@ -65,25 +60,25 @@ await expect(capture).toObserveEffects({
 });
 ```
 
-Or use the catalog entry selected by the active flow ID:
+Or use the effect contract selected by the active flow ID:
 
 ```ts
 await expect(capture).toMatchCatalog();
 ```
 
-`toObserveEffects()` and `toMatchCatalog()` use the same evaluation kernel. Inline shapes are useful for focused assertions. Catalogs are useful when the contract should remain a standalone review artifact.
+`toObserveEffects()` and `toMatchCatalog()` use the same evaluation kernel. Inline shapes are useful for focused assertions. Effect contracts are useful when the contract should remain a standalone review artifact.
 
 ## Three Coverage Views
 
 Blackbox separates three related questions.
 
-### Catalog Coverage
+### Effect Coverage
 
-`catalog/coverage.json` reports one state per catalog entry:
+`catalog/coverage.json` reports one state per effect contract:
 
 - `satisfied`: at least one run passed the entry contract;
 - `failed`: the entry ran but no run satisfied it;
-- `uncovered`: the catalog entry was not captured and checked in this run.
+- `uncovered`: the effect contract was not captured and checked in this run.
 
 ```json
 {
@@ -114,13 +109,13 @@ Blackbox separates three related questions.
 
 ### Effect-Shape Coverage
 
-`shape/coverage.json` asks whether individual catalog clauses were asserted at least once. Its summary distinguishes catalog shapes that were asserted, unasserted shapes, and inline-only shapes used by `toObserveEffects()` but not stored in a catalog.
+`shape/coverage.json` asks whether individual contract clauses were asserted at least once. Its summary distinguishes contract shapes that were asserted, unasserted shapes, and inline-only shapes used by `toObserveEffects()` but not stored in a contract.
 
-This is the closest Blackbox equivalent to "which reviewed effects are covered?" A catalog entry can exist while one of its shapes never participates in an assertion path the suite ran.
+This is the closest Blackbox equivalent to "which reviewed effects are covered?" A contract can exist while one of its shapes never participates in an assertion path the suite ran.
 
-### OMC/DC Coverage
+### Observable Decision Coverage
 
-OMC/DC is an enriched decision view. It joins branch-arm execution with observed effect signatures to ask whether a decision produced distinguishable behavior. It does not replace catalog or shape coverage.
+Observable decision coverage is an enriched decision view. It joins branch-arm execution with captured span signatures to ask whether tests exercising different arms produced distinguishable evidence. It does not consume effect matchers, and it does not replace effect or shape coverage. The current engine does not compute the atomic-condition independence required for full OMC/DC.
 
 ## New and Missing Behavior
 
@@ -131,6 +126,6 @@ A later run can reveal:
 - a new observed effect not represented in the accepted contract;
 - an uncovered entry or shape.
 
-The correct response is not always "update the catalog." Repair the implementation when the contract is still right. Change the catalog only when the behavior change is intentional and reviewed.
+The correct response is not always "update the contract." Repair the implementation when the contract is still right. Change the contract only when the behavior change is intentional and reviewed.
 
-Continue with [Specifications, Flows, and Verdicts](/docs/blackbox/concepts/specifications-flows-and-verdicts), or go directly to [OMC/DC Coverage](/docs/blackbox/concepts/omc-dc-coverage).
+Continue with [Requirements, Flows, and Verdicts](/docs/blackbox/concepts/specifications-flows-and-verdicts), or go directly to [Observable Decision Coverage](/docs/blackbox/concepts/omc-dc-coverage).

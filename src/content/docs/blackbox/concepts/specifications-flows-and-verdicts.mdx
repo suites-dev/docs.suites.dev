@@ -1,6 +1,6 @@
 ---
-title: "Specifications, Flows, and Verdicts"
-description: "Understand how EARS requirements, Gherkin behavior, Playwright flow IDs, effect catalogs, and runtime verdicts relate without becoming one artifact."
+title: "Requirements, Flows, and Verdicts"
+description: "Understand how EARS requirements, Gherkin behavior, Playwright flow IDs, effect catalogs, and runtime verdicts connect without becoming one source of truth."
 sidebar_position: 4
 keywords:
   [
@@ -12,26 +12,31 @@ keywords:
   ]
 ---
 
-import CodeFirstBddDiagram from "@/components/blackbox/CodeFirstBddDiagram.astro";
+import VerificationTriangleDiagram from "@/components/blackbox/VerificationTriangleDiagram.astro";
 import Aside from "@/components/mdx/Aside.astro";
 
-Blackbox connects specifications to runtime evidence through an explicit **flow ID**. It does not infer that natural-language intent was proven.
+Blackbox connects reviewed requirements to runtime evidence through an explicit **flow ID**. It does not infer that natural-language intent was proven.
 
-<CodeFirstBddDiagram kind="sdd" />
+<VerificationTriangleDiagram />
 
 ## The Nouns
 
-| Noun                 | Meaning                                                        |
-| -------------------- | -------------------------------------------------------------- |
-| EARS requirement     | A normative `REQ-*` statement validated by `earsyntax`         |
-| Gherkin feature      | A readable Given/When/Then projection of executable behavior   |
-| Playwright flow      | A stable ID declared by `test.system(flowId, ...)`             |
-| Requirement sidecar  | A reviewed mapping from EARS IDs to flow IDs                   |
-| Effect catalog       | Required and forbidden runtime behavior per flow ID            |
-| Catalog coverage     | Runtime result per effect-catalog entry                        |
-| Requirement coverage | Requirement verdict derived from bindings and catalog coverage |
+| Noun                 | Meaning                                                           |
+| -------------------- | ----------------------------------------------------------------- |
+| EARS requirement     | A normative `REQ-*` statement checked by the requirements engine  |
+| Gherkin feature      | A readable scenario file with `@flow` and `@requirement` tags     |
+| Playwright flow      | A stable ID declared by native Playwright `test.describe` tags    |
+| Effect contract      | Required and forbidden runtime behavior per flow ID               |
+| Effect coverage      | Runtime result per effect contract                                |
+| Requirement coverage | Requirement verdict derived from feature tags and effect coverage |
 
-The flow ID is the join key. A flow such as `subscribe-unknown-user` can name the Playwright test block, the effect-catalog entry, the requirement binding, and the generated feature tag `@flow:subscribe-unknown-user`.
+The flow ID is the join key. A flow such as `subscribe-unknown-user` can name the Playwright test block, the effect contract, and the feature tag `@flow:subscribe-unknown-user`.
+
+Inspect the complete join without searching each file manually:
+
+```bash
+blackbox flows show subscribe-unknown-user --json
+```
 
 ## EARS Is Normative Intent
 
@@ -39,21 +44,15 @@ The flow ID is the join key. A flow such as `subscribe-unknown-user` can name th
 REQ-004: When an unknown user subscribes, the bff shall not request payment, persist a subscription record, or publish a subscription order.
 ```
 
-Blackbox validates the requirement source and a strict binding sidecar:
+Blackbox validates the requirement source. The feature file then makes the semantic connection explicit with `@requirement:<id>` tags instead of asking a model or heuristic to infer that a similarly worded test proves the requirement.
 
-```yaml
-specVersion: "0.1"
-entries:
-  subscribe-unknown-user:
-    requirements: [REQ-004]
-```
-
-The binding is deliberately explicit. It makes the semantic decision reviewable instead of asking a model or heuristic to infer that a similarly worded test proves the requirement.
+A clean EARS validation result establishes structure, not semantic truth. It does not say that the requirement is complete, approved, consistent with every other requirement, or implemented.
 
 ## Gherkin Is a Behavior Projection
 
 ```gherkin
 @flow:subscribe-unknown-user
+@requirement:REQ-004
 Feature: rejecting unknown subscription users
 
   Scenario: ghost-user attempts to subscribe
@@ -61,11 +60,11 @@ Feature: rejecting unknown subscription users
     Then the response status is 404
 ```
 
-Blackbox can emit this structure from Playwright or the Blackbox Scenario DSL and detect source-to-feature drift. The feature file helps people and agents read the behavior. It does not produce the runtime verdict by itself.
+Blackbox can validate this structure and detect source-to-feature drift. The feature file helps people and agents read the behavior. It does not produce the runtime verdict by itself.
 
 ## Runtime Evidence Produces the Verdict
 
-Requirement coverage joins bindings with `catalog/coverage.json`. The rules are deterministic:
+Requirement coverage joins feature requirement tags with effect coverage. The rules are deterministic:
 
 | Verdict    | Rule                                                          |
 | ---------- | ------------------------------------------------------------- |
@@ -79,26 +78,26 @@ When a requirement has multiple flows, the binding is conjunctive: every bound f
 Missing evidence does not become a false violation. It remains `unproven`, which distinguishes "the system contradicted the contract" from "this run did not prove it."
 
 <Aside type="info" title="Two Kinds of Drift">
-  `requirements drift` checks EARS IDs, flow bindings, and effect-catalog flow
-  IDs. `features drift` checks generated Gherkin against test sources. They
+  `requirements drift` checks EARS IDs, feature tags, and effect-contract flow
+  IDs. `features drift` checks reviewed Gherkin against test sources. They
   protect different relationships.
 </Aside>
 
-## Specifications Can Be Used Separately
+## The Surfaces Can Be Used Separately
 
 You can adopt any of these shapes:
 
-- effects and catalogs without EARS or Gherkin;
-- EARS bindings and runtime requirement verdicts without feature files;
-- generated Gherkin and drift checks without EARS;
+- effects without EARS or Gherkin;
+- EARS requirement verdicts with feature tags and runtime evidence;
+- Gherkin checks without EARS;
 - all three when requirements, examples, and runtime proof each have active reviewers.
 
 The combined path is stronger only when every artifact has a clear owner and use. An unreviewed generated file or a binding nobody maintains adds ceremony, not confidence.
 
 ## Stable Output for Automation
 
-The requirements and features CLIs support JSON envelopes with `schemaVersion`, `command`, `status`, and either `data`, `findings`, or `error`. Exit codes distinguish clean results, findings, and usage/environment errors.
+Blackbox commands return JSON envelopes with `schemaVersion`, `command`, `status`, structured `data`, optional `findings`, or an `error` when no trustworthy result can be produced. Exit codes distinguish clean results, findings, and usage or environment errors.
 
-Agents can use those deterministic outputs to repair implementation or documentation drift. They should stop when the proposed repair changes a requirement, binding, or accepted effect contract.
+Agents can use those deterministic outputs to repair implementation or documentation drift. They should stop when the proposed repair changes a requirement, feature tag, suite flow, or accepted effect contract.
 
-Try the path in [Connect Specifications to Runtime Evidence](/docs/blackbox/quickstart/connect-specifications-to-runtime-evidence), then apply it in [Spec-Driven and Agentic Verification](/docs/blackbox/guides/spec-driven-and-agentic-verification).
+Try the path in the [Spec-Driven Verification Quickstart](/docs/blackbox/quickstart/connect-specifications-to-runtime-evidence), then apply it in [Spec-Driven and Agentic Verification](/docs/blackbox/guides/spec-driven-and-agentic-verification).

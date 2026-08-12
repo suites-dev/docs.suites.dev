@@ -1,96 +1,130 @@
 ---
 title: "The Verification Loop"
 slug: "blackbox/overview/verification-loop"
-description: "Follow a change from reviewed intent through a Playwright flow, runtime effects, requirement verdicts, repair, and human ratification."
+description: "Follow product intent through Skills, CLI validation, human gates, Playwright execution, runtime evidence, verdicts, and implementation repair."
 sidebar_position: 3
 keywords:
   [
     "agentic verification loop",
+    "behavioral harness engineering",
     "runtime evidence gate",
     "spec driven development verification",
-    "EARS requirements",
-    "Gherkin feature files",
+    "behavioral verification lifecycle",
   ]
+seo:
+  primary_keyword: "behavioral verification lifecycle"
+  secondary_keywords: ["agentic verification loop", "runtime evidence gate"]
+  search_intent: "developers designing a repeatable verification gate around human- or agent-authored changes"
+  snippet_angle: "show the loop from product intent through inferential Skills, computational CLI gates, human review, runtime evidence, and repair"
 ---
 
 import VerificationLoopDiagram from "@/components/blackbox/VerificationLoopDiagram.astro";
-import CodeFirstBddDiagram from "@/components/blackbox/CodeFirstBddDiagram.astro";
 import Aside from "@/components/mdx/Aside.astro";
 
-The Blackbox lifecycle is a verification loop around a software change. Its goal is not to maximize the number of tests. Its goal is to produce enough reviewed evidence to trust that selected behavior did not break.
+The Blackbox lifecycle is a **behavioral harness loop** around a software change. The goal is not to generate more artifacts. The goal is to make accepted behavior explicit, executable, observable, and reviewable.
 
 <VerificationLoopDiagram />
 
 ## The Loop, Step by Step
 
-1. **Express intent.** A person or planning process defines the behavior and constraints. EARS can make normative requirements explicit, but it is optional.
-2. **Choose a flow.** A stable flow ID names the behavior that will carry evidence, such as `subscribe-unknown-user`.
-3. **Write or select a Playwright test.** The test drives the real system boundary and keeps its ordinary assertions.
-4. **Implement the change.** A developer or coding agent changes the system.
-5. **Run in a controlled environment.** The testbed starts the topology and injects test-time instrumentation into compatible Node SUT containers.
-6. **Capture runtime effects.** Blackbox associates Postgres, Redis, HTTP, SQS, S3, and RabbitMQ observations with the active flow.
-7. **Check reviewed behavior.** Inline matchers or the effect catalog evaluate required and forbidden effects.
-8. **Produce verdicts.** Reports and stable JSON tell CI, agents, and reviewers what was satisfied, missing, violated, unproven, or unbound.
-9. **Repair or ratify.** Implementation failures return to the author. New or ambiguous behavior returns to a human before the contract changes.
+1. **Express intent.** A person, ticket, Kiro document, OpenSpec artifact, Spec Kit spec, or design note describes the behavior.
+2. **Propose requirements.** `$blackbox-requirements` converts selected obligations into EARS as an inferential proposal.
+3. **Validate requirements.** `blackbox requirements validate` checks structure, IDs, and profile rules.
+4. **Approve requirements.** A human reviews and approves the EARS meaning.
+5. **Propose Gherkin.** `$blackbox-gherkin` translates approved requirements into a `.feature` file with `@flow` and `@requirement` tags.
+6. **Validate features.** `blackbox features check` checks syntax, tags, and source relationships.
+7. **Accept scenarios.** A human reviews and accepts the scenario language.
+8. **Propose a suite patch.** `$blackbox-playwright` writes a native Playwright patch that declares the same flow ID.
+9. **Approve the suite patch.** A human reviews the exact test change before it enters the suite.
+10. **Run the suite.** `blackbox verify --flow <id> --json` runs the selected Playwright flow and captures runtime evidence.
+11. **Propose effect assertions.** `$blackbox-effects` reads evidence and proposes required and forbidden effects.
+12. **Accept the effect contract.** A human reviews and accepts the effect contract.
+13. **Compute verdicts.** The CLI reports separate Playwright, feature, requirement, effect, and observable decision verdicts.
+14. **Repair and rerun.** A coding agent repairs implementation findings against the accepted harness and reruns the loop.
 
-The loop can repeat under the hood in a local agent workflow or run visibly in CI. The trust boundary remains the same: implementation changes may be automated; changes to accepted behavior must be reviewable.
+The agent stops when success would require changing accepted behavior. A failing implementation can be repaired automatically. A changed requirement, feature, suite, or effect contract needs human review.
 
-## Four Surfaces, Four Jobs
+## Harness Responsibilities
 
-| Surface                      | Job                                                            | Required?          |
-| ---------------------------- | -------------------------------------------------------------- | ------------------ |
-| Playwright flow              | Execute selected behavior                                      | Yes                |
-| Runtime effects and catalog  | Prove required and forbidden boundary behavior                 | Core Blackbox path |
-| EARS requirement and binding | Connect normative intent to one or more flow IDs               | Optional           |
-| Gherkin feature file         | Give executable behavior a readable projection and drift check | Optional           |
+| Responsibility           | Owner        | What can change                                                       |
+| ------------------------ | ------------ | --------------------------------------------------------------------- |
+| Inferential translation  | Skills       | Proposed EARS, Gherkin, suite patches, and effect contracts           |
+| Deterministic validation | CLI          | Findings, reports, evidence, and verdicts                             |
+| Meaning and behavior     | Humans       | Accepted requirements, scenarios, suite patches, and effect contracts |
+| Implementation repair    | Coding agent | Product code and supporting implementation tests                      |
 
-EARS and Gherkin are not competing sources of truth. An EARS statement can say what the system is required to do. A generated feature can show how a Playwright scenario exercises behavior. Runtime evidence decides what the system actually did in that run.
+This separation is the core of the loop. The same agent should not silently rewrite the harness it is trying to satisfy.
 
-## Human Ratification Is the Stop Rule
+## The Loop Has Multiple Entry Points
 
-Automation can safely repeat work when the accepted contract is unchanged:
+It is not a mandatory waterfall.
+
+| Starting situation          | Where the loop begins                                                           |
+| --------------------------- | ------------------------------------------------------------------------------- |
+| Existing Playwright tests   | Discover a flow, capture evidence, review an effect contract, and add verdicts. |
+| New spec-driven feature     | Start from requirements, Gherkin, and a proposed native Playwright flow.        |
+| Refactor or rewrite         | Establish accepted evidence before changing internals.                          |
+| Incident regression         | Capture the repaired path and add forbids for unsafe effects.                   |
+| External specification tool | Import selected intent from Kiro, OpenSpec, Spec Kit, tickets, or design docs.  |
+
+Every path eventually needs an executable run before Blackbox can make a runtime claim.
+
+## Verdicts Answer Different Questions
+
+Blackbox should not collapse the whole harness into one unexplained Boolean.
+
+| Verdict surface              | Example result                                        | Meaning                                                             |
+| ---------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------- |
+| Playwright                   | passed or failed                                      | Did the explicit test assertions hold?                              |
+| Feature check                | in sync or a drift finding                            | Does reviewed Gherkin still match the expected flow structure?      |
+| Effect contract              | satisfied, failed, or uncovered                       | Did required and forbidden boundary behavior match?                 |
+| Requirement coverage         | `proven`, `violated`, `unproven`, or `unbound`        | What does runtime evidence establish about approved intent?         |
+| Observable decision evidence | `propagating`, `masking-candidate`, or `coverage-gap` | Did different decision arms leave distinguishable observed effects? |
+
+A Playwright pass alongside an effect failure is not contradictory. It says the public assertion held while reviewed boundary behavior did not.
+
+## Repair Automatically, Review Deliberately
+
+Automation can repeat a bounded implementation loop:
 
 ```text
-run flow -> read JSON verdict -> repair implementation -> rerun
+run flow -> read deterministic findings -> repair implementation -> rerun
 ```
 
-Automation should stop when a failure suggests changing the contract:
+It must stop when success would require changing:
 
-- a previously unseen effect may be intentional or accidental;
-- a required effect may no longer belong in the design;
-- a forbidden effect may now be allowed under a new requirement;
-- a requirement may need a new flow binding;
-- generated Gherkin may expose ambiguous behavior language.
+- requirement meaning;
+- a Gherkin scenario;
+- the approved Playwright flow scope;
+- a required or forbidden effect;
+- the accepted effect contract;
+- the final interpretation of evidence.
 
-Those are product and architecture decisions, not mechanical repairs.
+Those changes alter what the system is allowed to do. They are product or architecture decisions, not mechanical repairs.
 
-<Aside type="warning" title="Do Not Approve the Baseline Automatically">
-  The first recording describes the current implementation, including its
-  defects. Use it to discover candidate effects, then review the catalog before
-  treating it as a gate.
+<Aside type="warning" title="Do Not Let Automation Move the Goalposts">
+  Keep accepted behavior changes visible in review. If an agent can rewrite
+  requirements, scenarios, suites, and effect contracts until they agree, the
+  harness no longer proves behavior independently.
 </Aside>
 
-## The Code-First Gherkin Loop
+## The Loop Creates Repository Memory
 
-Classic BDD often starts with a feature file and asks teams to keep prose, step definitions, and tests synchronized. Blackbox supports a different default for existing system tests: emit Gherkin from executable test structure, review the result, and detect drift later.
+Reviewed requirements, feature files, stable flow tags, effect contracts, and selected reports survive individual development sessions. A future developer or agent can inspect what a flow means without reconstructing the system from a large diff.
 
-<CodeFirstBddDiagram kind="staleness" />
+Raw spans and generated reports usually remain run artifacts. Accepted behavioral artifacts belong in the repository.
 
-This keeps feature files useful without making them mandatory. The supported path is test-to-feature generation and drift checking. Feature-to-test scaffolding exists under the experimental CLI surface and should not be presented as a stable workflow.
+## Run the Loop Again
 
-## The Agentic Development Extension
+The first successful implementation is not the end. The same flow and contract can verify:
 
-An agent can use the same loop in two directions:
+- a later refactor;
+- a service extraction;
+- a dependency upgrade;
+- a framework migration;
+- an incident repair;
+- an agent-authored optimization.
 
-- **Existing behavior:** read local requirements, bindings, feature files, catalogs, and reports before changing code; then repair against deterministic runtime verdicts.
-- **New behavior:** draft a Playwright flow before implementation, optionally emit Gherkin for human review, implement the change, and run until the reviewed effects and requirement verdicts pass.
+This repetition is the point: implementation can change while accepted behavior remains explicit and testable.
 
-The artifacts stored in the repository are valuable because they survive agent sessions. A future developer or agent can understand named flows and reviewed behavior without reconstructing the entire system from test code and traces.
-
-## Apply the Loop
-
-Start with runtime evidence, then add only the specification surfaces your team will review:
-
-1. [5-Minute Quickstart](/docs/blackbox/quickstart/first-proven-feature)
-2. [Connect Specifications to Runtime Evidence](/docs/blackbox/quickstart/connect-specifications-to-runtime-evidence)
-3. [Spec-Driven and Agentic Verification](/docs/blackbox/guides/spec-driven-and-agentic-verification)
+Choose your entry point in [Adopt Blackbox in Layers](/docs/blackbox/overview/adopt-blackbox-in-layers), then follow the [Spec-Driven Verification Quickstart](/docs/blackbox/quickstart/connect-specifications-to-runtime-evidence) or [Agent Skills](/docs/blackbox/guides/agent-skills).

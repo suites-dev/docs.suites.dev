@@ -1,0 +1,137 @@
+---
+title: "Adopt Blackbox in Layers"
+description: "Choose runtime evidence, readable Gherkin, requirement traceability, or the complete Blackbox verification loop without adopting every surface at once."
+sidebar_position: 4
+keywords:
+  [
+    "Blackbox adoption",
+    "runtime evidence adoption",
+    "EARS requirements",
+    "Gherkin from Playwright",
+    "system verification framework",
+  ]
+seo:
+  primary_keyword: "Blackbox adoption"
+  secondary_keywords: ["runtime evidence adoption", "EARS requirements"]
+  search_intent: "developers deciding which Blackbox verification layers to adopt first"
+  snippet_angle: "compare what requirements, feature files, runtime effects, and the combined loop can and cannot prove"
+---
+
+import Aside from "@/components/mdx/Aside.astro";
+
+Blackbox is a framework with independent entry points. You do not need to adopt EARS, Gherkin, runtime instrumentation, and observable decision coverage on the same day.
+
+The layers are modular, but they do not provide equal evidence.
+
+## Compare the Adoption Shapes
+
+| Adoption shape              | What it provides                                            | What it does not establish                     |
+| --------------------------- | ----------------------------------------------------------- | ---------------------------------------------- |
+| Requirements only           | Structured, identifiable intent                             | That any requirement is implemented            |
+| Requirements plus Gherkin   | Readable reviewed examples and feature checks               | That internal boundary behavior was correct    |
+| Runtime effects only        | Required and forbidden effect verification                  | Which product requirement the flow satisfies   |
+| Requirements plus runtime   | Requirement-to-evidence verdicts                            | A readable scenario projection unless enabled  |
+| Tests, Gherkin, and effects | Executable behavior, readable review, and runtime contracts | Normative requirement traceability             |
+| Full loop                   | Intent, execution, evidence, traceability, and drift gates  | Exhaustive or formal proof of the whole system |
+
+Choose a layer because somebody will use and review its artifacts. Generating more files without a review purpose creates ceremony rather than confidence.
+
+Begin onboarding with `blackbox init`, then use `blackbox doctor` to validate the environment. `blackbox verify` runs the selected flow, while `--layer` can narrow one diagnostic run:
+
+```bash
+blackbox verify --layer requirements --json
+blackbox verify --layer features --json
+blackbox verify --layer runtime --flow checkout-flow --json
+```
+
+## Runtime Evidence: The Core Path
+
+Start here when you already have a Playwright system test or need protection before a refactor.
+
+```text
+existing flow -> capture effects -> review effect contract -> rerun -> effect gate
+```
+
+This path gives Blackbox its strongest independent signal. It can prove that selected required effects appeared and selected forbidden effects remained absent, even when the public response still looks correct.
+
+Use it for refactors, legacy modernization, incident regressions, service workflows, and consequential negative paths.
+
+**Start:** [5-Minute Quickstart](/docs/blackbox/quickstart/first-proven-feature)
+
+## Readable Behavior: Tests and Gherkin
+
+Use this path when reviewed behavior should be readable before or beside the executable flow.
+
+```text
+approved requirements -> Gherkin proposal -> review -> feature check in CI
+```
+
+The stable spec-driven direction is requirements to Gherkin to native Playwright. Feature files are repository memory for humans and agents. They are not evidence from the running system.
+
+For existing tests, `features emit` remains a secondary migration path. It should not anchor the primary product workflow.
+
+**Guide:** [Generate Gherkin From Playwright Tests](/docs/blackbox/guides/generating-feature-files)
+
+## Requirement Traceability: EARS and Flow Bindings
+
+Use this path when selected product obligations need stable IDs and explicit runtime traceability.
+
+```text
+reviewed requirement -> feature tags -> effect coverage -> requirement verdict
+```
+
+EARS makes the requirement structurally constrained and identifiable. Gherkin `@requirement:<id>` tags and the stable flow ID connect the requirement to runtime evidence. Requirement coverage then joins those tags with effect coverage.
+
+An EARS-only workflow improves requirement quality, but it cannot produce a runtime verdict. The requirement becomes `proven` only when all bound flows have satisfied evidence.
+
+**Start:** [Spec-Driven Verification Quickstart](/docs/blackbox/quickstart/connect-specifications-to-runtime-evidence)
+
+## Observable Decision Coverage: Advanced Evidence
+
+Use this after runtime capture works and you need to understand whether exercised decision arms leave distinguishable evidence.
+
+The engine compares canonical evidence signatures from tests that exercised different branch arms. It can identify propagation candidates, masking candidates, and coverage gaps. It does not currently compute full MC/DC atomic-condition independence.
+
+This layer is independent of effect matchers. Strengthen it with discriminating scenarios and sufficient instrumentation, not by changing effect clauses.
+
+**Concept:** [Observable Decision Coverage](/docs/blackbox/concepts/omc-dc-coverage)
+
+## The Full Verification Loop
+
+Combine the layers when each one has an active owner:
+
+```text
+reviewed intent
+  -> explicit flow tags
+  -> executable Playwright behavior
+  -> optional Gherkin review
+  -> observed runtime effects
+  -> effect and requirement verdicts
+  -> implementation repair or human review
+```
+
+This is the strongest Blackbox workflow because each surface constrains a different failure mode. It also has the highest maintenance cost. Start with one boundary-risk flow rather than converting the entire repository.
+
+```bash
+blackbox status --json
+blackbox verify --flow subscribe-unknown-user --json
+```
+
+<Aside type="note" title="The Combination Is Stronger, Not Mandatory">
+  Runtime effects remain useful without EARS or Gherkin. Requirements remain
+  useful before implementation. Generated Gherkin remains useful without runtime
+  instrumentation. The framework becomes stronger when explicit links connect
+  the surfaces, not merely when all files exist.
+</Aside>
+
+## Choose Your Starting Point
+
+| Your current situation           | Start with                                                    |
+| -------------------------------- | ------------------------------------------------------------- |
+| Existing Playwright system tests | Runtime evidence and one reviewed effect contract             |
+| New spec-driven feature          | Requirements, a narrow Playwright flow, then runtime evidence |
+| Tests are hard to review         | Feature emission, lint, and drift checks                      |
+| Refactor starts soon             | Establish passing effect contracts before changing internals  |
+| Runtime reports already exist    | Requirement tags or observable decision coverage              |
+
+Read [When to Use Blackbox](/docs/blackbox/overview/when-to-use-blackbox) before choosing the first flow.

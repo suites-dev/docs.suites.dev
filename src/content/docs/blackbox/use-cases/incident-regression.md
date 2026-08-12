@@ -20,31 +20,33 @@ Suppose the API returned `404` for an unknown user, but a payment request was al
 Create a named flow and keep the response assertion:
 
 ```ts
-test.system("subscribe-unknown-user", "rejecting an unknown subscriber", () => {
-  test("stops before downstream work", async ({ capture, request, system }) => {
-    const response = await request.post(
-      `${system.bff.hostBaseUrl}/subscriptions`,
-      {
+test.describe(
+  "Reject an unknown subscriber",
+  { tag: "@flow:subscribe-unknown-user" },
+  () => {
+    test("stops before downstream work", async ({ capture, request }) => {
+      const response = await request.post("/subscriptions", {
         data: { userId: "ghost-user", paymentMethodId: "pm_card_visa" },
-      },
-    );
+      });
 
-    expect(response.status()).toBe(404);
-    await expect(capture).toMatchCatalog();
-  });
-});
+      expect(response.status()).toBe(404);
+      await expect(capture).toMatchCatalog();
+    });
+  },
+);
 ```
 
-Ratify the incident boundary in the catalog:
+Review and accept the incident boundary in the effect contract:
 
 ```yaml
-subscribe-unknown-user:
-  requires:
-    - { boundary: postgres, op: SELECT, key: users, service: bff }
-  forbids:
-    - { boundary: http, op: POST, key: /v1/payment_intents, service: bff }
-    - { boundary: postgres, op: INSERT, service: bff }
-    - { boundary: sqs, op: SendMessage, key: subscription-orders }
+specVersion: "0.1"
+flow: subscribe-unknown-user
+requires:
+  - { boundary: postgres, op: SELECT, key: users, service: bff }
+forbids:
+  - { boundary: http, op: POST, key: /v1/payment_intents, service: bff }
+  - { boundary: postgres, op: INSERT, service: bff }
+  - { boundary: sqs, op: SendMessage, key: subscription-orders }
 ```
 
 The regression now fails if payment, persistence, or publication returns, even when the API response remains `404`.
@@ -53,9 +55,9 @@ The regression now fails if payment, persistence, or publication returns, even w
 
 1. Reproduce the narrow flow in a controlled testbed.
 2. Identify the required and forbidden effects that distinguish fixed from broken behavior.
-3. Review the catalog with the incident owner.
+3. Review the effect contract with the incident owner.
 4. Add an EARS requirement when the rule should remain normative and traceable.
-5. Run the flow in CI with catalog baselining disabled.
+5. Run the flow in CI without changing accepted behavior artifacts.
 6. Retain the failing runtime artifacts when the gate trips.
 
 Blackbox does not replace monitoring, incident management, or root-cause analysis. It turns one selected failure mode into a recurring pre-merge behavior check.
