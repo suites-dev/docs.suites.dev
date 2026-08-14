@@ -1,57 +1,47 @@
 ---
 title: "Agent Skills"
-description: "Use Blackbox agent Skills as inferential harnesses that propose requirements, Gherkin, Playwright patches, and effect contracts while the CLI computes facts and humans approve behavior."
+description: "Use Blackbox Skills for inferential proposals while the CLI performs deterministic checks, suite transformations, execution, and verdict computation."
 sidebar_position: 4
 keywords:
   [
     "Blackbox agent skills",
-    "agentic verification",
     "inferential harness",
     "computational harness",
-    "human in the loop",
+    "human approval",
   ]
 ---
 
-Blackbox Skills are **inferential harnesses**. They translate between artifacts, propose exact patches, and stop when a human decision is required.
+Blackbox Skills are the **inferential harness**. They translate meaning and propose changes to behavior artifacts.
 
-The Blackbox CLI is the **computational harness**. It validates structure, runs Playwright, captures runtime evidence, and returns deterministic verdicts.
+The Blackbox CLI is the **computational harness**. It validates artifacts, extracts behavior, transforms native suite ASTs, executes flows, observes effects, and computes verdicts.
+
+Humans retain authority over accepted behavior.
 
 ## Skill Set
 
-| Skill                    | Primary job                                                          | Human gate                                                |
-| ------------------------ | -------------------------------------------------------------------- | --------------------------------------------------------- |
-| `$blackbox`              | Coordinate the loop and route to specialist Skills.                  | Stop when accepted behavior would change.                 |
-| `$blackbox-requirements` | Propose EARS requirements from product intent.                       | Human reviews and approves requirement meaning.           |
-| `$blackbox-gherkin`      | Propose `.feature` files from approved requirements.                 | Human reviews and accepts scenario language.              |
-| `$blackbox-playwright`   | Propose native Playwright suite patches.                             | Human approves the exact suite patch.                     |
-| `$blackbox-effects`      | Propose effect assertions or effect contracts from runtime evidence. | Human reviews and accepts required and forbidden effects. |
+| Skill                    | New-behavior job                               | Existing-project job                                 | Stop boundary                         |
+| ------------------------ | ---------------------------------------------- | ---------------------------------------------------- | ------------------------------------- |
+| `$blackbox`              | Coordinate the current flow                    | Resume the earliest incomplete adoption stage        | Any required human judgment           |
+| `$blackbox-requirements` | Propose EARS from selected product intent      | Recover proposed EARS from reviewed Gherkin          | Human approval of requirement meaning |
+| `$blackbox-gherkin`      | Propose Gherkin from approved requirements     | Sharpen CLI-extracted baseline behavior and flow IDs | Human approval of behavior language   |
+| `$blackbox-effects`      | Classify observed effects into proposed policy | Classify observations after an adopted flow runs     | Human approval of effect meaning      |
 
-The Skills may be installed or distributed by a later integration flow. This page defines the public behavior they should follow.
+There is no runner-specific suite-authoring Skill. `blackbox suites align --write` is the only documented Blackbox path that creates or reshapes native suite AST nodes.
 
-## Common Rules
+## Shared Rules
 
-Every Blackbox Skill follows the same constraints:
+Every Skill must:
 
-- Read accepted artifacts before proposing changes.
-- Propose exact patches instead of editing accepted behavior silently.
-- Use native Playwright APIs for suites.
-- Use Gherkin only in `.feature` files.
-- Use YAML only for `features/<flow>.effects.yaml`.
-- Use CLI JSON output for deterministic facts.
-- Stop when the next step needs human judgment.
-- Never make a failing verdict disappear by changing requirements, features, suites, or effect contracts without review.
+- read accepted artifacts before proposing changes;
+- use CLI JSON output for computational facts;
+- author only its allowed artifact layer;
+- stop before a human authority boundary;
+- never rewrite accepted behavior to clear a failing verdict;
+- never edit native suite source directly.
 
 ## `$blackbox`
 
-Use `$blackbox` when you want one coordinator for the whole loop.
-
-**Inputs**
-
-- Product intent or an existing flow ID.
-- Current repository artifacts.
-- Latest CLI JSON output when available.
-
-**Allowed CLI commands**
+Use `$blackbox` to inspect the current flow and select the next safe operation.
 
 ```bash
 blackbox status --json
@@ -62,140 +52,91 @@ blackbox verify --flow <flow-id> --json
 blackbox explain <code> --json
 ```
 
-**Outputs**
-
-- A step-by-step harness plan.
-- Routing to specialist Skills.
-- A stop request when human approval is needed.
+The coordinator may route to a specialist Skill or a deterministic CLI command. It stops when the next operation needs a person to approve meaning or behavior.
 
 ## `$blackbox-requirements`
 
-Use `$blackbox-requirements` to transform product intent into EARS proposals.
+Use `$blackbox-requirements` to translate selected intent into proposed `requirements/**/*.ears` files. For existing projects, it can translate reviewed Gherkin back into proposed requirements.
 
-**Inputs**
-
-- Product spec, ticket, Kiro, OpenSpec, Spec Kit, or design text.
-- Target flow or feature scope.
-- Existing `requirements/**/*.ears`.
-
-**Allowed CLI commands**
+Validate proposals with:
 
 ```bash
-blackbox requirements validate 'requirements/**/*.ears' --json
-blackbox explain <code> --json
+blackbox requirements validate requirements/checkout.ears --json
+blackbox requirements check --flow checkout-payment --json
 ```
 
-**Outputs**
-
-- Proposed `requirements/**/*.ears` patch.
-- Notes for ambiguous product decisions.
-- Validation findings that a human or agent must resolve.
-
-**Stop condition**
-
-Stop after proposing or repairing EARS text. A human approves the requirement meaning.
+The Skill can repair structural findings. A person approves requirement meaning.
 
 ## `$blackbox-gherkin`
 
-Use `$blackbox-gherkin` to propose readable behavior from approved requirements.
-
-**Inputs**
-
-- Approved EARS requirements.
-- Target flow ID.
-- Existing `features/**/*.feature`.
-
-**Allowed CLI commands**
+Use `$blackbox-gherkin` to propose readable behavior from approved requirements or sharpen baseline Gherkin extracted from an existing suite.
 
 ```bash
-blackbox features check --features ./features --json
-blackbox features drift --features ./features --tests ./e2e --json
-blackbox explain <code> --json
+blackbox features check \
+  --feature features/checkout-payment.feature \
+  --json
 ```
 
-**Outputs**
+The Skill may clarify scenario language, flow boundaries, and stable IDs. It must not claim the existing test reveals complete product intent. A person approves behavior language before suite alignment.
 
-- Proposed `.feature` patch.
-- Feature-level `@flow:<id>` and `@requirement:<id>` tags.
-- Scenario language that can be reviewed before implementation.
+## Deterministic Suite Translation
 
-**Stop condition**
-
-Stop after the feature proposal or when the scenario needs product interpretation.
-
-## `$blackbox-playwright`
-
-Use `$blackbox-playwright` to propose executable native Playwright flows.
-
-**Inputs**
-
-- Accepted `.feature` file.
-- Existing Playwright testbed and fixtures.
-- Flow ID and scenario title.
-
-**Allowed CLI commands**
+Suite source belongs to the CLI, not a Skill:
 
 ```bash
-blackbox features check --features ./features --tests ./e2e --json
-blackbox verify --flow <flow-id> --json
-blackbox explain <code> --json
+blackbox suites align \
+  --feature features/checkout-payment.feature \
+  --suite ./e2e/checkout.spec.ts \
+  --write \
+  --json
 ```
 
-**Outputs**
-
-- Proposed Playwright patch using `test.describe(..., { tag: "@flow:<id>" })`.
-- `test.step` labels that map to the reviewed scenario.
-- Ordinary Playwright assertions plus Blackbox effect matcher hooks.
-
-**Stop condition**
-
-Stop before applying the suite patch unless a human has approved that exact patch.
+The command writes the native `.ts` file atomically and returns changed paths, source ranges, and digests. It does not create a patch artifact. A person reviews the actual source diff.
 
 ## `$blackbox-effects`
 
-Use `$blackbox-effects` after a run produces runtime evidence.
-
-**Inputs**
-
-- `.blackbox-coverage/` evidence from a recent `verify` run.
-- Accepted requirement and feature artifacts.
-- Existing `features/<flow>.effects.yaml`, when present.
-
-**Allowed CLI commands**
+Use `$blackbox-effects` only after a run has produced observed effects:
 
 ```bash
-blackbox verify --flow <flow-id> --json
-blackbox flows show <flow-id> --json
-blackbox coverage replay --coverage-dir .blackbox-coverage --json
-blackbox explain <code> --json
+blackbox effects show --flow checkout-payment --run latest --json
 ```
 
-**Outputs**
+The Skill can propose `features/<flow-id>.effects.yaml` changes that:
 
-- Proposed effect assertion changes.
-- Proposed `features/<flow>.effects.yaml` patch.
-- Explicit `requires` and `forbids` rationale.
+- mark selected observed effects as required;
+- add effects that must remain absent as forbidden;
+- leave incidental observations outside the policy;
+- flag observations that may indicate a defect.
 
-**Stop condition**
+Validate the proposal:
 
-Stop when deciding whether an observed effect is required, forbidden, incidental, or a defect.
+```bash
+blackbox effects check --flow checkout-payment --json
+```
 
-## Integration Boundaries
+The Skill does not create observations. `blackbox verify` already produced them. A person approves effect meaning.
 
-Kiro, OpenSpec, Spec Kit, tickets, and design documents can feed the first step. They should not bypass the Blackbox review gates.
+## Read Review Boundaries Correctly
 
-The stable integration boundary is artifact-based:
+A source-changing operation can return:
 
-- external spec tool -> product intent;
-- `$blackbox-requirements` -> EARS proposal;
-- human approval -> accepted requirements;
-- CLI validation -> deterministic findings;
-- runtime evidence -> effect proposal;
-- final human verification -> accepted result.
+```json
+{
+  "status": "awaiting-review",
+  "data": {
+    "review": {
+      "required": true,
+      "boundary": "suite-source"
+    }
+  }
+}
+```
+
+`awaiting-review` is a successful transformation that must pause. It does not record approval. In alpha, use normal diff or pull-request review before running the suggested next command.
 
 ## Summary
 
-- **Skills infer** and propose patches.
-- **The CLI computes** facts and verdicts.
-- **Humans approve** meaning and accepted behavior.
-- **Agents repair implementation** only while the harness stays fixed.
+- **Skills propose meaning.**
+- **The CLI computes facts and transforms native suite structure.**
+- **Humans approve accepted behavior.**
+- **Agents repair implementation while the accepted harness stays fixed.**

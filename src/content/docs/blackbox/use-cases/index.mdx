@@ -35,10 +35,10 @@ Every use case follows the same small loop:
 6. Rerun against the same contract.
 7. Ratify any intentional behavior change.
 
-EARS requirements and generated Gherkin are optional additions. Use EARS when requirement-level verdicts matter. Use Gherkin when a readable behavior projection will be reviewed. Runtime effects remain the proof layer in every path.
+EARS requirements and Gherkin are governance layers. Use EARS when requirement-level traceability matters and Gherkin when reviewers need readable examples. Runtime effects are required when the claim concerns what the running system actually did.
 
 ## Do Not Start With the Entire Suite
 
 Pick flows where the cost of silent behavior drift is clear: payment, authorization, publication, persistence, destructive operations, retries, or compensation.
 
-The [5-Minute Quickstart](/docs/blackbox/quickstart/first-proven-feature) shows the loop. [When to Use Blackbox](/docs/blackbox/overview/when-to-use-blackbox) explains where a lower-level test is the better choice.
+[Choose Your Starting Point](/docs/blackbox/quickstart/) starts from repository state. [When to Use Blackbox](/docs/blackbox/overview/when-to-use-blackbox) explains where a lower-level test is the better choice.

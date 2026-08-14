@@ -13,7 +13,7 @@ keywords:
 
 Blackbox discovers the behavioral harness from repository conventions. This wave does not define a root Blackbox manifest.
 
-Run `blackbox init` first during onboarding, then use `blackbox doctor` to validate the environment. The `init` flow is intentionally not documented here yet.
+Run `blackbox init --mode auto --json` first during onboarding. Use `blackbox status` for structural state and `blackbox doctor` when runtime verification is configured.
 
 ## Discovery Conventions
 
@@ -93,4 +93,4 @@ See [Environment Variables](/docs/blackbox/reference/environment-variables) for 
 - **Playwright owns execution configuration.**
 - **Blackbox discovers behavioral artifacts by convention.**
 - **Effects are the only Blackbox-owned YAML contract.**
-- **`doctor` is the documented readiness check for this wave.**
+- **`status` reports structural readiness; `doctor` checks configured runtime readiness.**

@@ -91,9 +91,20 @@ Use `--fail-on violated` as the conservative first requirement gate. Move to `un
 
 Use `blackbox requirements coverage` directly when debugging or regenerating only the requirement artifact.
 
-## Minimal CI Sequence
+## Add Gates Progressively
 
-The facade is the normal CI gate:
+Use structural gates before runtime infrastructure is available:
+
+```bash
+pnpm exec blackbox requirements validate 'requirements/**/*.ears' --json
+pnpm exec blackbox requirements check --json
+pnpm exec blackbox features check --json
+pnpm exec blackbox suites check --json
+```
+
+These commands can establish that accepted artifacts and native suites remain connected. They do not verify the running system.
+
+Add the runtime gate when the job can start and instrument the selected topology:
 
 ```bash
 pnpm install --frozen-lockfile
@@ -102,7 +113,7 @@ pnpm exec blackbox doctor --json
 pnpm exec blackbox verify --json
 ```
 
-The manifest decides which layers run. An effects-only project runs only Playwright and runtime-effect gates. Adding `requirements`, `features`, or `decisionCoverage` sections extends the same command without replacing the underlying verdicts.
+`blackbox verify` returns the configured layers without collapsing their verdicts. A project without EARS or Gherkin can still verify a reviewed effect contract. A project without runtime observation can run structural gates but cannot claim that the running system satisfied accepted behavior.
 
 Use specialized commands in separate jobs only when the pipeline needs independent ownership or faster feedback:
 
@@ -113,6 +124,17 @@ pnpm exec blackbox coverage replay --no-html --json
 ```
 
 Do not configure or gate a layer when the team does not review its artifacts.
+
+## Use Pull Requests as the Alpha Review Gate
+
+Blackbox approval is external in alpha. Use normal repository review for changes to:
+
+- EARS requirements;
+- Gherkin behavior and stable flow IDs;
+- native suite source written by `suites align --write`;
+- required and forbidden effect policy.
+
+A successful source transformation may return `awaiting-review`. Exit `0`, a commit, or the next command does not prove that a person approved the change.
 
 ## Prevent CI Baselines
 

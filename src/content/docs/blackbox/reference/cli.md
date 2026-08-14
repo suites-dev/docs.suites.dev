@@ -1,293 +1,257 @@
 ---
 title: "CLI Reference"
-description: "Reference for the Blackbox computational harness: init, doctor, status, verify, flow inspection, requirements validation, feature checks, coverage replay, structured output, and write behavior."
+description: "Reference for the Blackbox computational harness, including repository onboarding, artifact checks, suite AST transformations, runtime verification, and structured review boundaries."
 sidebar_position: 1
-keywords: ["blackbox cli", "cli reference", "blackbox commands"]
+keywords:
+  ["blackbox cli", "blackbox suites align", "blackbox verify", "blackbox json"]
 toc_min_heading_level: 2
-seo:
-  primary_keyword: "blackbox cli"
-  secondary_keywords:
-    [
-      "cli reference",
-      "feature files cli",
-      "observable decision coverage replay",
-    ]
-  search_intent: "reference intent from developers running or scripting the Blackbox verification lifecycle"
-  snippet_angle: "catalog the Blackbox facade and engine commands, their inputs, writes, JSON contracts, and CI safety"
 ---
 
-The `blackbox` binary is the **computational harness** for Blackbox. It validates files, discovers flows, runs Playwright, captures runtime evidence, computes verdicts, and returns structured findings.
+The `blackbox` binary is the **computational harness**. It validates artifacts, extracts behavior from existing suites, transforms native suite ASTs, executes flows, observes effects, and computes bounded verdicts.
 
-Skills do inferential work. Humans approve accepted behavior. The CLI does not write requirements, Gherkin, suites, or effect contracts as a way to pass a failing run.
+Skills own inferential proposals. Humans approve accepted behavior. The CLI never changes accepted behavior merely to clear a failing verdict.
 
-Every command supports `--json` using the shared CLI envelope. Exit code `0` means clean, `1` means the command completed with findings, and `2` means a usage or environment failure.
+## Public Command Surface
 
-## Command Shape
+```text
+blackbox init
+blackbox doctor
+blackbox status
+blackbox verify
+blackbox explain <code>
 
-The public binary is `blackbox`, provided by `@suites/blackbox-cli`. Commands use a space topic separator:
+blackbox flows list
+blackbox flows show <flow-id>
 
-```bash
-blackbox verify --flow subscribe-unknown-user
-blackbox flows show subscribe-unknown-user
-blackbox features check --features ./features --tests ./e2e
-blackbox coverage replay --coverage-dir .blackbox-coverage
+blackbox requirements validate [paths...]
+blackbox requirements check
+blackbox requirements drift
+blackbox requirements coverage
+
+blackbox features extract [suite-paths...]
+blackbox features check
+blackbox features drift
+
+blackbox suites discover [paths...]
+blackbox suites check
+blackbox suites align
+
+blackbox effects show
+blackbox effects check
+
+blackbox coverage replay
+blackbox otel instrument
 ```
 
-Use `blackbox features check`, not `blackbox features:check`.
+`features emit` may remain as a temporary compatibility alias. Use `features extract` in new scripts and documentation.
+
+## Shared Options
+
+| Option                           | Meaning                                                  |
+| -------------------------------- | -------------------------------------------------------- |
+| `--flow <id>`                    | Select one stable flow; repeat to select several         |
+| `--json`                         | Write one machine-readable result to stdout              |
+| `--write`                        | Apply an explicit source transformation atomically       |
+| `--run <id\|latest>`             | Select retained runtime evidence                         |
+| `--mode <auto\|new\|existing>`   | Select initialization behavior                           |
+| `--feature <path>`               | Select an accepted Gherkin input                         |
+| `--suite <path>`                 | Select a native suite when discovery is ambiguous        |
+| `--expected-revision <revision>` | Require a repository revision before a future-safe write |
+
+Every command supports `--json`. JSON mode never prompts. Ambiguous discovery returns choices and exits without writing.
 
 ## Framework Commands
 
-| Command                    | Job                                                                                               | Writes                             |
-| -------------------------- | ------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| `blackbox init`            | Begin project onboarding. The exact flow is deferred for this wave.                               | Not documented yet.                |
-| `blackbox doctor`          | Check tools, topology, instrumentation, Playwright, paths, and artifact consistency.              | Nothing.                           |
-| `blackbox status`          | Summarize repository connections and latest retained run without executing tests.                 | Nothing.                           |
-| `blackbox verify`          | Run selected flows and return separate test, feature, effect, requirement, and decision verdicts. | Runtime evidence and reports only. |
-| `blackbox explain <code>`  | Explain a diagnostic and the next safe action.                                                    | Nothing.                           |
-| `blackbox flows list`      | List known flow IDs and connection state.                                                         | Nothing.                           |
-| `blackbox flows show <id>` | Assemble one flow's requirements, feature, Playwright source, effects, artifacts, and verdicts.   | Nothing.                           |
+| Command                   | Responsibility                                                      | Writes                           |
+| ------------------------- | ------------------------------------------------------------------- | -------------------------------- |
+| `blackbox init`           | Detect project state and select the onboarding path                 | Local state and scaffolding only |
+| `blackbox doctor`         | Check tools, topology, instrumentation, paths, and bindings         | Nothing                          |
+| `blackbox status`         | Report structural readiness and latest retained run                 | Nothing                          |
+| `blackbox verify`         | Validate, execute, observe, normalize effects, and compute verdicts | Run-scoped evidence and reports  |
+| `blackbox explain <code>` | Explain a deterministic finding and its safe next action            | Nothing                          |
 
 ### `init`
 
 ```bash
-blackbox init
+blackbox init --mode auto --json
+blackbox init --mode new --json
+blackbox init --mode existing --json
 ```
 
-`init` is the first onboarding command. Its prompts, flags, outcomes, and written files are intentionally not part of this docs wave.
+`init` detects new, existing, and mixed repositories. It does not modify requirements, features, effect contracts, or suite source.
 
 ### `doctor`
 
 ```bash
-blackbox doctor
-blackbox doctor --flow subscribe-unknown-user --json
+blackbox doctor --json
 ```
 
-`doctor` is the first fully documented readiness contract. It checks whether Blackbox can produce trustworthy evidence from the current repository conventions and environment. It does not run the SUT or change files.
+`doctor` checks configured layers. Runtime findings do not invalidate a structurally accepted harness; they mean runtime verification is not ready.
 
 ### `status`
 
 ```bash
-blackbox status
-blackbox status --flow subscribe-unknown-user --json
+blackbox status --json
+blackbox status --flow checkout-payment --json
 ```
 
-`status` reads repository artifacts and the latest retained run. It reports disconnected flows, artifact age, and the latest available layer verdict without presenting stale evidence as a current verification result.
+`status` reports the earliest structurally incomplete boundary without running tests. Alpha approval remains `external`.
 
 ### `verify`
 
 ```bash
-blackbox verify
-blackbox verify --flow subscribe-unknown-user
-blackbox verify --flow subscribe-unknown-user --json
-blackbox verify --layer runtime --layer decision --json
+blackbox verify --flow checkout-payment --json
 ```
 
-`verify` runs the configured lifecycle in dependency order:
+`verify` validates selected artifacts, runs the native flow, captures evidence, creates observed effects, evaluates configured effect policy, computes eligible decision evidence, and returns separate layered verdicts.
 
-1. Discover selected flows.
-2. Validate EARS requirement sources.
-3. Validate feature syntax, `@flow`, and `@requirement` tags.
-4. Validate effect YAML shape and flow consistency.
-5. Run the selected Playwright flows.
-6. Confirm runtime artifacts belong to the current run.
-7. Evaluate required and forbidden effects.
-8. Produce requirement and observable decision verdicts when enabled.
-9. Return one layered result without collapsing the verdicts.
+The first run can return `effects: not-configured` while still writing observed effects.
 
-`--flow` and `--layer` can be repeated. `--layer` accepts `requirements`, `features`, `runtime`, or `decision` and narrows one diagnostic run.
-
-`verify` writes evidence and reports under `.blackbox-coverage/`. It does not update accepted effect contracts, feature files, requirements, or suites.
-
-### `explain`
-
-```bash
-blackbox explain requirement-violated
-blackbox explain feature-stale --json
-```
-
-`explain` describes a diagnostic, why it matters, and the next safe action. Built-in diagnostic explanations do not require a configured project.
-
-### `flows list` and `flows show`
+## Flow Commands
 
 ```bash
 blackbox flows list --json
-blackbox flows show subscribe-unknown-user --json
+blackbox flows show checkout-payment --json
 ```
 
-The stable flow ID is the framework join key. `flows show` resolves the owning Playwright test, EARS requirement IDs, Gherkin feature, effect contract, latest run, and every available verdict through that ID. It never infers a connection from similar text.
+The flow ID joins requirements, Gherkin, native suite nodes, effect policy, runtime evidence, and reports. `flows show` assembles those explicit relationships without inferring from similar text.
 
-## Layered JSON Output
+## Requirement Commands
 
-`verify --json` preserves individual layer results even when one gate produces findings:
+| Command                 | Responsibility                                                   | Writes            |
+| ----------------------- | ---------------------------------------------------------------- | ----------------- |
+| `requirements validate` | Validate EARS syntax, profile rules, and IDs                     | Nothing           |
+| `requirements check`    | Validate references across accepted artifacts                    | Nothing           |
+| `requirements drift`    | Find missing, stale, duplicate, or disconnected bindings         | Nothing           |
+| `requirements coverage` | Compute requirement verdicts from accepted bindings and evidence | Generated reports |
+
+```bash
+blackbox requirements validate requirements/checkout.ears --json
+blackbox requirements check --flow checkout-payment --json
+blackbox requirements drift --json
+blackbox requirements coverage --json
+```
+
+Validation and structural checks do not require runtime evidence. Requirement coverage can only make runtime-backed claims when accepted bindings and current evidence exist.
+
+## Feature Commands
+
+### `features extract`
+
+```bash
+blackbox features extract ./e2e/checkout.spec.ts --json
+blackbox features extract ./e2e/checkout.spec.ts --write --json
+```
+
+Parses existing suite ASTs and creates literal baseline Gherkin. A written baseline returns `awaiting-review`. It does not claim complete product intent.
+
+### `features check` and `features drift`
+
+```bash
+blackbox features check --feature features/checkout-payment.feature --json
+blackbox features drift --json
+```
+
+These commands validate syntax, IDs, tags, traceability, and accepted source relationships without running the system.
+
+## Suite Commands
+
+### `suites discover`
+
+```bash
+blackbox suites discover ./e2e --json
+```
+
+Parses candidate suites and reports flow candidates, source locations, and conflicts without changing source.
+
+### `suites check`
+
+```bash
+blackbox suites check --flow checkout-payment --json
+```
+
+Validates native suite AST bindings against accepted Gherkin.
+
+### `suites align`
+
+```bash
+blackbox suites align \
+  --feature features/checkout-payment.feature \
+  --suite ./e2e/checkout.spec.ts \
+  --json
+
+blackbox suites align \
+  --feature features/checkout-payment.feature \
+  --suite ./e2e/checkout.spec.ts \
+  --write \
+  --json
+```
+
+Without `--write`, the command returns a plan. With `--write`, it creates or reshapes only the selected native flow, writes atomically, and returns `awaiting-review` with changed paths and digests.
+
+The CLI writes the `.ts` suite directly. It never emits an intermediate patch artifact or invents unsupported application-specific behavior.
+
+## Effect Commands
+
+### `effects show`
+
+```bash
+blackbox effects show --flow checkout-payment --run latest --json
+```
+
+Reads generated observed effects and current classifications for a retained run. It writes nothing.
+
+### `effects check`
+
+```bash
+blackbox effects check --flow checkout-payment --json
+```
+
+Validates effect YAML, selectors, and flow ownership. It does not create or approve policy.
+
+## Coverage and Instrumentation
+
+```bash
+blackbox coverage replay --coverage-dir .blackbox-coverage --json
+blackbox otel instrument --input ./src --output ./instrumented --config ./otel.json
+```
+
+`coverage replay` recomputes reports from retained evidence without rerunning the suite. `otel instrument` writes an explicitly targeted instrumented source tree and is separate from the default testbed bootstrap path.
+
+## Structured Review Results
+
+Source-changing commands return an operation record:
 
 ```json
 {
   "schemaVersion": 1,
-  "command": "verify",
-  "status": "findings",
+  "command": "suites align",
+  "operationId": "op_01J_CHECKOUT",
+  "status": "awaiting-review",
   "data": {
-    "flowIds": ["subscribe-unknown-user"],
-    "layers": {
-      "decisionCoverage": {
-        "state": "passed",
-        "verdict": "propagating"
-      },
-      "effects": { "state": "findings", "verdict": "failed" },
-      "features": { "state": "passed", "verdict": "in-sync" },
-      "requirementCoverage": {
-        "state": "findings",
-        "verdict": "violated"
-      },
-      "requirements": { "state": "passed", "verdict": "valid" },
-      "test": { "state": "passed", "verdict": "passed" }
-    }
+    "flowIds": ["checkout-payment"],
+    "writes": [
+      {
+        "path": "e2e/checkout.spec.ts",
+        "kind": "suite-ast",
+        "beforeDigest": "sha256:before",
+        "afterDigest": "sha256:after"
+      }
+    ],
+    "review": { "required": true, "boundary": "suite-source" }
   },
-  "findings": [
-    {
-      "file": "features/subscribe-unknown-user.effects.yaml",
-      "flowId": "subscribe-unknown-user",
-      "layer": "effects",
-      "line": 7,
-      "message": "Observed forbidden POST /v1/payment_intents",
-      "rule": "forbidden-effect-observed",
-      "severity": "error"
-    }
-  ],
-  "summary": { "errors": 1, "info": 0, "warnings": 0 }
+  "findings": []
 }
 ```
 
-Layer state is `passed`, `findings`, `skipped`, or `not-configured`. Each layer keeps its own verdict vocabulary. Findings include optional `layer` and `flowId` fields in addition to severity, rule, message, file, and line fields.
+`awaiting-review` means the transformation succeeded and must pause. It does not mean a person approved the diff.
 
-## Layer Selection
+## Exit Codes
 
-`--layer` narrows a diagnostic run while preserving dependencies:
+| Code | Meaning                                                                                    |
+| ---- | ------------------------------------------------------------------------------------------ |
+| `0`  | Command completed, including a successful write that now awaits review                     |
+| `1`  | Command completed with behavioral or validation findings                                   |
+| `2`  | Invalid input, stale precondition, missing infrastructure, or engine failure blocked trust |
 
-- `features` checks syntax and flow-tag consistency without running Playwright.
-- `requirements` validates EARS sources without running Playwright.
-- `runtime` runs selected Playwright flows and evaluates effect contracts.
-- `decision` requires runtime capture and includes a fresh runtime run before decision analysis.
-
-## Engine Command Matrix
-
-| Command                                     | Job                                                                                   | Reads                                           | Writes                                                         | JSON | Stability                    |
-| ------------------------------------------- | ------------------------------------------------------------------------------------- | ----------------------------------------------- | -------------------------------------------------------------- | ---- | ---------------------------- |
-| `blackbox requirements validate [paths...]` | Validate EARS structure and stable IDs.                                               | EARS sources.                                   | Nothing.                                                       | Yes  | Alpha public                 |
-| `blackbox requirements check`               | Validate EARS IDs and flow references discovered through feature tags and effects.    | EARS, features, effects, Playwright flow tags.  | Nothing.                                                       | Yes  | Alpha public                 |
-| `blackbox requirements drift`               | Find requirements, feature tags, effect contracts, and flows that no longer agree.    | EARS, features, effects, Playwright flow tags.  | Nothing.                                                       | Yes  | Alpha public                 |
-| `blackbox requirements coverage`            | Join requirement tags to effect coverage.                                             | EARS, features, effect coverage.                | `requirements/coverage.json` under the artifact directory.     | Yes  | Alpha public, report-writing |
-| `blackbox features check`                   | Validate `.feature` syntax, tags, and source consistency.                             | Features and optional tests.                    | Nothing.                                                       | Yes  | Alpha public                 |
-| `blackbox features drift`                   | Detect feature files that drifted from accepted flow structure.                       | `--tests`, `--features`.                        | Nothing.                                                       | Yes  | Alpha public                 |
-| `blackbox features emit [paths...]`         | Secondary migration path that derives starter Gherkin from existing Playwright tests. | Test source files.                              | `.feature` files under `--out` only when explicitly requested. | Yes  | Alpha public, state-changing |
-| `blackbox features compare-observations`    | Compare observation-reporter outputs from two runs.                                   | Baseline and candidate observation directories. | Nothing.                                                       | Yes  | Alpha public                 |
-| `blackbox coverage replay`                  | Recompute observable decision reports from saved evidence.                            | `--coverage-dir`; optional service source map.  | Report files under `--out` or the coverage directory.          | Yes  | Alpha public, report-writing |
-| `blackbox otel instrument`                  | Transform source files with static OpenTelemetry function-span instrumentation.       | `--input` source tree; optional config.         | Instrumented source tree under `--output`.                     | Yes  | Advanced                     |
-
-The CLI does not expose public `requirements extract` or `requirements instructions` commands in this direction. Skills own inferential authoring.
-
-## Feature Commands
-
-### `features check`
-
-```bash
-blackbox features check
-blackbox features check --features ./features --tests ./e2e
-blackbox features check --skip-drift --json
-```
-
-Read-only. Defaults to `--features ./features`. Use this as the durable CI gate for feature syntax, tags, and drift.
-
-### `features drift`
-
-```bash
-blackbox features drift --tests ./e2e --features ./features
-blackbox features drift --json
-```
-
-Read-only. Use it when feature files are accepted review artifacts that must stay synchronized with source tests.
-
-### `features emit`
-
-```bash
-blackbox features emit ./tests --out ./features
-blackbox features emit ./tests --dry-run --json
-```
-
-This is a secondary migration path for existing Playwright tests. It is not the primary spec-driven authoring flow.
-
-## Requirement Commands
-
-### `requirements validate`
-
-```bash
-blackbox requirements validate requirements/billing.ears
-blackbox requirements validate 'requirements/**/*.ears' --json
-```
-
-Read-only. It validates EARS structure, IDs, and profile rules without requiring a Playwright flow.
-
-### `requirements check`
-
-```bash
-blackbox requirements check
-blackbox requirements check --source 'requirements/**/*.ears' --json
-```
-
-Read-only. It validates EARS grammar, requirement ID uniqueness, and references discovered through feature tags and flow IDs.
-
-### `requirements drift`
-
-```bash
-blackbox requirements drift
-blackbox requirements drift --json
-```
-
-Read-only. It reports requirements without accepted flows, features that reference unknown requirements, effect contracts without matching features, and flows that cannot be connected.
-
-### `requirements coverage`
-
-```bash
-blackbox requirements coverage
-blackbox requirements coverage --fail-on unproven --json
-```
-
-The command writes `requirements/coverage.json` below the artifact directory. Its four verdicts are `proven`, `violated`, `unproven`, and `unbound`. `--fail-on` accepts `violated`, `unproven`, or `unbound` and defaults to `violated`.
-
-## Coverage Commands
-
-### `coverage replay`
-
-```bash
-blackbox coverage replay --coverage-dir .blackbox-coverage --out reports
-blackbox coverage replay --no-html
-blackbox coverage replay --service bff=/path/to/bff/src
-```
-
-Replays reports from saved runtime evidence. By default it writes observable decision JSON, Markdown, and HTML under the current `omcdc/` artifact path, plus Istanbul `code-coverage/coverage.json` and Istanbul HTML. With `--no-html`, it writes only `omcdc/verdict.json` and `omcdc/verdict.md`.
-
-## Static Instrumentation Commands
-
-### `otel instrument`
-
-```bash
-blackbox otel instrument --input ./src --output ./instrumented --config ./otel.json
-blackbox otel instrument -i ./src -o ./instrumented --include 'services/**/*.ts' --verbose
-```
-
-This is a build-time instrumentation command. It walks `--input`, transforms matching files, and writes the output tree to `--output`. It is separate from the default testbed bootstrap path.
-
-## Practical Defaults
-
-1. Run `blackbox init` as the first onboarding command.
-2. Run `blackbox doctor --json` after changing the testbed or artifact layout.
-3. Run `blackbox status --json` before an agent proposes repairs.
-4. Use `blackbox verify --json` as the normal local and CI verification command.
-5. Use `requirements validate` before a new requirement has runtime evidence.
-6. Use `features check` when Gherkin is part of the review contract.
-7. Treat `coverage replay` as report regeneration over saved evidence, not as a live system-test run.
-
-## Related Pages
-
-1. [Exit Codes](/docs/blackbox/reference/exit-codes)
-2. [Files and Artifacts](/docs/blackbox/reference/files-and-artifacts)
-3. [Report Formats](/docs/blackbox/reference/report-formats)
+See [Exit Codes](/docs/blackbox/reference/exit-codes) and [Files and Artifacts](/docs/blackbox/reference/files-and-artifacts).

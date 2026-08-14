@@ -83,7 +83,7 @@ Missing evidence does not become a false violation. It remains `unproven`, which
   protect different relationships.
 </Aside>
 
-## The Surfaces Can Be Used Separately
+## The Surfaces Support Different Claims
 
 You can adopt any of these shapes:
 
@@ -92,7 +92,7 @@ You can adopt any of these shapes:
 - Gherkin checks without EARS;
 - all three when requirements, examples, and runtime proof each have active reviewers.
 
-The combined path is stronger only when every artifact has a clear owner and use. An unreviewed generated file or a binding nobody maintains adds ceremony, not confidence.
+The combined path is stronger only when every artifact has a clear owner and use. Requirements or Gherkin can improve governance without runtime observation, but they do not verify implementation. Runtime evidence is required before Blackbox can claim what the running system did.
 
 ## Stable Output for Automation
 
@@ -100,4 +100,4 @@ Blackbox commands return JSON envelopes with `schemaVersion`, `command`, `status
 
 Agents can use those deterministic outputs to repair implementation or documentation drift. They should stop when the proposed repair changes a requirement, feature tag, suite flow, or accepted effect contract.
 
-Try the path in the [Spec-Driven Verification Quickstart](/docs/blackbox/quickstart/connect-specifications-to-runtime-evidence), then apply it in [Spec-Driven and Agentic Verification](/docs/blackbox/guides/spec-driven-and-agentic-verification).
+Try [Define New Behavior](/docs/blackbox/quickstart/define-new-behavior), then apply the authority model in [Spec-Driven and Agentic Verification](/docs/blackbox/guides/spec-driven-and-agentic-verification).

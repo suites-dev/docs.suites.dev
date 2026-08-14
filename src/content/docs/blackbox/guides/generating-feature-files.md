@@ -1,53 +1,73 @@
 ---
-title: "Generate Gherkin From Existing Tests"
-description: "Use feature emission as a secondary migration path for existing Playwright tests, then review the generated Gherkin before accepting it."
-sidebar_position: 21
+title: "Extract Gherkin From Existing Suites"
+description: "Use deterministic suite AST extraction to create baseline Gherkin, then review and sharpen its behavior language."
+sidebar_position: 2
 keywords:
-  [
-    "generate Gherkin",
-    "Playwright feature files",
-    "Blackbox features emit",
-    "feature drift",
-  ]
+  ["Blackbox features extract", "Gherkin from tests", "existing suite adoption"]
 ---
 
-The primary Blackbox workflow is spec-first: approved EARS, accepted Gherkin, approved native Playwright, runtime evidence, and verdicts.
+Use `features extract` when an existing system-test suite is the starting point for Blackbox adoption.
 
-Use `features emit` only when you already have Playwright tests and want a starter `.feature` file for review.
+The CLI derives a literal baseline from native suite structure. It does not claim that test titles express complete product intent.
 
-## Emit a Draft
-
-```bash
-pnpm exec blackbox features emit ./e2e/tests --out ./features --dry-run --json
-```
-
-Inspect the planned files first. When the draft is useful, write it intentionally:
+## Discover the Suite First
 
 ```bash
-pnpm exec blackbox features emit ./e2e/tests --out ./features
+pnpm exec blackbox suites discover ./e2e --json
 ```
 
-## Review the Result
+Resolve ambiguous suite roots or conflicting flow IDs before writing feature files.
 
-Generated Gherkin is not accepted behavior until a human reviews it. Check:
-
-- the `@flow:<id>` tag matches the Playwright flow tag;
-- `@requirement:<id>` tags reference approved EARS requirements;
-- the scenario title names behavior, not implementation plumbing;
-- steps do not invent product decisions;
-- the feature basename matches the flow ID.
-
-## Check Drift
+## Preview the Extraction
 
 ```bash
-pnpm exec blackbox features check --features ./features --tests ./e2e --json
+pnpm exec blackbox features extract ./e2e/checkout.spec.ts --json
 ```
 
-Use the check in CI only after the feature file is part of the review contract.
+Without `--write`, the command returns a plan and findings.
+
+## Write Baseline Gherkin
+
+```bash
+pnpm exec blackbox features extract \
+  ./e2e/checkout.spec.ts \
+  --write \
+  --json
+```
+
+The result includes the written paths and an `awaiting-review` status. Review the `.feature` diff before accepting it.
+
+## Sharpen Meaning Inferentially
+
+Use `$blackbox-gherkin` to:
+
+- replace vague test titles with reviewable behavior language;
+- choose durable flow IDs;
+- split or combine scenarios at meaningful boundaries;
+- identify claims the existing suite does not prove.
+
+The Skill may change the proposed feature. It must not edit the native suite.
+
+## Check and Align
+
+```bash
+pnpm exec blackbox features check \
+  --feature features/checkout-payment.feature \
+  --json
+
+pnpm exec blackbox suites align \
+  --feature features/checkout-payment.feature \
+  --suite ./e2e/checkout.spec.ts \
+  --write \
+  --json
+```
+
+Review the actual TypeScript diff created by `suites align`, then run `blackbox suites check --flow checkout-payment --json`.
+
+`features emit` may remain temporarily as a compatibility alias in some builds. New documentation and automation should use `features extract`.
 
 ## Summary
 
-- **`features emit` is a migration helper.**
-- **Generated Gherkin needs human review.**
-- **Native Playwright remains the executable suite.**
-- **Runtime evidence still decides behavior.**
+- `features extract` recovers literal baseline behavior from existing suite structure.
+- `$blackbox-gherkin` may propose clearer meaning but cannot edit suite source.
+- `suites align` writes the reviewed behavior back to the native suite deterministically.

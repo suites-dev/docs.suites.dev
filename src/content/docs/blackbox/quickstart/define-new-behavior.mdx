@@ -1,0 +1,115 @@
+---
+title: "Define New Behavior"
+description: "Take new product intent through reviewed requirements, Gherkin, and deterministic native suite alignment before adding runtime observation."
+sidebar_position: 4
+keywords:
+  [
+    "spec-driven development",
+    "EARS requirements",
+    "Gherkin",
+    "Blackbox suites align",
+  ]
+---
+
+import Aside from "@/components/mdx/Aside.astro";
+
+Use this path when no existing system-test flow expresses the behavior you need. The governance lifecycle turns intent into an accepted, executable harness before runtime verification begins.
+
+## 1. Propose Requirements
+
+Use `$blackbox-requirements` to translate the selected product obligation into proposed EARS:
+
+```text
+$blackbox-requirements
+
+Input:
+- docs/subscriptions.md
+- target flow: subscribe-unknown-user
+
+Task:
+Propose atomic EARS requirements for this flow.
+```
+
+Validate the proposed file:
+
+```bash
+pnpm exec blackbox requirements validate requirements/subscriptions.ears --json
+```
+
+The CLI validates syntax, profile rules, and IDs. A person still approves the requirement meaning.
+
+## 2. Propose Readable Behavior
+
+After requirement approval, use `$blackbox-gherkin` to propose a feature with stable bindings:
+
+```gherkin
+@flow:subscribe-unknown-user
+@requirement:REQ-004
+Feature: Reject an unknown subscriber
+
+  Scenario: request stops before payment
+    When the unknown user posts a subscription request
+    Then the response status is 404
+```
+
+Check the feature:
+
+```bash
+pnpm exec blackbox features check \
+  --feature features/subscribe-unknown-user.feature \
+  --json
+```
+
+A person reviews the scenario language before suite translation.
+
+<Aside type="note" title="Review Product Decisions Explicitly">
+  A status code, exception, side effect, or flow boundary in Gherkin is a
+  behavior proposal. A clean syntax check does not authorize that decision.
+</Aside>
+
+## 3. Align the Native Suite
+
+The CLI translates accepted Gherkin through the detected runner adapter. Preview first:
+
+```bash
+pnpm exec blackbox suites align \
+  --feature features/subscribe-unknown-user.feature \
+  --json
+```
+
+Apply the deterministic transformation:
+
+```bash
+pnpm exec blackbox suites align \
+  --feature features/subscribe-unknown-user.feature \
+  --write \
+  --json
+```
+
+If no bound suite exists, the adapter creates one. If a suite exists, it updates only the selected flow. Unsupported application-specific actions return a finding instead of invented test code.
+
+The command writes native suite source directly and returns `awaiting-review`. Review the actual TypeScript diff before continuing.
+
+## 4. Check the Accepted Harness
+
+```bash
+pnpm exec blackbox suites check --flow subscribe-unknown-user --json
+pnpm exec blackbox requirements check --flow subscribe-unknown-user --json
+pnpm exec blackbox status --flow subscribe-unknown-user --json
+```
+
+Your first success is one new behavior with approved meaning, readable examples, stable bindings, and a deterministically generated or aligned native suite.
+
+<Aside type="note" title="The Harness Is Ready; The System Is Not Yet Verified">
+  Structural checks establish that accepted artifacts and executable source
+  agree. Runtime observation is required before Blackbox can claim what the
+  running system did.
+</Aside>
+
+Next, check [Runtime Prerequisites](/docs/blackbox/quickstart/runtime-prerequisites), then [Complete the Verification Loop](/docs/blackbox/quickstart/add-runtime-evidence).
+
+## Summary
+
+- Approve requirement meaning and readable behavior before suite generation.
+- Let the CLI create or align native suite source deterministically.
+- Add runtime observation before claiming that the running system satisfies the accepted behavior.

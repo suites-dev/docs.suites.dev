@@ -1,213 +1,120 @@
 ---
-title: "Spec-Driven Verification Quickstart"
-slug: "blackbox/quickstart/connect-specifications-to-runtime-evidence"
-description: "Take one reviewed requirement through EARS, Gherkin, a native Playwright flow, runtime effects, and deterministic verdicts."
-sidebar_position: 4
+title: "Adopt an Existing Suite"
+slug: "blackbox/quickstart/adopt-existing-suite"
+description: "Recover reviewed behavior from one existing system-test flow and align its native suite deterministically without running the system."
+sidebar_position: 3
 keywords:
   [
-    "spec driven development verification",
-    "EARS requirements",
-    "Gherkin Playwright verification",
-    "runtime evidence specification",
-    "requirement coverage",
+    "existing system tests",
+    "Blackbox features extract",
+    "suite AST alignment",
+    "brownfield adoption",
   ]
-seo:
-  primary_keyword: "spec driven development verification"
-  secondary_keywords: ["EARS requirements", "runtime evidence"]
-  search_intent: "developers connecting a new software requirement to executable system behavior and runtime proof"
-  snippet_angle: "walk one requirement through EARS, Gherkin review, native Playwright, effect coverage, and a requirement verdict"
 ---
 
-import VerificationTriangleDiagram from "@/components/blackbox/VerificationTriangleDiagram.astro";
-import AgenticBddWizard from "@/components/blackbox/AgenticBddWizard.astro";
 import Aside from "@/components/mdx/Aside.astro";
 
-Use this path when reviewed intent should guide implementation. You will take two requirements through one Gherkin feature, one native Playwright flow, one effect contract, and one runtime verdict.
+Use this path when the repository already has a system or E2E suite. Adopt one consequential flow before converting more of the suite.
 
-<VerificationTriangleDiagram />
+This quickstart ends with reviewed behavior, stable bindings, and a deterministically aligned native suite. It does not require runtime instrumentation.
 
-This is not a requirement-to-code generator. Skills perform inferential translation. The CLI performs computational validation and evidence capture. Humans approve the artifacts that define accepted behavior.
-
-## Before You Start
-
-Complete [Install Blackbox](/docs/blackbox/quickstart/install), then run:
+## 1. Discover Candidate Flows
 
 ```bash
-pnpm exec blackbox init
-pnpm exec blackbox doctor
+pnpm exec blackbox init --mode existing --json
+pnpm exec blackbox suites discover ./e2e --json
 ```
 
-The exact `init` flow is intentionally deferred for this docs wave. `doctor` is the first fully documented readiness contract.
+`suites discover` parses native suite ASTs and reports candidate test titles, steps, tags, source locations, and binding conflicts. It does not change source.
 
-This quickstart uses `subscribe-unknown-user` throughout. Keep that flow ID in the feature file, Playwright `test.describe` tag, effect contract, and reports.
+Choose one stable, consequential flow. Keep its source path and provisional flow ID through the rest of the quickstart.
 
-## 1. Propose EARS Requirements
+## 2. Extract Baseline Behavior
 
-Start from a product specification, ticket, Kiro document, OpenSpec artifact, Spec Kit spec, or design note. Ask `$blackbox-requirements` to propose only the obligations this flow will verify.
-
-```text
-$blackbox-requirements
-
-Input:
-- docs/subscriptions.md
-- target flow: subscribe-unknown-user
-
-Task:
-Propose atomic EARS requirements. Do not edit the repository directly.
-```
-
-The Skill returns an exact patch for `requirements/subscriptions.ears`:
-
-```text
-REQ-004: When an unknown user requests a subscription, the billing system shall reject the subscription.
-REQ-005: When an unknown user requests a subscription, the billing system shall not request payment.
-```
-
-Validate the proposed file:
+Preview the deterministic extraction:
 
 ```bash
-pnpm exec blackbox requirements validate 'requirements/**/*.ears' --json
+pnpm exec blackbox features extract ./e2e/checkout.spec.ts --json
 ```
 
-A clean validation result establishes structure, not truth. A human still reviews and approves the requirement meaning.
-
-## 2. Propose Gherkin
-
-After the requirements are approved, ask `$blackbox-gherkin` to propose the readable behavior.
-
-```text
-$blackbox-gherkin
-
-Input:
-- requirements/subscriptions.ears
-- flow: subscribe-unknown-user
-
-Task:
-Propose a feature file. Use feature-level @flow and @requirement tags.
-Do not edit accepted requirements or suite files.
-```
-
-The proposed file is `features/subscribe-unknown-user.feature`:
-
-```gherkin
-@flow:subscribe-unknown-user
-@requirement:REQ-004
-@requirement:REQ-005
-Feature: Reject an unknown subscriber
-
-  Scenario: request stops before payment
-    When the unknown user posts a subscription request
-    Then the response status is 404
-    And no payment request is sent
-```
-
-Validate the feature:
+Write the baseline after checking the plan:
 
 ```bash
-pnpm exec blackbox features check --features ./features --json
+pnpm exec blackbox features extract ./e2e/checkout.spec.ts --write --json
 ```
 
-The human reviews and accepts the scenario wording before the suite is changed.
+The command creates a literal `.feature` baseline from suite structure and preserves source locations. It returns `awaiting-review`. It does not claim that existing test names express complete product intent.
 
-<Aside type="note" title="Do Not Hide Product Decisions in Gherkin">
-  If the scenario chooses `404` instead of `401` or `403`, treat that as an
-  explicit behavior proposal. Review it before implementation work continues.
+## 3. Review the Recovered Behavior
+
+Use `$blackbox-gherkin` to sharpen vague descriptions, choose a durable flow boundary, and identify behavior the suite does not prove. The Skill may edit the proposed `.feature` file; it must not edit suite source.
+
+Validate the reviewed feature:
+
+```bash
+pnpm exec blackbox features check \
+  --feature features/checkout-payment.feature \
+  --json
+```
+
+A person approves the behavior language before it becomes the source for suite alignment.
+
+## 4. Recover Requirement Meaning
+
+Use `$blackbox-requirements` to translate the accepted Gherkin into proposed EARS. The reverse translation is inferential because an existing test cannot reveal every product obligation or exception.
+
+```bash
+pnpm exec blackbox requirements validate requirements/checkout.ears --json
+pnpm exec blackbox requirements check --flow checkout-payment --json
+```
+
+A clean validation result establishes structure, not product truth. A person approves the requirement meaning.
+
+## 5. Align the Native Suite
+
+Preview the constrained AST transformation:
+
+```bash
+pnpm exec blackbox suites align \
+  --feature features/checkout-payment.feature \
+  --suite ./e2e/checkout.spec.ts \
+  --json
+```
+
+Apply it explicitly:
+
+```bash
+pnpm exec blackbox suites align \
+  --feature features/checkout-payment.feature \
+  --suite ./e2e/checkout.spec.ts \
+  --write \
+  --json
+```
+
+The CLI updates only the selected flow, preserves unrelated tests and helpers, and writes the TypeScript file atomically. It does not create an intermediate patch artifact. Review the actual `.ts` diff.
+
+## 6. Check the Accepted Harness
+
+After human approval:
+
+```bash
+pnpm exec blackbox suites check --flow checkout-payment --json
+pnpm exec blackbox requirements check --flow checkout-payment --json
+pnpm exec blackbox status --flow checkout-payment --json
+```
+
+Your first success is one existing flow with reviewed behavior, stable identities, and an aligned native suite.
+
+<Aside type="note" title="You Have Not Verified Runtime Behavior Yet">
+  These checks establish the structure of the accepted harness. They do not show
+  what the running system did. Continue with runtime observation to complete the
+  full verification loop.
 </Aside>
 
-## 3. Propose the Playwright Flow
-
-Ask `$blackbox-playwright` to propose a native Playwright patch. The suite uses standard Playwright APIs. Blackbox reads the `@flow` tag.
-
-```ts
-import { expect, test } from "./blackbox-testbed";
-
-test.describe(
-  "Reject an unknown subscriber",
-  { tag: "@flow:subscribe-unknown-user" },
-  () => {
-    test("request stops before payment", async ({ request, capture }) => {
-      await test.step("submit the subscription request", async () => {
-        const response = await request.post("/subscriptions", {
-          data: { userId: "ghost-user", tier: "pro" },
-        });
-
-        expect(response.status()).toBe(404);
-      });
-
-      await test.step("verify the response and captured effects", async () => {
-        await expect(capture).toMatchCatalog();
-      });
-    });
-  },
-);
-```
-
-The human approves the exact suite patch before it is applied. The agent must not write directly to the accepted suite without that approval.
-
-## 4. Run and Capture Evidence
-
-After implementation exists, run the selected flow:
-
-```bash
-pnpm exec blackbox verify --flow subscribe-unknown-user --json
-```
-
-The first run may fail because no effect contract exists yet or because the implementation is incomplete. That is expected. The runtime evidence gives the next harness step a fact base.
-
-## 5. Propose the Effect Contract
-
-Ask `$blackbox-effects` to read the evidence and propose required and forbidden effects. This is the only Blackbox-owned public YAML artifact.
-
-```yaml
-specVersion: "0.1"
-flow: subscribe-unknown-user
-requires:
-  - { boundary: postgres, op: SELECT, key: users, service: bff }
-forbids:
-  - { boundary: http, op: POST, key: /v1/payment_intents, service: bff }
-  - { boundary: postgres, op: INSERT, key: subscriptions, service: bff }
-  - { boundary: sqs, op: SendMessage, key: subscription-orders }
-```
-
-Save the accepted contract as `features/subscribe-unknown-user.effects.yaml` after review. The CLI validates that the feature basename, YAML flow, and Gherkin `@flow` agree.
-
-<Aside type="warning" title="The First Capture Can Preserve a Defect">
-  Review the effect contract independently of the implementation author. If a
-  payment call appeared during rejection, do not accept it merely because
-  Blackbox recorded it.
-</Aside>
-
-## 6. Compute the Verdict
-
-Run the flow again after the effect contract is accepted:
-
-```bash
-pnpm exec blackbox verify --flow subscribe-unknown-user --json
-```
-
-The CLI returns separate layer verdicts. A useful result distinguishes:
-
-- Playwright assertion pass or failure;
-- feature validity and flow-tag consistency;
-- effect contract satisfaction or violation;
-- requirement verdicts for `REQ-004` and `REQ-005`;
-- observable decision evidence when enough branch-arm evidence exists.
-
-## 7. Repair and Rerun
-
-A coding agent can repair product implementation against the accepted artifacts:
-
-```text
-read findings -> change implementation -> run verify -> repeat
-```
-
-The agent stops when it would need to change an approved requirement, accepted scenario, approved suite flow, or accepted effect contract. A human verifies the final evidence and result.
+Next, check [Runtime Prerequisites](/docs/blackbox/quickstart/runtime-prerequisites), then [Complete the Verification Loop](/docs/blackbox/quickstart/add-runtime-evidence).
 
 ## Summary
 
-- **Skills infer** requirements, Gherkin, Playwright patches, and effect contracts.
-- **The CLI computes** validation, evidence, coverage, and verdicts.
-- **Humans approve** the artifacts that define accepted behavior.
-- **Agents repair implementation** without silently changing the harness.
-
-Continue with [Agent Skills](/docs/blackbox/guides/agent-skills) or [Reports and CI Gates](/docs/blackbox/guides/reports-and-ci-gates).
+- Extract baseline Gherkin from the existing native suite.
+- Review inferred meaning, then align the suite deterministically.
+- Add runtime observation before claiming that the running system satisfies the accepted behavior.

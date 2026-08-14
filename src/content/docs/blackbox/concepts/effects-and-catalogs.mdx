@@ -40,12 +40,18 @@ The unknown-user contract is stronger than a `404` assertion. It proves that the
 
 ## Recording Is Not Approval
 
-`blackbox verify` writes runtime evidence and reports. It does not silently update accepted effect contracts.
+`blackbox verify` writes runtime evidence, normalized observed effects, and reports. The first run can report `effects: not-configured`; it does not silently convert observations into an accepted effect contract.
+
+Inspect the generated facts before proposing policy:
+
+```bash
+blackbox effects show --flow subscribe-unknown-user --run latest --json
+```
 
 Review a proposed contract before committing it. Remove incidental observations, make important clauses specific, and add forbids for dangerous behavior.
 
 <Aside type="warning" title="A Baseline Can Preserve a Bug">
-  The recorder knows what happened, not what should have happened. Catalog
+  The runtime knows what happened, not what should have happened. Effect-policy
   changes need human or designated reviewer approval.
 </Aside>
 

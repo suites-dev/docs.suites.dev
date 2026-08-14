@@ -36,8 +36,8 @@ Most failures fall into one of four groups: the system did not run the intended 
 
 ## First Checks
 
-1. Run `blackbox doctor --json` and resolve setup findings first.
-2. Run `blackbox status --flow <flow-id> --json` to check connected artifacts and evidence age.
+1. Run `blackbox status --flow <flow-id> --json` to check connected artifacts and evidence age.
+2. Run `blackbox doctor --json` when the problem concerns runtime readiness or instrumentation.
 3. Confirm the Playwright flow actually reached the system boundary you expected.
 4. Confirm the SUT was started through the Blackbox testbed or another Blackbox-aware setup.
 5. Confirm the instrumentation image is available as `blackbox-instr-node:local` or through `BLACKBOX_INSTR_IMAGE`.
@@ -58,7 +58,7 @@ When debugging, keep these artifacts from the failing run:
 
 ## Useful Next Pages
 
-1. [Prerequisites and Supported Systems](/docs/blackbox/quickstart/prerequisites-and-supported-systems)
+1. [Runtime Prerequisites](/docs/blackbox/quickstart/runtime-prerequisites)
 2. [Testbed and Instrumentation](/docs/blackbox/guides/set-up-the-testbed)
 3. [Effects, Catalogs, and Coverage](/docs/blackbox/concepts/effects-and-catalogs)
 4. [Reports and CI Gates](/docs/blackbox/guides/reports-and-ci-gates)

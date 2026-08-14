@@ -47,7 +47,7 @@ await expect(capture).toMatchCatalog();
 
 The matcher reads the active flow ID, loads `features/<flow>.effects.yaml`, and evaluates the same contract kernel as `toObserveEffects()`.
 
-A missing accepted effect contract fails verification. `blackbox verify` writes runtime evidence and reports, not accepted behavior files.
+A direct `toMatchCatalog()` assertion fails when its selected contract is missing. A facade run can still create observed effects and report the effect layer as `not-configured` before policy exists. `blackbox verify` writes evidence and reports, not accepted behavior files.
 
 ## `toMatchEffectsSnapshot()`
 

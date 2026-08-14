@@ -88,4 +88,4 @@ Gherkin `Scenario`, `Given`, `When`, and `Then` belong only in `.feature` files.
 - **Declare flows with native Playwright `test.describe` tags.**
 - **Use `test.step` for readable structure.**
 - **Keep Gherkin in `.feature` files.**
-- **Review suite patches before applying them.**
+- **Review native suite diffs after `suites align --write`.**

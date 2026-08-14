@@ -1,137 +1,95 @@
 ---
-title: "Adopt Blackbox in Layers"
-description: "Choose runtime evidence, readable Gherkin, requirement traceability, or the complete Blackbox verification loop without adopting every surface at once."
+title: "Adopt Blackbox Incrementally"
+description: "Establish an accepted behavioral harness first, then add runtime observation to complete the Blackbox verification loop."
 sidebar_position: 4
 keywords:
   [
     "Blackbox adoption",
-    "runtime evidence adoption",
-    "EARS requirements",
-    "Gherkin from Playwright",
-    "system verification framework",
+    "behavior governance",
+    "runtime verification",
+    "incremental harness engineering",
   ]
-seo:
-  primary_keyword: "Blackbox adoption"
-  secondary_keywords: ["runtime evidence adoption", "EARS requirements"]
-  search_intent: "developers deciding which Blackbox verification layers to adopt first"
-  snippet_angle: "compare what requirements, feature files, runtime effects, and the combined loop can and cannot prove"
 ---
 
 import Aside from "@/components/mdx/Aside.astro";
 
-Blackbox is a framework with independent entry points. You do not need to adopt EARS, Gherkin, runtime instrumentation, and observable decision coverage on the same day.
+Blackbox is incremental, but its layers do not support equal claims. Start with the lightest machinery that creates a useful reviewed artifact, then add runtime observation when you need to verify the running system.
 
-The layers are modular, but they do not provide equal evidence.
+## Follow the Claim Ladder
 
-## Compare the Adoption Shapes
+| Available surfaces                     | What Blackbox can establish                                                     |
+| -------------------------------------- | ------------------------------------------------------------------------------- |
+| Requirements or Gherkin                | Accepted artifacts are structurally valid                                       |
+| Accepted artifacts and aligned suite   | The behavioral harness is structurally connected and ready for execution        |
+| Runtime effects without specifications | The selected flow satisfied its reviewed effect policy                          |
+| Full connected chain                   | Accepted requirements are connected to current evidence from the running system |
 
-| Adoption shape              | What it provides                                            | What it does not establish                     |
-| --------------------------- | ----------------------------------------------------------- | ---------------------------------------------- |
-| Requirements only           | Structured, identifiable intent                             | That any requirement is implemented            |
-| Requirements plus Gherkin   | Readable reviewed examples and feature checks               | That internal boundary behavior was correct    |
-| Runtime effects only        | Required and forbidden effect verification                  | Which product requirement the flow satisfies   |
-| Requirements plus runtime   | Requirement-to-evidence verdicts                            | A readable scenario projection unless enabled  |
-| Tests, Gherkin, and effects | Executable behavior, readable review, and runtime contracts | Normative requirement traceability             |
-| Full loop                   | Intent, execution, evidence, traceability, and drift gates  | Exhaustive or formal proof of the whole system |
+Do not promote a structural result into a runtime claim. A clean feature check does not prove implementation. A passing effect contract without requirement bindings does not prove normative traceability.
 
-Choose a layer because somebody will use and review its artifacts. Generating more files without a review purpose creates ceremony rather than confidence.
+## Milestone 1: Establish the Target
 
-Begin onboarding with `blackbox init`, then use `blackbox doctor` to validate the environment. `blackbox verify` runs the selected flow, while `--layer` can narrow one diagnostic run:
+The behavior governance lifecycle works without runtime infrastructure.
 
-```bash
-blackbox verify --layer requirements --json
-blackbox verify --layer features --json
-blackbox verify --layer runtime --flow checkout-flow --json
-```
-
-## Runtime Evidence: The Core Path
-
-Start here when you already have a Playwright system test or need protection before a refactor.
+For an existing project:
 
 ```text
-existing flow -> capture effects -> review effect contract -> rerun -> effect gate
+discover suite -> extract baseline behavior -> review -> align suite -> check
 ```
 
-This path gives Blackbox its strongest independent signal. It can prove that selected required effects appeared and selected forbidden effects remained absent, even when the public response still looks correct.
-
-Use it for refactors, legacy modernization, incident regressions, service workflows, and consequential negative paths.
-
-**Start:** [5-Minute Quickstart](/docs/blackbox/quickstart/first-proven-feature)
-
-## Readable Behavior: Tests and Gherkin
-
-Use this path when reviewed behavior should be readable before or beside the executable flow.
+For new behavior:
 
 ```text
-approved requirements -> Gherkin proposal -> review -> feature check in CI
+propose requirements -> review -> propose Gherkin -> review -> align suite -> check
 ```
 
-The stable spec-driven direction is requirements to Gherkin to native Playwright. Feature files are repository memory for humans and agents. They are not evidence from the running system.
+This milestone gives reviewers and agents a stable behavioral target. The CLI owns deterministic suite transformation; Skills propose meaning; humans approve the actual diffs.
 
-For existing tests, `features emit` remains a secondary migration path. It should not anchor the primary product workflow.
+**Start:** [Choose Your Starting Point](/docs/blackbox/quickstart/)
 
-**Guide:** [Generate Gherkin From Playwright Tests](/docs/blackbox/guides/generating-feature-files)
+## Milestone 2: Observe the Running System
 
-## Requirement Traceability: EARS and Flow Bindings
-
-Use this path when selected product obligations need stable IDs and explicit runtime traceability.
+Add the runtime packages and supported test-time instrumentation only after one accepted flow exists.
 
 ```text
-reviewed requirement -> feature tags -> effect coverage -> requirement verdict
+accepted flow -> execute -> runtime evidence -> observed effects
 ```
 
-EARS makes the requirement structurally constrained and identifiable. Gherkin `@requirement:<id>` tags and the stable flow ID connect the requirement to runtime evidence. Requirement coverage then joins those tags with effect coverage.
+The first run creates facts. It can report `effects: not-configured` because no reviewed effect policy exists yet.
 
-An EARS-only workflow improves requirement quality, but it cannot produce a runtime verdict. The requirement becomes `proven` only when all bound flows have satisfied evidence.
-
-**Start:** [Spec-Driven Verification Quickstart](/docs/blackbox/quickstart/connect-specifications-to-runtime-evidence)
-
-## Observable Decision Coverage: Advanced Evidence
-
-Use this after runtime capture works and you need to understand whether exercised decision arms leave distinguishable evidence.
-
-The engine compares canonical evidence signatures from tests that exercised different branch arms. It can identify propagation candidates, masking candidates, and coverage gaps. It does not currently compute full MC/DC atomic-condition independence.
-
-This layer is independent of effect matchers. Strengthen it with discriminating scenarios and sufficient instrumentation, not by changing effect clauses.
-
-**Concept:** [Observable Decision Coverage](/docs/blackbox/concepts/omc-dc-coverage)
-
-## The Full Verification Loop
-
-Combine the layers when each one has an active owner:
-
-```text
-reviewed intent
-  -> explicit flow tags
-  -> executable Playwright behavior
-  -> optional Gherkin review
-  -> observed runtime effects
-  -> effect and requirement verdicts
-  -> implementation repair or human review
-```
-
-This is the strongest Blackbox workflow because each surface constrains a different failure mode. It also has the highest maintenance cost. Start with one boundary-risk flow rather than converting the entire repository.
-
-```bash
-blackbox status --json
-blackbox verify --flow subscribe-unknown-user --json
-```
-
-<Aside type="note" title="The Combination Is Stronger, Not Mandatory">
-  Runtime effects remain useful without EARS or Gherkin. Requirements remain
-  useful before implementation. Generated Gherkin remains useful without runtime
-  instrumentation. The framework becomes stronger when explicit links connect
-  the surfaces, not merely when all files exist.
+<Aside type="note" title="Runtime Observation Enables the Full Loop">
+  Before this milestone, Blackbox governs and validates the behavioral harness.
+  It has not verified what the running system did. Runtime observation is
+  required to propose effect policy and compute the full verification loop.
 </Aside>
 
-## Choose Your Starting Point
+**Continue:** [Complete the Verification Loop](/docs/blackbox/quickstart/add-runtime-evidence)
 
-| Your current situation           | Start with                                                    |
-| -------------------------------- | ------------------------------------------------------------- |
-| Existing Playwright system tests | Runtime evidence and one reviewed effect contract             |
-| New spec-driven feature          | Requirements, a narrow Playwright flow, then runtime evidence |
-| Tests are hard to review         | Feature emission, lint, and drift checks                      |
-| Refactor starts soon             | Establish passing effect contracts before changing internals  |
-| Runtime reports already exist    | Requirement tags or observable decision coverage              |
+## Milestone 3: Accept Effect Policy
 
-Read [When to Use Blackbox](/docs/blackbox/overview/when-to-use-blackbox) before choosing the first flow.
+Use observed facts to propose, not infer automatically, what behavior is required or forbidden:
+
+```text
+observed effects -> policy proposal -> human review -> effect contract
+```
+
+The effect contract is the only Blackbox-owned public YAML artifact. Do not copy every observed operation into it. Keep contractual effects, add meaningful forbids, and leave incidental observations outside the policy.
+
+## Milestone 4: Gate the Repository
+
+Add gates only for artifacts the team actively reviews.
+
+| Gate       | Typical checks                                                                  |
+| ---------- | ------------------------------------------------------------------------------- |
+| Structural | `requirements validate/check`, `features check/drift`, `suites check`           |
+| Runtime    | `blackbox verify` and separate test, effect, requirement, and decision verdicts |
+| Review     | Human approval of EARS, Gherkin, native suite, and effect-contract diffs        |
+
+Alpha approval remains external. Git and pull requests expose the changes; CI computes findings. Neither a commit nor the next CLI command proves that a human approved the previous operation.
+
+## Add Advanced Evidence Last
+
+Observable decision coverage compares evidence from exercised branch arms. Add it after runtime capture is trustworthy and the review question needs propagation, masking, or arm-coverage evidence.
+
+It does not compute full MC/DC atomic-condition independence.
+
+Read [When to Use Blackbox](/docs/blackbox/overview/when-to-use-blackbox) before expanding beyond the first consequential flow.

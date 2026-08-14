@@ -63,7 +63,7 @@ Blackbox isolation depends on the testbed. Per-worker SUT stacks prevent spans, 
 
 ## Avoid Shared Writes
 
-Parallel tests must not write accepted artifacts. `blackbox verify` writes runtime evidence and reports only. Requirements, feature files, suite patches, and effect contracts change through Skill proposals and human review.
+Parallel tests must not write accepted artifacts. `blackbox verify` writes runtime evidence and reports only. Skills may propose requirements, feature files, and effect contracts; `suites align --write` transforms native suite source deterministically. Each accepted change pauses for human review.
 
 Generated reports can be merged after the run:
 

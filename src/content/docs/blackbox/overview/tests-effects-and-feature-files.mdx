@@ -1,130 +1,150 @@
 ---
-title: "The Verification Loop"
+title: "Behavior Governance and Runtime Verification"
 slug: "blackbox/overview/verification-loop"
-description: "Follow product intent through Skills, CLI validation, human gates, Playwright execution, runtime evidence, verdicts, and implementation repair."
+description: "Understand how Blackbox governs an accepted behavioral harness, verifies the running system, and returns implementation changes to a bounded repair loop."
 sidebar_position: 3
 keywords:
   [
-    "agentic verification loop",
+    "behavior governance lifecycle",
+    "runtime verification loop",
     "behavioral harness engineering",
-    "runtime evidence gate",
-    "spec driven development verification",
-    "behavioral verification lifecycle",
+    "agentic software verification",
   ]
 seo:
-  primary_keyword: "behavioral verification lifecycle"
-  secondary_keywords: ["agentic verification loop", "runtime evidence gate"]
-  search_intent: "developers designing a repeatable verification gate around human- or agent-authored changes"
-  snippet_angle: "show the loop from product intent through inferential Skills, computational CLI gates, human review, runtime evidence, and repair"
+  primary_keyword: "runtime verification loop"
+  secondary_keywords: ["behavior governance lifecycle", "behavioral harness"]
+  search_intent: "developers designing a governed behavioral harness and deterministic runtime verification loop"
+  snippet_angle: "separate the lifecycle that changes accepted behavior from the loop that verifies and repairs implementation"
 ---
 
 import VerificationLoopDiagram from "@/components/blackbox/VerificationLoopDiagram.astro";
 import Aside from "@/components/mdx/Aside.astro";
 
-The Blackbox lifecycle is a **behavioral harness loop** around a software change. The goal is not to generate more artifacts. The goal is to make accepted behavior explicit, executable, observable, and reviewable.
+Blackbox connects two parts that operate at different cadences:
+
+- The **behavior governance lifecycle** changes what success means.
+- The **runtime verification loop** repeatedly checks implementation against that fixed target.
 
 <VerificationLoopDiagram />
 
-## The Loop, Step by Step
+The distinction is operational. A coding agent may run the verification loop repeatedly. It must stop when passing requires a change to the accepted harness.
 
-1. **Express intent.** A person, ticket, Kiro document, OpenSpec artifact, Spec Kit spec, or design note describes the behavior.
-2. **Propose requirements.** `$blackbox-requirements` converts selected obligations into EARS as an inferential proposal.
-3. **Validate requirements.** `blackbox requirements validate` checks structure, IDs, and profile rules.
-4. **Approve requirements.** A human reviews and approves the EARS meaning.
-5. **Propose Gherkin.** `$blackbox-gherkin` translates approved requirements into a `.feature` file with `@flow` and `@requirement` tags.
-6. **Validate features.** `blackbox features check` checks syntax, tags, and source relationships.
-7. **Accept scenarios.** A human reviews and accepts the scenario language.
-8. **Propose a suite patch.** `$blackbox-playwright` writes a native Playwright patch that declares the same flow ID.
-9. **Approve the suite patch.** A human reviews the exact test change before it enters the suite.
-10. **Run the suite.** `blackbox verify --flow <id> --json` runs the selected Playwright flow and captures runtime evidence.
-11. **Propose effect assertions.** `$blackbox-effects` reads evidence and proposes required and forbidden effects.
-12. **Accept the effect contract.** A human reviews and accepts the effect contract.
-13. **Compute verdicts.** The CLI reports separate Playwright, feature, requirement, effect, and observable decision verdicts.
-14. **Repair and rerun.** A coding agent repairs implementation findings against the accepted harness and reruns the loop.
+## Govern the Behavioral Harness
 
-The agent stops when success would require changing accepted behavior. A failing implementation can be repaired automatically. A changed requirement, feature, suite, or effect contract needs human review.
+The governance lifecycle begins from product intent or an existing system-test suite. It ends when a person accepts a structurally connected harness that is ready for execution.
 
-## Harness Responsibilities
-
-| Responsibility           | Owner        | What can change                                                       |
-| ------------------------ | ------------ | --------------------------------------------------------------------- |
-| Inferential translation  | Skills       | Proposed EARS, Gherkin, suite patches, and effect contracts           |
-| Deterministic validation | CLI          | Findings, reports, evidence, and verdicts                             |
-| Meaning and behavior     | Humans       | Accepted requirements, scenarios, suite patches, and effect contracts |
-| Implementation repair    | Coding agent | Product code and supporting implementation tests                      |
-
-This separation is the core of the loop. The same agent should not silently rewrite the harness it is trying to satisfy.
-
-## The Loop Has Multiple Entry Points
-
-It is not a mandatory waterfall.
-
-| Starting situation          | Where the loop begins                                                           |
-| --------------------------- | ------------------------------------------------------------------------------- |
-| Existing Playwright tests   | Discover a flow, capture evidence, review an effect contract, and add verdicts. |
-| New spec-driven feature     | Start from requirements, Gherkin, and a proposed native Playwright flow.        |
-| Refactor or rewrite         | Establish accepted evidence before changing internals.                          |
-| Incident regression         | Capture the repaired path and add forbids for unsafe effects.                   |
-| External specification tool | Import selected intent from Kiro, OpenSpec, Spec Kit, tickets, or design docs.  |
-
-Every path eventually needs an executable run before Blackbox can make a runtime claim.
-
-## Verdicts Answer Different Questions
-
-Blackbox should not collapse the whole harness into one unexplained Boolean.
-
-| Verdict surface              | Example result                                        | Meaning                                                             |
-| ---------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------- |
-| Playwright                   | passed or failed                                      | Did the explicit test assertions hold?                              |
-| Feature check                | in sync or a drift finding                            | Does reviewed Gherkin still match the expected flow structure?      |
-| Effect contract              | satisfied, failed, or uncovered                       | Did required and forbidden boundary behavior match?                 |
-| Requirement coverage         | `proven`, `violated`, `unproven`, or `unbound`        | What does runtime evidence establish about approved intent?         |
-| Observable decision evidence | `propagating`, `masking-candidate`, or `coverage-gap` | Did different decision arms leave distinguishable observed effects? |
-
-A Playwright pass alongside an effect failure is not contradictory. It says the public assertion held while reviewed boundary behavior did not.
-
-## Repair Automatically, Review Deliberately
-
-Automation can repeat a bounded implementation loop:
+### New Behavior
 
 ```text
-run flow -> read deterministic findings -> repair implementation -> rerun
+product intent
+  -> Skill proposes EARS
+  -> CLI validates requirements
+  -> human approves meaning
+  -> Skill proposes Gherkin
+  -> CLI checks the feature
+  -> human approves behavior language
+  -> CLI aligns native suite source
+  -> human reviews the actual source diff
 ```
 
-It must stop when success would require changing:
+### Existing Suite
 
-- requirement meaning;
-- a Gherkin scenario;
-- the approved Playwright flow scope;
-- a required or forbidden effect;
-- the accepted effect contract;
-- the final interpretation of evidence.
+```text
+existing native suite
+  -> CLI discovers flows
+  -> CLI extracts baseline Gherkin
+  -> human reviews the extracted baseline
+  -> Skill sharpens recovered behavior
+  -> CLI checks the feature
+  -> human approves behavior language
+  -> Skill proposes EARS
+  -> CLI validates requirements
+  -> human approves meaning
+  -> CLI aligns native suite source
+  -> human reviews the actual source diff
+```
 
-Those changes alter what the system is allowed to do. They are product or architecture decisions, not mechanical repairs.
+The CLI owns deterministic suite translation through `blackbox suites align --write`. Skills do not write suite source, and Blackbox does not create an intermediate patch artifact. The person reviews the real TypeScript diff.
 
-<Aside type="warning" title="Do Not Let Automation Move the Goalposts">
-  Keep accepted behavior changes visible in review. If an agent can rewrite
-  requirements, scenarios, suites, and effect contracts until they agree, the
-  harness no longer proves behavior independently.
+At this point, Blackbox can establish that accepted artifacts and the native suite are structurally connected. **It has not verified the behavior of the running system.**
+
+## Observe Facts Before Defining Policy
+
+The first trustworthy execution creates runtime facts before an effect policy exists:
+
+```text
+blackbox verify
+  -> runtime evidence
+  -> normalized observed effects
+  -> effects: not-configured
+```
+
+Observed effects report what this execution did at supported boundaries. They do not decide what the system should have done.
+
+The `$blackbox-effects` Skill or a person can use those observations to propose required and forbidden effects. A human reviews the resulting `features/<flow-id>.effects.yaml` before it becomes accepted policy.
+
+<Aside type="warning" title="Observation Does Not Define Correctness">
+  A defective implementation can produce stable observations. Do not accept an
+  effect merely because it appeared in the first run. Observed effects are
+  facts; the effect contract is reviewed policy.
 </Aside>
 
-## The Loop Creates Repository Memory
+## Run the Full Verification Loop
 
-Reviewed requirements, feature files, stable flow tags, effect contracts, and selected reports survive individual development sessions. A future developer or agent can inspect what a flow means without reconstructing the system from a large diff.
+After the harness and effect policy are accepted, Blackbox can run the full loop:
 
-Raw spans and generated reports usually remain run artifacts. Accepted behavioral artifacts belong in the repository.
+```text
+accepted harness
+  -> execute the selected flow
+  -> observe the running system
+  -> compute separate verdicts
+  -> repair implementation or reopen governance
+  -> rerun
+```
 
-## Run the Loop Again
+The CLI keeps verdicts separate because they answer different questions:
 
-The first successful implementation is not the end. The same flow and contract can verify:
+| Verdict                 | Question                                                                 |
+| ----------------------- | ------------------------------------------------------------------------ |
+| **Test**                | Did the native system-test assertions pass?                              |
+| **Feature**             | Do accepted behavior and native suite structure agree?                   |
+| **Effect**              | Did required effects occur and forbidden effects remain absent?          |
+| **Requirement**         | What does current accepted evidence establish about a bound requirement? |
+| **Observable decision** | Did exercised decision arms leave distinguishable observed evidence?     |
 
-- a later refactor;
-- a service extraction;
-- a dependency upgrade;
-- a framework migration;
-- an incident repair;
-- an agent-authored optimization.
+An agent may repair product implementation inside the accepted scope. It must stop when success would require changing:
 
-This repetition is the point: implementation can change while accepted behavior remains explicit and testable.
+- accepted EARS meaning;
+- accepted Gherkin or flow IDs;
+- accepted suite scope or assertions;
+- required or forbidden effect policy;
+- instrumentation or captured boundaries;
+- human interpretation of final evidence.
 
-Choose your entry point in [Adopt Blackbox in Layers](/docs/blackbox/overview/adopt-blackbox-in-layers), then follow the [Spec-Driven Verification Quickstart](/docs/blackbox/quickstart/connect-specifications-to-runtime-evidence) or [Agent Skills](/docs/blackbox/guides/agent-skills).
+Reopening one of those decisions returns the change to the corresponding governance boundary.
+
+## Keep Authority Outside the Agent
+
+| Responsibility                              | Owner        |
+| ------------------------------------------- | ------------ |
+| Propose requirement or behavior meaning     | Skills       |
+| Validate artifacts and transform suite ASTs | CLI          |
+| Approve accepted behavior                   | Humans       |
+| Repair implementation                       | Coding agent |
+
+One command crosses at most one review boundary. A source-changing command can return `awaiting-review`, but it never treats the next command, a commit, or an agent action as proof that a person approved the change.
+
+## Use Git and CI at the Boundaries
+
+Approval is external in the alpha. Use the repository's normal diff and pull-request workflow:
+
+1. A Skill or CLI operation changes one artifact layer.
+2. A person reviews the actual diff.
+3. The accepted change is committed through the normal repository process.
+4. CI runs deterministic structural checks or runtime verification.
+
+Natural checkpoints include approved EARS, approved Gherkin, an approved native suite diff, an approved effect contract, and a passing implementation repair. Future hosts may record these checkpoints explicitly, but the alpha CLI does not claim approval state.
+
+## Start at the Right Boundary
+
+Use [Choose Your Starting Point](/docs/blackbox/quickstart/) to begin from repository state. Start with specifications, an existing suite, or runtime effects from an accepted native flow.

@@ -1,133 +1,119 @@
 ---
 title: "Spec-Driven and Agentic Verification"
-description: "Use Blackbox Skills, CLI gates, Playwright flows, runtime effects, stable JSON, and human review to verify human- or agent-authored changes."
+description: "Govern behavior changes through inferential proposals, deterministic CLI operations, human review, and runtime verification."
 sidebar_position: 3
 keywords:
   [
-    "agentic coding verification",
-    "spec driven development runtime evidence",
-    "EARS requirements",
-    "executable specification",
-    "AI coding agent testing",
+    "spec-driven development",
+    "agentic verification",
+    "EARS",
+    "Gherkin",
+    "suite alignment",
   ]
 ---
 
-import VerificationLoopDiagram from "@/components/blackbox/VerificationLoopDiagram.astro";
 import Aside from "@/components/mdx/Aside.astro";
 
-Spec-driven development makes intent explicit before implementation. Blackbox turns selected intent into a behavioral harness that agents can work against without silently changing what they are supposed to prove.
+Blackbox does not turn a specification into trusted code in one step. It separates meaning, computation, authority, and implementation repair.
 
-<VerificationLoopDiagram />
+| Responsibility            | Owner        | Examples                                                         |
+| ------------------------- | ------------ | ---------------------------------------------------------------- |
+| Inferential proposal      | Skills       | EARS, Gherkin, effect-policy changes                             |
+| Deterministic computation | CLI          | Validation, extraction, suite AST alignment, execution, verdicts |
+| Behavioral authority      | Humans       | Approval of meaning, suite diffs, policy, and final evidence     |
+| Implementation repair     | Coding agent | Product-code changes against a fixed accepted harness            |
 
-## Keep the Harness Parts Separate
+## Govern New Behavior
 
-| Harness part                                      | Owner                                                         | Job                                             |
-| ------------------------------------------------- | ------------------------------------------------------------- | ----------------------------------------------- |
-| Product spec, ticket, Kiro, OpenSpec, or Spec Kit | Product and engineering                                       | Explain intent and constraints                  |
-| EARS requirements                                 | Human-approved artifact proposed by `$blackbox-requirements`  | Give selected obligations stable IDs            |
-| Gherkin feature                                   | Human-accepted artifact proposed by `$blackbox-gherkin`       | Make the selected behavior readable             |
-| Playwright flow                                   | Human-approved suite patch proposed by `$blackbox-playwright` | Exercise the system through a real boundary     |
-| Effect contract                                   | Human-accepted artifact proposed by `$blackbox-effects`       | Declare required and forbidden runtime behavior |
-| Runtime reports                                   | Blackbox CLI                                                  | Produce deterministic evidence and verdicts     |
+For a new flow:
 
-Blackbox does not replace planning tools. It supplies the harness that connects selected intent to executable flow evidence.
+1. `$blackbox-requirements` proposes selected obligations as EARS.
+2. `blackbox requirements validate` checks structure and IDs.
+3. A person approves requirement meaning.
+4. `$blackbox-gherkin` proposes readable behavior with stable bindings.
+5. `blackbox features check` validates Gherkin and traceability.
+6. A person approves behavior language.
+7. `blackbox suites align --write` translates accepted behavior into native suite structure.
+8. A person reviews the actual TypeScript diff.
+9. `blackbox suites check` confirms the accepted artifacts and suite agree.
 
-## Existing-Behavior Loop
+The CLI writes suite source directly through the runner adapter. Skills do not author suite source, and no separate patch artifact exists.
 
-Use this loop for refactors, migrations, and agent-authored maintenance:
+## Govern Existing Behavior
 
-1. Run `blackbox status --json` before changing implementation.
-2. Select a boundary-risk flow and inspect it with `blackbox flows show <flow-id> --json`.
-3. Run `blackbox verify --flow <flow-id> --json`.
-4. Ask `$blackbox-effects` to propose an effect contract only if the flow has no accepted contract yet.
-5. Review and accept the effect contract before using it as a gate.
-6. Let the developer or agent change implementation.
-7. Run `blackbox verify --flow <flow-id> --json` against the accepted harness.
-8. Repair implementation findings and rerun.
-9. Stop for review when passing would require changing a requirement, feature, suite flow, or effect contract.
+For an existing system-test suite:
 
-The agent can iterate on implementation because accepted behavior stays fixed.
+1. `blackbox suites discover` reports candidate flows and conflicts.
+2. `blackbox features extract --write` creates literal baseline Gherkin.
+3. `$blackbox-gherkin` sharpens descriptions and flow boundaries.
+4. A person approves the recovered behavior.
+5. `$blackbox-requirements` proposes requirement meaning from the reviewed behavior.
+6. A person approves the requirements.
+7. `blackbox suites align --write` binds and reshapes only the selected suite AST nodes.
+8. A person reviews the native source diff.
 
-## New-Behavior Loop
+Extraction is computational; recovering complete product intent is inferential. Existing tests cannot reveal every obligation, exception, or missing scenario.
 
-Use this loop when the feature does not exist yet:
+## Understand the First Milestone
 
-1. A human or planning tool expresses intent and constraints.
-2. `$blackbox-requirements` proposes atomic EARS requirements.
-3. `blackbox requirements validate` checks the requirement file.
-4. A human reviews and approves requirement meaning.
-5. `$blackbox-gherkin` proposes a feature file with `@flow` and `@requirement` tags.
-6. `blackbox features check` validates Gherkin structure and tag consistency.
-7. A human reviews and accepts scenario language.
-8. `$blackbox-playwright` proposes a native Playwright suite patch.
-9. A human approves the exact patch before it changes the suite.
-10. A coding agent implements the behavior.
-11. `blackbox verify --flow <flow-id> --json` runs the flow and captures evidence.
-12. `$blackbox-effects` proposes required and forbidden effects from evidence.
-13. A human reviews and accepts the effect contract.
-14. The CLI computes separate verdicts and the coding agent repairs implementation until the accepted harness passes.
+After suite alignment and structural checks, Blackbox can establish that the accepted harness is structurally connected and ready for execution.
 
-No step writes directly to the accepted suite or accepted behavior contract without review.
-
-## Deterministic Inputs for Agents
-
-Use JSON command output instead of asking an agent to interpret colored terminal prose:
-
-```bash
-pnpm exec blackbox status --json
-pnpm exec blackbox flows show subscribe-unknown-user --json
-pnpm exec blackbox requirements validate 'requirements/**/*.ears' --json
-pnpm exec blackbox features check --features ./features --json
-pnpm exec blackbox verify --flow subscribe-unknown-user --json
-```
-
-The envelope has `schemaVersion`, a command name, a status, structured `data`, optional `findings`, and an `error` when no trustworthy result can be produced. Findings carry layer, flow ID, rule, severity, message, file, and line fields when those locations exist.
-
-That gives an agent a bounded repair task:
-
-- a requirement violation points to implementation or accepted contract conflict;
-- `unproven` points to missing runtime evidence;
-- feature drift points to a stale readable behavior artifact;
-- an effect failure points to missing required effects or observed forbidden effects;
-- a decision `coverage-gap` points to missing branch-arm evidence;
-- a `masking-candidate` says different decision arms produced the same evidence signature.
-
-## Human Review Boundary
-
-Agents may safely repair code while accepted behavior remains stable. Require review for:
-
-- new or changed EARS text;
-- new or changed Gherkin language;
-- new or changed Playwright flow scope;
-- any suite patch proposed by a Skill;
-- new or removed effect clauses;
-- a changed forbidden effect;
-- broadening the flow scope to make a verdict pass;
-- final interpretation of evidence before the agent stops.
-
-<Aside type="warning" title="Do Not Let One Agent Grade Its Own Intent">
-  Runtime evidence loses value when the same automation can silently rewrite
-  requirements, tests, and effects until they agree. Keep accepted behavior
-  changes visible in review and owned by a human gate.
+<Aside type="note" title="Structural Agreement Is Not Runtime Proof">
+  Requirements, Gherkin, and suite source can agree while the implementation is
+  wrong. Runtime observation is required to complete the full verification loop.
 </Aside>
 
-## What Belongs in the Repository
+## Complete the Runtime Verification Loop
 
-Repository memory helps future humans and future agent sessions:
+The first run creates evidence and observed effects before effect policy:
 
-- `requirements/**/*.ears`;
-- `features/**/*.feature`;
-- `features/<flow>.effects.yaml`;
-- Playwright flows with `@flow:<id>` tags;
-- selected generated summaries when they are part of review.
+```bash
+blackbox verify --flow checkout-payment --json
+blackbox effects show --flow checkout-payment --run latest --json
+```
 
-Coverage JSON, observable decision reports, raw spans, and observation outputs are normally CI artifacts. Upload them with a useful retention policy rather than committing every run.
+`$blackbox-effects` can then propose required and forbidden policy. A person approves `features/checkout-payment.effects.yaml`, and the CLI validates it:
+
+```bash
+blackbox effects check --flow checkout-payment --json
+blackbox verify --flow checkout-payment --json
+```
+
+The second run can compute an effect verdict against accepted policy. Requirement and observable-decision verdicts remain separate.
+
+## Bound Autonomous Repair
+
+A coding agent can repeat:
+
+```text
+verify -> read deterministic findings -> repair implementation -> verify
+```
+
+The agent stops when passing requires a change to:
+
+- accepted EARS meaning;
+- accepted Gherkin or stable flow IDs;
+- native suite scope or assertions;
+- required or forbidden effect policy;
+- final human interpretation of evidence.
+
+That change reopens the behavior governance lifecycle.
+
+## Use External Review in Alpha
+
+Blackbox returns operation metadata and `awaiting-review` for source-changing operations. Approval remains external:
+
+1. Inspect the working-tree diff.
+2. Approve or revise the changed artifact.
+3. Commit through the repository's normal process.
+4. Run the suggested deterministic check.
+
+Do not treat a commit made by an agent or the invocation of the next command as human approval.
+
+Start with [Choose Your Starting Point](/docs/blackbox/quickstart/) and continue to [Complete the Verification Loop](/docs/blackbox/quickstart/add-runtime-evidence).
 
 ## Summary
 
-- **Inferential harnesses** propose artifact changes through Skills.
-- **Computational harnesses** validate, run, observe, and report through the CLI.
-- **Human gates** approve accepted behavior.
-- **Implementation agents** repair code against the fixed harness.
-
-Read [Agent Skills](/docs/blackbox/guides/agent-skills) for the Skill contracts, then enforce the loop with [Reports and CI Gates](/docs/blackbox/guides/reports-and-ci-gates).
+- Skills propose meaning; the CLI computes deterministic transformations and verdicts.
+- Humans govern accepted behavior through normal source review.
+- Agents may repair implementation while the accepted target remains fixed.

@@ -18,10 +18,10 @@ Classic BDD often failed when feature files became detached from the code and te
 The primary spec-driven direction is:
 
 ```text
-approved EARS -> accepted Gherkin -> approved native Playwright patch -> runtime evidence
+approved EARS -> accepted Gherkin -> reviewed native suite alignment -> runtime evidence
 ```
 
-For existing Playwright tests, `features emit` can help migrate toward readable feature files. Treat that as a secondary path, not the main product workflow.
+For existing Playwright tests, `features extract` creates literal baseline Gherkin from the native suite AST. A Skill and human reviewer then sharpen the recovered behavior before `suites align` establishes the accepted binding.
 
 ## What Gherkin Does
 

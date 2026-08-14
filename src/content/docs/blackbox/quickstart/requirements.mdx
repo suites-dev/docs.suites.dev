@@ -1,125 +1,75 @@
 ---
-title: "Prerequisites and Supported Systems"
-slug: "blackbox/quickstart/prerequisites-and-supported-systems"
-description: "Check the Playwright, Node, Docker, SUT, and test-time instrumentation assumptions for the current Blackbox alpha."
-sidebar_position: 1
+title: "Runtime Prerequisites"
+slug: "blackbox/quickstart/runtime-prerequisites"
+description: "Prepare the supported Node, Playwright, Docker, and test-time instrumentation path before completing the Blackbox verification loop."
+sidebar_position: 5
 keywords:
   [
-    "Blackbox prerequisites",
-    "Playwright system tests",
-    "Node OpenTelemetry instrumentation",
+    "Blackbox runtime prerequisites",
+    "Playwright",
+    "Node instrumentation",
     "Docker testbed",
-    "supported systems",
   ]
 ---
 
 import InstrumentationFlowDiagram from "@/components/blackbox/InstrumentationFlowDiagram.astro";
+import Aside from "@/components/mdx/Aside.astro";
 
-Blackbox needs one thing before its reports matter: **runtime evidence**, the spans and observable facts captured while a real test drives the running system. Your **system under test (SUT)** is the service or topology Blackbox observes during that run.
+You only need these prerequisites when Blackbox will observe a running system. Requirement validation, feature checks, suite discovery, and suite alignment do not require runtime infrastructure.
 
-In the documented alpha path, Blackbox captures that evidence by instrumenting compatible Node SUT containers at test time. Your service code does not need OpenTelemetry imports, and your production Dockerfile does not need Blackbox-specific setup.
+Runtime observation completes the full verification loop. In the documented alpha path, Playwright drives a compatible Node system under test while Blackbox injects test-time OpenTelemetry instrumentation.
 
-Use this page before you install Blackbox. Confirm the runtime, container shape, bootstrap image, and first workflow you will prove.
+## Supported Alpha Path
+
+| Requirement        | Current expectation                                                                 |
+| ------------------ | ----------------------------------------------------------------------------------- |
+| Node               | A compatible current Node release; the workspace and showcase currently require 22+ |
+| Test runner        | Playwright system or E2E tests                                                      |
+| Topology           | A controlled Docker test environment                                                |
+| System under test  | A Node service image that starts through a shadowable Node binary                   |
+| Instrumentation    | Blackbox test-time bootstrap and supported OpenTelemetry producers                  |
+| First run          | One stable flow, run serially                                                       |
+| Artifact directory | A writable location such as `.blackbox-coverage/`                                   |
+
+The default path is deliberately narrow. Non-Node services need an equivalent Blackbox-readable evidence integration. Distroless images and shared remote environments are not good first-run targets.
 
 ## Test-Time Instrumentation
 
-Blackbox is not asking you to bring a pre-instrumented application as the normal path. It instruments the SUT for the test run.
-
-With the compose testbed, Blackbox generates a kit-owned Docker Compose overlay that:
-
-1. Starts `blackbox-otel-init` from the bootstrap image.
-2. Copies `/blackbox-otel` into a named Docker volume.
-3. Mounts that volume read-only into each configured SUT service.
-4. Shadows the service's Node binary with `bin/node-wrap`.
-5. Prepends `--require=/blackbox-otel/bootstrap.cjs` when the service command runs.
-6. Exposes the bootstrap debug server on Docker-assigned host ports.
+Blackbox injects observability into compatible SUT containers for the test run. Production source and Dockerfiles do not need Blackbox imports.
 
 <InstrumentationFlowDiagram />
 
-The bootstrap loads before application code, registers supported OpenTelemetry instrumentations, captures spans in memory, and exposes them to the test runner through `/_debug/spans`.
+The compose testbed mounts the bootstrap payload, shadows the service's Node binary, preloads `bootstrap.cjs`, captures supported spans, and exposes them to the test runner. Existing tracing agents may need test-environment overrides if they register first.
 
-Before you continue, confirm:
-
-1. Playwright can drive the workflow against the same SUT that Blackbox instruments.
-2. The SUT service image starts through a Node binary the overlay can shadow.
-3. The bootstrap image is available locally as `blackbox-instr-node:local` or through `BLACKBOX_INSTR_IMAGE`.
-4. Service names and trace context are stable enough for Blackbox to attribute effects.
-5. You can isolate one workflow before expanding to a larger suite.
-
-### Existing Tracing Agents
-
-Existing OpenTelemetry, Datadog, Sentry, or other tracing setup is a compatibility concern, not a separate happy path. Blackbox still needs its test-time bootstrap to expose the evidence endpoints the runner drains.
-
-If another tracer registers first, the bootstrap tries to attach where possible or fails loudly with a setup signal. In practice, be ready to disable or adjust production tracing agents in the test environment until the Blackbox evidence path is clean.
-
-## Supported Alpha Stack
-
-Blackbox is alpha software. Keep the first run close to this stack, prove one workflow, then expand.
-
-### Runtime and Tooling
-
-| Requirement                    | Current expectation                                                                                                              |
-| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| Node                           | The current Blackbox workspace and showcase require Node `>=22`. Consumer packages should use a compatible current Node release. |
-| Package manager                | Examples use pnpm 9. Install commands for npm and Yarn are also shown where the package surface supports them.                   |
-| Playwright                     | The documented alpha path is Playwright-only. It drives the workflow that creates evidence.                                      |
-| TypeScript or JavaScript tests | The quickstart path assumes a Node test project with Playwright tests and local scripts.                                         |
-| Test-time instrumentation      | Blackbox injects the bootstrap into compatible Node SUT containers and captures spans through debug endpoints.                   |
-| A first workflow               | Start with one stable scenario, such as `subscribe-flow`, instead of the whole suite.                                            |
-
-### Container Requirements
-
-| Requirement                 | Why it matters                                                                                                             |
-| --------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| Docker availability         | The testbed path starts the SUT and dependencies in containers. Docker must work locally or in CI.                         |
-| Runnable SUT image          | Blackbox observes a running system. The image must start without hand-edited steps.                                        |
-| Normal Node startup         | The wrapper expects the service to start through a Node binary path it can shadow.                                         |
-| Shell-capable image         | The current wrapper is a shell script. Distroless images are not the happy path.                                           |
-| Controlled topology         | The first run should own the SUT, dependencies, network, ports, and cleanup. The showcase 5-service topology is the model. |
-| Writable artifact directory | Blackbox needs a place to write files such as `.blackbox-coverage/` reports.                                               |
-
-## Environment Verification
+## Confirm the Environment
 
 Run these checks where the system tests live:
 
 ```bash
 node --version
-pnpm --version
 docker version
-```
-
-If Playwright is already installed, verify the runner too:
-
-```bash
 pnpm exec playwright --version
 ```
 
-Confirm the project assumptions:
+Confirm that:
 
-1. You can build or select the SUT image.
-2. You can start the local topology without Blackbox.
-3. You can run one Playwright test against that topology.
-4. You know which SUT services Blackbox should instrument.
-5. You know where Blackbox should write artifacts.
-6. You can run the first proof serially, with one worker.
+1. The SUT starts without Blackbox.
+2. One Playwright flow passes against that topology.
+3. The service image starts through a Node binary the wrapper can shadow.
+4. The bootstrap image is available locally or through `BLACKBOX_INSTR_IMAGE`.
+5. The test job can write run-scoped artifacts.
+6. The first proof can run with one Playwright worker.
 
-The serial first proof is a diagnostic choice, not a permanent rule. It removes worker isolation, shared state, and artifact merging from the first failure surface. Once one run captures runtime evidence, expand carefully.
+<Aside type="note" title="Runtime Readiness Is a Separate Milestone">
+  A project may already have a valid accepted harness while `doctor` reports
+  missing runtime infrastructure. That does not invalidate the governance work;
+  it means the runtime verification loop is not ready yet.
+</Aside>
 
-## Known Alpha Limits
+Continue with [Complete the Verification Loop](/docs/blackbox/quickstart/add-runtime-evidence).
 
-The current alpha path is deliberately narrow:
+## Summary
 
-1. The default bootstrap path is Node-focused. Non-Node services are not covered by the default instrumentation path unless they expose an equivalent Blackbox-readable evidence integration.
-2. The public quickstart path is Playwright-only. Other runners are not the documented first path.
-3. The first proof should run serially. Parallel Playwright workers are supported through Blackbox isolation, but they belong after the evidence path is proven.
-4. Distroless SUT images are a known limit because the current wrapper expects a shell.
-5. Existing tracing agents may need test-environment overrides.
-6. Remote E2E environments with shared or unmanaged dependencies can produce noisy failures. Do not make them your first proof.
-
-These limits are practical. Start with a controlled SUT, one workflow, and the default instrumentation path. When that works, broaden the topology and suite.
-
-## What To Read Next
-
-1. [Install Blackbox](/docs/blackbox/quickstart/install)
-2. [Run with the Testbed](/docs/blackbox/guides/set-up-the-testbed)
-3. [Files and Artifacts](/docs/blackbox/reference/files-and-artifacts)
+- Add runtime prerequisites only after the behavioral harness is accepted.
+- Prove the system and one native flow work before enabling Blackbox instrumentation.
+- Treat `doctor` as runtime readiness, not as validation of the governance work.

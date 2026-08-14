@@ -1,0 +1,76 @@
+---
+title: "Choose Your Blackbox Starting Point"
+description: "Start from an existing suite, new product intent, or runtime effects from an accepted native flow."
+sidebar_position: 2
+keywords:
+  [
+    "Blackbox quickstart",
+    "behavior governance",
+    "existing system tests",
+    "runtime effects",
+  ]
+---
+
+import Aside from "@/components/mdx/Aside.astro";
+
+Blackbox can start from specifications, existing system tests, or runtime behavior. Choose the path from the repository state and the claim you need.
+
+<Aside type="note" title="Install First">
+  Complete [Install and Initialize](/docs/blackbox/quickstart/install) before
+  running a path-specific command. Initialization detects repository state but
+  does not change accepted behavior or suite source.
+</Aside>
+
+## Choose From Repository State
+
+| Starting point                                    | Path                                                                      | First useful result                                                     |
+| ------------------------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Existing suite that needs readable behavior       | [Adopt an Existing Suite](/docs/blackbox/quickstart/adopt-existing-suite) | Reviewed behavior and a structurally aligned native flow                |
+| New product behavior without an applicable flow   | [Define New Behavior](/docs/blackbox/quickstart/define-new-behavior)      | Approved intent, readable examples, and a native flow ready to execute  |
+| Accepted native flow that needs boundary evidence | [Add Runtime Evidence](/docs/blackbox/quickstart/add-runtime-evidence)    | Reviewed effect policy and a current deterministic effect verdict       |
+| Repository with several incomplete states         | Start with one consequential existing flow                                | One bounded flow reaches a useful result without converting the project |
+
+These are equal entry points. Requirements and Gherkin are not prerequisites for runtime effect verification.
+
+## Choose the First Claim
+
+### Govern Structure Without Runtime
+
+Use the existing-suite or new-behavior path when reviewers first need a stable behavioral target.
+
+Blackbox can establish that:
+
+- accepted artifacts have stable identities;
+- the selected native suite is structurally aligned;
+- source transformations are deterministic and reviewable;
+- structural checks can run locally and in CI.
+
+It cannot establish what the running system did until the flow executes with runtime observation.
+
+### Verify Effects Without Specifications
+
+Use the runtime path when an accepted native flow already has a stable flow ID and the immediate question concerns database, HTTP, queue, cache, or other supported effects.
+
+The path is explicit:
+
+```text
+execute flow -> observe effects -> propose policy -> human review -> rerun -> effect verdict
+```
+
+The first run records facts. It may report `effects: not-configured` until a person accepts which effects are required, forbidden, or incidental.
+
+## Build the Full Connected Chain Later
+
+Teams can combine the surfaces when requirement traceability matters:
+
+```text
+reviewed intent -> readable behavior -> native flow -> runtime evidence -> bounded verdicts
+```
+
+Adding a surface strengthens only the claims that surface supports. It does not invalidate an earlier suite-first or effects-first result.
+
+## Summary
+
+- Install and initialize before choosing a path.
+- Start from existing suites, new intent, or runtime effects.
+- Treat observed facts and accepted effect policy as separate review stages.

@@ -153,20 +153,16 @@ const sidebar: SidebarConfig = {
           href: "/docs/blackbox/overview/what-is-blackbox",
         },
         {
-          label: "Intent, Flows, and Runtime Evidence",
-          href: "/docs/blackbox/overview/runtime-evidence-gap",
+          label: "When to Use Blackbox",
+          href: "/docs/blackbox/overview/when-to-use-blackbox",
         },
         {
-          label: "The Verification Loop",
+          label: "Behavior Governance and Runtime Verification",
           href: "/docs/blackbox/overview/verification-loop",
         },
         {
-          label: "Adopt Blackbox in Layers",
+          label: "Adopt Blackbox Incrementally",
           href: "/docs/blackbox/overview/adopt-blackbox-in-layers",
-        },
-        {
-          label: "When to Use Blackbox",
-          href: "/docs/blackbox/overview/when-to-use-blackbox",
         },
       ],
     },
@@ -174,20 +170,28 @@ const sidebar: SidebarConfig = {
       label: "Quickstart",
       items: [
         {
-          label: "Prerequisites and Supported Systems",
-          href: "/docs/blackbox/quickstart/prerequisites-and-supported-systems",
-        },
-        {
-          label: "Install Blackbox",
+          label: "Install and Initialize",
           href: "/docs/blackbox/quickstart/install",
         },
         {
-          label: "Existing Tests: 5-Minute Quickstart",
-          href: "/docs/blackbox/quickstart/first-proven-feature",
+          label: "Choose Your Starting Point",
+          href: "/docs/blackbox/quickstart/",
         },
         {
-          label: "Spec-Driven Verification Quickstart",
-          href: "/docs/blackbox/quickstart/connect-specifications-to-runtime-evidence",
+          label: "Adopt an Existing Suite",
+          href: "/docs/blackbox/quickstart/adopt-existing-suite",
+        },
+        {
+          label: "Define New Behavior",
+          href: "/docs/blackbox/quickstart/define-new-behavior",
+        },
+        {
+          label: "Runtime Prerequisites",
+          href: "/docs/blackbox/quickstart/runtime-prerequisites",
+        },
+        {
+          label: "Complete the Verification Loop",
+          href: "/docs/blackbox/quickstart/add-runtime-evidence",
         },
       ],
     },
@@ -201,6 +205,10 @@ const sidebar: SidebarConfig = {
         {
           label: "Runtime Evidence",
           href: "/docs/blackbox/concepts/runtime-evidence",
+        },
+        {
+          label: "Intent, Flows, and Runtime Evidence",
+          href: "/docs/blackbox/overview/runtime-evidence-gap",
         },
         {
           label: "Effects, Catalogs, and Coverage",

@@ -1,78 +1,25 @@
 ---
-title: "Install Blackbox"
-description: "Show project-local installation, CLI verification, upgrade notes, and uninstall expectations."
-sidebar_position: 2
+title: "Install and Initialize Blackbox"
+description: "Install the Blackbox CLI, inspect repository state, and choose a suite-first, specification-first, or effects-first path."
+sidebar_position: 1
 keywords:
   [
     "install Suites Blackbox",
     "Blackbox CLI",
-    "Playwright runtime evidence",
-    "OpenTelemetry test instrumentation",
+    "blackbox init",
+    "behavioral harness",
   ]
 ---
 
-import Aside from "@/components/mdx/Aside.astro";
-import InstrumentationFlowDiagram from "@/components/blackbox/InstrumentationFlowDiagram.astro";
 import Tabs from "@/components/mdx/Tabs.astro";
 import TabItem from "@/components/mdx/TabItem.astro";
+import Aside from "@/components/mdx/Aside.astro";
 
-Installation is the first step toward visibility. A **project-local install** adds Blackbox to the workspace package that owns your system tests, not to a global toolchain or production dependency set.
+Install the CLI first. You do not need Docker, Playwright instrumentation, or a running system to inspect the repository, validate behavior artifacts, or align a native suite.
 
-Blackbox has two install surfaces:
+## Install the Computational Harness
 
-1. `@suites/blackbox` plus a runtime adapter and test dependencies for Playwright system tests.
-2. `@suites/blackbox-cli`, the package that provides the framework facade and specialized engine commands.
-
-Your **system under test (SUT)** is the service or topology Blackbox observes during the run. Install the packages, then verify the binary before you run a proof flow.
-
-<Aside type="info" title="Test-Time Instrumentation">
-  Blackbox instruments compatible Node SUT containers during the test run. The
-  compose testbed mounts the bootstrap, shadows the service's Node binary with
-  `node-wrap`, and preloads `bootstrap.cjs` before application code. Service
-  source and production Dockerfiles do not need OpenTelemetry imports.
-</Aside>
-
-<InstrumentationFlowDiagram />
-
-## Project-Local Install
-
-Install Blackbox in the same package where you run Playwright or your system-test command. This keeps `pnpm exec blackbox` on the same version your tests use.
-
-### Core Runtime
-
-For the documented Node testbed path, install the runtime, Node adapter, bootstrap payload, Playwright, and Testcontainers as development dependencies:
-
-<Tabs groupId="pkg">
-<TabItem value="pnpm" label="pnpm" default>
-
-```bash
-pnpm add -D @suites/blackbox @suites/blackbox-adapter-node @suites/blackbox-instr-node @playwright/test testcontainers
-```
-
-</TabItem>
-<TabItem value="npm" label="npm">
-
-```bash
-npm install --save-dev @suites/blackbox @suites/blackbox-adapter-node @suites/blackbox-instr-node @playwright/test testcontainers
-```
-
-</TabItem>
-<TabItem value="yarn" label="yarn">
-
-```bash
-yarn add --dev @suites/blackbox @suites/blackbox-adapter-node @suites/blackbox-instr-node @playwright/test testcontainers
-```
-
-</TabItem>
-</Tabs>
-
-`@suites/blackbox-adapter-node` registers Node observation and observable decision producers. `@suites/blackbox-instr-node` supplies the bootstrap payload used by the test image. Add database, cache, queue, or LocalStack Testcontainers packages only when the test fixture imports them directly.
-
-You usually do not need to add OpenTelemetry packages manually for the default testbed path. The package surface is alpha, so pin it through the lockfile and update intentionally.
-
-### CLI Tooling
-
-Add the CLI package when you want the `blackbox` command:
+Install `@suites/blackbox-cli` in the workspace package that owns the system-test suite or will own the new flow.
 
 <Tabs groupId="pkg">
 <TabItem value="pnpm" label="pnpm" default>
@@ -98,101 +45,58 @@ yarn add --dev @suites/blackbox-cli
 </TabItem>
 </Tabs>
 
-`@suites/blackbox-cli` provides `init`, `doctor`, `status`, `verify`, `explain`, flow inspection, and the `requirements`, `features`, `coverage`, and `otel` command families. The requirements engine is included. Keep the CLI version aligned with `@suites/blackbox` so the facade, runtime, and artifact formats agree.
-
-## Verification
-
-### Checking the Binary
-
-Run the binary from the package that owns the install:
+Confirm the project-local binary:
 
 ```bash
 pnpm exec blackbox --help
-pnpm exec blackbox verify --help
 ```
 
-A successful run prints framework commands and engine topics:
+The command should list the framework facade and the `flows`, `requirements`, `features`, `suites`, `effects`, `coverage`, and `otel` topics.
 
-```text
-Suites Blackbox verifies reviewed behavior against executable flows and runtime evidence.
+## Inspect the Repository
 
-USAGE
-  $ blackbox [COMMAND]
-
-COMMANDS
-  doctor    Check whether configured verification layers can run.
-  explain   Explain a Blackbox diagnostic code.
-  init      Configure Blackbox for this project.
-  status    Read repository and retained-run verification state.
-  verify    Run the configured verification loop.
-
-TOPICS
-  coverage      Observable decision coverage analysis and reports.
-  features      Derive, lint, drift-check, and reshape feature traces.
-  flows         Inspect flow IDs and their connected artifacts.
-  otel          Static OpenTelemetry source instrumentation.
-  requirements  Extract, validate, connect, and verify requirements.
-```
-
-This confirms that the CLI is installed in the right workspace package. It does not prove that the SUT is observable.
-
-If `pnpm exec` cannot find `blackbox`, check the current directory first. In a multi-package workspace, installing the CLI at the root does not always make it available inside the package that runs your system tests.
-
-### Initialize and Validate the Environment
-
-Begin onboarding, then check the selected environment:
+Run initialization in automatic mode:
 
 ```bash
-pnpm exec blackbox init
-pnpm exec blackbox doctor
+pnpm exec blackbox init --mode auto --json
 ```
 
-The exact `init` flow is intentionally not documented in this wave. `doctor` is the first fully documented readiness contract. It checks the test runner, Docker, instrumentation, discovered artifacts, and artifact paths without running the SUT.
+`init` detects:
 
-Before the first proof run, confirm that the install can reach the required tools:
+- the system-test adapter and suite roots;
+- existing requirement, feature, and effect roots;
+- bound and unbound suite candidates;
+- whether the next path is `new`, `existing`, or mixed;
+- the recommended next command.
 
-1. `node --version` satisfies your project requirements.
-2. Docker is running and can build or pull images.
-3. Playwright can run at least one system test against the SUT.
-4. The SUT starts through a Node command that the testbed can wrap.
-5. The repo has a writable artifact directory, usually `.blackbox-coverage/`.
+It may create local Blackbox state and missing artifact directories. It does not modify accepted behavior or suite source.
 
-Playwright still executes the tests. `blackbox verify` invokes the configured Playwright project and then coordinates feature, effect, requirement, and decision verdicts around that run.
-
-## The Bootstrap Image
-
-The **bootstrap image** carries the OpenTelemetry preload code and wrapper files that Blackbox mounts into Node service containers. It lets the testbed inject observability without changing the service Dockerfile.
-
-If your repo exposes a local build script for the image, run it before the first testbed proof:
+Read the structural state without running tests:
 
 ```bash
-pnpm build:instr-image
+pnpm exec blackbox status --json
 ```
 
-Local development commonly uses `blackbox-instr-node:local`. CI can pull a published image instead, or set `BLACKBOX_INSTR_IMAGE` to the image your pipeline should use.
+## Choose the Starting Point
 
-Treat this image as test infrastructure. Rebuild or repull it when you upgrade Blackbox packages, when bootstrap files are missing, or when no spans arrive even though the SUT started.
+- Existing suite that needs readable behavior: [Adopt an Existing Suite](/docs/blackbox/quickstart/adopt-existing-suite)
+- New behavior without an applicable flow: [Define New Behavior](/docs/blackbox/quickstart/define-new-behavior)
+- Accepted native flow that needs boundary evidence: [Add Runtime Evidence](/docs/blackbox/quickstart/add-runtime-evidence)
 
-## Troubleshooting the Install
+Requirements and Gherkin are optional for the runtime-effects path. Source-changing operations use preview mode before `--write`. A write can return `awaiting-review`; that means the transformation completed and the workflow must pause for a person to review the actual diff.
 
-If the CLI is missing, install `@suites/blackbox-cli` where you run `pnpm exec blackbox`, then reinstall dependencies from the lockfile.
+<Aside type="note" title="Approval Is External in Alpha">
+  Blackbox does not infer approval because a command, commit, or agent action
+  occurred. Use normal diff and pull-request review before continuing across an
+  accepted behavior boundary.
+</Aside>
 
-If command topics look different from the docs, align `@suites/blackbox` and `@suites/blackbox-cli` to the same release range:
+## Add Runtime Packages Later
 
-```bash
-pnpm up @suites/blackbox @suites/blackbox-cli --latest
-```
+Install the runtime, adapter, instrumentation payload, Playwright, and Testcontainers only when you are ready to observe the running system. [Runtime Prerequisites](/docs/blackbox/quickstart/runtime-prerequisites) lists the supported alpha stack and [Complete the Verification Loop](/docs/blackbox/quickstart/add-runtime-evidence) provides the install commands.
 
-If the test starts but no runtime evidence appears, the install is not the likely failure point. Check the bootstrap image, the SUT startup command, and whether spans can reach Blackbox during the test.
+## Summary
 
-If you need to remove Blackbox, remove the runtime, adapter, instrumentation payload, and CLI packages from the system-test package:
-
-```bash
-pnpm remove @suites/blackbox @suites/blackbox-adapter-node @suites/blackbox-instr-node @suites/blackbox-cli
-```
-
-Then review project scripts, generated feature files, and `.blackbox-coverage/` artifacts separately. Package removal should not delete evidence that may still help debugging.
-
-## What To Read Next
-
-After `blackbox doctor` passes, run one controlled proof flow: [Prove Your First Flow](/docs/blackbox/quickstart/first-proven-feature).
+- Install the CLI before runtime packages.
+- Use `init --mode auto` and `status` to select the first incomplete boundary.
+- Review every source-changing operation through the repository's normal process.
