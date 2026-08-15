@@ -35,6 +35,8 @@ That result means the requested deterministic transformation succeeded. The work
 - Preserve JSON findings and run artifacts when a runtime job fails.
 - Use command-specific verdicts rather than collapsing all layer results into one Boolean.
 
+`blackbox verify` can exit `0` with `effects: not-configured` during discovery because no effect claim was requested. `blackbox verify --require-effects` exits `1` when a selected flow has no accepted effect contract or violates that contract.
+
 ## Compatibility Alias
 
 Some alpha builds may expose `features emit` as an alias for `features extract`. New automation should use `features extract`; both follow the same exit-code contract while the alias remains available.

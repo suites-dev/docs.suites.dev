@@ -1,6 +1,6 @@
 ---
 title: "What is Blackbox?"
-description: "Suites Blackbox is a behavioral verification framework for agentic software engineering. It connects human-approved intent, executable system flows, runtime evidence, and deterministic verdicts."
+description: "Suites Blackbox runs system flows, observes what the software did, and returns deterministic verdicts coding agents can use while people control the beginning and end."
 sidebar_position: 1
 keywords:
   [
@@ -14,37 +14,36 @@ keywords:
 seo:
   primary_keyword: "behavior harness"
   secondary_keywords: ["behavioral verification framework", "runtime evidence"]
-  search_intent: "developers evaluating behavior harnesses and deterministic verification for coding agents"
-  snippet_angle: "connect human-approved intent, executable flows, observed runtime effects, and deterministic verdicts agents cannot redefine"
+  search_intent: "developers evaluating deterministic verification and behavior harnesses for coding agents"
+  snippet_angle: "run system flows, observe runtime behavior, and return deterministic verdicts without letting agents redefine success"
 ---
 
-import BehaviorHarnessOverviewDiagram from "@/components/blackbox/BehaviorHarnessOverviewDiagram.astro";
+import HumanAgentVerificationLoopDiagram from "@/components/blackbox/HumanAgentVerificationLoopDiagram.astro";
 import Aside from "@/components/mdx/Aside.astro";
 
-**Suites Blackbox is a behavioral verification framework for agentic software engineering.**
+**Suites Blackbox runs system flows, observes what the software actually did, and returns deterministic verdicts coding agents can act on.**
 
-It connects a human-governed behavioral harness to a deterministic runtime verification loop. Coding agents repair implementation against its verdicts without redefining the accepted target.
+Blackbox combines **coding-agent skills**, a **deterministic CLI**, and **human review** in one verification lifecycle.
 
-<BehaviorHarnessOverviewDiagram />
+<HumanAgentVerificationLoopDiagram />
 
-Specifications guide the agent. Blackbox verifies what the running system actually did.
+Blackbox closes the deterministic feedback loop between coding agents and running software while people remain in control at the beginning and end. This is what **behavioral verification framework for agentic software engineering** means in practice.
 
-Blackbox combines two related parts:
+Five capabilities make the loop work:
 
-- The **behavior governance lifecycle** defines and reviews the target. It can start from product intent or an existing system-test suite.
-- The **runtime verification loop** executes that target, observes the running system, and computes deterministic verdicts against accepted policy. Agents may repair implementation and rerun while the target stays fixed.
+- **Human review controls what counts as success.** People approve the behavior and effect contract, then accept the result or return it to the agent.
+- **Blackbox agent skills translate intent.** They propose requirements and scenarios and guide the agent through implementation and repair.
+- **The Blackbox CLI keeps verification deterministic.** It validates and aligns artifacts, executes flows, captures evidence, and computes verdicts.
+- **[Runtime effects](/docs/blackbox/concepts/effects-and-catalogs) show what happened inside the system.** For supported Node services, Blackbox [automatically injects test-time OpenTelemetry instrumentation](/docs/blackbox/concepts/runtime-evidence), then checks that expected database writes, API calls, and messages happened and unwanted ones did not.
+- **[Observable decision coverage](/docs/blackbox/concepts/omc-dc-coverage) shows whether important decisions changed what the system did.** Blackbox checks that different decision outcomes leave different runtime evidence.
 
-<Aside type="note" title="Start Before Runtime">
-  Without Docker or instrumentation, Blackbox can validate artifacts and align a
-  native suite deterministically. That is a useful first milestone, but it does
-  not verify what the running system did.
-</Aside>
+The agent can repeat the inner loop without waiting for a person after every change. It must stop when passing would require changing what success means.
 
 ## Catch Green Tests That Miss the Behavior
 
 An agent can implement and test the same mistaken interpretation. The test passes because the code and assertion agree with each other.
 
-Blackbox adds an independent observation channel. For a rejected subscription, a Playwright flow can check both the response and the effects behind it:
+Blackbox adds an independent observation channel. For a rejected subscription, a Playwright flow can check the response and the effects behind it:
 
 ```ts
 expect(response.status()).toBe(404);
@@ -60,62 +59,42 @@ await expect(capture).toObserveEffects({
 ```
 
 - The assertion proves the caller received `404`.
-- The observed effects prove the lookup occurred during this run.
-- The effect contract requires no captured payment, insert, or publication.
+- Runtime evidence proves the user lookup occurred during this run.
+- The accepted effect contract forbids payment, persistence, and publication.
 
 A green assertion with a failed effect verdict means the visible result was correct while the accepted boundary behavior was not.
 
-## Use Only the Surfaces You Need
+## Keep Success Outside the Agent
 
-Blackbox does not replace your specification framework or test runner. It connects the artifacts you already use through stable flow IDs and deterministic checks.
+Agents can change implementation. They cannot change accepted requirements, scenarios, suite assertions, effect contracts, or captured boundaries to make a failure disappear.
 
-| Adoption path            | What it establishes                                                                     |
-| ------------------------ | --------------------------------------------------------------------------------------- |
-| **Suite first**          | Existing system tests become a reviewed, structurally aligned behavioral harness.       |
-| **Specifications first** | Requirements and Gherkin govern a deterministically aligned native suite.               |
-| **Runtime first**        | A native flow produces observed effects and a reviewed required-or-forbidden policy.    |
-| **Full chain**           | Reviewed intent connects to an executable flow, current evidence, and bounded verdicts. |
+When one of those must change, Blackbox returns the work to human review instead of keeping it inside the autonomous loop.
 
-EARS requirements and Gherkin are optional. Runtime observation is also optional for structural governance, but it is required before Blackbox can claim what an execution actually did.
+## Start From What You Have
 
-Observed effects are facts from one run, not accepted policy. A person decides which effects become required, forbidden, or incidental before agents repair against them.
+Blackbox does not require a particular specification framework or test runner. Start with the surface that already carries useful behavior:
 
-## Keep Authority Separate
+- **Existing suite:** Recover readable behavior and align the accepted native flow.
+- **New behavior:** Connect approved requirements and examples to a native flow.
+- **Accepted flow:** Add runtime observation and a required-or-forbidden effect contract.
 
-- **Skills infer:** They propose requirements, scenarios, and effect policy.
-- **The CLI computes:** It validates, extracts, aligns native suite source, executes flows, records effects, and returns verdicts.
-- **Humans approve:** They review meaning, suite diffs, and effect policy through normal Git or pull-request review.
-- **Agents repair:** They change implementation and rerun deterministic checks.
+EARS requirements and Gherkin are optional. Specifications guide the agent; Blackbox verifies what the running system actually did.
 
-**Agents can change the implementation. They cannot change what success means.**
+<Aside type="note" title="Start Before Runtime">
+  Without Docker or instrumentation, Blackbox can validate artifacts and align a
+  native suite deterministically. That is useful governance, but it does not
+  verify what the running system did.
+</Aside>
 
-Changing accepted requirements, scenarios, suite assertions, or effect policy reopens human review.
-
-## Read Each Verdict Separately
-
-Blackbox reports distinct results instead of one unexplained pass or fail:
-
-- **Test:** Did the native assertions pass?
-- **Feature:** Does reviewed behavior still align with the native flow?
-- **Effect:** Did required effects occur and forbidden effects remain absent?
-- **Requirement:** Is accepted intent `proven`, `violated`, `unproven`, or `unbound`?
-- **Observable decision:** Did exercised decision arms produce distinguishable evidence?
-
-Every verdict is bounded by the selected flow, accepted artifacts, captured boundaries, instrumentation, and environment. Missing evidence remains explicit; it never becomes confidence.
+Blackbox keeps test, feature, effect, requirement, and observable-decision verdicts separate. Missing evidence remains explicit instead of becoming confidence.
 
 ## Start With One Consequential Flow
 
-First, [install and initialize Blackbox](/docs/blackbox/quickstart/install). Then inspect the repository:
+Choose one system or E2E flow where wrong behavior would matter, then follow the path that matches its current state:
 
-```bash
-pnpm exec blackbox init --mode auto --json
-pnpm exec blackbox status --json
-```
+- **Want to see the loop first:** [Run the demo in 5 minutes](/docs/blackbox/quickstart/demo)
+- **Already have the test:** [Add Blackbox to one system test](/docs/blackbox/quickstart/add-to-existing-test)
+- **Need requirements first:** [Turn requirements into a system test](/docs/blackbox/guides/turn-requirements-into-system-test)
+- **Need proof of database writes, API calls, or messages:** [Verify runtime effects](/docs/blackbox/quickstart/add-runtime-evidence)
 
-Choose the path that matches its current state:
-
-- **[Adopt an existing suite](/docs/blackbox/quickstart/adopt-existing-suite)**
-- **[Define new behavior](/docs/blackbox/quickstart/define-new-behavior)**
-- **[Add runtime evidence to an accepted flow](/docs/blackbox/quickstart/add-runtime-evidence)**
-
-Read [Behavior Governance and Runtime Verification](/docs/blackbox/overview/verification-loop) for the full model.
+Not sure where to begin? [Run Blackbox in 5 minutes](/docs/blackbox/quickstart/) and continue from the detected repository state.

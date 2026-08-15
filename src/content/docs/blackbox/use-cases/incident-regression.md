@@ -62,4 +62,4 @@ The regression now fails if payment, persistence, or publication returns, even w
 
 Blackbox does not replace monitoring, incident management, or root-cause analysis. It turns one selected failure mode into a recurring pre-merge behavior check.
 
-See [Effects, Catalogs, and Coverage](/docs/blackbox/concepts/effects-and-catalogs) and [Reports and CI Gates](/docs/blackbox/guides/reports-and-ci-gates).
+See [Effects, Contracts, and Coverage](/docs/blackbox/concepts/effects-and-catalogs) and [Reports and CI Gates](/docs/blackbox/guides/reports-and-ci-gates).

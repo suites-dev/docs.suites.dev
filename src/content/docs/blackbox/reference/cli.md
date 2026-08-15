@@ -19,6 +19,7 @@ blackbox doctor
 blackbox status
 blackbox verify
 blackbox explain <code>
+blackbox skills install
 
 blackbox flows list
 blackbox flows show <flow-id>
@@ -47,16 +48,18 @@ blackbox otel instrument
 
 ## Shared Options
 
-| Option                           | Meaning                                                  |
-| -------------------------------- | -------------------------------------------------------- |
-| `--flow <id>`                    | Select one stable flow; repeat to select several         |
-| `--json`                         | Write one machine-readable result to stdout              |
-| `--write`                        | Apply an explicit source transformation atomically       |
-| `--run <id\|latest>`             | Select retained runtime evidence                         |
-| `--mode <auto\|new\|existing>`   | Select initialization behavior                           |
-| `--feature <path>`               | Select an accepted Gherkin input                         |
-| `--suite <path>`                 | Select a native suite when discovery is ambiguous        |
-| `--expected-revision <revision>` | Require a repository revision before a future-safe write |
+| Option                              | Meaning                                                  |
+| ----------------------------------- | -------------------------------------------------------- |
+| `--flow <id>`                       | Select one stable flow; repeat to select several         |
+| `--json`                            | Write one machine-readable result to stdout              |
+| `--write`                           | Apply an explicit source transformation atomically       |
+| `--run <id\|latest>`                | Select retained runtime evidence                         |
+| `--mode <auto\|new\|existing>`      | Select initialization behavior                           |
+| `--feature <path>`                  | Select an accepted Gherkin input                         |
+| `--suite <path>`                    | Select a native suite when discovery is ambiguous        |
+| `--expected-revision <revision>`    | Require a repository revision before a future-safe write |
+| `--host <auto\|codex\|claude\|all>` | Select project-local agent skill layouts                 |
+| `--require-effects`                 | Fail selected flows without accepted effect contracts    |
 
 Every command supports `--json`. JSON mode never prompts. Ambiguous discovery returns choices and exits without writing.
 
@@ -101,11 +104,38 @@ blackbox status --flow checkout-payment --json
 
 ```bash
 blackbox verify --flow checkout-payment --json
+blackbox verify --flow checkout-payment --require-effects --json
 ```
 
-`verify` validates selected artifacts, runs the native flow, captures evidence, creates observed effects, evaluates configured effect policy, computes eligible decision evidence, and returns separate layered verdicts.
+`verify` validates selected artifacts, runs the native flow, captures evidence, creates observed effects, evaluates configured effect contracts, computes eligible decision evidence, and returns separate typed results.
 
-The first run can return `effects: not-configured` while still writing observed effects.
+Without `--require-effects`, a first run can return `effects: not-configured` while still writing observed effects. This is discovery and makes no effect-verification claim.
+
+With `--require-effects`, every selected flow must have an accepted effect contract. A missing or violated contract exits with findings. CI environment detection does not enable enforcement implicitly.
+
+`verify` evaluates accepted YAML contracts directly. `toObserveEffects()` and `toMatchCatalog()` are optional Playwright assertion surfaces over the same kernel. Coverage modules aggregate attempt results; reporters render or gate those aggregates.
+
+## Skill Commands
+
+### `skills install`
+
+```bash
+blackbox skills install --host codex --json
+blackbox skills install --host codex --write --json
+blackbox skills install --host claude --write --json
+blackbox skills install --host all --write --json
+```
+
+Without `--write`, the command previews the project-local skill files. With `--write`, it installs `$blackbox`, `$blackbox-requirements`, `$blackbox-gherkin`, and `$blackbox-effects` for the selected host.
+
+| Host   | Destination                       |
+| ------ | --------------------------------- |
+| Codex  | `.agents/skills/<skill>/SKILL.md` |
+| Claude | `.claude/skills/<skill>/SKILL.md` |
+
+The command is idempotent and reports each skill as `preview`, `installed`, or `unchanged`. It returns host, path, and content digest in JSON mode. It refuses to overwrite a locally modified skill.
+
+`blackbox doctor` reports agent skills as a separate readiness field. `not-installed` is non-blocking for manual CLI use; modified or version-mismatched installed skills produce agentic-workflow findings without invalidating runtime connectivity.
 
 ## Flow Commands
 
@@ -114,7 +144,7 @@ blackbox flows list --json
 blackbox flows show checkout-payment --json
 ```
 
-The flow ID joins requirements, Gherkin, native suite nodes, effect policy, runtime evidence, and reports. `flows show` assembles those explicit relationships without inferring from similar text.
+The flow ID joins requirements, Gherkin, native suite nodes, effect contracts, runtime evidence, and reports. `flows show` assembles those explicit relationships without inferring from similar text.
 
 ## Requirement Commands
 

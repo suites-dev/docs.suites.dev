@@ -17,6 +17,52 @@ The Blackbox CLI is the **computational harness**. It validates artifacts, extra
 
 Humans retain authority over accepted behavior.
 
+## Install the Skills
+
+Skills are required for the supported Blackbox agentic workflow. They are not required when a person runs the CLI manually.
+
+Install skills into the repository so the agent receives the same Blackbox workflow and authority boundaries as the rest of the team. Preview the operation first:
+
+```bash
+pnpm exec blackbox skills install --host codex --json
+```
+
+Apply the project-local installation explicitly:
+
+```bash
+pnpm exec blackbox skills install --host codex --write --json
+```
+
+Choose the host that the repository uses:
+
+| Host     | Command option  | Installed path                    |
+| -------- | --------------- | --------------------------------- |
+| Codex    | `--host codex`  | `.agents/skills/<skill>/SKILL.md` |
+| Claude   | `--host claude` | `.claude/skills/<skill>/SKILL.md` |
+| Both     | `--host all`    | Both project-local layouts        |
+| Detected | `--host auto`   | Every detected supported host     |
+
+The installer is idempotent. It reports an unchanged matching skill and refuses to overwrite a locally modified skill.
+
+```json
+{
+  "status": "installed",
+  "data": {
+    "host": "codex",
+    "skills": [
+      {
+        "name": "blackbox",
+        "path": ".agents/skills/blackbox/SKILL.md",
+        "status": "installed"
+      }
+    ]
+  },
+  "findings": []
+}
+```
+
+Run `blackbox doctor --json` after installation. It reports agent skills separately from runtime readiness and never changes files. `not-installed` is non-blocking for manual CLI use; modified or incompatible installed skills block the supported agentic workflow, not runtime connectivity.
+
 ## Skill Set
 
 | Skill                    | New-behavior job                               | Existing-project job                                 | Stop boundary                         |
@@ -134,9 +180,18 @@ A source-changing operation can return:
 
 `awaiting-review` is a successful transformation that must pause. It does not record approval. In alpha, use normal diff or pull-request review before running the suggested next command.
 
+Skills and CLI results define the authority boundary, but they do not provide filesystem access control. Use agent tool restrictions, code ownership, or branch protection when accepted artifacts must be technically protected from agent writes.
+
 ## Summary
 
+- **Install Skills project-locally for Codex, Claude, or both.**
 - **Skills propose meaning.**
 - **The CLI computes facts and transforms native suite structure.**
 - **Humans approve accepted behavior.**
 - **Agents repair implementation while the accepted harness stays fixed.**
+
+## Next Steps
+
+- **[Recover behavior from existing tests](/docs/blackbox/guides/recover-behavior-from-existing-tests):** Use Skills to propose reviewed specifications from a suite you already run.
+- **[Turn requirements into a system test](/docs/blackbox/guides/turn-requirements-into-system-test):** Use Skills for a requirements-first flow.
+- **[Verify runtime effects](/docs/blackbox/quickstart/add-runtime-evidence):** Use `$blackbox-effects` after the first discovery run.

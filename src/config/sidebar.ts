@@ -152,45 +152,25 @@ const sidebar: SidebarConfig = {
           label: "What is Blackbox?",
           href: "/docs/blackbox/overview/what-is-blackbox",
         },
-        {
-          label: "When to Use Blackbox",
-          href: "/docs/blackbox/overview/when-to-use-blackbox",
-        },
-        {
-          label: "Behavior Governance and Runtime Verification",
-          href: "/docs/blackbox/overview/verification-loop",
-        },
-        {
-          label: "Adopt Blackbox Incrementally",
-          href: "/docs/blackbox/overview/adopt-blackbox-in-layers",
-        },
       ],
     },
     {
       label: "Quickstart",
       items: [
         {
-          label: "Install and Initialize",
-          href: "/docs/blackbox/quickstart/install",
-        },
-        {
-          label: "Choose Your Starting Point",
+          label: "Demo or Your Project",
           href: "/docs/blackbox/quickstart/",
         },
         {
-          label: "Adopt an Existing Suite",
-          href: "/docs/blackbox/quickstart/adopt-existing-suite",
+          label: "Run the Demo in 5 Minutes",
+          href: "/docs/blackbox/quickstart/demo",
         },
         {
-          label: "Define New Behavior",
-          href: "/docs/blackbox/quickstart/define-new-behavior",
+          label: "Add Blackbox to One System Test",
+          href: "/docs/blackbox/quickstart/add-to-existing-test",
         },
         {
-          label: "Runtime Prerequisites",
-          href: "/docs/blackbox/quickstart/runtime-prerequisites",
-        },
-        {
-          label: "Complete the Verification Loop",
+          label: "Verify Runtime Effects",
           href: "/docs/blackbox/quickstart/add-runtime-evidence",
         },
       ],
@@ -207,11 +187,7 @@ const sidebar: SidebarConfig = {
           href: "/docs/blackbox/concepts/runtime-evidence",
         },
         {
-          label: "Intent, Flows, and Runtime Evidence",
-          href: "/docs/blackbox/overview/runtime-evidence-gap",
-        },
-        {
-          label: "Effects, Catalogs, and Coverage",
+          label: "Effects, Contracts, and Coverage",
           href: "/docs/blackbox/concepts/effects-and-catalogs",
         },
         {
@@ -227,6 +203,14 @@ const sidebar: SidebarConfig = {
     {
       label: "Guides",
       items: [
+        {
+          label: "Recover Behavior From Existing Tests",
+          href: "/docs/blackbox/guides/recover-behavior-from-existing-tests",
+        },
+        {
+          label: "Turn Requirements Into a System Test",
+          href: "/docs/blackbox/guides/turn-requirements-into-system-test",
+        },
         {
           label: "Testbed and Instrumentation",
           href: "/docs/blackbox/guides/set-up-the-testbed",

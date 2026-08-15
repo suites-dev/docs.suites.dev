@@ -1,0 +1,285 @@
+---
+title: "Add Blackbox to One System Test"
+description: "Connect one passing Playwright test to Blackbox through managed Docker or a local Node process."
+sidebar_position: 3
+keywords: ["add Blackbox", "Playwright system test", "Blackbox connect mode"]
+---
+
+import Tabs from "@/components/mdx/Tabs.astro";
+import TabItem from "@/components/mdx/TabItem.astro";
+import Aside from "@/components/mdx/Aside.astro";
+
+Start with one Playwright system test that already passes against your Node service. This page connects that test to Blackbox; it does not change the behavior the test accepts.
+
+Choose the runtime path that matches the test you already run:
+
+| Path                   | Choose it when                                                      | Extra requirement           |
+| ---------------------- | ------------------------------------------------------------------- | --------------------------- |
+| **Local Node process** | You can start one Node service locally and know its application URL | A free local debug port     |
+| **Managed Docker**     | You already have Compose and a reset hook for mutable test state    | Docker and `testcontainers` |
+
+Start with the local process when both paths are available. Managed Docker is for tests that already depend on a controlled Compose topology.
+
+Local connect is the fastest first connection, not automatically the strongest evidence environment. Before relying on a forbidden-effect contract, control background traffic, reset mutable state between runs, and prove that the relevant boundary is observable. Use the managed testbed when the local process cannot provide those controls.
+
+## 1. Install Blackbox
+
+Install the CLI, runtime, Node adapter, instrumentation payload, and Playwright integration in the package that owns the system tests:
+
+<Tabs groupId="pkg">
+<TabItem value="pnpm" label="pnpm" default>
+
+```bash
+pnpm add -D \
+  @suites/blackbox-cli \
+  @suites/blackbox \
+  @suites/blackbox-adapter-node \
+  @suites/blackbox-instr-node \
+  @playwright/test
+```
+
+</TabItem>
+<TabItem value="npm" label="npm">
+
+```bash
+npm install --save-dev @suites/blackbox-cli @suites/blackbox @suites/blackbox-adapter-node @suites/blackbox-instr-node @playwright/test
+```
+
+</TabItem>
+<TabItem value="yarn" label="yarn">
+
+```bash
+yarn add --dev @suites/blackbox-cli @suites/blackbox @suites/blackbox-adapter-node @suites/blackbox-instr-node @playwright/test
+```
+
+</TabItem>
+</Tabs>
+
+Install the same published version of every `@suites/blackbox*` package. Mixing release versions is not a supported alpha setup.
+
+## 2. Optional: Install the Agent Skills
+
+Blackbox Skills are required for the supported **agentic workflow**: they give Codex or Claude the framework procedure and authority boundaries. You can run the CLI manually without installing them.
+
+For a manual CLI workflow, skip directly to step 3.
+
+<Tabs groupId="agent-host">
+<TabItem value="codex" label="Codex" default>
+
+Preview the project-local files:
+
+```bash
+pnpm exec blackbox skills install --host codex --json
+```
+
+Install them under `.agents/skills/`:
+
+```bash
+pnpm exec blackbox skills install --host codex --write --json
+```
+
+</TabItem>
+<TabItem value="claude" label="Claude">
+
+Preview the project-local files:
+
+```bash
+pnpm exec blackbox skills install --host claude --json
+```
+
+Install them under `.claude/skills/`:
+
+```bash
+pnpm exec blackbox skills install --host claude --write --json
+```
+
+</TabItem>
+</Tabs>
+
+The installer adds `$blackbox`, `$blackbox-requirements`, `$blackbox-gherkin`, and `$blackbox-effects`. It does not overwrite a locally modified skill.
+
+## 3. Initialize One Existing Flow
+
+Inspect the repository without changing test source:
+
+```bash
+pnpm exec blackbox init --mode existing --json
+```
+
+Expected result:
+
+```json
+{
+  "status": "ready",
+  "data": {
+    "runner": "playwright",
+    "mode": "existing",
+    "next": "Add a stable @flow:<id> tag to one passing test."
+  },
+  "findings": []
+}
+```
+
+Add a stable flow ID to the existing `test.describe` block:
+
+```ts
+test.describe("Checkout payment", { tag: "@flow:checkout-payment" }, () => {
+  test("returns the confirmed order", async ({ page }) => {
+    // Keep the existing test body and assertions.
+  });
+});
+```
+
+Requirements and Gherkin are optional. The `@flow:checkout-payment` tag is enough to join this test to its runtime evidence and effect contract.
+
+## 4. Connect the Runtime
+
+Choose one tab. Use `workers: 1` for the first flow.
+
+<Tabs groupId="runtime-path">
+<TabItem value="managed" label="Managed Docker">
+
+Choose this path when the test already depends on Compose and Blackbox should own lifecycle, instrumentation, reset, and per-worker isolation.
+
+Install the managed-topology dependency:
+
+```bash
+pnpm add -D testcontainers
+```
+
+Confirm that the existing Compose environment:
+
+- defines the Node service with `build:` and a declared application port;
+- starts that service through a Node binary Blackbox can wrap;
+- provides a deterministic way to clear mutable database, cache, and queue state.
+
+Follow [Testbed and Instrumentation](/docs/blackbox/guides/set-up-the-testbed) to create `blackbox-testbed.ts`, wire Playwright, and expose the system fixture. Return here after one test passes with `workers: 1`.
+
+The managed testbed injects [automatic test-time instrumentation](/docs/blackbox/concepts/runtime-evidence) into configured Node services. Production source and production images do not import Blackbox.
+
+</TabItem>
+<TabItem value="connect" label="Local Node Process" default>
+
+In a separate terminal, start the Node service with the Blackbox bootstrap. Keep it running through `doctor`, the Playwright test, and `blackbox verify`. Use a debug port that is not exposed by another process:
+
+```bash
+OTEL_DEBUG_PORT=9464 \
+NODE_OPTIONS="--require=@suites/blackbox-instr-node/bootstrap" \
+pnpm start
+```
+
+Configure Playwright for connect mode:
+
+```ts title="e2e/playwright.config.ts"
+import { defineConfig } from "@playwright/test";
+import {
+  blackboxReporter,
+  defineBlackboxConfig,
+} from "@suites/blackbox/playwright";
+import "@suites/blackbox-adapter-node/register";
+
+export default defineConfig({
+  ...defineBlackboxConfig({
+    mode: "connect",
+    coverageDir: "e2e/.blackbox-coverage",
+  }),
+  testDir: "./tests",
+  workers: 1,
+  reporter: [
+    ["list"],
+    blackboxReporter({ outputDir: "e2e/.blackbox-coverage" }),
+  ],
+});
+```
+
+Expose both the application URL and debug URL:
+
+```ts title="e2e/tests/testbed.ts"
+import { defineSystemTest } from "@suites/blackbox/runners/playwright";
+
+const { test, expect } = defineSystemTest({
+  provision: {
+    bootstrap: async () => ({
+      app: { url: process.env.APP_URL ?? "http://127.0.0.1:3000" },
+      debugUrls: ["http://127.0.0.1:9464"],
+      dispose: async () => {},
+    }),
+  },
+});
+
+export { test, expect };
+```
+
+Connect mode does not start or instrument the service. The preload and `debugUrls` make runtime evidence available to Blackbox.
+
+You own service readiness and dependency reset in connect mode. Run the first flow against isolated or resettable state, and keep unrelated traffic out of the capture window.
+
+</TabItem>
+</Tabs>
+
+Import `test` and `expect` from `e2e/tests/testbed.ts` in the selected system test.
+
+## 5. Check and Run the Original Test
+
+Check the runtime connection:
+
+```bash
+pnpm exec blackbox doctor --json
+```
+
+The selected path is ready when `doctor` finds the runner, flow, runtime adapter, and writable evidence directory:
+
+```json
+{
+  "status": "ready",
+  "data": {
+    "runner": "playwright",
+    "flows": ["checkout-payment"],
+    "runtime": "connected",
+    "evidenceDir": "e2e/.blackbox-coverage"
+  },
+  "findings": []
+}
+```
+
+If the local service is not running or its debug endpoint is wrong, `doctor` returns a concrete finding:
+
+```json
+{
+  "status": "blocked",
+  "findings": [
+    {
+      "code": "runtime.debug-endpoint-unreachable",
+      "path": "http://127.0.0.1:9464",
+      "next": "Start the instrumented Node process or correct debugUrls."
+    }
+  ]
+}
+```
+
+Run the original test through the configured environment:
+
+```bash
+pnpm exec playwright test \
+  --config e2e/playwright.config.ts \
+  e2e/tests/checkout.spec.ts \
+  --workers 1
+```
+
+The existing assertions should remain green:
+
+```text
+1 passed
+```
+
+This is the success state for this page: the original test still passes through a Blackbox-connected environment. The next step captures evidence and adds the independent effect verdict.
+
+<Aside type="note" title="Keep the First Topology Local">
+  This quickstart covers managed Docker and one local Node process. Use the
+  [testbed guide](/docs/blackbox/guides/set-up-the-testbed) for custom topology
+  and [Playwright
+  isolation](/docs/blackbox/guides/playwright-isolation-and-parallelism) before
+  enabling parallel workers. Remote connect mode is an advanced path.
+</Aside>
+
+Continue with [Verify Runtime Effects](/docs/blackbox/quickstart/add-runtime-evidence).

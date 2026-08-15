@@ -1,89 +1,44 @@
 ---
-title: "Complete the Verification Loop"
+title: "Verify Runtime Effects"
 slug: "blackbox/quickstart/add-runtime-evidence"
-description: "Run one accepted flow, capture observed effects, review effect policy, and compute deterministic runtime verdicts."
-sidebar_position: 6
+description: "Capture observed effects from one system-test flow, approve an effect contract, and compute a deterministic runtime verdict."
+sidebar_position: 4
 keywords:
-  [
-    "Blackbox runtime evidence",
-    "effect contract",
-    "deterministic verdict",
-    "verification loop",
-  ]
+  ["Blackbox runtime evidence", "effect contract", "deterministic verdict"]
 ---
 
-import Tabs from "@/components/mdx/Tabs.astro";
-import TabItem from "@/components/mdx/TabItem.astro";
 import Aside from "@/components/mdx/Aside.astro";
 
-Continue here when the selected flow has an accepted native suite and stable flow ID. You can arrive from [Adopt an Existing Suite](/docs/blackbox/quickstart/adopt-existing-suite), [Define New Behavior](/docs/blackbox/quickstart/define-new-behavior), or an existing accepted flow that does not use requirements or Gherkin.
+Continue with one tagged flow that passes through the configured Blackbox environment. This step turns runtime observations into a reviewed effect contract and a deterministic effect verdict.
 
-This path does not require a specification layer. Runtime observation creates facts; reviewed effect policy and the next run complete the effect verification loop.
+## 1. Capture What the System Did
 
-## 1. Install Runtime Packages
-
-Install the runtime, Node adapter, instrumentation payload, Playwright, and Testcontainers in the package that owns the system tests.
-
-<Tabs groupId="pkg">
-<TabItem value="pnpm" label="pnpm" default>
-
-```bash
-pnpm add -D \
-  @suites/blackbox \
-  @suites/blackbox-adapter-node \
-  @suites/blackbox-instr-node \
-  @playwright/test \
-  testcontainers
-```
-
-</TabItem>
-<TabItem value="npm" label="npm">
-
-```bash
-npm install --save-dev @suites/blackbox @suites/blackbox-adapter-node @suites/blackbox-instr-node @playwright/test testcontainers
-```
-
-</TabItem>
-<TabItem value="yarn" label="yarn">
-
-```bash
-yarn add --dev @suites/blackbox @suites/blackbox-adapter-node @suites/blackbox-instr-node @playwright/test testcontainers
-```
-
-</TabItem>
-</Tabs>
-
-Keep `@suites/blackbox` and `@suites/blackbox-cli` on compatible versions.
-
-## 2. Check Runtime Readiness
-
-```bash
-pnpm exec blackbox doctor --json
-```
-
-`doctor` checks the test runner, topology, instrumentation, paths, and bindings. It does not run the SUT or modify source.
-
-Resolve setup findings before treating a run as trustworthy.
-
-## 3. Run and Observe
-
-Run one accepted flow:
+Run the flow:
 
 ```bash
 pnpm exec blackbox verify --flow checkout-payment --json
 ```
 
-The first run performs these computational steps:
+The first run can pass without an effect contract:
 
-1. Validate the selected flow and any configured artifacts.
-2. Execute the native system-test flow.
-3. Capture run-scoped runtime evidence.
-4. Normalize evidence into observed effects.
-5. Compute every configured verdict that has enough evidence.
+```json
+{
+  "status": "passed",
+  "data": {
+    "flow": "checkout-payment",
+    "verdicts": {
+      "test": "passed",
+      "effects": "not-configured"
+    },
+    "observedEffects": 6
+  },
+  "findings": []
+}
+```
 
-An effect contract is not required to create observed effects. The first result can report `effects: not-configured` and still contain useful observations.
+`test: passed` means the native assertions passed. `effects: not-configured` means Blackbox captured evidence but has no approved effect contract to evaluate yet.
 
-Inspect them:
+## 2. Inspect the Observations
 
 ```bash
 pnpm exec blackbox effects show \
@@ -92,68 +47,173 @@ pnpm exec blackbox effects show \
   --json
 ```
 
-Observed effects are generated facts beneath `.blackbox-coverage/runs/<run-id>/`. They are not accepted policy.
+Observed effects are generated facts for this run. They can include database operations, HTTP calls, queue messages, cache access, and other supported boundaries.
 
-## 4. Review Effect Policy
+The command returns normalized effects joined to the flow and run:
 
-Use `$blackbox-effects` or a person to classify the observations:
+```json
+{
+  "status": "ready",
+  "data": {
+    "flow": "checkout-payment",
+    "runId": "run_01J_CHECKOUT",
+    "effects": [
+      {
+        "boundary": "postgres",
+        "op": "INSERT",
+        "key": "orders",
+        "service": "api"
+      },
+      {
+        "boundary": "http",
+        "op": "POST",
+        "key": "/inventory/reservations",
+        "service": "api"
+      }
+    ]
+  },
+  "findings": []
+}
+```
 
-- promote selected observed effects to `requires`;
-- add unsafe absent behavior to `forbids`;
-- leave incidental observations outside the contract;
-- flag observations that may reveal an implementation defect.
+This excerpt omits incidental observations. Inspect the complete command output before deciding what belongs in policy.
 
-The reviewed policy lives at `features/<flow-id>.effects.yaml`:
+## 3. Propose an Effect Contract
+
+For the supported agentic workflow, ask the Blackbox effect skill to classify the observations:
+
+```text
+$blackbox-effects
+
+For flow checkout-payment, inspect the latest observed effects.
+Propose the smallest required and forbidden effect contract.
+Do not treat every observed effect as required behavior.
+Stop for human review before the policy is accepted.
+```
+
+You can also author the same YAML manually. In either workflow, a person reviews the proposal at `features/checkout-payment.effects.yaml`:
 
 ```yaml
 specVersion: "0.1"
 flow: checkout-payment
 requires:
-  - { boundary: postgres, op: INSERT, key: orders }
+  - { boundary: postgres, op: INSERT, key: orders, service: api }
+  - { boundary: http, op: POST, key: /inventory/reservations, service: api }
 forbids:
-  - { boundary: http, op: POST, key: /refunds }
+  - { boundary: http, op: POST, key: /payments, service: api }
 ```
 
-Validate the proposal:
+Review the diff. Keep only effects that define the behavior you intend to protect.
+
+<Aside type="warning" title="The First Run Is Evidence, Not Truth">
+  A passing baseline can contain a defect. A person decides which effects are
+  required, forbidden, or incidental before the contract becomes accepted
+  policy.
+</Aside>
+
+Validate the reviewed contract:
 
 ```bash
 pnpm exec blackbox effects check --flow checkout-payment --json
 ```
 
-<Aside type="warning" title="Do Not Turn the Baseline Into Truth">
-  The first execution may contain a defect. A human must review which effects
-  are required, forbidden, or incidental before the contract becomes accepted
-  behavior.
-</Aside>
+Expected result:
 
-## 5. Compute the Accepted Verdicts
-
-Rerun against the accepted effect contract:
-
-```bash
-pnpm exec blackbox verify --flow checkout-payment --json
+```json
+{
+  "status": "valid",
+  "data": { "flow": "checkout-payment", "requires": 2, "forbids": 1 },
+  "findings": []
+}
 ```
 
-Read each layer independently:
+See the [Effect Contract Schema](/docs/blackbox/reference/catalog-schema) for matching fields, patterns, and count constraints.
 
-| Layer               | Successful result establishes                                    |
-| ------------------- | ---------------------------------------------------------------- |
-| Test                | Native assertions passed                                         |
-| Feature             | Configured accepted behavior and suite structure agree           |
-| Effect              | Required effects occurred and forbidden effects remained absent  |
-| Requirement         | Bound requirements inherit current accepted evidence, if present |
-| Observable decision | Eligible branch arms produced distinguishable observed evidence  |
+## 4. Compute the Effect Verdict
 
-## 6. Repair and Rerun
+Run the same flow again:
 
-A coding agent can use deterministic findings to change implementation and rerun `verify`. It must stop when passing would require changing accepted requirements, Gherkin, suite scope or assertions, effect policy, or human interpretation of evidence.
+```bash
+pnpm exec blackbox verify \
+  --flow checkout-payment \
+  --require-effects \
+  --json
+```
 
-That stop is not a failure of autonomy. It is the authority boundary that prevents the agent from moving its own target.
+The result now includes an effect verdict:
 
-## Summary
+```json
+{
+  "status": "passed",
+  "data": {
+    "flow": "checkout-payment",
+    "verdicts": {
+      "test": "passed",
+      "effects": "passed"
+    }
+  },
+  "findings": []
+}
+```
 
-- One accepted flow is connected to current evidence from the running system.
-- Test, feature, effect, requirement, and observable-decision verdicts remain separate.
-- Every claim remains bounded by the selected flow, accepted contracts, captured boundaries, instrumentation, and test environment.
+Blackbox exits with code `1` when the native test passes but the accepted effect contract fails:
 
-Continue with [Reports and CI Gates](/docs/blackbox/guides/reports-and-ci-gates).
+```json
+{
+  "status": "failed",
+  "data": {
+    "flow": "checkout-payment",
+    "verdicts": { "test": "passed", "effects": "failed" }
+  },
+  "findings": [
+    {
+      "code": "effect.forbidden-observed",
+      "effect": { "boundary": "http", "op": "POST", "key": "/payments" }
+    }
+  ]
+}
+```
+
+Here, **deterministic** describes the evaluation: the same normalized observations and accepted contract produce the same verdict. It does not make the system under test deterministic or turn unobserved boundaries into proof. [Runtime Evidence](/docs/blackbox/concepts/runtime-evidence) explains capture scope and blind spots.
+
+Read the layers separately:
+
+| Verdict | What it proves                                                  |
+| ------- | --------------------------------------------------------------- |
+| Test    | The native system-test assertions passed                        |
+| Effects | Required runtime effects occurred and forbidden effects did not |
+
+Optional layers make different claims. Gherkin adds structural conformance and drift checks. Requirement coverage derives verdicts from accepted flow bindings and runtime results. Observable decision coverage adds diagnostic classifications unless the team explicitly gates them. None replaces the test or effect verdict.
+
+Inspect the joined state for the flow:
+
+```bash
+pnpm exec blackbox flows show checkout-payment --json
+```
+
+When the flow is eligible, [Observable Decision Coverage](/docs/blackbox/concepts/omc-dc-coverage) reports whether exercised decisions produced distinguishable boundary evidence. Treat it as a separate diagnostic, not as part of the effect verdict.
+
+## 5. Give the Verdict to the Agent
+
+A coding agent can repair implementation against the fixed harness:
+
+```text
+verify -> read deterministic finding -> repair implementation -> verify
+```
+
+The **flow boundary** is the tagged `test.describe` block and the accepted artifacts joined by its `@flow:<id>`. The agent must stop when passing requires changing that test, effect contract, requirements, Gherkin, or stable ID.
+
+Blackbox makes these changes visible and never records an agent action as human approval. It is not a filesystem permission system. Use agent tool restrictions, code ownership, or branch protection when the agent must be technically prevented from editing accepted harness files.
+
+A person reviews the result and either accepts it or returns the work to the agent.
+
+## Result
+
+You now have one flow connected to current runtime evidence and a reviewed effect contract. Blackbox can return a deterministic verdict that agents can repair against but cannot redefine.
+
+## Next Steps
+
+- **[Understand effects, contracts, and coverage](/docs/blackbox/concepts/effects-and-catalogs):** Learn how attempts become flow aggregates and coverage.
+- **[Recover specifications from existing behavior](/docs/blackbox/guides/recover-behavior-from-existing-tests):** Add optional reviewed Gherkin or requirements to a flow you already run.
+- **[Start new behavior from requirements](/docs/blackbox/guides/turn-requirements-into-system-test):** Build an optional specification chain before runtime verification.
+- **[Add reports and CI gates](/docs/blackbox/guides/reports-and-ci-gates):** Enforce reviewed contracts with explicit CI policy.

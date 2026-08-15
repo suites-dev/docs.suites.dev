@@ -31,6 +31,20 @@ The standard testbed supports Playwright parallelism by provisioning an isolated
 
 The wrapped Playwright `request` fixture also propagates trace context so calls remain connected across services. For a raw HTTP client, use the Blackbox `traceparent()` helper when distributed trace relationships or trace-filtered `captureAcross()` calls matter.
 
+## What Deterministic Means
+
+Blackbox makes **verdict computation** deterministic. Given the same normalized observation set and the same accepted effect contract, it returns the same result.
+
+It does not make the system under test deterministic. Capture quality depends on the test environment:
+
+- worker isolation and buffer reset keep concurrent tests out of the flow window;
+- trace context connects supported work across instrumented services;
+- retries and repeated calls remain observable and can be constrained with `count`;
+- stable selectors ignore volatile values that do not belong in policy;
+- detached background work and unsupported boundaries remain explicit blind spots.
+
+Use a controlled testbed when background traffic or shared infrastructure could enter the capture window. For negative assertions, first prove that the relevant driver and boundary produce observations.
+
 ## From Span to Effect
 
 OpenTelemetry spans are the input. Catalog effects are the review vocabulary.
@@ -111,4 +125,4 @@ One run may produce several layers:
 
 Raw traces are usually build evidence. Catalogs, requirements, bindings, and intentionally reviewed feature files are repository artifacts. See [Reference](/docs/blackbox/reference) for retention and schemas.
 
-Continue with [Effects, Catalogs, and Coverage](/docs/blackbox/concepts/effects-and-catalogs).
+Continue with [Effects, Contracts, and Coverage](/docs/blackbox/concepts/effects-and-catalogs).

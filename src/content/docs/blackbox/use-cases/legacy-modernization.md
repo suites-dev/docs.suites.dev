@@ -28,7 +28,7 @@ Capturing the present is characterization. Approving selected effects is contrac
 ## Incremental Migration Loop
 
 1. Drive the legacy path through one Playwright flow.
-2. Review its effect catalog.
+2. Review its effect contract.
 3. Bind existing requirements to the flow when traceability matters.
 4. Replace one component, datastore, queue, or service boundary.
 5. Run the same flow against the candidate topology.
@@ -39,7 +39,7 @@ The catalog can remain stable even when implementation technology changes. If a 
 
 ## Parallel Old/New Comparison
 
-When both systems can run, execute the same flow against each controlled topology and compare the behavior that should remain equivalent. Blackbox's experimental observation comparison can help during a test reshape or migration, but the effect catalog remains the stable reviewed contract.
+When both systems can run, execute the same flow against each controlled topology and compare the behavior that should remain equivalent. Blackbox's experimental observation comparison can help during a test reshape or migration, but the effect contract remains the stable reviewed artifact.
 
 Generated Gherkin can provide a readable inventory for domain reviewers. EARS can retain normative requirements. Neither should be generated and ignored; use only artifacts that participate in migration decisions.
 

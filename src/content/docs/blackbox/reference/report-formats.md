@@ -65,7 +65,7 @@ The shape is based on:
 2. `totals`: seen, satisfied, failed, uncovered, and forbidden-entry counts.
 3. `perEntry`: state, run/pass/failure counts, and `forbidViolations` with the matched shape and last observed location.
 
-Entry states are `satisfied`, `failed`, or `uncovered`. A flow can fail because a required effect is missing, a forbidden effect appeared, or a count constraint did not match.
+Entry states are `satisfied`, `failed`, or `uncovered` for the current verification invocation. A flow is `failed` when any completed checked attempt violates its contract; a later passing attempt does not hide that failure. A flow can fail because a required effect is missing, a forbidden effect appeared, or a count constraint did not match.
 
 ### `shape/coverage.json`
 

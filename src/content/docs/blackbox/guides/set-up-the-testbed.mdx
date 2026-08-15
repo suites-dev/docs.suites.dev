@@ -18,6 +18,8 @@ import Aside from "@/components/mdx/Aside.astro";
 
 The Blackbox testbed owns the system-test environment. It starts one SUT topology per Playwright worker, injects the Node observation payload into configured services, resets managed state between groups, and finalizes reports after the run.
 
+This is the advanced managed-topology path. Start with [Add Blackbox to One System Test](/docs/blackbox/quickstart/add-to-existing-test) and return here when the selected flow already passes and Blackbox should own a Compose or Testcontainers environment.
+
 <TestbedArchitectureDiagram />
 
 ## Before You Configure It
@@ -135,7 +137,7 @@ export default defineConfig({
     blackboxReporter({
       outputDir: "./e2e/.blackbox-coverage",
       failOnUncovered: true,
-      failOnAlwaysFailing: true,
+      failOnAnyFailure: true,
     }),
   ],
 });

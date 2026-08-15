@@ -1,0 +1,124 @@
+---
+title: "Run the Demo in 5 Minutes"
+description: "Run one instrumented system flow, inspect a passing runtime-effect verdict, and expose a regression that normal response assertions miss."
+sidebar_position: 2
+keywords:
+  ["Blackbox demo", "runtime effect verification", "behavior harness demo"]
+---
+
+The demo shows the complete Blackbox verification loop without changing your project. It runs a Playwright test against an instrumented Node system and evaluates the observed runtime effects.
+
+## 1. Check the Prerequisites
+
+You need:
+
+- Node 22 or newer
+- pnpm 9 or newer
+- a running Docker engine
+
+```bash
+node --version
+pnpm --version
+docker version
+```
+
+## 2. Run the Passing Flow
+
+Clone the demo and run its default flow:
+
+```bash
+git clone https://github.com/suites-dev/blackbox-demo.git
+cd blackbox-demo
+pnpm install
+pnpm demo
+```
+
+The final output separates the native test result from the runtime verdict:
+
+```text
+FLOW checkout-payment
+  test       PASS
+  evidence   6 effects observed
+  effects    PASS
+
+VERDICT PASS
+```
+
+The Playwright assertion proves the client received the expected response. The effect verdict also proves that the required database and HTTP effects occurred and the forbidden effects remained absent.
+
+## 3. Inspect Policy and Evidence
+
+The reviewed contract declares what the flow must and must not do:
+
+```yaml title="features/checkout-payment.effects.yaml"
+specVersion: "0.1"
+flow: checkout-payment
+requires:
+  - { boundary: postgres, op: INSERT, key: orders, service: api }
+  - { boundary: http, op: POST, key: /inventory/reservations, service: api }
+forbids:
+  - { boundary: http, op: POST, key: /payments, service: api }
+```
+
+The passing run records normalized effects for the same `checkout-payment` flow. This excerpt shows two of the six observations:
+
+```json title=".blackbox-coverage/runs/<run-id>/observed-effects.json"
+{
+  "flow": "checkout-payment",
+  "effects": [
+    {
+      "boundary": "postgres",
+      "op": "INSERT",
+      "key": "orders",
+      "service": "api"
+    },
+    {
+      "boundary": "http",
+      "op": "POST",
+      "key": "/inventory/reservations",
+      "service": "api"
+    }
+  ]
+}
+```
+
+The run writes generated evidence and reports under `.blackbox-coverage/`:
+
+```text
+.blackbox-coverage/
+├── runs/<run-id>/
+│   └── observed-effects.json
+└── reports/
+    └── verification.json
+```
+
+The evidence files describe this run. The reviewed effect contract remains in source control and does not change when tests run.
+
+## 4. Expose a Hidden Regression
+
+Run the deterministic regression variant:
+
+```bash
+pnpm demo:regression
+```
+
+The demo enables `BLACKBOX_DEMO_HIDDEN_EFFECT_REGRESSION=1`. That switch activates one fixed service branch after the normal checkout behavior. The demo resets its data, runs one worker, and adds exactly one forbidden payment call.
+
+The response assertion still passes, but Blackbox observes the extra effect:
+
+```text
+FLOW checkout-payment
+  test       PASS
+  evidence   7 effects observed
+  effects    FAIL  forbidden http POST /payments observed
+
+VERDICT FAIL
+```
+
+The command exits with code `1`, so the same verdict can stop CI or return a deterministic finding to a coding agent.
+
+This is the core distinction: **the test checks the response; Blackbox also checks what the running system did.**
+
+## Next Step
+
+[Add Blackbox to One System Test](/docs/blackbox/quickstart/add-to-existing-test) to reproduce the same loop in your project.

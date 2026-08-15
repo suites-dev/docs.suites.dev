@@ -21,7 +21,7 @@ An **effect** is normalized boundary behavior from a running flow. An **effect c
 
 ## One Flow, One Contract
 
-The effect contract sits beside the feature file and names one flow:
+The effect contract names one flow. By convention it lives at `features/<flow>.effects.yaml`, whether or not the project also uses a Gherkin `.feature` file:
 
 ```yaml
 specVersion: "0.1"
@@ -55,6 +55,34 @@ Review a proposed contract before committing it. Remove incidental observations,
   changes need human or designated reviewer approval.
 </Aside>
 
+## Discovery and Enforcement
+
+Blackbox separates observing behavior from enforcing accepted behavior:
+
+| State                 | Command                                         | Missing contract result                                  |
+| --------------------- | ----------------------------------------------- | -------------------------------------------------------- |
+| Discover observations | `blackbox verify --flow <id>`                   | `effects: not-configured`; no effect-verification claim  |
+| Validate policy       | `blackbox effects check --flow <id>`            | Validation finding                                       |
+| Enforce contract      | `blackbox verify --flow <id> --require-effects` | Failure for a selected flow without an accepted contract |
+| Assert inside a test  | `expect(capture).toMatchCatalog()`              | Failed Playwright assertion                              |
+
+CI does not silently change the meaning of `verify`. Use `--require-effects` when every selected flow must have a reviewed effect contract.
+
+## Who Computes What
+
+Blackbox uses one effect-evaluation kernel through several surfaces:
+
+| Surface              | Scope                       | Responsibility                                                               |
+| -------------------- | --------------------------- | ---------------------------------------------------------------------------- |
+| `toObserveEffects()` | One Playwright assertion    | Evaluate inline required and forbidden shapes                                |
+| `toMatchCatalog()`   | One Playwright assertion    | Load the active flow contract and evaluate it immediately                    |
+| `blackbox verify`    | One verification invocation | Run flows, capture evidence, evaluate accepted contracts, and return results |
+| Coverage modules     | Current invocation          | Aggregate completed attempt results into flow and shape coverage             |
+| `blackboxReporter()` | Current invocation          | Render outputs and apply explicitly configured aggregate gates               |
+| Sinks                | Delivery                    | Write files, stdout, annotations, or CI-facing results                       |
+
+Matchers are optional for a facade effect verdict. Use them when the test itself should fail at the assertion site or when inline policy belongs in test source. `verify` evaluates accepted YAML contracts directly through the same kernel.
+
 ## Inline and Catalog Matchers
 
 Use inline effects when the contract belongs directly in the test:
@@ -78,13 +106,26 @@ await expect(capture).toMatchCatalog();
 
 Blackbox separates three related questions.
 
+### Evaluation Scopes
+
+| Scope                   | Meaning                                                                 |
+| ----------------------- | ----------------------------------------------------------------------- |
+| Attempt                 | One captured execution of one Playwright test                           |
+| Verification invocation | The attempts selected by one `blackbox verify` or Playwright invocation |
+| Flow aggregate          | One flow contract across checked attempts in the current invocation     |
+| Requirement result      | A result derived from every flow aggregate bound to one requirement     |
+
+One failed checked attempt cannot be hidden by a later passing attempt. A flow aggregate is:
+
+- `satisfied` when at least one attempt was checked and every completed checked attempt satisfied the contract;
+- `failed` when any completed checked attempt violated the contract;
+- `uncovered` when no attempt checked the contract.
+
+Generated coverage describes the current invocation. Retained run directories do not enter a later aggregate unless a replay command explicitly selects them.
+
 ### Effect Coverage
 
-`catalog/coverage.json` reports one state per effect contract:
-
-- `satisfied`: at least one run passed the entry contract;
-- `failed`: the entry ran but no run satisfied it;
-- `uncovered`: the effect contract was not captured and checked in this run.
+`catalog/coverage.json` reports one aggregate state per effect contract for the current invocation.
 
 ```json
 {

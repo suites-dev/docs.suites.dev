@@ -65,7 +65,7 @@ After suite alignment and structural checks, Blackbox can establish that the acc
 
 ## Complete the Runtime Verification Loop
 
-The first run creates evidence and observed effects before effect policy:
+The first run creates evidence and observed effects before an effect contract:
 
 ```bash
 blackbox verify --flow checkout-payment --json
@@ -94,7 +94,7 @@ The agent stops when passing requires a change to:
 - accepted EARS meaning;
 - accepted Gherkin or stable flow IDs;
 - native suite scope or assertions;
-- required or forbidden effect policy;
+- required or forbidden effect contracts;
 - final human interpretation of evidence.
 
 That change reopens the behavior governance lifecycle.
@@ -110,7 +110,7 @@ Blackbox returns operation metadata and `awaiting-review` for source-changing op
 
 Do not treat a commit made by an agent or the invocation of the next command as human approval.
 
-Start with [Choose Your Starting Point](/docs/blackbox/quickstart/) and continue to [Complete the Verification Loop](/docs/blackbox/quickstart/add-runtime-evidence).
+Start with [the demo or one system test](/docs/blackbox/quickstart/) and continue to [Verify Runtime Effects](/docs/blackbox/quickstart/add-runtime-evidence).
 
 ## Summary
 

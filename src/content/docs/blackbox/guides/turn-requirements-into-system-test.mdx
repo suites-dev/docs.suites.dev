@@ -1,0 +1,156 @@
+---
+title: "Turn Requirements Into a System Test"
+description: "Translate approved product intent into EARS, Gherkin, and a deterministically aligned Playwright system-test flow."
+sidebar_position: 4
+keywords:
+  ["spec-driven development", "EARS requirements", "Gherkin system test"]
+---
+
+import Aside from "@/components/mdx/Aside.astro";
+
+Use this workflow when a new behavior needs reviewed traceability from product intent to an executable system test. It adds a specification layer before runtime verification.
+
+The human approves meaning. Blackbox Skills propose artifacts, and the CLI validates and translates them.
+
+## 1. Choose an Authoring Mode
+
+For the supported agentic workflow, install the Blackbox Skills:
+
+```bash
+pnpm exec blackbox skills install --host codex --write --json
+```
+
+Use `--host claude` for Claude or `--host all` for both supported hosts.
+
+For a manual workflow, skip installation. Author the EARS and Gherkin files yourself, then use the same deterministic checks and suite-alignment commands below.
+
+## 2. Propose Atomic Requirements
+
+Give `$blackbox-requirements` a bounded source and a stable flow ID:
+
+```text
+$blackbox-requirements
+
+Read docs/subscriptions.md.
+For flow subscribe-unknown-user, propose atomic EARS requirements.
+Do not invent product decisions. Stop for human review.
+```
+
+Validate the proposal:
+
+```bash
+pnpm exec blackbox requirements validate \
+  requirements/subscriptions.ears \
+  --json
+```
+
+Expected structural result:
+
+```json
+{
+  "status": "valid",
+  "data": {
+    "requirements": ["REQ-SUB-004"],
+    "flow": "subscribe-unknown-user"
+  },
+  "findings": []
+}
+```
+
+Validation checks syntax, profile rules, and IDs. A person still decides whether the requirement expresses the intended product behavior.
+
+## 3. Propose Readable Behavior
+
+After requirement approval, ask `$blackbox-gherkin` for a scenario with explicit bindings:
+
+```text
+$blackbox-gherkin
+
+Translate approved requirement REQ-SUB-004 into readable Gherkin.
+Use @flow:subscribe-unknown-user.
+Stop for human review before suite alignment.
+```
+
+The proposal should keep the identities visible:
+
+```gherkin
+@flow:subscribe-unknown-user
+@requirement:REQ-SUB-004
+Feature: Reject an unknown subscriber
+
+  Scenario: Stop before payment
+    When an unknown user submits a subscription request
+    Then the request is rejected as not found
+```
+
+Validate the feature:
+
+```bash
+pnpm exec blackbox features check \
+  --feature features/subscribe-unknown-user.feature \
+  --json
+```
+
+<Aside type="note" title="Validation Does Not Approve Product Decisions">
+  A status, exception, side effect, or flow boundary can be structurally valid
+  and still be wrong. A person approves the scenario before translation.
+</Aside>
+
+## 4. Create or Align the Native Test
+
+Preview the runner-adapter plan:
+
+```bash
+pnpm exec blackbox suites align \
+  --feature features/subscribe-unknown-user.feature \
+  --json
+```
+
+Apply the deterministic transformation:
+
+```bash
+pnpm exec blackbox suites align \
+  --feature features/subscribe-unknown-user.feature \
+  --write \
+  --json
+```
+
+The adapter creates or reshapes the selected native suite structure. Unsupported application-specific actions return a finding instead of invented implementation code.
+
+The generated structure keeps the stable flow ID:
+
+```ts
+test.describe(
+  "Reject an unknown subscriber",
+  { tag: "@flow:subscribe-unknown-user" },
+  () => {
+    test("stops before payment", async ({ system }) => {
+      // Add the application-specific action and assertion.
+    });
+  },
+);
+```
+
+A person reviews the TypeScript diff and the completed application-specific actions before accepting the test.
+
+## 5. Check the Specification Chain
+
+```bash
+pnpm exec blackbox requirements check \
+  --flow subscribe-unknown-user \
+  --json
+pnpm exec blackbox suites check \
+  --flow subscribe-unknown-user \
+  --json
+pnpm exec blackbox status \
+  --flow subscribe-unknown-user \
+  --json
+```
+
+These checks establish explicit relationships between the approved requirement, feature, and native test. They do not establish runtime behavior.
+
+Complete every application-specific action and assertion, then run the native Playwright test. Continue only after the new flow passes without a Blackbox effect contract.
+
+## Next Steps
+
+Continue at [Connect the Runtime](/docs/blackbox/quickstart/add-to-existing-test#connect-the-runtime). The new test must already pass and carry its stable flow ID before runtime verification begins.

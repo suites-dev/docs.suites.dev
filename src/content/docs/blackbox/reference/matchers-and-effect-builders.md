@@ -49,9 +49,11 @@ The matcher reads the active flow ID, loads `features/<flow>.effects.yaml`, and 
 
 A direct `toMatchCatalog()` assertion fails when its selected contract is missing. A facade run can still create observed effects and report the effect layer as `not-configured` before policy exists. `blackbox verify` writes evidence and reports, not accepted behavior files.
 
+Matchers are not required for `blackbox verify` to evaluate an accepted YAML contract. Use them when the Playwright test should fail at the assertion site or when policy belongs inline in test source. The facade and both matchers use the same effect-evaluation kernel.
+
 ## `toMatchEffectsSnapshot()`
 
-Use the snapshot matcher when a raw normalized effect snapshot is useful for diagnostics or migration. Prefer catalogs for reviewed required/forbidden behavior because a catalog expresses intent instead of preserving every observed detail.
+Use the snapshot matcher when a raw normalized effect snapshot is useful for diagnostics or migration. Prefer effect contracts for reviewed required and forbidden behavior because a contract expresses intent instead of preserving every observed detail.
 
 ## Effect Builders
 
@@ -95,4 +97,4 @@ never();
 
 Bare numbers mean exact equality.
 
-For concepts and examples, read [Effects, Catalogs, and Coverage](/docs/blackbox/concepts/effects-and-catalogs).
+For concepts and examples, read [Effects, Contracts, and Coverage](/docs/blackbox/concepts/effects-and-catalogs).

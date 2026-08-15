@@ -1,0 +1,143 @@
+---
+title: "Recover Behavior From Existing Tests"
+description: "Extract baseline Gherkin from an existing system test, review its meaning, and align the native suite through deterministic CLI operations."
+sidebar_position: 3
+keywords: ["existing system tests", "Gherkin extraction", "suite AST alignment"]
+---
+
+import Aside from "@/components/mdx/Aside.astro";
+
+Use this workflow when an existing system test contains behavior worth governing as an explicit specification. It is optional: Blackbox can verify runtime effects without EARS or Gherkin.
+
+Start with one passing test and a stable flow such as `checkout-payment`.
+
+## 1. Choose an Authoring Mode
+
+For the supported agentic workflow, install the Blackbox Skills for your host. The Skills propose meaning; the CLI performs deterministic extraction, validation, and suite transformation.
+
+```bash
+pnpm exec blackbox skills install --host codex --write --json
+```
+
+Use `--host claude` for Claude or `--host all` for both project-local layouts. See [Agent Skills](/docs/blackbox/guides/agent-skills) for installed paths and overwrite rules.
+
+For a manual workflow, skip installation. Author the proposed Gherkin yourself and use the same CLI validation and alignment commands below.
+
+## 2. Discover One Flow
+
+```bash
+pnpm exec blackbox init --mode existing --json
+pnpm exec blackbox suites discover ./e2e --json
+```
+
+Choose one consequential test with a stable boundary. Discovery reports candidate titles, tags, source locations, and conflicts without changing source.
+
+```json
+{
+  "status": "ready",
+  "data": {
+    "candidates": [
+      {
+        "title": "Checkout payment",
+        "suite": "e2e/checkout.spec.ts",
+        "proposedFlowId": "checkout-payment"
+      }
+    ]
+  },
+  "findings": []
+}
+```
+
+## 3. Extract Literal Baseline Gherkin
+
+Preview the extraction:
+
+```bash
+pnpm exec blackbox features extract ./e2e/checkout.spec.ts --json
+```
+
+Write the baseline after reviewing the plan:
+
+```bash
+pnpm exec blackbox features extract ./e2e/checkout.spec.ts --write --json
+```
+
+The CLI parses the suite AST and preserves source relationships. It returns `awaiting-review` because the new `.feature` file still needs human judgment.
+
+## 4. Review the Recovered Meaning
+
+Ask `$blackbox-gherkin` to sharpen the literal baseline:
+
+```text
+$blackbox-gherkin
+
+Review features/checkout-payment.feature against e2e/checkout.spec.ts.
+Clarify the behavior and preserve @flow:checkout-payment.
+Call out obligations or exceptions the existing test cannot prove.
+Stop for human review.
+```
+
+Validate the proposal:
+
+```bash
+pnpm exec blackbox features check \
+  --feature features/checkout-payment.feature \
+  --json
+```
+
+An existing test cannot reveal every product obligation, missing case, or exception. A person approves the recovered behavior before the feature controls suite alignment.
+
+## 5. Align the Native Suite
+
+Preview the constrained transformation:
+
+```bash
+pnpm exec blackbox suites align \
+  --feature features/checkout-payment.feature \
+  --suite e2e/checkout.spec.ts \
+  --json
+```
+
+Apply it explicitly:
+
+```bash
+pnpm exec blackbox suites align \
+  --feature features/checkout-payment.feature \
+  --suite e2e/checkout.spec.ts \
+  --write \
+  --json
+```
+
+The resulting source diff makes the stable identity explicit while preserving the test body:
+
+```diff
+-test.describe("Checkout payment", () => {
++test.describe("Checkout payment", { tag: "@flow:checkout-payment" }, () => {
+   test("returns the confirmed order", async ({ page }) => {
+     // Existing actions and assertions remain unchanged.
+   });
+ });
+```
+
+Review the actual TypeScript diff. The CLI does not treat a successful write as human approval.
+
+## 6. Check the Connected Harness
+
+```bash
+pnpm exec blackbox features check \
+  --feature features/checkout-payment.feature \
+  --json
+pnpm exec blackbox suites check --flow checkout-payment --json
+pnpm exec blackbox status --flow checkout-payment --json
+```
+
+<Aside type="note" title="Structural Agreement Is Not Runtime Proof">
+  These checks show that the reviewed feature and native suite agree. Run the
+  flow with Blackbox before claiming what the system did.
+</Aside>
+
+Requirements remain optional. Use `$blackbox-requirements` when the team also needs reviewed EARS obligations and requirement-level traceability.
+
+## Next Steps
+
+Continue at [Connect the Runtime](/docs/blackbox/quickstart/add-to-existing-test#connect-the-runtime). The selected test already passes and has a stable flow ID, so do not repeat initialization or tagging.

@@ -54,7 +54,7 @@ failed           0
 uncovered        0
 ```
 
-For each entry, inspect `runs`, `passes`, `failures`, and `forbidViolations`. A `failed` entry means the flow ran but no captured run satisfied its contract. An `uncovered` entry means the current suite did not check it.
+For each entry, inspect `runs`, `passes`, `failures`, and `forbidViolations`. A `failed` entry means at least one completed checked attempt violated its contract. An `uncovered` entry means the current verification invocation did not check it. See [Effects, Contracts, and Coverage](/docs/blackbox/concepts/effects-and-catalogs) for attempt and aggregate semantics.
 
 Configure the Playwright reporter to fail on either condition when the suite is mature:
 
@@ -62,7 +62,7 @@ Configure the Playwright reporter to fail on either condition when the suite is 
 blackboxReporter({
   outputDir: "./e2e/.blackbox-coverage",
   failOnUncovered: true,
-  failOnAlwaysFailing: true,
+  failOnAnyFailure: true,
 });
 ```
 
@@ -77,14 +77,17 @@ Read verdicts as evidence quality:
 - `multi-arm`: more than two branch arms were observed and the binary comparator did not apply;
 - `unsupported-mcdc`: a reserved producer token, not a verdict emitted by the current comparator.
 
-Use `verdict.md` for review, HTML for source inspection, and JSON for automation. Do not automatically fail every non-propagating branch. Choose critical decisions and make the policy explicit.
+Use `verdict.md` for review, HTML for source inspection, and JSON for automation. Do not automatically fail every non-propagating branch. Choose critical decisions and make the policy explicit. [Observable Decision Coverage](/docs/blackbox/concepts/omc-dc-coverage) explains the evidence model and its limits.
 
 ## Requirement Verdicts
 
 Run the configured facade after the Playwright flow and requirements are connected:
 
 ```bash
-pnpm exec blackbox verify --flow subscribe-unknown-user --json
+pnpm exec blackbox verify \
+  --flow subscribe-unknown-user \
+  --require-effects \
+  --json
 ```
 
 Use `--fail-on violated` as the conservative first requirement gate. Move to `unproven` or `unbound` only when every selected requirement is expected to have complete feature tags and runtime evidence in that job.
@@ -110,10 +113,10 @@ Add the runtime gate when the job can start and instrument the selected topology
 pnpm install --frozen-lockfile
 pnpm build:instr-image
 pnpm exec blackbox doctor --json
-pnpm exec blackbox verify --json
+pnpm exec blackbox verify --require-effects --json
 ```
 
-`blackbox verify` returns the configured layers without collapsing their verdicts. A project without EARS or Gherkin can still verify a reviewed effect contract. A project without runtime observation can run structural gates but cannot claim that the running system satisfied accepted behavior.
+`blackbox verify` returns typed results without collapsing their meanings. A project without EARS or Gherkin can still verify a reviewed effect contract. A project without runtime observation can run structural gates but cannot claim that the running system satisfied accepted behavior.
 
 Use specialized commands in separate jobs only when the pipeline needs independent ownership or faster feedback:
 
@@ -132,7 +135,7 @@ Blackbox approval is external in alpha. Use normal repository review for changes
 - EARS requirements;
 - Gherkin behavior and stable flow IDs;
 - native suite source written by `suites align --write`;
-- required and forbidden effect policy.
+- required and forbidden effect contracts.
 
 A successful source transformation may return `awaiting-review`. Exit `0`, a commit, or the next command does not prove that a person approved the change.
 
@@ -146,7 +149,9 @@ export default defineConfig({
 });
 ```
 
-`blackbox verify` writes evidence and reports only. A missing effect contract fails without writing a contract. Use `$blackbox-effects` to propose a contract from evidence, then review the exact diff before accepting it.
+`blackbox verify --require-effects` writes evidence and reports only. It fails when a selected flow has no accepted effect contract and never writes a contract. Use `$blackbox-effects` to propose a contract from evidence, then review the exact diff before accepting it.
+
+Run `blackbox verify` without `--require-effects` during discovery. That mode may return `effects: not-configured` and cannot be used as an effect-verification gate.
 
 <Aside type="warning" title="Upload Evidence on Failure">
   Always retain `.blackbox-coverage/` when the job fails. Without the catalog,

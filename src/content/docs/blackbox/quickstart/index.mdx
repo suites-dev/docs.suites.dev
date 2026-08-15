@@ -1,76 +1,47 @@
 ---
-title: "Choose Your Blackbox Starting Point"
-description: "Start from an existing suite, new product intent, or runtime effects from an accepted native flow."
-sidebar_position: 2
-keywords:
-  [
-    "Blackbox quickstart",
-    "behavior governance",
-    "existing system tests",
-    "runtime effects",
-  ]
+title: "Demo or Your Project"
+description: "Choose the fastest path to a Blackbox runtime verdict: run the demo or connect one passing Playwright system test."
+sidebar_position: 1
+keywords: ["Blackbox quickstart", "Blackbox demo", "Playwright system test"]
 ---
 
-import Aside from "@/components/mdx/Aside.astro";
+import QuickstartTrackDiagram from "@/components/blackbox/QuickstartTrackDiagram.astro";
 
-Blackbox can start from specifications, existing system tests, or runtime behavior. Choose the path from the repository state and the claim you need.
+Blackbox adds deterministic runtime verification to a system test. Start with a working demonstration or connect one test you already trust.
 
-<Aside type="note" title="Install First">
-  Complete [Install and Initialize](/docs/blackbox/quickstart/install) before
-  running a path-specific command. Initialization detects repository state but
-  does not change accepted behavior or suite source.
-</Aside>
+Both paths end with the same result: **one flow runs, Blackbox captures what the system did, and the CLI returns separate test and effect verdicts.**
 
-## Choose From Repository State
+<QuickstartTrackDiagram />
 
-| Starting point                                    | Path                                                                      | First useful result                                                     |
-| ------------------------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| Existing suite that needs readable behavior       | [Adopt an Existing Suite](/docs/blackbox/quickstart/adopt-existing-suite) | Reviewed behavior and a structurally aligned native flow                |
-| New product behavior without an applicable flow   | [Define New Behavior](/docs/blackbox/quickstart/define-new-behavior)      | Approved intent, readable examples, and a native flow ready to execute  |
-| Accepted native flow that needs boundary evidence | [Add Runtime Evidence](/docs/blackbox/quickstart/add-runtime-evidence)    | Reviewed effect policy and a current deterministic effect verdict       |
-| Repository with several incomplete states         | Start with one consequential existing flow                                | One bounded flow reaches a useful result without converting the project |
+## Run the Demo
 
-These are equal entry points. Requirements and Gherkin are not prerequisites for runtime effect verification.
+Choose the demo when you want to see the complete loop before changing a project.
 
-## Choose the First Claim
+You will:
 
-### Govern Structure Without Runtime
+1. Run a real Playwright flow against an instrumented Node system.
+2. See a passing native test and a passing runtime-effect verdict.
+3. Optionally introduce a hidden effect regression that the response assertion misses.
 
-Use the existing-suite or new-behavior path when reviewers first need a stable behavioral target.
+[Run the Demo in 5 Minutes](/docs/blackbox/quickstart/demo)
 
-Blackbox can establish that:
+## Add Blackbox to Your Project
 
-- accepted artifacts have stable identities;
-- the selected native suite is structurally aligned;
-- source transformations are deterministic and reviewable;
-- structural checks can run locally and in CI.
+Choose this path when you already have a passing Playwright system test for a local Node service.
 
-It cannot establish what the running system did until the flow executes with runtime observation.
+You will:
 
-### Verify Effects Without Specifications
+1. Install the CLI and runtime packages; add agent skills only for the agentic workflow.
+2. Connect one test through managed Docker or a local Node process.
+3. Add a reviewed effect contract and compute the first runtime verdict.
 
-Use the runtime path when an accepted native flow already has a stable flow ID and the immediate question concerns database, HTTP, queue, cache, or other supported effects.
+[Add Blackbox to One System Test](/docs/blackbox/quickstart/add-to-existing-test)
 
-The path is explicit:
+## What You Need
 
-```text
-execute flow -> observe effects -> propose policy -> human review -> rerun -> effect verdict
-```
+| Path         | Requirements                                                                |
+| ------------ | --------------------------------------------------------------------------- |
+| Demo         | Node 22+, pnpm 9+, and Docker                                               |
+| Your project | Node 22+, Playwright, and one passing local system test; Docker is optional |
 
-The first run records facts. It may report `effects: not-configured` until a person accepts which effects are required, forbidden, or incidental.
-
-## Build the Full Connected Chain Later
-
-Teams can combine the surfaces when requirement traceability matters:
-
-```text
-reviewed intent -> readable behavior -> native flow -> runtime evidence -> bounded verdicts
-```
-
-Adding a surface strengthens only the claims that surface supports. It does not invalidate an earlier suite-first or effects-first result.
-
-## Summary
-
-- Install and initialize before choosing a path.
-- Start from existing suites, new intent, or runtime effects.
-- Treat observed facts and accepted effect policy as separate review stages.
+Requirements and Gherkin are optional. Add them later when you need traceability from product intent to executable behavior.
