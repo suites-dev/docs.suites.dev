@@ -1,128 +1,74 @@
 ---
 title: "Runtime Evidence"
-description: "Learn how Blackbox scopes OpenTelemetry observations to a Playwright flow and normalizes them into reviewable boundary effects."
+description: "Understand how capture cells seal language-neutral evidence for deterministic offline analysis."
 sidebar_position: 2
 keywords:
   [
     "runtime evidence",
-    "OpenTelemetry system tests",
-    "flow scoped evidence",
-    "boundary effects",
-    "Playwright trace propagation",
+    "sealed evidence bundle",
+    "capture cell",
+    "Blackbox protocol",
   ]
 ---
 
-import Tabs from "@/components/mdx/Tabs.astro";
-import TabItem from "@/components/mdx/TabItem.astro";
-import InputOutputGapDiagram from "@/components/blackbox/InputOutputGapDiagram.astro";
-import Aside from "@/components/mdx/Aside.astro";
+**Runtime evidence** is the sealed record of what supported capture implementations observed while selected system flows ran.
 
-Runtime evidence is the captured record of what the SUT did while one Playwright flow ran. It is a fact base for that run, not a claim that every behavior in the system was visible.
+The evidence bundle separates capture from analysis. A test environment can stop before Blackbox evaluates effects, observable decisions, or report policy.
 
-<InputOutputGapDiagram />
+## Capture Has Orthogonal Parts
 
-## Evidence Has a Scope
+| Part              | Responsibility                                                             |
+| ----------------- | -------------------------------------------------------------------------- |
+| Test runner       | Executes tests and reports native outcomes                                 |
+| Runner adapter    | Maps runner events, tags, retries, and workers into the Blackbox lifecycle |
+| Runner SDK        | Defines framework-neutral attempts and flow identity                       |
+| Capture cell      | Isolates the sidecar, SUT, and required infrastructure                     |
+| Language capture  | Produces normalized effects and exact native coverage artifacts            |
+| Sidecar           | Validates capture integrity and seals the evidence bundle                  |
+| Language analyzer | Joins native coverage, source, and debug metadata into neutral decisions   |
+| Analyzer          | Reads the sealed bundle offline and computes effect and ODC findings       |
 
-Blackbox associates observations with a stable flow ID and a per-test capture window. The standard testbed gives each Playwright worker its own SUT stack, clears observation buffers before a test, and drains them after the test. Supported boundary spans in that window become effects.
+Playwright is the first runner adapter. Node is the first SUT capture implementation. Future adapters and language captures bind to the same protocol.
 
-This scope matters. Without an isolated stack and capture boundary, background traffic or another worker's request could be mistaken for the behavior under test.
+## Evidence Is Scoped to a Capture Cell
 
-The standard testbed supports Playwright parallelism by provisioning an isolated SUT stack per worker. Tests inside a worker run in order and reuse that stack, while reset hooks and buffer boundaries separate individual flows.
+A **capture cell** contains one sidecar plus the SUT and infrastructure needed by its selected tests.
 
-The wrapped Playwright `request` fixture also propagates trace context so calls remain connected across services. For a raw HTTP client, use the Blackbox `traceparent()` helper when distributed trace relationships or trace-filtered `captureAcross()` calls matter.
+| Isolation | Use it when                                                                 |
+| --------- | --------------------------------------------------------------------------- |
+| `flow`    | Each selected flow should receive an independent cell. This is the default. |
+| `worker`  | Several flows may safely share a worker-owned cell.                         |
+| `test`    | Each native test needs its own cell, including tests within one flow.       |
 
-## What Deterministic Means
+Isolation is a runtime policy, not a property of Playwright workers or Node processes.
 
-Blackbox makes **verdict computation** deterministic. Given the same normalized observation set and the same accepted effect contract, it returns the same result.
+## Flow Identity Uses Baggage
 
-It does not make the system under test deterministic. Capture quality depends on the test environment:
+Only tests whose tags match a configured flow prefix trigger capture. The default prefix is `@flow:`.
 
-- worker isolation and buffer reset keep concurrent tests out of the flow window;
-- trace context connects supported work across instrumented services;
-- retries and repeated calls remain observable and can be constrained with `count`;
-- stable selectors ignore volatile values that do not belong in policy;
-- detached background work and unsupported boundaries remain explicit blind spots.
+Blackbox carries test and flow identity in W3C baggage. It does not replace the application's `traceparent`, so existing distributed tracing remains under application control.
 
-Use a controlled testbed when background traffic or shared infrastructure could enter the capture window. For negative assertions, first prove that the relevant driver and boundary produce observations.
+## The Bundle Is Language-Neutral
 
-## From Span to Effect
+The sealed bundle can contain:
 
-OpenTelemetry spans are the input. Catalog effects are the review vocabulary.
+- exact source artifacts and source maps;
+- normalized boundary effects;
+- canonical decision definitions and arm observations;
+- runner attempts, retries, outcomes, and partial-run state;
+- capture capabilities and producer versions;
+- integrity failures and artifact hashes;
+- snapshots of the reviewed contract and analysis policy.
 
-<Tabs groupId="evidence-normalization">
-<TabItem value="span" label="Simplified span" default>
+Canonical JSON Schemas live in top-level `protocol/` and publish through `@suites/blackbox-protocol`. Language packages bind to those schemas instead of translating TypeScript types into new wire contracts.
 
-```json
-{
-  "name": "INSERT subscriptions",
-  "attributes": {
-    "db.system": "postgresql",
-    "db.operation.name": "INSERT",
-    "db.collection.name": "subscriptions",
-    "service.name": "bff"
-  }
-}
-```
+## Integrity Comes Before Verdicts
 
-</TabItem>
-<TabItem value="effect" label="Normalized effect">
+Blackbox fails capture when evidence is empty, incomplete, incompatible, or associated with the wrong cell or service identity. Analysis must not reinterpret a capture failure as an empty successful run.
 
-```yaml
-boundary: postgres
-op: INSERT
-key: subscriptions
-service: bff
-```
+Negative effect claims are valid only within a complete bundle whose capture implementation declared the relevant capability.
 
-</TabItem>
-</Tabs>
+## Next Steps
 
-Normalization removes trace-vendor detail that does not belong in a behavior contract. Matchers can still refine effects with keys, service names, status, TTL, bucket, routing key, or count constraints where the boundary supports them.
-
-## Supported Boundary Vocabulary
-
-The public `effect.*` builders currently cover:
-
-- Postgres
-- Redis
-- outgoing HTTP
-- SQS
-- S3
-- RabbitMQ
-
-The catalog can only prove what the instrumentation and classifier observe. If an application writes through an unsupported driver, starts work in a detached context, or reaches a non-instrumented service, absence from the capture is not proof that the action never happened.
-
-<Aside type="warning" title="Absence Is Relative to Observation">
-  A forbidden effect is meaningful only when the relevant boundary is observable
-  in the test environment. Prove the evidence path before relying on a negative
-  contract.
-</Aside>
-
-## Evidence Is Not Intent
-
-The first capture describes the implementation as it exists, including accidental behavior. It should not become an accepted baseline automatically.
-
-The review step separates:
-
-- **required effects**, whose absence would make the flow incorrect;
-- **forbidden effects**, whose presence would make the flow incorrect;
-- **incidental observations**, which may help diagnostics but should not become contract clauses.
-
-Written specifications have the opposite limitation: they express intent but do not prove execution. Blackbox keeps the two surfaces separate and joins them through explicit flow IDs and reviewed bindings.
-
-## Raw Evidence and Derived Artifacts
-
-One run may produce several layers:
-
-| Layer                      | Example                                | Purpose                                 |
-| -------------------------- | -------------------------------------- | --------------------------------------- |
-| Raw observation            | captured span JSON                     | Diagnose what was captured              |
-| Normalized effect          | `postgres INSERT subscriptions`        | Compare behavior in stable vocabulary   |
-| Effect catalog             | `requires` and `forbids` per flow      | Store reviewed intent                   |
-| Catalog and shape coverage | satisfied, failed, uncovered, asserted | Report what the suite proved            |
-| Observable decision report | propagating, masking candidate, gap    | Evaluate decision-sensitive evidence    |
-| Requirement coverage       | proven, violated, unproven, unbound    | Join EARS bindings with runtime results |
-
-Raw traces are usually build evidence. Catalogs, requirements, bindings, and intentionally reviewed feature files are repository artifacts. See [Reference](/docs/blackbox/reference) for retention and schemas.
-
-Continue with [Effects, Contracts, and Coverage](/docs/blackbox/concepts/effects-and-catalogs).
+- **[Effects, Contracts, and Coverage](/docs/blackbox/concepts/effects-and-catalogs):** Learn how offline analysis evaluates effect policy.
+- **[Observable Decision Coverage](/docs/blackbox/concepts/omc-dc-coverage):** Learn how canonical decisions become diagnostic coverage.

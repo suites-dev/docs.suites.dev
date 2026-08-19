@@ -1,47 +1,86 @@
 ---
-title: "Demo or Your Project"
-description: "Choose the fastest path to a Blackbox runtime verdict: run the demo or connect one passing Playwright system test."
+title: "Blackbox Quickstart"
+description: "Start from an existing system test or create one from human intent, then connect runtime effects, sealed evidence, and observable decision coverage."
 sidebar_position: 1
-keywords: ["Blackbox quickstart", "Blackbox demo", "Playwright system test"]
+keywords:
+  [
+    "Blackbox quickstart",
+    "Playwright system test",
+    "runtime effects",
+    "observable decision coverage",
+  ]
 ---
 
-import QuickstartTrackDiagram from "@/components/blackbox/QuickstartTrackDiagram.astro";
+import BlackboxEvidenceChainDiagram from "@/components/blackbox/BlackboxEvidenceChainDiagram.astro";
 
-Blackbox adds deterministic runtime verification to a system test. Start with a working demonstration or connect one test you already trust.
+Blackbox exercises your application through a system or E2E flow. If you already have one, keep it. If you do not, start from one behavior in plain language and create a tagged test shell. Both paths then use the same runtime workflow.
 
-Both paths end with the same result: **one flow runs, Blackbox captures what the system did, and the CLI returns separate test and effect verdicts.**
+<BlackboxEvidenceChainDiagram />
 
-<QuickstartTrackDiagram />
+## Choose Your Starting Point
 
-## Run the Demo
+| Your situation                                  | What to do                                                                                                                                                                               |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **I already have a passing system or E2E test** | Follow [Step 1](/docs/blackbox/quickstart/build-behavioral-harness) to keep the test and give its flow a stable identity.                                                                |
+| **I have no system or E2E test yet**            | Use the [alternate Step 1](/docs/blackbox/guides/turn-requirements-into-system-test) to turn one plain-language behavior into a tagged Playwright test shell. Then continue with Step 2. |
 
-Choose the demo when you want to see the complete loop before changing a project.
+Both paths meet at **one accepted system flow with one stable `@flow:<id>`**. An existing flow already passes. A newly generated flow becomes runnable in Step 2, when you connect the application and complete its project-specific action, assertion, fixtures, test data, and reset behavior.
 
-You will:
+## Three Terms Before You Start
 
-1. Run a real Playwright flow against an instrumented Node system.
-2. See a passing native test and a passing runtime-effect verdict.
-3. Optionally introduce a hidden effect regression that the response assertion misses.
+| Term                                   | Meaning                                                                                                                                           |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **System under test (SUT)**            | The application and services Blackbox runs or connects to for the test.                                                                           |
+| **Effect**                             | Something meaningful the running application does, such as reading or writing a database, calling an API, changing a cache, or sending a message. |
+| **Observable decision coverage (ODC)** | Whether different outcomes of a code decision produced distinguishable runtime effects.                                                           |
 
-[Run the Demo in 5 Minutes](/docs/blackbox/quickstart/demo)
+After the two paths meet, Step 2 connects the SUT and gets the native flow passing. Step 3 runs the application and inspects its evidence. Step 4 applies the effect and ODC verdicts, repairs the implementation, and runs the same flow again. People approve behavior and policy; Blackbox computes the gates.
 
-## Add Blackbox to Your Project
+## What You Will Build
 
-Choose this path when you already have a passing Playwright system test for a local Node service.
+This Quickstart uses a conservative host-command setup:
 
-You will:
+- One Playwright flow, either kept from your suite or created from one reviewed behavior.
+- A compiled Node.js and TypeScript application as the SUT.
+- A host command that Blackbox starts and stops on one fixed port.
+- One Playwright worker, no retries, dedicated test data reset before the flow, and independent fixture keys for its two attempts.
+- Two attempts under one `@flow:` tag.
+- One required runtime action and one forbidden runtime action, expressed as effects.
+- One ODC comparison showing whether opposite branch outcomes produced different effects.
 
-1. Install the CLI and runtime packages; add agent skills only for the agentic workflow.
-2. Connect one test through managed Docker or a local Node process.
-3. Add a reviewed effect contract and compute the first runtime verdict.
+Your project ends with:
 
-[Add Blackbox to One System Test](/docs/blackbox/quickstart/add-to-existing-test)
+```text
+blackbox.config.ts
+playwright.config.ts
 
-## What You Need
+e2e/
+  fixtures.ts
+  subscribe-user.system.test.ts
+  features/
+    subscribe-user.feature
+    subscribe-user.effects.yaml
 
-| Path         | Requirements                                                                |
-| ------------ | --------------------------------------------------------------------------- |
-| Demo         | Node 22+, pnpm 9+, and Docker                                               |
-| Your project | Node 22+, Playwright, and one passing local system test; Docker is optional |
+dist/
+  server.js
+  server.js.map
+```
 
-Requirements and Gherkin are optional. Add them later when you need traceability from product intent to executable behavior.
+## The Four Steps
+
+1. **Get one tagged system flow.** [Keep an existing test](/docs/blackbox/quickstart/build-behavioral-harness), or [create a test shell from plain-language intent](/docs/blackbox/guides/turn-requirements-into-system-test). Both routes end with the same stable flow ID.
+2. **[Connect a host-command SUT](/docs/blackbox/quickstart/add-to-existing-test).** Tell Blackbox how to start the application. Complete any generated test TODOs and get the native flow passing before collecting evidence.
+3. **[Run and inspect evidence](/docs/blackbox/quickstart/add-runtime-evidence).** Execute the flow and inspect its effects, exact artifacts, integrity result, and decision evidence.
+4. **[Enforce effects and read ODC](/docs/blackbox/quickstart/enforce-runtime-effects).** Reanalyze sealed evidence, repair implementation, and add the same checks to CI.
+
+## Static Specifications Are Optional
+
+The runtime needs one stable `@flow:<id>` tag. Gherkin and EARS add readable intent and traceability when your team needs them; they are not runtime prerequisites.
+
+The existing-test route includes one generated-and-reviewed feature file so you can experience the static behavior layer before runtime capture. You can skip that optional file and continue to Step 2. The no-test route can start from an ordinary goal or change request; it does not require a pre-existing EARS file.
+
+## Use Your Existing SUT Setup
+
+The golden path uses one serial host command because it has the fewest moving parts and makes fixed-port routing explicit. Its one-time setup reset is tutorial setup, not proof of clean state for arbitrary retries or attempts. When each attempt requires a clean database, run the reset provider before every attempt or recreate the cell. Use Compose or another managed topology when parallel workers, retries, or dependency-per-cell isolation matter. The verification lifecycle stays the same.
+
+[Choose how Blackbox starts your SUT](/docs/blackbox/guides/set-up-the-testbed)

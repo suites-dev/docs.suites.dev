@@ -1,5 +1,5 @@
 ---
-title: "Reporting a Bug"
+title: "Report a Bug"
 description: "List the command output, config, environment, artifacts, and reproduction details maintainers need."
 sidebar_position: 5
 keywords: ["report bug", "debug blackbox", "issue template"]
@@ -19,9 +19,10 @@ This page explains the minimum useful bug report. If maintainers cannot reproduc
 
 1. The command or scenario that failed.
 2. The expected result and the actual result.
-3. The environment and configuration used.
-4. The relevant artifacts, logs, and screenshots.
-5. The exact steps needed to reproduce the issue.
+3. CLI, protocol, runner, capture, and reporter versions.
+4. The sidecar image digest and capture-cell isolation scope, for runtime issues.
+5. The sealed bundle, integrity result, relevant artifacts, logs, and screenshots.
+6. The exact steps needed to reproduce the issue.
 
 ## What To Redact
 

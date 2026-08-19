@@ -1,6 +1,6 @@
 ---
 title: "What is Blackbox?"
-description: "Suites Blackbox runs system flows, observes what the software did, and returns deterministic verdicts coding agents can use while people control the beginning and end."
+description: "Suites Blackbox is a behavioral verification framework for software developed with coding agents. It runs real flows, saves trustworthy evidence, and returns deterministic findings while people control what success means."
 sidebar_position: 1
 keywords:
   [
@@ -15,60 +15,73 @@ seo:
   primary_keyword: "behavior harness"
   secondary_keywords: ["behavioral verification framework", "runtime evidence"]
   search_intent: "developers evaluating deterministic verification and behavior harnesses for coding agents"
-  snippet_angle: "run system flows, observe runtime behavior, and return deterministic verdicts without letting agents redefine success"
+  snippet_angle: "approve success, run real system flows, seal runtime evidence, and return deterministic findings without letting agents redefine the target"
 ---
 
 import HumanAgentVerificationLoopDiagram from "@/components/blackbox/HumanAgentVerificationLoopDiagram.astro";
 import Aside from "@/components/mdx/Aside.astro";
 
-**Suites Blackbox runs system flows, observes what the software actually did, and returns deterministic verdicts coding agents can act on.**
+**Suites Blackbox is a behavioral verification framework for software developed with coding agents.**
 
-Blackbox combines **coding-agent skills**, a **deterministic CLI**, and **human review** in one verification lifecycle.
+People approve what success means. Blackbox runs real system flows, captures and seals evidence of what the software did, and returns deterministic findings an agent can repair against without redefining the accepted target.
+
+System and E2E tests provide the execution boundary. They are how Blackbox reaches the running software, not the whole product.
 
 <HumanAgentVerificationLoopDiagram />
 
-Blackbox closes the deterministic feedback loop between coding agents and running software while people remain in control at the beginning and end. This is what **behavioral verification framework for agentic software engineering** means in practice.
-
-Five capabilities make the loop work:
-
-- **Human review controls what counts as success.** People approve the behavior and effect contract, then accept the result or return it to the agent.
-- **Blackbox agent skills translate intent.** They propose requirements and scenarios and guide the agent through implementation and repair.
-- **The Blackbox CLI keeps verification deterministic.** It validates and aligns artifacts, executes flows, captures evidence, and computes verdicts.
-- **[Runtime effects](/docs/blackbox/concepts/effects-and-catalogs) show what happened inside the system.** For supported Node services, Blackbox [automatically injects test-time OpenTelemetry instrumentation](/docs/blackbox/concepts/runtime-evidence), then checks that expected database writes, API calls, and messages happened and unwanted ones did not.
-- **[Observable decision coverage](/docs/blackbox/concepts/omc-dc-coverage) shows whether important decisions changed what the system did.** Blackbox checks that different decision outcomes leave different runtime evidence.
-
-The agent can repeat the inner loop without waiting for a person after every change. It must stop when passing would require changing what success means.
+Blackbox connects accepted behavior, native execution, sealed runtime evidence, and deterministic analysis. [See how one flow moves through the complete system](/docs/blackbox/overview/how-blackbox-works).
 
 ## Catch Green Tests That Miss the Behavior
 
-An agent can implement and test the same mistaken interpretation. The test passes because the code and assertion agree with each other.
+Suppose an unknown user receives the expected `404`, but the implementation also calls a payment API. The response assertion remains green because it cannot see that hidden **effect**—a meaningful runtime action performed by the application.
 
-Blackbox adds an independent observation channel. For a rejected subscription, a Playwright flow can check the response and the effects behind it:
+Keep the native assertion:
 
-```ts
+```ts title="e2e/subscribe-user.system.test.ts"
 expect(response.status()).toBe(404);
-
-await expect(capture).toObserveEffects({
-  requires: [effect.postgres("SELECT", { table: "users" })],
-  forbids: [
-    effect.http("POST", { path: "/v1/payment_intents" }),
-    effect.postgres("INSERT", { table: "subscriptions" }),
-    effect.sqs("SendMessage", { queue: "subscription-orders" }),
-  ],
-});
 ```
 
-- The assertion proves the caller received `404`.
-- Runtime evidence proves the user lookup occurred during this run.
-- The accepted effect contract forbids payment, persistence, and publication.
+Then approve the boundary behavior independently:
 
-A green assertion with a failed effect verdict means the visible result was correct while the accepted boundary behavior was not.
+```yaml title="e2e/features/subscribe-user.effects.yaml"
+specVersion: "0.1"
+flow: subscribe-user
 
-## Keep Success Outside the Agent
+requires:
+  - { boundary: postgres, op: SELECT, key: users, service: api }
 
-Agents can change implementation. They cannot change accepted requirements, scenarios, suite assertions, effect contracts, or captured boundaries to make a failure disappear.
+forbids:
+  - { boundary: http, op: POST, key: /v1/payment_intents, service: api }
+```
 
-When one of those must change, Blackbox returns the work to human review instead of keeping it inside the autonomous loop.
+Blackbox keeps the results separate:
+
+```text
+tests       PASS
+integrity   PASS
+effects     FAIL   forbidden payment call observed
+ODC         REPORT opposite branch outcomes produced distinct effects
+```
+
+A green assertion with a failed effect verdict means the visible result was correct while the accepted boundary behavior was not. **[Observable decision coverage (ODC)](/docs/blackbox/concepts/omc-dc-coverage)** compares the effects produced by different code-decision outcomes; here it compares the unknown-user attempt with the known-user attempt.
+
+## Keep Authority and Verification Separate
+
+| Participant                              | Responsibility                                                                 |
+| ---------------------------------------- | ------------------------------------------------------------------------------ |
+| **People**                               | Approve the target, analysis policy, and final result.                         |
+| **Coding agents and Blackbox skills**    | Propose artifacts, implement behavior, and repair findings.                    |
+| **Blackbox CLI, runtime, and analyzers** | Execute flows, correlate and seal evidence, and compute deterministic results. |
+
+The agent can repeat the implementation loop without waiting for a person after every change. It must stop when passing would require changing accepted requirements, scenarios, assertions, effect contracts, or verification policy.
+
+<Aside type="note" title="Negative Claims Need Isolated State">
+  The system under test (SUT) is the application and services being verified. A
+  forbidden effect is conclusive only when the SUT and its mutable dependencies
+  are isolated or reset for the attempt. Blackbox manages this boundary for
+  owned lifecycles; external systems must provide an equivalent isolation
+  guarantee.
+</Aside>
 
 ## Start From What You Have
 
@@ -81,20 +94,19 @@ Blackbox does not require a particular specification framework or test runner. S
 EARS requirements and Gherkin are optional. Specifications guide the agent; Blackbox verifies what the running system actually did.
 
 <Aside type="note" title="Start Before Runtime">
-  Without Docker or instrumentation, Blackbox can validate artifacts and align a
-  native suite deterministically. That is useful governance, but it does not
-  verify what the running system did.
+  Without starting or attaching capture to the SUT, Blackbox can validate
+  requirements, features, flow identities, and suite alignment. Those checks
+  prove structural agreement, not runtime behavior.
 </Aside>
 
 Blackbox keeps test, feature, effect, requirement, and observable-decision verdicts separate. Missing evidence remains explicit instead of becoming confidence.
 
 ## Start With One Consequential Flow
 
-Choose one system or E2E flow where wrong behavior would matter, then follow the path that matches its current state:
+Choose one system or E2E flow where wrong behavior would matter. First [understand how Blackbox runs and analyzes that flow](/docs/blackbox/overview/how-blackbox-works), then [build the complete loop in the Quickstart](/docs/blackbox/quickstart/).
 
-- **Want to see the loop first:** [Run the demo in 5 minutes](/docs/blackbox/quickstart/demo)
-- **Already have the test:** [Add Blackbox to one system test](/docs/blackbox/quickstart/add-to-existing-test)
-- **Need requirements first:** [Turn requirements into a system test](/docs/blackbox/guides/turn-requirements-into-system-test)
-- **Need proof of database writes, API calls, or messages:** [Verify runtime effects](/docs/blackbox/quickstart/add-runtime-evidence)
+If your starting point differs from the golden path:
 
-Not sure where to begin? [Run Blackbox in 5 minutes](/docs/blackbox/quickstart/) and continue from the detected repository state.
+- **Already have a passing system or E2E test:** Keep it and [give one flow a stable identity](/docs/blackbox/quickstart/build-behavioral-harness).
+- **No system or E2E test yet:** Start with [one behavior in plain language and create the system flow](/docs/blackbox/guides/turn-requirements-into-system-test), then join the Quickstart.
+- **Different SUT setup:** Build the harness first, then [choose how Blackbox starts or connects to your SUT](/docs/blackbox/guides/set-up-the-testbed).

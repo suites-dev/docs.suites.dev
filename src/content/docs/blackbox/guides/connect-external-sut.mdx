@@ -1,0 +1,84 @@
+---
+title: "Connect an External SUT"
+description: "Capture an already-running local system while making lifecycle and isolation ownership explicit."
+keywords:
+  ["Blackbox external SUT", "connect local service", "user-owned lifecycle"]
+---
+
+Use an external source when another tool, terminal, or development environment already owns the SUT lifecycle.
+
+Complete [Quickstart Step 1](/docs/blackbox/quickstart/build-behavioral-harness) first. This setup replaces the host-command provisioning in Step 2. Keep its Playwright adapter and fixture.
+
+## Configure the Endpoints
+
+```ts title="blackbox.config.ts"
+import { defineBlackboxConfig } from "@suites/blackbox";
+
+export default defineBlackboxConfig({
+  sut: {
+    source: { kind: "external" },
+    services: {
+      api: {
+        endpoint: "http://127.0.0.1:3000",
+        readiness: {
+          kind: "http",
+          url: "http://127.0.0.1:3000/health",
+        },
+        capture: {
+          language: "node",
+          ownership: "user",
+        },
+      },
+    },
+  },
+  lifecycle: { ownership: "user" },
+  isolation: { scope: "flow" },
+  runner: { kind: "playwright", config: "playwright.config.ts" },
+  evidence: { dir: ".blackbox/evidence" },
+  analysis: { effects: "check" },
+});
+```
+
+Blackbox owns the attempt and evidence session. You start the application with its capture package attached and stop it after the run.
+
+## Attach Node Capture Before Startup
+
+External ownership means your environment's supported launcher integration attaches `@suites/blackbox-capture-node` before application work begins. Blackbox supplies the private sidecar and session identity that the launcher uses to associate capture with the correct run, cell, service, and attempt.
+
+This is an integration boundary, not a second application endpoint. Use the launcher supported by your environment; do not construct a raw transport command from private session details.
+
+If you do not already have a supported launcher integration, use a managed [host command](/docs/blackbox/guides/run-a-host-command). Blackbox then owns capture attachment with the process lifecycle.
+
+## Prove Isolation Separately
+
+External lifecycle ownership changes what Blackbox can conclude. Readiness proves that capture can communicate; it does not prove that the application state is clean.
+
+Forbidden-effect and negative claims are conclusive only when you provide one of these assurances:
+
+- A dedicated environment per flow or worker.
+- A reset provider that covers every mutable dependency.
+- An independently provisioned namespace with no unrelated traffic.
+
+Without that assurance, Blackbox reports the evidence but marks isolation-dependent conclusions as inconclusive.
+
+## Prevent Unrelated Traffic
+
+Do not share an external capture window with manual requests, health monitors that cross observed boundaries, background jobs from another run, or tests outside the selected cell.
+
+For CI, prefer a managed command, Compose project, or custom provisioner so lifecycle and cleanup are deterministic.
+
+## Run the Flow
+
+With the captured SUT still running in its dedicated environment:
+
+```bash
+pnpm exec blackbox test --flow subscribe-user
+```
+
+Expected result: Blackbox correlates the selected attempts and seals their evidence without starting or stopping the application.
+
+## Next Steps
+
+- **[Configure Isolation and Parallelism](/docs/blackbox/guides/playwright-isolation-and-parallelism)**
+- **[Run a Host Command](/docs/blackbox/guides/run-a-host-command):** Let Blackbox own the local process.
+- **[Run and Inspect Evidence](/docs/blackbox/quickstart/add-runtime-evidence):** Rejoin the Quickstart at Step 3.

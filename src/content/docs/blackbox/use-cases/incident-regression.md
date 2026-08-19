@@ -1,42 +1,18 @@
 ---
-title: "Incident Regression"
-description: "Turn a known incident into a Playwright flow with required and forbidden runtime effects that fail if the behavior returns."
+title: "Prevent an Incident Regression"
+description: "Turn the behavioral cause of an incident into required and forbidden effects that fail when it returns."
 sidebar_position: 3
 keywords:
-  [
-    "incident regression test",
-    "postmortem testing",
-    "forbidden effects",
-    "behavioral regression",
-  ]
+  ["incident regression test", "postmortem testing", "forbidden effects"]
 ---
 
-An incident regression test should preserve the behavioral distinction that made the incident harmful, not only the response that happened to accompany it.
+An incident regression should preserve the behavioral distinction that made the incident harmful, not only the response that accompanied it.
 
-## Example: Rejected User Was Charged
+## Example: A Rejected User Was Charged
 
-Suppose the API returned `404` for an unknown user, but a payment request was already sent and an order message was published. A response-only regression test can pass while the incident returns.
+Suppose the API returned `404` for an unknown user, but the system had already requested payment and published an order. A response assertion can pass while the incident returns.
 
-Create a named flow and keep the response assertion:
-
-```ts
-test.describe(
-  "Reject an unknown subscriber",
-  { tag: "@flow:subscribe-unknown-user" },
-  () => {
-    test("stops before downstream work", async ({ capture, request }) => {
-      const response = await request.post("/subscriptions", {
-        data: { userId: "ghost-user", paymentMethodId: "pm_card_visa" },
-      });
-
-      expect(response.status()).toBe(404);
-      await expect(capture).toMatchCatalog();
-    });
-  },
-);
-```
-
-Review and accept the incident boundary in the effect contract:
+Keep the `404` assertion and review this effect contract:
 
 ```yaml
 specVersion: "0.1"
@@ -45,21 +21,24 @@ requires:
   - { boundary: postgres, op: SELECT, key: users, service: bff }
 forbids:
   - { boundary: http, op: POST, key: /v1/payment_intents, service: bff }
-  - { boundary: postgres, op: INSERT, service: bff }
+  - { boundary: postgres, op: INSERT, key: subscriptions, service: bff }
   - { boundary: sqs, op: SendMessage, key: subscription-orders }
 ```
 
-The regression now fails if payment, persistence, or publication returns, even when the API response remains `404`.
+The native test protects the visible response. Runtime analysis protects the absence of payment, persistence, and publication.
 
 ## Post-Incident Workflow
 
-1. Reproduce the narrow flow in a controlled testbed.
-2. Identify the required and forbidden effects that distinguish fixed from broken behavior.
-3. Review the effect contract with the incident owner.
-4. Add an EARS requirement when the rule should remain normative and traceable.
-5. Run the flow in CI without changing accepted behavior artifacts.
-6. Retain the failing runtime artifacts when the gate trips.
+1. Reproduce the narrow flow in a controlled capture cell.
+2. Identify the effects that distinguish fixed from broken behavior.
+3. Review the contract with the incident owner.
+4. Add an EARS requirement when the rule needs normative traceability.
+5. Seal and retain evidence when the CI gate fails.
+6. Return deterministic findings to the coding agent without changing the contract.
 
 Blackbox does not replace monitoring, incident management, or root-cause analysis. It turns one selected failure mode into a recurring pre-merge behavior check.
 
-See [Effects, Contracts, and Coverage](/docs/blackbox/concepts/effects-and-catalogs) and [Reports and CI Gates](/docs/blackbox/guides/reports-and-ci-gates).
+## Next Steps
+
+- [Effects and Contracts](/docs/blackbox/concepts/effects-and-catalogs)
+- [Add Verification Gates to CI](/docs/blackbox/guides/reports-and-ci-gates)

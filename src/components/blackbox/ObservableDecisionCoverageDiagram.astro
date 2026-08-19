@@ -12,7 +12,7 @@
     <title id="bb-odc-title">Observable decision coverage compares evidence from two decision arms</title>
     <desc id="bb-odc-desc">
       A subscription decision splits into a known-user test and an unknown-user
-      test. Each test produces canonical captured span shapes. Blackbox compares
+      test. Each test produces canonical captured evidence. Blackbox compares
       the two arm-bucket signatures. Different signatures produce propagating,
       identical signatures produce masking-candidate, and an untested arm
       produces coverage-gap.
@@ -36,7 +36,7 @@
       Both arms ran. Did they leave distinguishable evidence?
     </text>
     <text x="36" y="70" fill="#cbd5e1" font-size="13">
-      Blackbox compares canonical span-shape multisets from tests exercising each arm.
+      Blackbox compares canonical evidence signatures from tests exercising each arm.
     </text>
 
     <rect x="370" y="94" width="220" height="58" rx="8" fill="#1f2937" stroke="#94a3b8"></rect>
@@ -73,7 +73,7 @@
     <text x="62" y="222" fill="#eff6ff" font-size="15" font-weight="800">subscribe-flow</text>
     <text x="62" y="242" fill="#bfdbfe" font-size="11">tests the known-user arm</text>
     <text x="62" y="270" fill="#93c5fd" font-size="11" font-weight="700">
-      SELECTED CAPTURED SPAN SHAPES
+      SELECTED CAPTURED EVIDENCE
     </text>
     <rect x="62" y="282" width="161" height="25" rx="6" fill="#0f172a" stroke="#475569"></rect>
     <text x="142.5" y="299" text-anchor="middle" fill="#e2e8f0" font-size="10">
@@ -98,7 +98,7 @@
     </text>
     <text x="542" y="242" fill="#e9d5ff" font-size="11">tests the missing-user arm</text>
     <text x="542" y="270" fill="#d8b4fe" font-size="11" font-weight="700">
-      SELECTED CAPTURED SPAN SHAPES
+      SELECTED CAPTURED EVIDENCE
     </text>
     <rect x="542" y="282" width="218" height="25" rx="6" fill="#0f172a" stroke="#475569"></rect>
     <text x="651" y="299" text-anchor="middle" fill="#e2e8f0" font-size="10">

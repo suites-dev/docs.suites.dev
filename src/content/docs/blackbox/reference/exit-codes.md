@@ -1,42 +1,33 @@
 ---
 title: "Exit Codes"
-description: "Interpret Blackbox clean, findings, review-boundary, and engine-failure outcomes consistently in local automation and CI."
+description: "Distinguish successful verification, behavioral findings, invalid configuration, and untrusted runtime evidence."
 sidebar_position: 2
 ---
 
-Blackbox uses three process exit codes across the public command facade.
+Blackbox uses four process exit codes.
 
-| Code | Meaning                                                                                         |
-| ---- | ----------------------------------------------------------------------------------------------- |
-| `0`  | The command completed. This includes a successful source write that now requires review.        |
-| `1`  | The command completed with behavioral or validation findings.                                   |
-| `2`  | Invalid input, stale state, missing infrastructure, or engine failure blocked a trusted result. |
+| Code | Meaning                                                     | CI action                                             |
+| ---- | ----------------------------------------------------------- | ----------------------------------------------------- |
+| `0`  | Runner, integrity, and configured analysis policies passed  | Continue                                              |
+| `1`  | Native test or behavioral findings                          | Fail the gate and repair against the accepted harness |
+| `2`  | Usage or configuration error                                | Fix invocation or project configuration               |
+| `3`  | Provisioning, capture, infrastructure, or integrity failure | Restore a trustworthy execution environment           |
 
-## Read Status Separately From Exit Code
+## Findings Versus Integrity Failures
 
-A source-changing command can exit `0` with:
+Exit `1` means Blackbox produced a trusted negative result. The implementation can usually be repaired against the fixed harness.
 
-```json
-{
-  "status": "awaiting-review",
-  "data": {
-    "review": { "required": true }
-  }
-}
-```
+Exit `3` means Blackbox cannot support a conclusive behavior result. Do not ask an agent to repair application behavior until capture, isolation, artifacts, and integrity are trustworthy.
 
-That result means the requested deterministic transformation succeeded. The workflow must pause for external human review.
+## Source-Change States
 
-## CI Policy
+Source-generating commands can exit `0` while reporting:
 
-- Treat exit `1` as an actionable gate finding.
-- Treat exit `2` as an untrustworthy run, not a behavioral failure.
-- Never infer human approval from exit `0`.
-- Preserve JSON findings and run artifacts when a runtime job fails.
-- Use command-specific verdicts rather than collapsing all layer results into one Boolean.
+- `preview`: Blackbox calculated a change but wrote nothing.
+- `awaiting-review`: Blackbox wrote the deterministic change, but a person has not approved it.
 
-`blackbox verify` can exit `0` with `effects: not-configured` during discovery because no effect claim was requested. `blackbox verify --require-effects` exits `1` when a selected flow has no accepted effect contract or violates that contract.
+Neither state grants behavioral authority.
 
-## Compatibility Alias
+## Read Structured Findings
 
-Some alpha builds may expose `features emit` as an alias for `features extract`. New automation should use `features extract`; both follow the same exit-code contract while the alias remains available.
+Use `--json` in automation. The exit code controls the job; the result envelope identifies the flow, layer, finding code, evidence reference, and next action.

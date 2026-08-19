@@ -1,90 +1,46 @@
 ---
-title: "Covering Before Refactor"
-description: "Use characterization testing and Blackbox runtime evidence to capture behavior before changing internals."
+title: "Cover Behavior Before a Refactor"
+description: "Review one consequential flow before changing internals, then compare deterministic runtime behavior after the refactor."
 sidebar_position: 1
 keywords:
-  [
-    "characterization testing",
-    "golden master testing",
-    "refactor safety",
-    "cover before refactor",
-  ]
-toc_min_heading_level: 2
-seo:
-  primary_keyword: "characterization testing"
-  secondary_keywords:
-    ["golden master testing", "refactor safety", "cover before refactor"]
-  search_intent: "legacy and refactor safety intent from teams capturing current behavior before changing internals"
-  snippet_angle: "capture current system behavior before a refactor, then compare runtime effects after the change"
+  ["characterization testing", "refactor safety", "cover before refactor"]
 ---
 
-Covering before refactor means capturing current behavior before changing the implementation. This is the classic characterization testing move: when the system is valuable but hard to reason about, first document what it does.
+A refactor can preserve response assertions while changing database, HTTP, queue, or cache behavior. Blackbox makes selected boundary behavior part of the review.
 
-Blackbox applies that idea to system behavior. It records runtime effects before the refactor, then lets the team compare what changed after the implementation moves.
+## Start With One Flow
 
-Teams about to rewrite, extract, modularize, upgrade, or clean up a system that already has user value and should not accidentally change behavior.
+Choose a behavior whose silent drift would matter, such as payment, authorization, persistence, publication, retry, or compensation.
 
-## Why Refactors Need Behavior Proof
+Before changing implementation:
 
-Refactors often begin with a risky assumption: if the existing tests are green, behavior is safe. That can be true for local logic and still false for system behavior.
+1. Recover and review the executable flow.
+2. Record the flow in an isolated capture cell.
+3. Review observed effects instead of approving the recording wholesale.
+4. Accept the effects that define correct behavior.
 
-A refactor can keep unit tests green while changing:
+The observed run is characterization evidence. The reviewed effect contract is the behavior the refactor must preserve.
 
-1. A downstream HTTP call.
-2. An emitted event.
-3. A database write.
-4. A queue message.
-5. A cache invalidation.
-6. A forbidden side effect that should never happen.
+## Compare After the Change
 
-When those effects matter, line coverage and passing tests are not enough. The team needs a behavior baseline.
+Record the same flow after the refactor and analyze its sealed bundle against the unchanged contract.
 
-## Characterization Testing And Golden Masters
+| Result                     | Action                                               |
+| -------------------------- | ---------------------------------------------------- |
+| Required effects remain    | Continue review                                      |
+| Required effect disappears | Repair or approve an intentional contract change     |
+| Forbidden effect appears   | Reject the regression                                |
+| New effect is unknown      | Investigate before accepting the result              |
+| ODC exposes masking        | Review whether the decision still reaches a boundary |
 
-Characterization testing captures what a system currently does so future changes can be compared against it. Golden master testing often captures a larger output snapshot and treats it as a baseline.
+## Keep the Claim Bounded
 
-Blackbox uses the same instinct but produces more reviewable artifacts:
+Blackbox does not prove the whole refactor safe. It proves selected behavior for the flows and boundaries the capture implementation observed.
 
-1. Runtime evidence from a real system run.
-2. Effects derived from that evidence.
-3. Feature files that summarize behavior in readable form.
-4. Catalogs and reports that mark required, forbidden, missing, and newly observed effects.
+Unit tests still diagnose local logic. The Blackbox result adds system-level evidence to the code diff and native test result.
 
-That makes the baseline easier to review than a raw snapshot alone.
+## Next Steps
 
-## Refactor Workflow
-
-A practical workflow is:
-
-1. Pick one high-risk behavior before changing internals.
-2. Run a system test that exercises the behavior.
-3. Capture the Blackbox artifacts as the baseline.
-4. Perform the refactor.
-5. Run the same scenario again.
-6. Review the effect drift.
-7. Accept intentional behavior changes and reject accidental ones.
-
-This gives reviewers a concrete artifact instead of only a diff and a green test suite.
-
-## What Counts As Success
-
-A good refactor run does not prove that the new design is better. It proves that selected externally visible behavior stayed stable or changed intentionally.
-
-Success looks like:
-
-1. Required effects still appear.
-2. Forbidden effects still stay absent.
-3. Newly observed effects are reviewed.
-4. Missing effects are investigated before merge.
-5. The final artifact explains why behavior is still acceptable.
-
-## What Not To Claim
-
-Blackbox does not make refactors risk-free. It does not replace unit tests for local logic, and it does not prove that every behavior in the system was covered. It gives the team stronger evidence for the workflows it actually exercised.
-
-## What To Read Next
-
-1. [Runtime Evidence](/docs/blackbox/concepts/runtime-evidence)
-2. [System Effects](/docs/blackbox/concepts/effects-and-catalogs)
-3. [Reports and CI Gates](/docs/blackbox/guides/reports-and-ci-gates)
-4. [Feature Drift](/docs/blackbox/troubleshooting/feature-drift)
+- [Runtime Evidence](/docs/blackbox/concepts/runtime-evidence)
+- [Effects and Contracts](/docs/blackbox/concepts/effects-and-catalogs)
+- [Add Verification Gates to CI](/docs/blackbox/guides/reports-and-ci-gates)

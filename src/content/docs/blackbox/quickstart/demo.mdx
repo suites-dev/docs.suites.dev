@@ -1,124 +1,76 @@
 ---
-title: "Run the Demo in 5 Minutes"
-description: "Run one instrumented system flow, inspect a passing runtime-effect verdict, and expose a regression that normal response assertions miss."
-sidebar_position: 2
-keywords:
-  ["Blackbox demo", "runtime effect verification", "behavior harness demo"]
+title: "Try the Blackbox Loop"
+description: "Use one existing Playwright flow to reach a native result, sealed runtime evidence, an effect verdict, and ODC."
+sidebar_position: 5
+keywords: ["Blackbox demo", "runtime effect verification", "behavior harness"]
 ---
 
-The demo shows the complete Blackbox verification loop without changing your project. It runs a Playwright test against an instrumented Node system and evaluates the observed runtime effects.
-
-## 1. Check the Prerequisites
-
-You need:
-
-- Node 22 or newer
-- pnpm 9 or newer
-- a running Docker engine
-
-```bash
-node --version
-pnpm --version
-docker version
-```
-
-## 2. Run the Passing Flow
-
-Clone the demo and run its default flow:
-
-```bash
-git clone https://github.com/suites-dev/blackbox-demo.git
-cd blackbox-demo
-pnpm install
-pnpm demo
-```
-
-The final output separates the native test result from the runtime verdict:
+This page is the short path into the runnable Quickstart. It uses one Playwright flow in your project, so every command runs against a **system under test (SUT)**—the application and services—and fixture data you already trust.
 
 ```text
-FLOW checkout-payment
-  test       PASS
-  evidence   6 effects observed
-  effects    PASS
-
-VERDICT PASS
+request -> system -> successful response
+                  \
+                   -> forbidden payment call
 ```
 
-The Playwright assertion proves the client received the expected response. The effect verdict also proves that the required database and HTTP effects occurred and the forbidden effects remained absent.
-
-## 3. Inspect Policy and Evidence
-
-The reviewed contract declares what the flow must and must not do:
-
-```yaml title="features/checkout-payment.effects.yaml"
-specVersion: "0.1"
-flow: checkout-payment
-requires:
-  - { boundary: postgres, op: INSERT, key: orders, service: api }
-  - { boundary: http, op: POST, key: /inventory/reservations, service: api }
-forbids:
-  - { boundary: http, op: POST, key: /payments, service: api }
-```
-
-The passing run records normalized effects for the same `checkout-payment` flow. This excerpt shows two of the six observations:
-
-```json title=".blackbox-coverage/runs/<run-id>/observed-effects.json"
-{
-  "flow": "checkout-payment",
-  "effects": [
-    {
-      "boundary": "postgres",
-      "op": "INSERT",
-      "key": "orders",
-      "service": "api"
-    },
-    {
-      "boundary": "http",
-      "op": "POST",
-      "key": "/inventory/reservations",
-      "service": "api"
-    }
-  ]
-}
-```
-
-The run writes generated evidence and reports under `.blackbox-coverage/`:
-
-```text
-.blackbox-coverage/
-├── runs/<run-id>/
-│   └── observed-effects.json
-└── reports/
-    └── verification.json
-```
-
-The evidence files describe this run. The reviewed effect contract remains in source control and does not change when tests run.
-
-## 4. Expose a Hidden Regression
-
-Run the deterministic regression variant:
+## Start in Your Playwright Project
 
 ```bash
-pnpm demo:regression
+cd path/to/your-playwright-project
+pnpm add -D @suites/blackbox @suites/blackbox-cli @playwright/test
 ```
 
-The demo enables `BLACKBOX_DEMO_HIDDEN_EFFECT_REGRESSION=1`. That switch activates one fixed service branch after the normal checkout behavior. The demo resets its data, runs one worker, and adds exactly one forbidden payment call.
+This page does not depend on a separate example checkout. The Quickstart starts from your existing system test, SUT command, and dedicated-data setup.
 
-The response assertion still passes, but Blackbox observes the extra effect:
+An **effect** is a runtime action such as a database write, API call, or published message. **Observable decision coverage (ODC)** compares the effects produced by different outcomes of a code decision.
+
+## Build the Four-Step Example
+
+Follow the Quickstart in order:
+
+1. [Build one behavioral harness](/docs/blackbox/quickstart/build-behavioral-harness).
+2. [Connect a host-command SUT](/docs/blackbox/quickstart/add-to-existing-test).
+3. [Run and inspect evidence](/docs/blackbox/quickstart/add-runtime-evidence).
+4. [Enforce effects and read ODC](/docs/blackbox/quickstart/enforce-runtime-effects).
+
+After Step 2, run the selected flow from the same project directory:
+
+```bash
+pnpm run db:test:reset
+pnpm exec blackbox test --flow subscribe-user
+```
+
+The reset is one-time tutorial setup for a serial, no-retry flow whose attempts use independent fixture keys. If an attempt requires clean database state, run the reset provider before that attempt or recreate its cell.
+
+Expected result after the completed Quickstart:
 
 ```text
-FLOW checkout-payment
-  test       PASS
-  evidence   7 effects observed
-  effects    FAIL  forbidden http POST /payments observed
-
-VERDICT FAIL
+FLOW subscribe-user
+  tests       PASS  2 attempts
+  integrity   PASS  capture complete
+  effects     PASS  required and forbidden policy satisfied
+  ODC         REPORT  user-exists outcomes produced distinct evidence
 ```
 
-The command exits with code `1`, so the same verdict can stop CI or return a deterministic finding to a coding agent.
+If an implementation regression adds the forbidden payment call, the visible assertion can stay green while the effect verdict changes:
 
-This is the core distinction: **the test checks the response; Blackbox also checks what the running system did.**
+| Signal                 | Normal run | Regression run |
+| ---------------------- | ---------- | -------------- |
+| Response assertion     | Pass       | Pass           |
+| Required user lookup   | Present    | Present        |
+| Forbidden payment call | Absent     | Present        |
+| Effect verdict         | Pass       | Fail           |
 
-## Next Step
+The runner owns the assertion. Node capture observes supported effects. The sidecar seals the evidence, and offline analysis applies the reviewed contract.
 
-[Add Blackbox to One System Test](/docs/blackbox/quickstart/add-to-existing-test) to reproduce the same loop in your project.
+## Inspect the Same Run Offline
+
+```bash
+pnpm exec blackbox analyze --run latest
+```
+
+The analyzer verifies integrity before computing the effect verdict and ODC. It does not restart the demo application.
+
+## Result
+
+You have exercised the same command you can keep in local development and CI. Continue with the [full Quickstart overview](/docs/blackbox/quickstart/) when you need to revisit the artifact layout or choose a different SUT source.

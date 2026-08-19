@@ -1,40 +1,31 @@
 ---
 title: "Reference"
-description: "Find the current Blackbox CLI, Playwright and testbed APIs, matchers, configuration, artifact schemas, report formats, and exit codes."
+description: "Look up Blackbox configuration, commands, packages, files, evidence, effects, reports, and flow identity."
 sidebar_position: 1
 keywords:
-  [
-    "Suites Blackbox reference",
-    "Blackbox CLI",
-    "Blackbox Playwright API",
-    "effect catalog schema",
-    "Blackbox artifacts",
-  ]
+  ["Suites Blackbox reference", "Blackbox CLI", "Blackbox configuration"]
 ---
 
-Use reference pages to confirm exact names, flags, files, and contracts. Start with the quickstart or guides when you need a workflow.
+Use the reference when you know the task and need an exact field, command, artifact, or contract.
 
-## Commands
+## Configuration and Runtime
 
-- [CLI Reference](/docs/blackbox/reference/cli): Skill installation, flow inspection, artifact checks, suite AST transformations, effect inspection, coverage, and instrumentation.
-- [Exit Codes](/docs/blackbox/reference/exit-codes): clean, findings, and usage/environment outcomes.
+- [Configuration](/docs/blackbox/reference/configuration): Project configuration and SUT source strategies.
+- [Testbed API](/docs/blackbox/reference/testbed-api): Isolation cells, provisioning, readiness, reset, and teardown.
+- [Environment Configuration](/docs/blackbox/reference/environment-variables): Dotenv files, passthrough, explicit values, and precedence.
+- [Package Responsibilities](/docs/blackbox/reference/api): Public facade, extension packages, and private runtime boundary.
 
-## Playwright and Testbed
+## Commands and Automation
 
-- [Testbed API](/docs/blackbox/reference/testbed-api): `createBlackboxTestbed`, sources, services, reset, grouping, and coverage directory.
-- [API Reference](/docs/blackbox/reference/api): package entry points and public runtime surfaces.
-- [Playwright Flow Tags](/docs/blackbox/reference/scenario-dsl): native Playwright `test.describe` tags, flow IDs, and Gherkin mapping.
-- [Matchers and Effect Builders](/docs/blackbox/reference/matchers-and-effect-builders): `toObserveEffects`, `toMatchCatalog`, predicates, and supported boundaries.
+- [CLI Reference](/docs/blackbox/reference/cli): Runtime, static specification, flow, and Skill commands.
+- [Exit Codes](/docs/blackbox/reference/exit-codes): Distinguish behavioral findings from configuration and integrity failures.
+- [Report Contracts](/docs/blackbox/reference/report-formats): Structured test, integrity, effect, and ODC results.
 
-## Project Conventions
+## Behavior and Evidence
 
-- [Project Conventions](/docs/blackbox/reference/configuration): convention discovery, Playwright ownership, effect YAML, and runtime artifacts.
-- [Environment Variables](/docs/blackbox/reference/environment-variables): instrumentation image, Node path, coverage, feature, and diagnostic overrides.
+- [Flow Identity](/docs/blackbox/reference/scenario-dsl): Stable IDs across tests, specifications, contracts, and evidence.
+- [Effect Contract Schema](/docs/blackbox/reference/catalog-schema): Required and forbidden boundary behavior.
+- [Effect Verification Model](/docs/blackbox/reference/matchers-and-effect-builders): Matching and verdict semantics.
+- [Files and Artifacts](/docs/blackbox/reference/files-and-artifacts): Reviewed source, sealed evidence, and derived analysis.
 
-## Artifacts and Reports
-
-- [Files and Artifacts](/docs/blackbox/reference/files-and-artifacts): repository artifacts versus per-run evidence.
-- [Effect Contract Schema](/docs/blackbox/reference/catalog-schema): effect YAML format and required/forbidden clauses.
-- [Report Formats](/docs/blackbox/reference/report-formats): catalog, shape, observable decision, requirement, HTML, Markdown, JSON, and JUnit outputs.
-
-The alpha surface changes. Prefer this reference and the exported TypeScript types over older package README examples.
+Start with the [Blackbox Quickstart](/docs/blackbox/quickstart/) when you have not completed one end-to-end flow yet.

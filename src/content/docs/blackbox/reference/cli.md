@@ -1,287 +1,107 @@
 ---
 title: "CLI Reference"
-description: "Reference for the Blackbox computational harness, including repository onboarding, artifact checks, suite AST transformations, runtime verification, and structured review boundaries."
+description: "Use Blackbox runtime, project, flow, specification, suite, and Skill commands."
 sidebar_position: 1
 keywords:
-  ["blackbox cli", "blackbox suites align", "blackbox verify", "blackbox json"]
+  ["blackbox CLI", "blackbox test", "blackbox analyze", "blackbox suites"]
 toc_min_heading_level: 2
 ---
 
-The `blackbox` binary is the **computational harness**. It validates artifacts, extracts behavior from existing suites, transforms native suite ASTs, executes flows, observes effects, and computes bounded verdicts.
-
-Skills own inferential proposals. Humans approve accepted behavior. The CLI never changes accepted behavior merely to clear a failing verdict.
-
-## Public Command Surface
-
-```text
-blackbox init
-blackbox doctor
-blackbox status
-blackbox verify
-blackbox explain <code>
-blackbox skills install
-
-blackbox flows list
-blackbox flows show <flow-id>
-
-blackbox requirements validate [paths...]
-blackbox requirements check
-blackbox requirements drift
-blackbox requirements coverage
-
-blackbox features extract [suite-paths...]
-blackbox features check
-blackbox features drift
-
-blackbox suites discover [paths...]
-blackbox suites check
-blackbox suites align
-
-blackbox effects show
-blackbox effects check
-
-blackbox coverage replay
-blackbox otel instrument
-```
-
-`features emit` may remain as a temporary compatibility alias. Use `features extract` in new scripts and documentation.
-
-## Shared Options
-
-| Option                              | Meaning                                                  |
-| ----------------------------------- | -------------------------------------------------------- |
-| `--flow <id>`                       | Select one stable flow; repeat to select several         |
-| `--json`                            | Write one machine-readable result to stdout              |
-| `--write`                           | Apply an explicit source transformation atomically       |
-| `--run <id\|latest>`                | Select retained runtime evidence                         |
-| `--mode <auto\|new\|existing>`      | Select initialization behavior                           |
-| `--feature <path>`                  | Select an accepted Gherkin input                         |
-| `--suite <path>`                    | Select a native suite when discovery is ambiguous        |
-| `--expected-revision <revision>`    | Require a repository revision before a future-safe write |
-| `--host <auto\|codex\|claude\|all>` | Select project-local agent skill layouts                 |
-| `--require-effects`                 | Fail selected flows without accepted effect contracts    |
-
-Every command supports `--json`. JSON mode never prompts. Ambiguous discovery returns choices and exits without writing.
-
-## Framework Commands
-
-| Command                   | Responsibility                                                      | Writes                           |
-| ------------------------- | ------------------------------------------------------------------- | -------------------------------- |
-| `blackbox init`           | Detect project state and select the onboarding path                 | Local state and scaffolding only |
-| `blackbox doctor`         | Check tools, topology, instrumentation, paths, and bindings         | Nothing                          |
-| `blackbox status`         | Report structural readiness and latest retained run                 | Nothing                          |
-| `blackbox verify`         | Validate, execute, observe, normalize effects, and compute verdicts | Run-scoped evidence and reports  |
-| `blackbox explain <code>` | Explain a deterministic finding and its safe next action            | Nothing                          |
-
-### `init`
+The `blackbox` CLI is the deterministic facade for running flows, analyzing evidence, and maintaining the behavioral harness.
 
 ```bash
-blackbox init --mode auto --json
-blackbox init --mode new --json
-blackbox init --mode existing --json
+pnpm exec blackbox <command> --help
 ```
 
-`init` detects new, existing, and mixed repositories. It does not modify requirements, features, effect contracts, or suite source.
+## Run and Analyze
 
-### `doctor`
+| Command                               | Purpose                                                                                                     |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `blackbox test`                       | Load configuration, run selected tests, own managed SUT lifecycle, seal evidence, and apply analysis policy |
+| `blackbox analyze --run <id\|latest>` | Verify and analyze an existing sealed run without starting the SUT                                          |
 
 ```bash
-blackbox doctor --json
+pnpm exec blackbox test
+pnpm exec blackbox test --flow subscribe-user
+pnpm exec blackbox analyze --run latest
 ```
 
-`doctor` checks configured layers. Runtime findings do not invalidate a structurally accepted harness; they mean runtime verification is not ready.
+Capture is unconditional during `blackbox test`. There is no separate record mode. Accepted policy determines which effect and ODC results gate the command.
 
-### `status`
+## Inspect a Project
 
 ```bash
-blackbox status --json
-blackbox status --flow checkout-payment --json
+pnpm exec blackbox init --mode auto --json
+pnpm exec blackbox doctor --json
+pnpm exec blackbox status --json
+pnpm exec blackbox explain <finding-code> --json
 ```
 
-`status` reports the earliest structurally incomplete boundary without running tests. Alpha approval remains `external`.
+Use `doctor` for prerequisites, configuration, lifecycle, capture, and analyzer readiness. Use `explain` for the reason and next action behind a finding code.
 
-### `verify`
+## Inspect Flows
 
 ```bash
-blackbox verify --flow checkout-payment --json
-blackbox verify --flow checkout-payment --require-effects --json
+pnpm exec blackbox flows list --json
+pnpm exec blackbox flows show subscribe-user --json
 ```
 
-`verify` validates selected artifacts, runs the native flow, captures evidence, creates observed effects, evaluates configured effect contracts, computes eligible decision evidence, and returns separate typed results.
-
-Without `--require-effects`, a first run can return `effects: not-configured` while still writing observed effects. This is discovery and makes no effect-verification claim.
-
-With `--require-effects`, every selected flow must have an accepted effect contract. A missing or violated contract exits with findings. CI environment detection does not enable enforcement implicitly.
-
-`verify` evaluates accepted YAML contracts directly. `toObserveEffects()` and `toMatchCatalog()` are optional Playwright assertion surfaces over the same kernel. Coverage modules aggregate attempt results; reporters render or gate those aggregates.
-
-## Skill Commands
-
-### `skills install`
+## Install Agent Skills
 
 ```bash
-blackbox skills install --host codex --json
-blackbox skills install --host codex --write --json
-blackbox skills install --host claude --write --json
-blackbox skills install --host all --write --json
+pnpm exec blackbox skills install --host codex --json
+pnpm exec blackbox skills install --host codex --write --json
 ```
 
-Without `--write`, the command previews the project-local skill files. With `--write`, it installs `$blackbox`, `$blackbox-requirements`, `$blackbox-gherkin`, and `$blackbox-effects` for the selected host.
-
-| Host   | Destination                       |
-| ------ | --------------------------------- |
-| Codex  | `.agents/skills/<skill>/SKILL.md` |
-| Claude | `.claude/skills/<skill>/SKILL.md` |
-
-The command is idempotent and reports each skill as `preview`, `installed`, or `unchanged`. It returns host, path, and content digest in JSON mode. It refuses to overwrite a locally modified skill.
-
-`blackbox doctor` reports agent skills as a separate readiness field. `not-installed` is non-blocking for manual CLI use; modified or version-mismatched installed skills produce agentic-workflow findings without invalidating runtime connectivity.
-
-## Flow Commands
+## Validate Requirements
 
 ```bash
-blackbox flows list --json
-blackbox flows show checkout-payment --json
+pnpm exec blackbox requirements validate ./requirements --json
+pnpm exec blackbox requirements check ./requirements --tests ./e2e --json
+pnpm exec blackbox requirements drift ./requirements --tests ./e2e --json
 ```
 
-The flow ID joins requirements, Gherkin, native suite nodes, effect contracts, runtime evidence, and reports. `flows show` assembles those explicit relationships without inferring from similar text.
-
-## Requirement Commands
-
-| Command                 | Responsibility                                                   | Writes            |
-| ----------------------- | ---------------------------------------------------------------- | ----------------- |
-| `requirements validate` | Validate EARS syntax, profile rules, and IDs                     | Nothing           |
-| `requirements check`    | Validate references across accepted artifacts                    | Nothing           |
-| `requirements drift`    | Find missing, stale, duplicate, or disconnected bindings         | Nothing           |
-| `requirements coverage` | Compute requirement verdicts from accepted bindings and evidence | Generated reports |
+## Generate and Check Gherkin
 
 ```bash
-blackbox requirements validate requirements/checkout.ears --json
-blackbox requirements check --flow checkout-payment --json
-blackbox requirements drift --json
-blackbox requirements coverage --json
-```
-
-Validation and structural checks do not require runtime evidence. Requirement coverage can only make runtime-backed claims when accepted bindings and current evidence exist.
-
-## Feature Commands
-
-### `features extract`
-
-```bash
-blackbox features extract ./e2e/checkout.spec.ts --json
-blackbox features extract ./e2e/checkout.spec.ts --write --json
-```
-
-Parses existing suite ASTs and creates literal baseline Gherkin. A written baseline returns `awaiting-review`. It does not claim complete product intent.
-
-### `features check` and `features drift`
-
-```bash
-blackbox features check --feature features/checkout-payment.feature --json
-blackbox features drift --json
-```
-
-These commands validate syntax, IDs, tags, traceability, and accepted source relationships without running the system.
-
-## Suite Commands
-
-### `suites discover`
-
-```bash
-blackbox suites discover ./e2e --json
-```
-
-Parses candidate suites and reports flow candidates, source locations, and conflicts without changing source.
-
-### `suites check`
-
-```bash
-blackbox suites check --flow checkout-payment --json
-```
-
-Validates native suite AST bindings against accepted Gherkin.
-
-### `suites align`
-
-```bash
-blackbox suites align \
-  --feature features/checkout-payment.feature \
-  --suite ./e2e/checkout.spec.ts \
-  --json
-
-blackbox suites align \
-  --feature features/checkout-payment.feature \
-  --suite ./e2e/checkout.spec.ts \
+pnpm exec blackbox features generate \
+  requirements/subscriptions.ears \
+  --flow subscribe-user \
+  --description "subscribing a user" \
+  --requirement REQ-004 \
+  --out e2e/features \
   --write \
   --json
+
+pnpm exec blackbox features emit ./e2e --out ./baseline --json
+pnpm exec blackbox features check ./e2e/features --requirements ./requirements --json
 ```
 
-Without `--write`, the command returns a plan. With `--write`, it creates or reshapes only the selected native flow, writes atomically, and returns `awaiting-review` with changed paths and digests.
+`features generate` starts from approved intent. `features emit` recovers a baseline from executable tests. Review generated behavior before accepting it.
 
-The CLI writes the `.ts` suite directly. It never emits an intermediate patch artifact or invents unsupported application-specific behavior.
-
-## Effect Commands
-
-### `effects show`
+## Generate and Align Suites
 
 ```bash
-blackbox effects show --flow checkout-payment --run latest --json
+pnpm exec blackbox suites discover ./e2e --json
+pnpm exec blackbox suites generate \
+  e2e/features/subscribe-user.feature \
+  --out e2e \
+  --write \
+  --json
+
+pnpm exec blackbox suites align \
+  e2e/features/subscribe-user.feature \
+  --suite e2e/subscribe-user.system.test.ts \
+  --write \
+  --json
+
+pnpm exec blackbox suites check ./e2e --json
 ```
 
-Reads generated observed effects and current classifications for a retained run. It writes nothing.
+Omit `--write` to inspect a source transformation before applying it. A successful write may still require human approval.
 
-### `effects check`
+## JSON and Exit Codes
 
-```bash
-blackbox effects check --flow checkout-payment --json
-```
+Use `--json` for machine-readable envelopes. Source-changing commands distinguish an unwritten proposal from a written result awaiting review.
 
-Validates effect YAML, selectors, and flow ownership. It does not create or approve policy.
-
-## Coverage and Instrumentation
-
-```bash
-blackbox coverage replay --coverage-dir .blackbox-coverage --json
-blackbox otel instrument --input ./src --output ./instrumented --config ./otel.json
-```
-
-`coverage replay` recomputes reports from retained evidence without rerunning the suite. `otel instrument` writes an explicitly targeted instrumented source tree and is separate from the default testbed bootstrap path.
-
-## Structured Review Results
-
-Source-changing commands return an operation record:
-
-```json
-{
-  "schemaVersion": 1,
-  "command": "suites align",
-  "operationId": "op_01J_CHECKOUT",
-  "status": "awaiting-review",
-  "data": {
-    "flowIds": ["checkout-payment"],
-    "writes": [
-      {
-        "path": "e2e/checkout.spec.ts",
-        "kind": "suite-ast",
-        "beforeDigest": "sha256:before",
-        "afterDigest": "sha256:after"
-      }
-    ],
-    "review": { "required": true, "boundary": "suite-source" }
-  },
-  "findings": []
-}
-```
-
-`awaiting-review` means the transformation succeeded and must pause. It does not mean a person approved the diff.
-
-## Exit Codes
-
-| Code | Meaning                                                                                    |
-| ---- | ------------------------------------------------------------------------------------------ |
-| `0`  | Command completed, including a successful write that now awaits review                     |
-| `1`  | Command completed with behavioral or validation findings                                   |
-| `2`  | Invalid input, stale precondition, missing infrastructure, or engine failure blocked trust |
-
-See [Exit Codes](/docs/blackbox/reference/exit-codes) and [Files and Artifacts](/docs/blackbox/reference/files-and-artifacts).
+Read [Exit Codes](/docs/blackbox/reference/exit-codes) before adding commands to automation.

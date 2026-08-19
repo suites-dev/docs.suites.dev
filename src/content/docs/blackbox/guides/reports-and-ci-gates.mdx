@@ -1,178 +1,120 @@
 ---
-title: "Reports and CI Gates"
-description: "Read Blackbox effect, shape, observable decision, and requirement reports in the right order, then enforce reviewed behavior in CI."
-sidebar_position: 4
-keywords:
-  [
-    "Blackbox CI gate",
-    "effect coverage report",
-    "observable decision coverage report",
-    "requirement coverage",
-    "Playwright behavioral verification",
-  ]
+title: "Add Blackbox to CI"
+description: "Run static and runtime gates, retain sealed evidence, and keep effect and ODC policy explicit."
+sidebar_position: 13
+keywords: ["Blackbox CI", "effect verification", "ODC gate", "GitHub Actions"]
 ---
 
-import Aside from "@/components/mdx/Aside.astro";
+CI runs the same accepted harness as local development. Add this workflow after Quickstart Step 4, when local effect policy already passes and the team has reviewed whether ODC is diagnostic or gating.
 
-Blackbox reports answer different questions. Read the narrowest failure first instead of treating `.blackbox-coverage/` as one score.
+## Review Evidence Exposure First
 
-## Report Map
+A sealed run can contain exact executed source, source maps, configuration and policy snapshots, normalized event records, and payload-derived attributes. Treat the bundle as sensitive build output.
 
-| Artifact                     | Question                                                                                    |
-| ---------------------------- | ------------------------------------------------------------------------------------------- |
-| `catalog/coverage.json`      | Which flow contracts were satisfied, failed, or uncovered?                                  |
-| `shape/coverage.json`        | Which catalog clauses were asserted, unasserted, or inline-only?                            |
-| `omcdc/verdict.md`           | Which decisions propagated to distinguishable effects, were masked, or lacked arm coverage? |
-| `omcdc/verdict.html`         | Where in source did those decision verdicts occur?                                          |
-| `omcdc/verdict.json`         | What structured observable decision data should automation consume?                         |
-| `requirements/coverage.json` | Which EARS requirements are proven, violated, unproven, or unbound?                         |
-| reporter outputs             | What human summary, HTML, JUnit, or CI annotation should be published?                      |
+Before uploading it:
 
-Catalog and shape coverage are the default runtime-evidence views. Observable decision coverage is available when the Node adapter registers its producer. `blackbox verify` writes requirement coverage after the Playwright run when that layer is configured.
+- Keep secrets and personal data out of test fixtures, logs, telemetry attributes, and captured request payloads.
+- Inspect `config.snapshot.json`, `events.jsonl`, and the content-addressed artifact store for credentials, tokens, proprietary source, and PII.
+- Perform any required redaction before data reaches Blackbox capture; artifact upload does not make unsafe evidence safe.
+- Restrict artifact access to trusted repository readers and avoid exposing evidence from untrusted fork workflows.
+- Choose the shortest retention period that supports failure diagnosis and your compliance obligations.
 
-## Reading Order
+## Add the Runtime Gate
 
-1. Start with the `blackbox verify` layer summary and first finding.
-2. Run `blackbox flows show <flow-id>` to assemble the affected flow.
-3. Open `catalog/coverage.json` for the required or forbidden effect result.
-4. Open `shape/coverage.json` when the issue is an unasserted clause or inline-only effect.
-5. Inspect observable decision coverage only when the review question concerns distinguishable arm evidence or missing arms.
-6. Inspect requirement coverage when normative requirements inherit the runtime result.
+```yaml title=".github/workflows/blackbox.yml"
+name: Blackbox
 
-Do not begin with a global percentage. A single forbidden payment call in a rejected-user flow matters more than a high aggregate count.
+on:
+  pull_request:
+  push:
+    branches: [main]
 
-## Catalog Coverage
+jobs:
+  blackbox:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
 
-The terminal summary mirrors the JSON artifact:
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm exec blackbox test
 
-```text
-effect coverage
-metric           value
-catalog entries  2
-satisfied        2  (100%)
-failed           0
-uncovered        0
+      - name: Retain Blackbox evidence
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@v4
+        with:
+          name: blackbox-evidence-${{ github.run_id }}
+          path: .blackbox/evidence
+          if-no-files-found: error
+          retention-days: 7
 ```
 
-For each entry, inspect `runs`, `passes`, `failures`, and `forbidViolations`. A `failed` entry means at least one completed checked attempt violated its contract. An `uncovered` entry means the current verification invocation did not check it. See [Effects, Contracts, and Coverage](/docs/blackbox/concepts/effects-and-catalogs) for attempt and aggregate semantics.
+`blackbox test` runs selected Playwright flows, owns managed SUT lifecycle, seals evidence, and applies the configured analysis policy. The upload step retains the complete bundle only when the job fails or is cancelled.
 
-Configure the Playwright reporter to fail on either condition when the suite is mature:
-
-```ts
-blackboxReporter({
-  outputDir: "./e2e/.blackbox-coverage",
-  failOnUncovered: true,
-  failOnAnyFailure: true,
-});
-```
-
-## Observable Decision Reports
-
-Read verdicts as evidence quality:
-
-- `propagating`: both arms were exercised and their captured evidence signatures differed;
-- `masking-candidate`: both arms were exercised but the signatures were identical;
-- `coverage-gap`: only one arm was exercised;
-- `undecidable`: the run could not support a sound comparison;
-- `multi-arm`: more than two branch arms were observed and the binary comparator did not apply;
-- `unsupported-mcdc`: a reserved producer token, not a verdict emitted by the current comparator.
-
-Use `verdict.md` for review, HTML for source inspection, and JSON for automation. Do not automatically fail every non-propagating branch. Choose critical decisions and make the policy explicit. [Observable Decision Coverage](/docs/blackbox/concepts/omc-dc-coverage) explains the evidence model and its limits.
-
-## Requirement Verdicts
-
-Run the configured facade after the Playwright flow and requirements are connected:
+## Add Static Gates When You Accept Specifications
 
 ```bash
-pnpm exec blackbox verify \
-  --flow subscribe-unknown-user \
-  --require-effects \
-  --json
+pnpm exec blackbox requirements validate ./requirements --json
+pnpm exec blackbox features check ./e2e/features --requirements ./requirements --json
+pnpm exec blackbox requirements check ./requirements --tests ./e2e --json
+pnpm exec blackbox requirements drift ./requirements --tests ./e2e --json
+pnpm exec blackbox suites check ./e2e --json
 ```
 
-Use `--fail-on violated` as the conservative first requirement gate. Move to `unproven` or `unbound` only when every selected requirement is expected to have complete feature tags and runtime evidence in that job.
+These commands prove structural agreement. Runtime gates prove what the executed system did.
 
-Use `blackbox requirements coverage` directly when debugging or regenerating only the requirement artifact.
+## Choose the ODC Policy Deliberately
 
-## Add Gates Progressively
+Effects are correctness policy. ODC is a separate decision-propagation signal.
 
-Use structural gates before runtime infrastructure is available:
+Start by retaining ODC reports. Gate only decisions whose boundary behavior the team has explicitly chosen to protect. A masking candidate may indicate a defect, an intentionally equivalent outcome, or insufficient evidence.
+
+## Reanalyze Without Rerunning
 
 ```bash
-pnpm exec blackbox requirements validate 'requirements/**/*.ears' --json
-pnpm exec blackbox requirements check --json
-pnpm exec blackbox features check --json
-pnpm exec blackbox suites check --json
+pnpm exec blackbox analyze --run latest
 ```
 
-These commands can establish that accepted artifacts and native suites remain connected. They do not verify the running system.
+Offline analysis verifies the bundle and recomputes effects, source-map joining, decisions, ODC, and reports without provisioning the SUT.
 
-Add the runtime gate when the job can start and instrument the selected topology:
+Use this when:
 
-```bash
-pnpm install --frozen-lockfile
-pnpm build:instr-image
-pnpm exec blackbox doctor --json
-pnpm exec blackbox verify --require-effects --json
-```
+- Reviewing a failed CI artifact locally.
+- Changing an accepted analysis policy.
+- Comparing analyzer versions.
+- Producing another report format from the same run.
 
-`blackbox verify` returns typed results without collapsing their meanings. A project without EARS or Gherkin can still verify a reviewed effect contract. A project without runtime observation can run structural gates but cannot claim that the running system satisfied accepted behavior.
+## Interpret Exit Codes
 
-Use specialized commands in separate jobs only when the pipeline needs independent ownership or faster feedback:
+| Exit | Meaning                                                     |
+| ---- | ----------------------------------------------------------- |
+| `0`  | Runner, integrity, and configured analysis policies passed  |
+| `1`  | Native test or behavioral finding                           |
+| `2`  | Usage or configuration error                                |
+| `3`  | Provisioning, capture, infrastructure, or integrity failure |
 
-```bash
-pnpm exec blackbox requirements check --json
-pnpm exec blackbox features check --json
-pnpm exec blackbox coverage replay --no-html --json
-```
+Infrastructure uncertainty is not a successful behavioral run.
 
-Do not configure or gate a layer when the team does not review its artifacts.
+## Keep Approval Outside CI
 
-## Use Pull Requests as the Alpha Review Gate
+Changes to requirements, scenarios, flow IDs, assertions, effect contracts, isolation assurance, and ODC gates go through ordinary repository review. CI evaluates accepted policy; it does not rewrite policy until a run passes.
 
-Blackbox approval is external in alpha. Use normal repository review for changes to:
+## Summary
 
-- EARS requirements;
-- Gherkin behavior and stable flow IDs;
-- native suite source written by `suites align --write`;
-- required and forbidden effect contracts.
+- **Run `blackbox test` as the complete gate.**
+- **Retain sealed evidence even when the job fails.**
+- **Review data exposure, access, and retention before uploading evidence.**
+- **Use `blackbox analyze` for reproducible offline review.**
+- **Keep effect correctness and ODC policy separate.**
+- **Require human review for changes to the behavioral harness.**
 
-A successful source transformation may return `awaiting-review`. Exit `0`, a commit, or the next command does not prove that a person approved the change.
+## See Also
 
-## Prevent CI Baselines
-
-CI verifies reviewed behavior; it should not create it.
-
-```ts title="e2e/playwright.config.ts"
-export default defineConfig({
-  updateSnapshots: "none",
-});
-```
-
-`blackbox verify --require-effects` writes evidence and reports only. It fails when a selected flow has no accepted effect contract and never writes a contract. Use `$blackbox-effects` to propose a contract from evidence, then review the exact diff before accepting it.
-
-Run `blackbox verify` without `--require-effects` during discovery. That mode may return `effects: not-configured` and cannot be used as an effect-verification gate.
-
-<Aside type="warning" title="Upload Evidence on Failure">
-  Always retain `.blackbox-coverage/` when the job fails. Without the catalog,
-  shape, observable decision, requirement, and diagnostic artifacts, a reviewer
-  sees a red gate without the evidence needed to act.
-</Aside>
-
-## Reporter and Sink Behavior
-
-The current default reporter is the effects report. The default sink writes files; GitHub Actions adds the GitHub Actions sink when that environment is detected. Additional registered reporters can produce HTML and JUnit views.
-
-Use the [Reference hub](/docs/blackbox/reference) for the current reporter, sink, artifact, and exit-code contracts.
-
-## Replay Saved Decision-Coverage Inputs
-
-When a coverage directory contains the required saved inputs, regenerate observable decision outputs without rerunning the SUT:
-
-```bash
-pnpm exec blackbox coverage replay \
-  --coverage-dir ./e2e/.blackbox-coverage \
-  --out ./reports
-```
-
-Pass `--no-html` when automation needs only JSON and Markdown.
+- **[Exit Codes](/docs/blackbox/reference/exit-codes):** Map results to CI behavior.
+- **[Files and Artifacts](/docs/blackbox/reference/files-and-artifacts):** Retain the complete sealed run.
+- **[Report Contracts](/docs/blackbox/reference/report-formats):** Consume structured analyzer results.

@@ -1,50 +1,52 @@
 ---
-title: "Legacy Modernization"
-description: "Build a reviewed behavior map around a legacy system, then modernize components without silently changing critical boundary effects."
+title: "Modernize a Legacy System"
+description: "Build a reviewed behavior map around a legacy system, then replace components without silently changing critical effects."
 sidebar_position: 2
 keywords:
   [
     "legacy modernization testing",
-    "legacy refactor",
     "brownfield system tests",
     "characterization testing",
   ]
 ---
 
-Legacy modernization is risky when the implementation is the only reliable description of behavior. Blackbox can turn selected running behavior into a smaller, reviewed contract before components move.
+Legacy modernization is risky when implementation code is the only description of behavior. Blackbox lets you create a small reviewed contract around one working flow before moving components.
 
-## Start With a Boundary, Not the Codebase
+## Start at a Business Boundary
 
 Choose a workflow the business already depends on: subscription, invoice generation, account closure, reconciliation, or webhook processing.
 
-The first run records what the system currently does at supported boundaries. Review that recording into three sets:
+Classify the first runtime evidence into:
 
-- behavior that must survive the migration;
-- behavior that is incidental and should not be frozen;
-- behavior that is wrong and should become forbidden or be fixed before baselining.
+- Behavior that must survive the migration.
+- Incidental behavior that should not be frozen.
+- Defective behavior that should be forbidden or fixed first.
 
-Capturing the present is characterization. Approving selected effects is contract work. Keep those steps separate.
+Capturing the present is characterization. Accepting selected effects is a human decision.
 
-## Incremental Migration Loop
+## Move One Slice at a Time
 
-1. Drive the legacy path through one Playwright flow.
-2. Review its effect contract.
-3. Bind existing requirements to the flow when traceability matters.
+1. Review one executable flow.
+2. Accept its effect contract.
+3. Bind requirements when traceability matters.
 4. Replace one component, datastore, queue, or service boundary.
-5. Run the same flow against the candidate topology.
-6. Repair missing or forbidden behavior.
-7. Ratify an intentional catalog change before moving to the next slice.
+5. Record the same flow in the candidate capture cell.
+6. Analyze the sealed bundle against the accepted contract.
+7. Repair failures or review an intentional contract change.
 
-The catalog can remain stable even when implementation technology changes. If a Postgres write intentionally becomes a queue publication, the contract should change through review rather than being silently accepted as migration noise.
+The contract can remain stable while implementation technology changes. When the desired behavior changes, update it through review instead of accepting migration noise automatically.
 
-## Parallel Old/New Comparison
+## Compare Old and New Systems
 
-When both systems can run, execute the same flow against each controlled topology and compare the behavior that should remain equivalent. Blackbox's experimental observation comparison can help during a test reshape or migration, but the effect contract remains the stable reviewed artifact.
+When both systems can run, execute the same flow in separate capture cells. Analyze each sealed bundle against the same contract before comparing implementation-specific evidence.
 
-Generated Gherkin can provide a readable inventory for domain reviewers. EARS can retain normative requirements. Neither should be generated and ignored; use only artifacts that participate in migration decisions.
+Gherkin can provide a readable behavior inventory. EARS can preserve normative requirements. Use only the artifacts that participate in migration decisions.
 
 ## Limits
 
-Blackbox does not discover the whole legacy domain, make an unsupported runtime observable, or decide whether historical behavior is correct. It gives the team runtime facts and a gate for the slices they deliberately cover.
+Blackbox does not discover the whole legacy domain or decide whether historical behavior is correct. It provides runtime facts and deterministic verdicts for the slices you deliberately cover.
 
-Start with [Covering Before Refactor](/docs/blackbox/use-cases/covering-before-refactor), then use [Testbed and Instrumentation](/docs/blackbox/guides/set-up-the-testbed) to build the controlled topology.
+## Next Steps
+
+- [Recover One Flow From Existing Tests](/docs/blackbox/guides/recover-behavior-from-existing-tests)
+- [Choose How Blackbox Starts Your SUT](/docs/blackbox/guides/set-up-the-testbed)

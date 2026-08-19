@@ -6,11 +6,11 @@ keywords:
   ["effect contract schema", "effect YAML", "Blackbox YAML", "requires forbids"]
 ---
 
-An **effect contract** records the required and forbidden runtime effects for one flow. It is the only Blackbox-owned public YAML artifact.
+An **effect contract** records the required and forbidden runtime effects for one flow. It is reviewed behavioral source, not generated runtime evidence.
 
 ```text
-features/subscribe-unknown-user.feature
-features/subscribe-unknown-user.effects.yaml
+e2e/tests/subscribe-unknown-user.feature
+e2e/tests/subscribe-unknown-user.effects.yaml
 ```
 
 ## Complete Example
@@ -65,11 +65,15 @@ Bare strings use glob matching. Use `equals` for exact matches and `regex` only 
 
 Effect contracts are accepted behavior. A Skill may propose a contract from runtime evidence, but a human decides whether each observed effect is required, forbidden, incidental, or a defect.
 
-`blackbox verify` writes evidence and reports. It does not silently update accepted effect contracts.
+Blackbox seals evidence and analyzes it offline. It does not silently update accepted effect contracts.
+
+:::note Different From the Evidence Protocol
+This YAML defines accepted behavior. `@suites/blackbox-protocol` publishes versioned JSON Schemas for generated evidence bundles. The two formats have different owners and lifecycles.
+:::
 
 ## Summary
 
 - **One effect YAML file describes one flow.**
-- **The `flow` field must match the Gherkin and Playwright flow ID.**
+- **The `flow` field must match the Gherkin and executable-suite flow ID.**
 - **`requires` proves expected runtime behavior appeared.**
 - **`forbids` proves unsafe runtime behavior stayed absent.**

@@ -1,109 +1,70 @@
 ---
 title: "Testbed API"
-description: "Reference for createBlackboxTestbed sources, services, reset groups, worker identity, coverage output, and lifecycle."
+description: "Reference SUT source strategies, isolation-cell ownership, readiness, reset, and custom provisioning."
 sidebar_position: 3
-keywords:
-  [
-    "createBlackboxTestbed",
-    "Blackbox testbed API",
-    "Compose system test",
-    "Testcontainers Playwright",
-  ]
+keywords: ["Blackbox testbed", "isolation cell", "provisioning API"]
 ---
 
-`createBlackboxTestbed(input)` creates the global lifecycle and worker-stack plan used by Playwright system tests.
+The testbed turns a SUT source declaration into isolation cells. Runner and language integrations remain independent from provisioning.
 
-## Input
+## Source Strategies
 
-```ts
-const testbed = createBlackboxTestbed({
-  source,
-  services: undefined,
-  grouping: undefined,
-  reset: undefined,
-  coverageDir: undefined,
-  projectNames: undefined,
-  ambient: null,
-});
-```
+| Kind         | Testbed responsibility                                        |
+| ------------ | ------------------------------------------------------------- |
+| `command`    | Start, wait for, capture, and stop a host process             |
+| `compose`    | Create cell-specific Compose projects and generated overrides |
+| `dockerfile` | Build and run an ephemeral captured service image             |
+| `artifacts`  | Assemble a runtime around prebuilt executable folders         |
+| `external`   | Connect a capture session without owning SUT lifecycle        |
+| `custom`     | Delegate environment creation to a provisioner callback       |
 
-The current alpha type requires every key, while omitted settings are represented by `undefined` and the default ambient policy by `null`.
+## Isolation Cell
 
-| Field          | Required | Default                   | Meaning                                                      |
-| -------------- | -------- | ------------------------- | ------------------------------------------------------------ |
-| `source`       | Yes      | none                      | Compose or custom Testcontainers topology                    |
-| `services`     | No       | introspected SUT services | Per-SUT source and wait overrides; pass `undefined` for none |
-| `grouping`     | No       | `{ kind: 'auto' }`        | How reset boundaries are derived                             |
-| `reset`        | No       | none                      | Reset managed state when the group key changes               |
-| `coverageDir`  | No       | `.blackbox-coverage`      | Artifact root, cleared during global setup                   |
-| `projectNames` | No       | kit defaults              | Compose project base names                                   |
-| `ambient`      | No       | default classification    | Health/readiness/background span policy                      |
+A cell owns:
 
-## Sources
+- Run, worker, and cell identity.
+- SUT service instances and immutable service IDs.
+- Mutable dependencies assigned to the cell.
+- Capture configuration and capabilities.
+- A private sidecar and evidence partition.
+- Reset and teardown responsibility.
 
-### Compose
+The scope is `flow`, `worker`, or `test`. See [Configure Isolation and Parallelism](/docs/blackbox/guides/playwright-isolation-and-parallelism) for lifecycle timing.
 
-```ts
-source: {
-  compose: './e2e/compose.yml',
-  profiles: ['system-test'],
-}
-```
+## Managed Lifecycle
 
-`compose` accepts one path or an ordered array of Compose files. Blackbox introspects builds, images, healthchecks, ports, and source directories, then starts one project per Playwright worker.
+When `lifecycle.ownership` is `blackbox`, the testbed:
 
-### Testcontainers
+1. Provisions the selected source.
+2. Injects capture for each declared service.
+3. Waits for every required service.
+4. Returns endpoints to the runner adapter.
+5. Resets or replaces state before independent attempts.
+6. Settles capture and seals evidence.
+7. Stops owned resources.
 
-```ts
-source: {
-  testcontainers: async (identity) => ({
-    connect,
-    infra,
-    stop: async () => stopContainers(identity),
-  }),
-}
-```
+Setup fails when only part of the required topology becomes ready.
 
-The callback runs in the worker process. Return SUT endpoints in `connect`, managed infrastructure hosts in `infra`, and an optional worker teardown.
+## External Lifecycle
 
-### Dockerfile
+When ownership is `user`, the testbed creates the evidence session and validates capture readiness without starting or stopping the SUT.
 
-The type surface includes `{ dockerfile, context, ports }` for forward compatibility. The current resolver rejects this source because bring-up is not implemented.
+External readiness does not establish state isolation. Supply a reset provider or dedicated environment before relying on forbidden-effect claims.
 
-## Service Overrides
+## Custom Provisioner Contract
 
-```ts
-services: {
-  api: {
-    srcDir: './services/api/src',
-    wait: { log: /listening on/ },
-  },
-}
-```
+A custom provisioner receives immutable cell identity and returns:
 
-`srcDir` defaults to `<build-context>/src`. `wait` accepts `healthcheck`, `ports`, `{ log: RegExp }`, or a Testcontainers `WaitStrategy`.
+- Service IDs and endpoints.
+- Capture attachment details.
+- Declared mutable resources.
+- Reset or fresh-cell assurance.
+- Idempotent teardown.
+- Isolation assurance.
 
-## Reset Context
+The provisioner does not depend on Playwright. It operates behind the runner-neutral cell contract.
 
-```ts
-reset: async ({ connect, infra, groupKey, identity }) => {
-  await resetDatabase(infra.postgres);
-  await resetCache(infra.redis);
-  await purgeQueues(infra.localstack);
-};
-```
+## See Also
 
-`identity` includes Playwright worker indices. `groupKey` is auto-derived from BDD isolation tags or the Playwright file and title path unless a manual grouping policy overrides it.
-
-## Lifecycle
-
-| Phase            | Work                                                                              |
-| ---------------- | --------------------------------------------------------------------------------- |
-| Global setup     | Resolve config, prepare coverage directory, validate/build SUT images and payload |
-| Worker bootstrap | Start one topology for the worker and expose connect/infra maps                   |
-| Group transition | Call the configured reset function                                                |
-| Test capture     | Reset observation buffers, execute, drain effects and coverage                    |
-| Worker teardown  | Stop the worker topology unless `BLACKBOX_KEEP_STACK=1`                           |
-| Global teardown  | Merge partials, finalize feature output, run reporters and sinks                  |
-
-Use [Testbed and Instrumentation](/docs/blackbox/guides/set-up-the-testbed) for the complete setup workflow.
+- [Choose How Blackbox Starts Your SUT](/docs/blackbox/guides/set-up-the-testbed)
+- [Configuration](/docs/blackbox/reference/configuration)

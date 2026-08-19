@@ -1,100 +1,60 @@
 ---
-title: "Matchers and Effect Builders"
-description: "Reference for toObserveEffects, toMatchCatalog, effect builders, required and forbidden contracts, patterns, and count constraints."
+title: "Effect Verification Model"
+description: "Reference the language-neutral rules for required, forbidden, unlisted, and mismatched runtime effects."
 sidebar_position: 4
 keywords:
   [
-    "toObserveEffects",
-    "toMatchCatalog",
-    "effect builders",
-    "required forbidden effects",
-    "Playwright matcher",
+    "effect verification",
+    "required effects",
+    "forbidden effects",
+    "effect matching",
   ]
 ---
 
-Import Playwright matchers through the Blackbox runner and effect vocabulary through the core entry point:
+Effect verification compares normalized observations from a sealed evidence bundle with a human-approved effect contract.
 
-```ts
-import { atLeast, between, effect, exactly, glob } from "@suites/blackbox/core";
-import { expect } from "./testbed.js";
+## Contract Outcomes
+
+| Outcome                    | Verdict        | Meaning                                                |
+| -------------------------- | -------------- | ------------------------------------------------------ |
+| Required effect matched    | Pass           | The accepted effect occurred                           |
+| Required effect missing    | Fail           | The accepted effect did not occur                      |
+| Forbidden effect absent    | Pass           | The rejected behavior stayed absent                    |
+| Forbidden effect observed  | Fail           | The system performed rejected behavior                 |
+| Valid observation unlisted | No finding     | Evidence remains available without constraining policy |
+| Observation unsupported    | Integrity fail | Capture cannot normalize the observation soundly       |
+| Contract mismatch          | Fail           | Evidence and contract cannot be compared as declared   |
+| Evidence incomplete        | Fail           | Bundle integrity cannot support the requested verdict  |
+
+Unlisted normalized effects remain evidence. Unsupported capture and contract mismatches fail because the analyzer must not turn uncertainty into success.
+
+## Language-Neutral Shape
+
+An effect contract describes boundary behavior with normalized fields:
+
+```yaml
+requires:
+  - { boundary: postgres, op: INSERT, key: subscriptions, service: bff }
+forbids:
+  - { boundary: http, op: POST, key: /v1/refunds, service: bff }
 ```
 
-## `toObserveEffects()`
+Runner adapters do not define this vocabulary. Language capture implementations translate supported observations into the canonical evidence model. Helpers from `@suites/blackbox/effects` compile to the same contract semantics.
 
-All forms normalize to `{ requires, forbids }`.
+## Counts and Patterns
 
-```ts
-await expect(capture).toObserveEffects(effect.redis("SET"));
+Contracts can constrain effect values and occurrence counts. The accepted YAML schema remains the behavioral authority; convenience builders must compile to the same semantics.
 
-await expect(capture).toObserveEffects([
-  effect.postgres("INSERT", { table: "subscriptions" }),
-  effect.forbid(effect.redis("DEL")),
-]);
+See [Effect Contract Schema](/docs/blackbox/reference/catalog-schema) for the reviewed source format.
 
-await expect(capture).toObserveEffects({
-  requires: [effect.sqs("SendMessage", { queue: "subscription-orders" })],
-  forbids: [effect.http("POST", { path: "/v1/refunds" })],
-});
-```
+## Analysis Boundary
 
-The matcher fails when a required shape is missing, a forbidden shape matches, or a count constraint is violated. Every call feeds effect-shape coverage, including failures.
+The offline analyzer owns matching and verdict computation. A reporter can display the result, and a runner adapter can surface it, but neither may reinterpret the evidence.
 
-## `toMatchCatalog()`
+## Summary
 
-```ts
-await expect(capture).toMatchCatalog();
-```
-
-The matcher reads the active flow ID, loads `features/<flow>.effects.yaml`, and evaluates the same contract kernel as `toObserveEffects()`.
-
-A direct `toMatchCatalog()` assertion fails when its selected contract is missing. A facade run can still create observed effects and report the effect layer as `not-configured` before policy exists. `blackbox verify` writes evidence and reports, not accepted behavior files.
-
-Matchers are not required for `blackbox verify` to evaluate an accepted YAML contract. Use them when the Playwright test should fail at the assertion site or when policy belongs inline in test source. The facade and both matchers use the same effect-evaluation kernel.
-
-## `toMatchEffectsSnapshot()`
-
-Use the snapshot matcher when a raw normalized effect snapshot is useful for diagnostics or migration. Prefer effect contracts for reviewed required and forbidden behavior because a contract expresses intent instead of preserving every observed detail.
-
-## Effect Builders
-
-| Builder                     | Options                                      |
-| --------------------------- | -------------------------------------------- |
-| `effect.redis(op, opts)`    | `key`, `ttl`, `count`                        |
-| `effect.postgres(op, opts)` | `key` or `table`, `schema`, `count`          |
-| `effect.http(op, opts)`     | `key` or `path`, `host`, `status`, `count`   |
-| `effect.sqs(op, opts)`      | `key` or `queue`, `count`                    |
-| `effect.s3(op, opts)`       | `bucket`, `key`, `count`                     |
-| `effect.rabbitmq(op, opts)` | `key`, `exchange`, `routingKey`, `count`     |
-| `effect.forbid(shape)`      | Wraps a shape for single/array matcher input |
-
-HTTP and HTTPS both normalize to the `http` boundary.
-
-## String Patterns
-
-```ts
-equals("user:alice:tier");
-glob("user:*:tier");
-regex("^user:[a-z]+:tier$");
-```
-
-Bare strings use catalog glob semantics. Use `equals()` when `*` or path matching must not be interpreted as a pattern.
-
-## Numeric and Count Constraints
-
-```ts
-eq(1);
-lt(5);
-lte(5);
-gt(0);
-gte(1);
-between(60, 3600);
-
-exactly(1);
-atLeast(1);
-atMost(3);
-never();
-```
-
-Bare numbers mean exact equality.
-
-For concepts and examples, read [Effects, Contracts, and Coverage](/docs/blackbox/concepts/effects-and-catalogs).
+- **Contracts define required and forbidden behavior.**
+- **Capture implementations produce canonical observations.**
+- **Offline analysis computes the verdict.**
+- **Unsupported, mismatched, and incomplete evidence fails integrity or verification.**
+- **Valid unlisted effects remain evidence without becoming requirements.**

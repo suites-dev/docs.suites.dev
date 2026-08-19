@@ -1,0 +1,85 @@
+---
+title: "Run Compiled Artifacts"
+description: "Give Blackbox prebuilt dist folders and let it assemble ephemeral captured services around them."
+keywords: ["Blackbox dist folder", "compiled artifacts", "source maps"]
+---
+
+Use an artifact source when CI or another build step already produces the executable files Blackbox should test.
+
+Complete [Quickstart Step 1](/docs/blackbox/quickstart/build-behavioral-harness) first. This setup replaces the host-command provisioning in Step 2. Keep its Playwright adapter and fixture.
+
+## Configure the Artifact Service
+
+```ts title="blackbox.config.ts"
+import { defineBlackboxConfig } from "@suites/blackbox";
+
+export default defineBlackboxConfig({
+  sut: {
+    source: { kind: "artifacts" },
+    services: {
+      api: {
+        artifactRoot: "dist",
+        runtime: {
+          executable: "node",
+          args: ["server.js"],
+        },
+        containerPort: 3000,
+        readiness: { kind: "http", path: "/health" },
+        environment: {
+          files: [".env.test"],
+          passthrough: [],
+          values: {},
+        },
+        capture: { language: "node" },
+      },
+    },
+  },
+  lifecycle: { ownership: "blackbox" },
+  isolation: { scope: "flow" },
+  runner: { kind: "playwright", config: "playwright.config.ts" },
+  evidence: { dir: ".blackbox/evidence" },
+  analysis: { effects: "check" },
+});
+```
+
+Blackbox assembles an ephemeral runtime around the supplied files. You do not need to maintain a project Dockerfile solely for Blackbox.
+
+## Supply Executed Output, Not Source Alone
+
+For TypeScript, `artifactRoot` points to `dist/` because Node executes JavaScript there. Keep `server.js.map` beside `server.js` or use an inline map.
+
+```text
+dist/
+  server.js
+  server.js.map
+```
+
+Blackbox captures the executed bytes, V8 ranges, and map. The Node analyzer attributes decisions to TypeScript offline.
+
+Pointing the runtime at `src/` when the process executes `dist/` prevents exact coverage joining.
+
+## Use One Layout Per Service
+
+In a monorepo, declare each service separately so artifact identity and analyzer selection never depend on a global path prefix.
+
+```text
+services/api/dist
+services/worker/dist
+```
+
+Each service receives its own stable ID, artifact namespace, executable, environment, and source-map discovery boundary.
+
+## Validate the Runtime
+
+```bash
+pnpm build
+pnpm exec blackbox doctor --json
+pnpm exec blackbox test --flow subscribe-user
+```
+
+Expected result: every declared artifact root resolves, each service becomes ready on a mapped port, and the sealed bundle contains the executed files and matching source maps.
+
+## Next Step
+
+- [Configure Source Maps and Service Layouts](/docs/blackbox/guides/source-maps-and-service-layouts)
+- [Run and Inspect Evidence](/docs/blackbox/quickstart/add-runtime-evidence) to rejoin the Quickstart at Step 3.

@@ -1,0 +1,109 @@
+---
+title: "1. Start With One System Flow"
+description: "Keep one passing system or E2E test and give it a stable identity, or create a tagged test shell when none exists."
+sidebar_position: 2
+keywords: ["Blackbox behavioral harness", "flow ID", "Playwright system test"]
+---
+
+Runtime verification needs one system or E2E flow. Blackbox does not require you to have that test before you begin.
+
+| Your situation                                  | Next action                                                                                                                                                                                                                            |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **I already have a passing system or E2E test** | Continue on this page. Keep its working action and assertion.                                                                                                                                                                          |
+| **I have no system or E2E test yet**            | Follow the [alternate Step 1](/docs/blackbox/guides/turn-requirements-into-system-test). Start with one behavior in plain language, create the tagged test shell, then continue to Step 2 to connect the application and make it pass. |
+
+A **behavioral harness** is the reviewed definition of success that an agent must satisfy without rewriting. Both routes produce the same thing: one accepted system flow with one stable `@flow:<id>`.
+
+## 1. Install Blackbox
+
+Install the public facade, CLI, and Playwright:
+
+```bash
+pnpm add -D @suites/blackbox @suites/blackbox-cli @playwright/test
+```
+
+Keep all `@suites/blackbox*` packages on the same version.
+
+## 2. Choose One Consequential Flow
+
+Use a flow whose hidden behavior matters. This example checks both outcomes of the user-exists decision.
+
+```ts title="e2e/subscribe-user.system.test.ts"
+import { expect, test } from "@playwright/test";
+
+test.describe("subscribe user", { tag: "@flow:subscribe-user" }, () => {
+  test("known user is subscribed", async ({ request }) => {
+    const response = await request.post("/subscriptions", {
+      data: { userId: "alice" },
+    });
+
+    expect(response.status()).toBe(201);
+  });
+
+  test("unknown user is rejected", async ({ request }) => {
+    const response = await request.post("/subscriptions", {
+      data: { userId: "ghost" },
+    });
+
+    expect(response.status()).toBe(404);
+  });
+});
+```
+
+The flow ID is an identity, not prose. Keep `subscribe-user` stable when descriptions change.
+
+## 3. Confirm the Native Test Passes
+
+Run the test with the command your project already uses:
+
+```bash
+pnpm exec playwright test e2e/subscribe-user.system.test.ts
+```
+
+Expected result:
+
+```text
+2 passed
+```
+
+The assertions prove the visible responses. They do not yet prove which hidden runtime actions—called **effects**—occurred, such as database queries, HTTP calls, cache changes, or published messages.
+
+## 4. Optional: Generate Readable Behavior
+
+Emit a baseline feature from the executable suite:
+
+```bash
+pnpm exec blackbox features emit ./e2e --out ./e2e/features
+```
+
+Review the generated file as a behavior proposal:
+
+```gherkin title="e2e/features/subscribe-user.feature"
+@flow:subscribe-user
+Feature: Subscribe a user
+
+  Scenario: Known user is subscribed
+    When the client subscribes user "alice"
+    Then the response status is 201
+
+  Scenario: Unknown user is rejected
+    When the client subscribes user "ghost"
+    Then the response status is 404
+```
+
+Edit the wording until it communicates the accepted behavior without exposing implementation detail. The executable test remains the runtime source; the feature is its reviewed projection.
+
+## 5. Check Flow Identity
+
+```bash
+pnpm exec blackbox suites discover ./e2e
+pnpm exec blackbox suites check ./e2e
+```
+
+The file stem, feature tag, and Playwright tag should all resolve to `subscribe-user`.
+
+## Result
+
+You now have one passing native flow and one stable identity. If you generated the optional feature, you also have a reviewable behavior document. Runtime evidence can join this harness without making Gherkin a runtime dependency.
+
+Continue with [Connect a Host-Command SUT](/docs/blackbox/quickstart/add-to-existing-test).

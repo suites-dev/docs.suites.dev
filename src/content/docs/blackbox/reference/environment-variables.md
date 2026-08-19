@@ -1,67 +1,50 @@
 ---
-title: "Environment Variables"
-description: "Supported Blackbox environment variables for the testbed, instrumentation payload, artifacts, reporting, debugging, and advanced Node coverage."
+title: "Environment Configuration"
+description: "Load dotenv files, selected host variables, and explicit service values without exposing Blackbox's internal transport."
 sidebar_position: 6
-keywords:
-  [
-    "Blackbox environment variables",
-    "BLACKBOX_INSTR_IMAGE",
-    "BLACKBOX_COVERAGE_DIR",
-    "OpenTelemetry test config",
-  ]
+keywords: ["Blackbox environment", "dotenv", "environment passthrough"]
 ---
 
-Prefer typed configuration and CLI flags. Use environment variables for environment-specific paths, CI behavior, and diagnostics.
+Configure application environment per service in `blackbox.config.ts`.
 
-## Testbed and Instrumentation
+```ts
+environment: {
+  files: [".env", ".env.test"],
+  passthrough: ["DATABASE_URL", "CI"],
+  values: {
+    NODE_ENV: "test",
+    LOG_LEVEL: "warn",
+  },
+}
+```
 
-| Variable                              | Default                     | Purpose                                                          |
-| ------------------------------------- | --------------------------- | ---------------------------------------------------------------- |
-| `BLACKBOX_INSTR_IMAGE`                | `blackbox-instr-node:local` | Instrumentation payload image used by the Node overlay           |
-| `BLACKBOX_NODE_BINARY_PATH`           | `/usr/local/bin/node`       | Node binary path to shadow in every configured SUT               |
-| `BLACKBOX_NODE_BINARY_PATH_<SERVICE>` | global value                | Per-service Node path; service name becomes uppercase snake case |
-| `BLACKBOX_KEEP_STACK=1`               | off                         | Leave worker containers running after teardown for diagnosis     |
+## Resolution Order
 
-For service `fraud-check`, the override is `BLACKBOX_NODE_BINARY_PATH_FRAUD_CHECK`.
+Blackbox applies environment sources in this order:
 
-## Artifact Locations
+```text
+dotenv files -> selected host variables -> explicit values
+```
 
-| Variable                         | Default                                | Purpose                                            |
-| -------------------------------- | -------------------------------------- | -------------------------------------------------- |
-| `BLACKBOX_COVERAGE_DIR`          | `.blackbox-coverage`                   | Coverage root in connect mode and report lifecycle |
-| `BLACKBOX_COVERAGE_OUTPUT`       | `<coverage-dir>/catalog/coverage.json` | Override the catalog coverage JSON path            |
-| `BLACKBOX_SHAPE_COVERAGE_OUTPUT` | `<coverage-dir>/shape/coverage.json`   | Override shape coverage output                     |
-| `BLACKBOX_FEATURES_DIR`          | `features`                             | Feature-file discovery override                    |
+Later sources win. Files are resolved relative to the configured SUT working directory.
 
-Prefer `coverageDir` and `blackboxReporter({ outputDir })` over setting output variables directly.
+## Pass Through Only Intentional Variables
 
-## Reporting
+`passthrough` names individual host variables. Blackbox does not copy the entire parent environment into the SUT.
 
-| Variable             | Default                                   | Purpose                                   |
-| -------------------- | ----------------------------------------- | ----------------------------------------- |
-| `BLACKBOX_REPORTERS` | `effects-report`                          | Comma-separated registered reporter names |
-| `BLACKBOX_SINKS`     | `file`, plus GitHub Actions when detected | Comma-separated registered sink names     |
+Use passthrough for secrets and CI-provided endpoints that should not appear in source control. Use `values` for deterministic test settings.
 
-Unknown reporter or sink names produce a warning and are skipped. The core registry exposes `effects-report`, `junit`, `file`, `stdout`, and `github-actions`; adapter-registered coverage modules produce their own artifacts.
+## Keep Blackbox Transport Internal
 
-## Diagnostics
+Blackbox supplies run, cell, service, capture, sidecar, and control values when it starts a managed service. Do not add internal `BLACKBOX_*` values to `.env` files or CI configuration.
 
-| Variable                 | Purpose                                             |
-| ------------------------ | --------------------------------------------------- |
-| `BLACKBOX_DEBUG=1`       | Include raw span detail in matcher failure output   |
-| `BLACKBOX_DEBUG_TRACE=1` | Print per-test trace and debug-endpoint diagnostics |
-| `BLACKBOX_KEEP_STACK=1`  | Preserve the failing topology for manual inspection |
+The public interface is the typed configuration. Internal transport names can change without becoming project API.
 
-Do not enable verbose diagnostics by default in CI; they can expose URLs, query text, and other test data.
+## External Lifecycle
 
-## Advanced Node Coverage
+When `lifecycle.ownership` is `user`, attach the service’s language capture package using the launch integration for that language. Blackbox still owns attempt identity and evidence analysis; you own the application process and its environment.
 
-| Variable                      | Purpose                                                            |
-| ----------------------------- | ------------------------------------------------------------------ |
-| `BLACKBOX_FUNCTION_SPANS=1`   | Enable the advanced function-span coverage mode                    |
-| `BLACKBOX_FN_SPANS_MODE`      | Select `loader` or `build-time` function instrumentation           |
-| `BLACKBOX_STRICT_AST_DRIFT=1` | Fail instead of warning when source and coverage coordinates drift |
+## See Also
 
-These are advanced alpha controls. Use the default Node adapter path first and inspect observable decision coverage limits before enabling function-span instrumentation.
-
-Variables such as internal registry keys, run timestamps, partial-retention flags, and testbed markers are implementation details and are intentionally omitted.
+- [Run a Host Command](/docs/blackbox/guides/run-a-host-command)
+- [Configuration](/docs/blackbox/reference/configuration)

@@ -1,0 +1,79 @@
+---
+title: "Build From a Dockerfile"
+description: "Build an ephemeral captured SUT from a Dockerfile without maintaining a separate Blackbox image."
+keywords: ["Blackbox Dockerfile", "container system test", "Node capture"]
+---
+
+Use a Dockerfile source when one service already has a repeatable container build but the project does not need a full Compose topology.
+
+Complete [Quickstart Step 1](/docs/blackbox/quickstart/build-behavioral-harness) first. This setup replaces the host-command provisioning in Step 2. Keep its Playwright adapter and fixture.
+
+## Configure the Build
+
+```ts title="blackbox.config.ts"
+import { defineBlackboxConfig } from "@suites/blackbox";
+
+export default defineBlackboxConfig({
+  sut: {
+    source: {
+      kind: "dockerfile",
+      file: "Dockerfile",
+      context: ".",
+    },
+    services: {
+      api: {
+        containerPort: 3000,
+        readiness: { kind: "http", path: "/health" },
+        environment: {
+          files: [".env.test"],
+          passthrough: [],
+          values: { NODE_ENV: "test" },
+        },
+        capture: { language: "node" },
+        layout: {
+          artifactRoot: "dist",
+          sourceMaps: "discover",
+        },
+      },
+    },
+  },
+  lifecycle: { ownership: "blackbox" },
+  isolation: { scope: "flow" },
+  runner: { kind: "playwright", config: "playwright.config.ts" },
+  evidence: { dir: ".blackbox/evidence" },
+  analysis: { effects: "check" },
+});
+```
+
+Blackbox builds the declared target, attaches capture in an ephemeral derived layer, maps the application port, and starts one service instance per cell.
+
+## Preserve the Application Image
+
+The project Dockerfile remains application-owned. Blackbox does not require production code imports or permanent test instrumentation in the published image.
+
+Keep executable JavaScript and its source maps in the image. Offline analysis uses the exact bytes captured from the running service, not a separately rebuilt host copy.
+
+## Handle Dependencies
+
+A Dockerfile source isolates the declared service. If the application depends on PostgreSQL, Redis, queues, or workers, either:
+
+- move to a Compose source that includes them;
+- point the cell at independently isolated dependencies; or
+- use a custom provisioner that owns the complete topology.
+
+Do not treat a fresh application container connected to shared mutable state as full flow isolation.
+
+## Validate the Cell
+
+```bash
+pnpm exec blackbox doctor --json
+pnpm exec blackbox test --flow subscribe-user
+```
+
+Expected result: the image builds, the health check passes on a mapped port, the native flow passes, and Blackbox seals captured artifacts and events.
+
+## Next Steps
+
+- **[Use an Existing Compose Project](/docs/blackbox/guides/use-existing-compose):** Isolate a multi-service topology.
+- **[Configure Source Maps and Service Layouts](/docs/blackbox/guides/source-maps-and-service-layouts):** Verify artifact discovery.
+- **[Run and Inspect Evidence](/docs/blackbox/quickstart/add-runtime-evidence):** Rejoin the Quickstart at Step 3.

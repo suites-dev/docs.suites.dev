@@ -1,64 +1,48 @@
 ---
-title: Troubleshooting
-description: "Start here when a Blackbox run is empty, blocked, drifting, or failing in Docker, CI, catalog matching, or report generation."
+title: "Troubleshooting"
+description: "Diagnose flow identity, capture-cell, evidence-integrity, effect, and ODC failures in the order they occur."
 sidebar_position: 1
 keywords:
   [
     "blackbox troubleshooting",
-    "no spans captured",
-    "catalog failures",
+    "empty evidence",
+    "effect failure",
     "feature drift",
-    "docker testbed",
   ]
-toc_min_heading_level: 2
-seo:
-  primary_keyword: "blackbox troubleshooting"
-  secondary_keywords:
-    ["no spans captured", "catalog failures", "feature drift", "docker testbed"]
-  search_intent: "developers diagnosing failed Blackbox setup, empty runtime evidence, catalog mismatches, feature drift, or CI output"
-  snippet_angle: "choose the symptom, run the first checks, and follow the focused Blackbox troubleshooting page"
 ---
 
-Start here when a Blackbox run does not produce the evidence you expected.
+Start with the first layer that could not produce a trusted result. Do not change accepted behavior until you know whether the failure came from identity, execution, capture, integrity, or analysis.
 
-Most failures fall into one of four groups: the system did not run the intended path, the testbed did not instrument the SUT, the catalog contract no longer matches runtime behavior, or the generated feature files drifted from executable tests.
+## Choose the Symptom
 
-## Choose The Symptom
+| Symptom                                                 | Start with                                                                       |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Flow identity or Gherkin no longer matches the suite    | [Feature Drift](/docs/blackbox/troubleshooting/feature-drift)                    |
+| A runtime bundle is empty or incomplete                 | [Empty or Incomplete Capture](/docs/blackbox/troubleshooting/no-spans-captured)  |
+| The capture cell cannot start or become ready           | [Capture Cell and Sidecar](/docs/blackbox/troubleshooting/docker-and-testbed)    |
+| An effect is missing, forbidden, unknown, or mismatched | [Effect Contract Failures](/docs/blackbox/troubleshooting/catalog-failures)      |
+| You need a minimal diagnostic package                   | [Collect Diagnostics](/docs/blackbox/troubleshooting/diagnostics-and-debug-logs) |
+| You have a reproducible product defect                  | [Report a Bug](/docs/blackbox/troubleshooting/reporting-a-bug)                   |
 
-| Symptom                                                                                       | Start with                                                                              |
-| --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| The test passed, but the report is empty or no spans were captured                            | [No Spans Captured](/docs/blackbox/troubleshooting/no-spans-captured)                   |
-| Docker starts fail, ports collide, services stay unhealthy, or the bootstrap image is missing | [Docker and Testbed](/docs/blackbox/troubleshooting/docker-and-testbed)                 |
-| `toMatchCatalog()` fails, required effects are missing, or forbidden effects appeared         | [Catalog Failures](/docs/blackbox/troubleshooting/catalog-failures)                     |
-| `.feature` files are stale, missing, orphaned, or unparseable                                 | [Feature Drift](/docs/blackbox/troubleshooting/feature-drift)                           |
-| The run fails in CI and you need useful logs before filing an issue                           | [Diagnostics and Debug Logs](/docs/blackbox/troubleshooting/diagnostics-and-debug-logs) |
-| You have a reproducible issue and need to report it cleanly                                   | [Reporting a Bug](/docs/blackbox/troubleshooting/reporting-a-bug)                       |
+## Start With Static Identity
 
-## First Checks
+```bash
+pnpm exec blackbox suites discover e2e/tests --json
+pnpm exec blackbox suites check e2e/tests --json
+```
 
-1. Run `blackbox status --flow <flow-id> --json` to check connected artifacts and evidence age.
-2. Run `blackbox doctor --json` when the problem concerns runtime readiness or instrumentation.
-3. Confirm the Playwright flow actually reached the system boundary you expected.
-4. Confirm the SUT was started through the Blackbox testbed or another Blackbox-aware setup.
-5. Confirm the instrumentation image is available as `blackbox-instr-node:local` or through `BLACKBOX_INSTR_IMAGE`.
-6. Confirm the SUT container has `/blackbox-otel/bootstrap.cjs` and `/blackbox-otel/bin/node-wrap` mounted when using the compose testbed.
-7. Confirm the failure is about behavior before changing the catalog. Missing required effects and observed forbidden effects should be reviewed, not automatically accepted.
+Resolve missing, duplicate, or conflicting flow IDs before debugging runtime evidence.
 
-## What To Keep
+## Diagnose the Runtime in Order
 
-When debugging, keep these artifacts from the failing run:
-
-| Artifact                  | Why it helps                                                |
-| ------------------------- | ----------------------------------------------------------- |
-| Test command and output   | Shows the runner, flags, and first failure signal           |
-| `.blackbox-coverage/`     | Shows captured spans, coverage summaries, and report inputs |
-| Generated compose overlay | Shows whether the SUT was instrumented for the run          |
-| Effect catalog diff       | Shows whether the reviewed behavior contract changed        |
-| Generated `.feature` diff | Shows whether readable behavior specs drifted               |
+1. Confirm the runner selected the intended flow tag.
+2. Confirm the capture cell reached ready state.
+3. Confirm test identity reached the SUT through W3C baggage.
+4. Verify bundle capabilities and integrity.
+5. Inspect effect and ODC analysis separately.
 
 ## Useful Next Pages
 
-1. [Add Blackbox to One System Test](/docs/blackbox/quickstart/add-to-existing-test)
-2. [Testbed and Instrumentation](/docs/blackbox/guides/set-up-the-testbed)
-3. [Effects, Contracts, and Coverage](/docs/blackbox/concepts/effects-and-catalogs)
-4. [Reports and CI Gates](/docs/blackbox/guides/reports-and-ci-gates)
+- [Runtime Evidence](/docs/blackbox/concepts/runtime-evidence)
+- [Choose How Blackbox Starts Your SUT](/docs/blackbox/guides/set-up-the-testbed)
+- [Add Blackbox to CI](/docs/blackbox/guides/reports-and-ci-gates)

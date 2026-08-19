@@ -1,0 +1,85 @@
+---
+title: "4. Enforce Effects and Read ODC"
+description: "Reanalyze sealed evidence, distinguish behavior failures from integrity failures, and close the implementation-repair loop."
+sidebar_position: 5
+keywords:
+  [
+    "Blackbox effect verdict",
+    "offline analysis",
+    "observable decision coverage",
+    "agent repair loop",
+  ]
+---
+
+Blackbox analyzes immutable evidence independently from the **system under test (SUT)**—the running application and services being verified. You can change policy, upgrade an analyzer, or inspect a failure without reproducing the original environment.
+
+## Reanalyze the Latest Run
+
+```bash
+pnpm exec blackbox analyze --run latest
+```
+
+`blackbox analyze` never starts the SUT. It verifies bundle integrity and checks the accepted **effect contract**: the list of runtime actions that must happen or must not happen. It also reconstructs code decisions and computes **observable decision coverage (ODC)**, which compares the effects produced by different decision outcomes. In this Quickstart, effects gate the command and ODC remains report-only.
+
+## Keep Four Results Separate
+
+| Result    | Question                                                        |
+| --------- | --------------------------------------------------------------- |
+| Test      | Did the native Playwright assertion pass?                       |
+| Integrity | Is the captured evidence complete and trustworthy?              |
+| Effects   | Did required effects occur and forbidden effects remain absent? |
+| ODC       | Did exercised decision outcomes leave distinguishable evidence? |
+
+Blackbox refuses a conclusive effect or ODC result when capture is empty, a service never became ready, an attempt is partial, an artifact hash fails, a required capability is absent, or the configured isolation assurance is missing.
+
+## Repair Without Redefining Success
+
+Suppose the rejected attempt returns `404` but still calls the payment provider:
+
+```text
+FLOW subscribe-user
+  tests       PASS
+  integrity   PASS
+  effects     FAIL
+
+  forbidden effect observed
+  http POST /v1/payment_intents service=api
+```
+
+The implementation can change. The coding agent reruns the same harness until the forbidden effect disappears.
+
+```text
+analyze -> deterministic finding -> repair implementation -> blackbox test
+```
+
+Changes to the native assertion, flow identity, accepted feature, effect contract, SUT source strategy, isolation configuration, or ODC gate return to human review because they redefine success. Ordinary application implementation changes remain inside the repair loop.
+
+## Read ODC as a Different Signal
+
+ODC compares the effect signatures associated with branch outcomes:
+
+- **Propagating:** the exercised outcomes produced distinguishable evidence.
+- **Masking candidate:** both outcomes ran but their evidence signatures matched.
+- **Coverage gap:** only part of the decision was exercised.
+- **Undecidable:** the available evidence cannot support a sound comparison.
+
+A passing effect contract does not imply strong ODC, and a propagating decision does not prove that its behavior is correct.
+
+## Gate ODC Only After Review
+
+The Quickstart reports ODC first so you can inspect the comparison before making it merge-blocking. When the team accepts this decision as a gate, make the policy explicit:
+
+```ts title="blackbox.config.ts"
+analysis: {
+  effects: "check",
+  odc: "check",
+}
+```
+
+`odc: "check"` makes configured ODC findings affect the command exit code. Keep it absent while ODC is diagnostic.
+
+## Result
+
+You completed the Blackbox loop with one reviewed harness, a controlled SUT, sealed runtime evidence, an effect verdict, and an ODC report. The same `blackbox test` command now becomes the project’s effect gate in CI; ODC joins the gate only after explicit review.
+
+Continue with [Add Blackbox to CI](/docs/blackbox/guides/reports-and-ci-gates).

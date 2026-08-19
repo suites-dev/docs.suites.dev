@@ -1,285 +1,155 @@
 ---
-title: "Add Blackbox to One System Test"
-description: "Connect one passing Playwright test to Blackbox through managed Docker or a local Node process."
+title: "2. Connect a Host-Command SUT"
+description: "Tell Blackbox how to start a compiled Node service, configure Playwright, and attach capture without changing application code."
 sidebar_position: 3
-keywords: ["add Blackbox", "Playwright system test", "Blackbox connect mode"]
+keywords: ["Blackbox host command", "Playwright configuration", "Node capture"]
 ---
 
-import Tabs from "@/components/mdx/Tabs.astro";
-import TabItem from "@/components/mdx/TabItem.astro";
-import Aside from "@/components/mdx/Aside.astro";
+Blackbox can start the same command you already use for system tests. The application and services Blackbox runs are the **system under test (SUT)**. This Quickstart keeps that process serial, resets dedicated test data before the selected flow, and uses independent fixture keys for its two attempts. Use a managed topology when you need parallel cells or automatic dependency replacement.
 
-Start with one Playwright system test that already passes against your Node service. This page connects that test to Blackbox; it does not change the behavior the test accepts.
+Arrive here with one accepted, tagged flow. It can be a passing test you kept in [Step 1](/docs/blackbox/quickstart/build-behavioral-harness), or a generated test shell from the [alternate Step 1](/docs/blackbox/guides/turn-requirements-into-system-test). This page connects the application and completes the runtime setup both paths need.
 
-Choose the runtime path that matches the test you already run:
+## 1. Build Executable JavaScript and Source Maps
 
-| Path                   | Choose it when                                                      | Extra requirement           |
-| ---------------------- | ------------------------------------------------------------------- | --------------------------- |
-| **Local Node process** | You can start one Node service locally and know its application URL | A free local debug port     |
-| **Managed Docker**     | You already have Compose and a reset hook for mutable test state    | Docker and `testcontainers` |
+Configure TypeScript to emit source maps and build the SUT:
 
-Start with the local process when both paths are available. Managed Docker is for tests that already depend on a controlled Compose topology.
-
-Local connect is the fastest first connection, not automatically the strongest evidence environment. Before relying on a forbidden-effect contract, control background traffic, reset mutable state between runs, and prove that the relevant boundary is observable. Use the managed testbed when the local process cannot provide those controls.
-
-## 1. Install Blackbox
-
-Install the CLI, runtime, Node adapter, instrumentation payload, and Playwright integration in the package that owns the system tests:
-
-<Tabs groupId="pkg">
-<TabItem value="pnpm" label="pnpm" default>
-
-```bash
-pnpm add -D \
-  @suites/blackbox-cli \
-  @suites/blackbox \
-  @suites/blackbox-adapter-node \
-  @suites/blackbox-instr-node \
-  @playwright/test
-```
-
-</TabItem>
-<TabItem value="npm" label="npm">
-
-```bash
-npm install --save-dev @suites/blackbox-cli @suites/blackbox @suites/blackbox-adapter-node @suites/blackbox-instr-node @playwright/test
-```
-
-</TabItem>
-<TabItem value="yarn" label="yarn">
-
-```bash
-yarn add --dev @suites/blackbox-cli @suites/blackbox @suites/blackbox-adapter-node @suites/blackbox-instr-node @playwright/test
-```
-
-</TabItem>
-</Tabs>
-
-Install the same published version of every `@suites/blackbox*` package. Mixing release versions is not a supported alpha setup.
-
-## 2. Optional: Install the Agent Skills
-
-Blackbox Skills are required for the supported **agentic workflow**: they give Codex or Claude the framework procedure and authority boundaries. You can run the CLI manually without installing them.
-
-For a manual CLI workflow, skip directly to step 3.
-
-<Tabs groupId="agent-host">
-<TabItem value="codex" label="Codex" default>
-
-Preview the project-local files:
-
-```bash
-pnpm exec blackbox skills install --host codex --json
-```
-
-Install them under `.agents/skills/`:
-
-```bash
-pnpm exec blackbox skills install --host codex --write --json
-```
-
-</TabItem>
-<TabItem value="claude" label="Claude">
-
-Preview the project-local files:
-
-```bash
-pnpm exec blackbox skills install --host claude --json
-```
-
-Install them under `.claude/skills/`:
-
-```bash
-pnpm exec blackbox skills install --host claude --write --json
-```
-
-</TabItem>
-</Tabs>
-
-The installer adds `$blackbox`, `$blackbox-requirements`, `$blackbox-gherkin`, and `$blackbox-effects`. It does not overwrite a locally modified skill.
-
-## 3. Initialize One Existing Flow
-
-Inspect the repository without changing test source:
-
-```bash
-pnpm exec blackbox init --mode existing --json
-```
-
-Expected result:
-
-```json
+```json title="tsconfig.json"
 {
-  "status": "ready",
-  "data": {
-    "runner": "playwright",
-    "mode": "existing",
-    "next": "Add a stable @flow:<id> tag to one passing test."
-  },
-  "findings": []
+  "compilerOptions": {
+    "outDir": "dist",
+    "sourceMap": true
+  }
 }
 ```
 
-Add a stable flow ID to the existing `test.describe` block:
+```bash
+pnpm build
+```
 
-```ts
-test.describe("Checkout payment", { tag: "@flow:checkout-payment" }, () => {
-  test("returns the confirmed order", async ({ page }) => {
-    // Keep the existing test body and assertions.
-  });
+Blackbox captures the executed `dist/server.js` bytes and its map. Offline analysis joins those artifacts back to the original TypeScript.
+
+## 2. Describe the SUT
+
+Create the project-level Blackbox configuration:
+
+```ts title="blackbox.config.ts"
+import { defineBlackboxConfig } from "@suites/blackbox";
+
+export default defineBlackboxConfig({
+  sut: {
+    source: {
+      kind: "command",
+      command: "node",
+      args: ["dist/server.js"],
+      cwd: ".",
+    },
+    services: {
+      api: {
+        endpoint: "http://127.0.0.1:3000",
+        readiness: {
+          kind: "http",
+          url: "http://127.0.0.1:3000/health",
+        },
+        environment: {
+          files: [".env.blackbox"],
+          values: { NODE_ENV: "test" },
+          passthrough: [],
+        },
+        capture: { language: "node" },
+        layout: {
+          artifactRoot: "dist",
+          sourceMaps: "discover",
+        },
+      },
+    },
+  },
+  lifecycle: { ownership: "blackbox" },
+  isolation: { scope: "flow" },
+  runner: {
+    kind: "playwright",
+    config: "playwright.config.ts",
+  },
+  evidence: { dir: ".blackbox/evidence" },
+  analysis: { effects: "check" },
 });
 ```
 
-Requirements and Gherkin are optional. The `@flow:checkout-payment` tag is enough to join this test to its runtime evidence and effect contract.
+Put a dedicated test database URL in `.env.blackbox`; do not pass through a developer or production `DATABASE_URL`:
 
-## 4. Connect the Runtime
-
-Choose one tab. Use `workers: 1` for the first flow.
-
-<Tabs groupId="runtime-path">
-<TabItem value="managed" label="Managed Docker">
-
-Choose this path when the test already depends on Compose and Blackbox should own lifecycle, instrumentation, reset, and per-worker isolation.
-
-Install the managed-topology dependency:
-
-```bash
-pnpm add -D testcontainers
+```dotenv title=".env.blackbox"
+DATABASE_URL=postgresql://blackbox:blackbox@127.0.0.1:5432/blackbox_quickstart
 ```
 
-Confirm that the existing Compose environment:
+Environment files load first, selected host variables load next, and explicit `values` win. Blackbox adds run, cell, service, capture, and sidecar identity itself. An **effect** is a captured runtime action such as a database query or API call; `analysis.effects: "check"` makes the accepted required and forbidden effects a gate. **Observable decision coverage (ODC)** compares the effects produced by different code-decision outcomes. It still reports by default without gating this first run.
 
-- defines the Node service with `build:` and a declared application port;
-- starts that service through a Node binary Blackbox can wrap;
-- provides a deterministic way to clear mutable database, cache, and queue state.
+## 3. Add Blackbox to Playwright
 
-Follow [Testbed and Instrumentation](/docs/blackbox/guides/set-up-the-testbed) to create `blackbox-testbed.ts`, wire Playwright, and expose the system fixture. Return here after one test passes with `workers: 1`.
-
-The managed testbed injects [automatic test-time instrumentation](/docs/blackbox/concepts/runtime-evidence) into configured Node services. Production source and production images do not import Blackbox.
-
-</TabItem>
-<TabItem value="connect" label="Local Node Process" default>
-
-In a separate terminal, start the Node service with the Blackbox bootstrap. Keep it running through `doctor`, the Playwright test, and `blackbox verify`. Use a debug port that is not exposed by another process:
-
-```bash
-OTEL_DEBUG_PORT=9464 \
-NODE_OPTIONS="--require=@suites/blackbox-instr-node/bootstrap" \
-pnpm start
-```
-
-Configure Playwright for connect mode:
-
-```ts title="e2e/playwright.config.ts"
+```ts title="playwright.config.ts"
 import { defineConfig } from "@playwright/test";
-import {
-  blackboxReporter,
-  defineBlackboxConfig,
-} from "@suites/blackbox/playwright";
-import "@suites/blackbox-adapter-node/register";
+import { blackboxPlaywright } from "@suites/blackbox/playwright";
+
+import blackbox from "./blackbox.config.js";
 
 export default defineConfig({
-  ...defineBlackboxConfig({
-    mode: "connect",
-    coverageDir: "e2e/.blackbox-coverage",
-  }),
-  testDir: "./tests",
+  ...blackboxPlaywright(blackbox),
+  testDir: "e2e",
+  fullyParallel: false,
   workers: 1,
-  reporter: [
-    ["list"],
-    blackboxReporter({ outputDir: "e2e/.blackbox-coverage" }),
-  ],
-});
-```
-
-Expose both the application URL and debug URL:
-
-```ts title="e2e/tests/testbed.ts"
-import { defineSystemTest } from "@suites/blackbox/runners/playwright";
-
-const { test, expect } = defineSystemTest({
-  provision: {
-    bootstrap: async () => ({
-      app: { url: process.env.APP_URL ?? "http://127.0.0.1:3000" },
-      debugUrls: ["http://127.0.0.1:9464"],
-      dispose: async () => {},
-    }),
+  retries: 0,
+  use: {
+    baseURL: "http://127.0.0.1:3000",
   },
 });
-
-export { test, expect };
 ```
 
-Connect mode does not start or instrument the service. The preload and `debugUrls` make runtime evidence available to Blackbox.
+Playwright resolves `request.post("/subscriptions")` against `use.baseURL`, which is the same endpoint Blackbox checks for readiness. The fixed port is safe because this tutorial uses one worker and no retries.
 
-You own service readiness and dependency reset in connect mode. Run the first flow against isolated or resettable state, and keep unrelated traffic out of the capture window.
+The adapter owns attempt identity, correlation headers, cell resolution, setup, teardown, and reporting.
 
-</TabItem>
-</Tabs>
+## 4. Create the Project Fixture
 
-Import `test` and `expect` from `e2e/tests/testbed.ts` in the selected system test.
+```ts title="e2e/fixtures.ts"
+import { createBlackboxTest } from "@suites/blackbox/playwright";
 
-## 5. Check and Run the Original Test
+import blackbox from "../blackbox.config.js";
 
-Check the runtime connection:
+export const { test, expect } = createBlackboxTest(blackbox);
+```
+
+Change the flow to import from the fixture:
+
+```ts
+import { expect, test } from "./fixtures.js";
+```
+
+You do not create a sidecar, build a runner cell, assign service identity, or register Playwright global hooks yourself.
+
+## 5. Prepare the Dedicated Database
+
+Use the clean-state command from your existing system-test setup before Blackbox starts the flow. This Quickstart names that project-owned command `db:test:reset`:
 
 ```bash
-pnpm exec blackbox doctor --json
+pnpm run db:test:reset
 ```
 
-The selected path is ready when `doctor` finds the runner, flow, runtime adapter, and writable evidence directory:
+The two attempts share one flow-owned SUT process and database. They use different user IDs, run serially, and do not retry, so this tutorial does not rely on one attempt cleaning up after the other.
 
-```json
-{
-  "status": "ready",
-  "data": {
-    "runner": "playwright",
-    "flows": ["checkout-payment"],
-    "runtime": "connected",
-    "evidenceDir": "e2e/.blackbox-coverage"
-  },
-  "findings": []
-}
-```
+This one-time reset prepares the tutorial fixture; it is not a per-attempt reset guarantee. If retries are enabled or a test requires a clean database before every independent attempt, run the reset provider before each attempt or recreate the cell.
 
-If the local service is not running or its debug endpoint is wrong, `doctor` returns a concrete finding:
+:::note Expand the Topology Before Enabling Parallelism
+The host command does not allocate a port or database per worker. Before enabling `fullyParallel`, more workers, or retries, follow [Use an Existing Compose Project](/docs/blackbox/guides/use-existing-compose) and [Configure Isolation and Parallelism](/docs/blackbox/guides/playwright-isolation-and-parallelism).
+:::
 
-```json
-{
-  "status": "blocked",
-  "findings": [
-    {
-      "code": "runtime.debug-endpoint-unreachable",
-      "path": "http://127.0.0.1:9464",
-      "next": "Start the instrumented Node process or correct debugUrls."
-    }
-  ]
-}
-```
+## 6. Complete a Newly Generated Flow
 
-Run the original test through the configured environment:
+Skip this section if you kept an existing passing test.
 
-```bash
-pnpm exec playwright test \
-  --config e2e/playwright.config.ts \
-  e2e/tests/checkout.spec.ts \
-  --workers 1
-```
+If Step 1 generated a test shell, replace its TODOs with the real application request and visible assertion. Use the prepared test data—for this example, `alice` exists and `ghost` does not. Blackbox provides the tagged structure and runtime connection; your project provides these application-specific details.
 
-The existing assertions should remain green:
+The next page runs the flow and shows its native test result separately from its runtime evidence.
 
-```text
-1 passed
-```
+## Result
 
-This is the success state for this page: the original test still passes through a Blackbox-connected environment. The next step captures evidence and adds the independent effect verdict.
+Your Playwright flow now runs through Blackbox at an explicit base URL. The next run captures effects and exact executable artifacts while preserving the test’s native result.
 
-<Aside type="note" title="Keep the First Topology Local">
-  This quickstart covers managed Docker and one local Node process. Use the
-  [testbed guide](/docs/blackbox/guides/set-up-the-testbed) for custom topology
-  and [Playwright
-  isolation](/docs/blackbox/guides/playwright-isolation-and-parallelism) before
-  enabling parallel workers. Remote connect mode is an advanced path.
-</Aside>
-
-Continue with [Verify Runtime Effects](/docs/blackbox/quickstart/add-runtime-evidence).
+Continue with [Run and Inspect Evidence](/docs/blackbox/quickstart/add-runtime-evidence).

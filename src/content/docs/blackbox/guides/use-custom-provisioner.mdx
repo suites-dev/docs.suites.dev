@@ -1,0 +1,51 @@
+---
+title: "Use a Custom Provisioner"
+description: "Integrate Testcontainers or another environment manager behind Blackbox's isolation-cell contract."
+keywords: ["Blackbox custom provisioner", "Testcontainers", "test environment"]
+---
+
+Use the custom provisioner extension seam when the built-in command, Compose, Dockerfile, artifact, and external strategies do not represent your topology. This is an advanced integration for teams that own the provider and its lifecycle tests.
+
+Complete [Quickstart Step 1](/docs/blackbox/quickstart/build-behavioral-harness) first. A custom provisioner replaces only the host-command provisioning in Step 2. Keep the Playwright adapter and fixture.
+
+## Implement the Typed Cell Contract
+
+Implement `CellProvisioner` from `@suites/blackbox-testbed` rather than copying an untyped callback shape. The installed TypeScript declaration is the source of truth for the exact version in your project.
+
+Use the installed declaration for the exact input and return types. At the contract level:
+
+- `start(identity, plan)` provisions the requested cell and returns its identity, private sidecar connection, and stable service endpoints.
+- `stop(cell)` releases the resources owned by that provisioned cell.
+
+The returned cell does not declare a reset callback or isolation assurance. The provider must establish the clean-state guarantee required by its cell scope before `start` resolves. Keep cleanup idempotent where interruption can repeat it.
+
+## Keep the Contract Runner-Neutral
+
+The provisioner must not depend on Playwright fixtures. The runner requests a cell through the testbed contract; the provisioner supplies the environment; language capture reports through the published evidence protocol.
+
+This lets the same Testcontainers or platform integration serve any runner adapter through the same cell contract.
+
+## Own Failure and Cleanup
+
+Fail the cell when a service cannot become ready, capture identity is ambiguous, reset fails, or teardown leaves owned resources behind. Do not return partial endpoints and let the test continue.
+
+Cleanup must be idempotent because worker interruption and setup failure can invoke it after only part of the topology started.
+
+## Validate the Provider
+
+Test the provider's start, readiness, failure, and idempotent cleanup behavior directly. Include repeated-cell and interrupted-start cases for every isolation scope the provider supports.
+
+After the provider is bound through the Blackbox facade used by your installed version, run a representative flow with `blackbox test`. The facade binding is version-specific; do not infer a configuration field from the lower-level `CellProvisioner` interface.
+
+## Good Uses
+
+- A Testcontainers graph built directly in TypeScript.
+- An ephemeral Kubernetes namespace.
+- A managed database snapshot service.
+- A company-specific environment allocator.
+- A mixed container and host-process topology.
+
+## Next Step
+
+- [Configure Isolation and Parallelism](/docs/blackbox/guides/playwright-isolation-and-parallelism)
+- [Run and Inspect Evidence](/docs/blackbox/quickstart/add-runtime-evidence) to rejoin the Quickstart at Step 3.

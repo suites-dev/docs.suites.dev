@@ -1,199 +1,88 @@
 ---
-title: "Testbed and Instrumentation"
-description: "Start a Docker Compose or Testcontainers SUT per Playwright worker, inject Node instrumentation for the test run, and write Blackbox artifacts."
+title: "Choose How Blackbox Starts Your SUT"
+description: "Choose a SUT source strategy while keeping the same isolation, capture, evidence, and analysis lifecycle."
 sidebar_position: 1
-keywords:
-  [
-    "Blackbox testbed",
-    "Docker Compose system tests",
-    "OpenTelemetry test instrumentation",
-    "Playwright testbed",
-    "Node SUT instrumentation",
-  ]
+keywords: ["Blackbox testbed", "SUT setup", "system test provisioning"]
 ---
 
-import TestbedArchitectureDiagram from "@/components/blackbox/TestbedArchitectureDiagram.astro";
-import InstrumentationFlowDiagram from "@/components/blackbox/InstrumentationFlowDiagram.astro";
-import Aside from "@/components/mdx/Aside.astro";
+Blackbox adapts to the way you already start your system. The source strategy changes provisioning; the runner, capture protocol, evidence format, and analyzers stay the same.
 
-The Blackbox testbed owns the system-test environment. It starts one SUT topology per Playwright worker, injects the Node observation payload into configured services, resets managed state between groups, and finalizes reports after the run.
-
-This is the advanced managed-topology path. Start with [Add Blackbox to One System Test](/docs/blackbox/quickstart/add-to-existing-test) and return here when the selected flow already passes and Blackbox should own a Compose or Testcontainers environment.
-
-<TestbedArchitectureDiagram />
-
-## Before You Configure It
-
-The current happy path assumes:
-
-- Playwright system tests;
-- a modern Docker Compose v2 installation, preferably 2.24 or newer;
-- Node SUT containers with a shell and a Node binary the wrapper can shadow;
-- declared Compose ports for SUT endpoints;
-- a test-owned reset strategy for stateful dependencies.
-
-Install the runtime, Node adapter, bootstrap payload package, and test dependencies in the workspace that owns the system tests:
-
-```bash
-pnpm add -D \
-  @suites/blackbox \
-  @suites/blackbox-adapter-node \
-  @suites/blackbox-instr-node \
-  @playwright/test \
-  testcontainers
+```text
+Compose ───────┐
+Dockerfile ────┤
+dist folders ──┤
+host command ──┼──> isolation cell -> capture -> sealed evidence -> analysis
+running SUT ───┤
+custom setup ──┘
 ```
 
-When working from a Blackbox source checkout, build the local payload image once:
+## Choose From What You Already Have
 
-```bash
-pnpm -w build:instr-image
-```
+| Starting point                     | Source kind  | Lifecycle owner  | Quickstart role                         | Guide                                                                             |
+| ---------------------------------- | ------------ | ---------------- | --------------------------------------- | --------------------------------------------------------------------------------- |
+| A normal start command             | `command`    | Blackbox         | Step 2 provisioning                     | [Run a Host Command](/docs/blackbox/guides/run-a-host-command)                    |
+| One or more Compose files          | `compose`    | Blackbox         | Replace Step 2 provisioning             | [Use an Existing Compose Project](/docs/blackbox/guides/use-existing-compose)     |
+| A Dockerfile                       | `dockerfile` | Blackbox         | Replace Step 2 provisioning             | [Build From a Dockerfile](/docs/blackbox/guides/build-from-dockerfile)            |
+| Compiled `dist/` folders           | `artifacts`  | Blackbox         | Replace Step 2 provisioning             | [Run Compiled Artifacts](/docs/blackbox/guides/run-compiled-artifacts)            |
+| A process you already run          | `external`   | You              | Replace Step 2 provisioning             | [Connect an External SUT](/docs/blackbox/guides/connect-external-sut)             |
+| Testcontainers or another platform | `custom`     | Your provisioner | Replace Step 2 provisioning             | [Use a Custom Provisioner](/docs/blackbox/guides/use-custom-provisioner)          |
+| Parallel or unusual cell lifecycle | —            | Varies           | Step 2 deep dive, then rejoin at Step 3 | [Configure Isolation](/docs/blackbox/guides/playwright-isolation-and-parallelism) |
+| Nonstandard compiled layouts       | —            | Varies           | Step 2 deep dive, then rejoin at Step 3 | [Configure Source Maps](/docs/blackbox/guides/source-maps-and-service-layouts)    |
 
-Set `BLACKBOX_INSTR_IMAGE` when CI should use a published or internally mirrored image instead of `blackbox-instr-node:local`.
+Use `command` for the first flow when it represents your application honestly. Choose Compose when correctness depends on databases, caches, queues, or other mutable services that must be isolated together.
 
-## Create the Testbed
+## One Configuration, Not Separate Modes
 
-```ts title="e2e/blackbox-testbed.ts"
-import { resolve } from "node:path";
-import { createBlackboxTestbed } from "@suites/blackbox/testbed";
-import "@suites/blackbox-adapter-node/register";
-import { resetManagedState } from "./reset-managed-state.js";
+All strategies live in `blackbox.config.ts`:
 
-export const testbed = createBlackboxTestbed({
-  source: {
-    compose: resolve("e2e/services/compose.user.yml"),
-    profiles: undefined,
-  },
-  services: {
-    bff: {},
-    "order-service": {},
-    "fraud-check": {
-      wait: { log: /\[fraud-check\] listening on/ },
-    },
-  } as const,
-  reset: async ({ infra }) => resetManagedState(infra),
-  grouping: undefined,
-  coverageDir: resolve("e2e/.blackbox-coverage"),
-  projectNames: undefined,
-  ambient: null,
-});
-```
+```ts
+import { defineBlackboxConfig } from "@suites/blackbox";
 
-`resetManagedState` is project-owned. It should clear the Postgres, Redis, queue, or other managed state addressed by the worker-specific `infra` map.
-
-The alpha input type uses explicit `undefined` for omitted options. Keep those keys until the public type changes.
-
-The testbed introspects the Compose configuration:
-
-- services with `build:` become candidate SUT services;
-- image-only services become managed infrastructure;
-- a healthcheck becomes the default wait strategy;
-- `<build-context>/src` becomes the default source directory;
-- Docker-assigned host ports avoid collisions between workers.
-
-Declare service overrides only when introspection is wrong. The current public sources are Compose and a custom Testcontainers provisioner. A Dockerfile-only source is represented in types but is not implemented as a runnable source yet.
-
-## What Instrumentation Does
-
-<InstrumentationFlowDiagram />
-
-For each configured Node SUT service, the adapter-generated overlay:
-
-1. starts an init container from the instrumentation image;
-2. copies `/blackbox-otel` into a named volume;
-3. mounts the volume read-only into the SUT container;
-4. shadows the configured Node binary with `node-wrap`;
-5. preloads `bootstrap.cjs` before application code;
-6. publishes the in-container debug endpoint on a Docker-assigned host port.
-
-Production source and production Dockerfiles do not need Blackbox imports. This is test-environment instrumentation.
-
-The default Node path is `/usr/local/bin/node`. Override it globally with `BLACKBOX_NODE_BINARY_PATH` or for one service with `BLACKBOX_NODE_BINARY_PATH_<SERVICE>` when the image uses a different path.
-
-<Aside type="note" title="The Node Adapter Is Explicit">
-  Import `@suites/blackbox-adapter-node/register` in the testbed configuration.
-  It registers the Node observation and observable decision producers. Remove it
-  only when you intentionally provide a different runtime adapter.
-</Aside>
-
-## Wire Playwright
-
-```ts title="e2e/playwright.config.ts"
-import { defineConfig } from "@playwright/test";
-import {
-  blackboxReporter,
-  defineBlackboxConfig,
-} from "@suites/blackbox/playwright";
-import { testbed } from "./blackbox-testbed.js";
-
-export default defineConfig({
-  ...defineBlackboxConfig({ mode: "testbed", testbed }),
-  testDir: "./e2e",
-  testMatch: ["tests/**/*.system.test.ts"],
-  fullyParallel: true,
-  workers: 4,
-  reporter: [
-    ["list"],
-    blackboxReporter({
-      outputDir: "./e2e/.blackbox-coverage",
-      failOnUncovered: true,
-      failOnAnyFailure: true,
-    }),
-  ],
-});
-```
-
-`defineBlackboxConfig()` contributes the packaged global setup and teardown. `blackboxReporter()` contributes the reporter tuple without replacing Playwright reporters you already use.
-
-Use `workers: 1` while diagnosing first setup. Raise the worker count when the topology starts and resets correctly; parallel execution is a supported testbed shape.
-
-## Expose the System Fixture
-
-Use `defineSystemTest({ provision: { bootstrap } })` to turn the per-worker connect map into the `system` fixture your tests need:
-
-```ts title="e2e/tests/testbed.ts"
-import { defineSystemTest } from "@suites/blackbox/runners/playwright";
-import "../blackbox-testbed.js";
-
-const { test, expect } = defineSystemTest({
-  provision: {
-    bootstrap: async ({ perWorker }) => {
-      if (perWorker === null)
-        throw new Error("worker stack was not provisioned");
-
-      return {
-        app: perWorker.connect.bff,
-        debugUrls: () =>
-          Object.values(perWorker.connect).map((service) => service.debugUrl),
-        dispose: async () => {},
-      };
+export default defineBlackboxConfig({
+  sut: {
+    source: { kind: "command" /* source-specific fields */ },
+    services: {
+      /* endpoints, environment, capture, layout */
     },
   },
+  lifecycle: { ownership: "blackbox" },
+  isolation: { scope: "flow" },
+  runner: { kind: "playwright", config: "playwright.config.ts" },
+  evidence: { dir: ".blackbox/evidence" },
+  analysis: { effects: "check" },
 });
-
-export { test, expect };
 ```
 
-The showcase has a richer fixture with typed Postgres, Redis, and SQS helpers. Keep your fixture limited to the controls and inspection surfaces tests actually use.
+The configuration separates decisions that often change independently:
 
-## Verify the Environment
+| Concern        | What it controls                                                                  |
+| -------------- | --------------------------------------------------------------------------------- |
+| `sut.source`   | How Blackbox obtains and starts the system                                        |
+| `sut.services` | Service identity, endpoints, environment, language capture, and executable layout |
+| `lifecycle`    | Whether Blackbox or the user starts and stops the SUT                             |
+| `isolation`    | Whether a cell belongs to a flow, worker, or test                                 |
+| `runner`       | Which native test runner opens and closes attempts                                |
+| `evidence`     | Where sealed runs are retained                                                    |
+| `analysis`     | Which effect and ODC policies gate the run                                        |
 
-Run one file first:
+## What Blackbox Infers
 
-```bash
-npx playwright test \
-  --config ./e2e/playwright.config.ts \
-  ./e2e/tests/subscribe.system.test.ts \
-  --workers 1
-```
+Blackbox assigns run, cell, worker, attempt, retry, service, and instance identities. It also supplies the sidecar connection, injects language capture, discovers source maps, and chooses analyzers from declared capture capabilities.
 
-Verify, in order:
+You supply:
 
-1. the worker stack starts;
-2. the public SUT endpoint is reachable;
-3. each configured SUT has a readable debug endpoint;
-4. the request carries trace context;
-5. the accepted effect contract is loaded;
-6. `catalog/coverage.json` is written at teardown.
+- The command, Compose file, Dockerfile, artifact folder, endpoint, or custom provisioner you already use.
+- The services that belong to the SUT.
+- Readiness only when Blackbox cannot discover it.
+- Selected environment inputs and secrets.
+- Nonstandard artifact boundaries.
+- Reset behavior for mutable state Blackbox cannot reconstruct safely.
+- Effect contracts and analysis policy.
 
-Continue with [Playwright Flows, Isolation, and Parallelism](/docs/blackbox/guides/playwright-isolation-and-parallelism) to structure flows across workers. Use [Troubleshooting](/docs/blackbox/troubleshooting) if the test passes but observations or artifacts are missing.
+## Isolation Includes Mutable Dependencies
+
+An isolated API process sharing one database with another flow is not an isolated system. Include databases, queues, caches, object stores, background workers, and mutable mock servers inside the cell or reset them before each independent attempt.
+
+Keep the Playwright adapter and project fixture from Quickstart Step 2 for every source strategy. After the selected guide passes its validation command, rejoin at [Step 3: Run and Inspect Evidence](/docs/blackbox/quickstart/add-runtime-evidence).
+
+Use [Configure Isolation and Parallelism](/docs/blackbox/guides/playwright-isolation-and-parallelism) and [Configure Source Maps and Service Layouts](/docs/blackbox/guides/source-maps-and-service-layouts) as Step 2 deep dives, not separate adoption paths. [Use Blackbox With Coding Agents](/docs/blackbox/guides/agent-skills) is a cross-cutting workflow, and [Add Blackbox to CI](/docs/blackbox/guides/reports-and-ci-gates) follows Step 4.

@@ -1,0 +1,95 @@
+---
+title: "Run a Host Command"
+description: "Let Blackbox start a serial local application command with dotenv inputs, capture injection, and readiness checks."
+keywords: ["Blackbox host command", "dotenv", "local system test"]
+---
+
+Use a host command when your normal system-test setup already starts the application with `node`, `pnpm`, or another local executable.
+
+Complete [Quickstart Step 1](/docs/blackbox/quickstart/build-behavioral-harness) first. This guide replaces the provisioning portion of Step 2; keep its Playwright adapter and fixture, then rejoin the Quickstart at Step 3.
+
+## Configure the Command
+
+```ts title="blackbox.config.ts"
+import { defineBlackboxConfig } from "@suites/blackbox";
+
+export default defineBlackboxConfig({
+  sut: {
+    source: {
+      kind: "command",
+      command: "pnpm",
+      args: ["start:test"],
+      cwd: ".",
+    },
+    services: {
+      api: {
+        endpoint: "http://127.0.0.1:3000",
+        readiness: {
+          kind: "http",
+          url: "http://127.0.0.1:3000/health",
+        },
+        environment: {
+          files: [".env.blackbox"],
+          passthrough: [],
+          values: { NODE_ENV: "test" },
+        },
+        capture: { language: "node" },
+        layout: {
+          artifactRoot: "dist",
+          sourceMaps: "discover",
+        },
+      },
+    },
+  },
+  lifecycle: { ownership: "blackbox" },
+  isolation: { scope: "flow" },
+  runner: { kind: "playwright", config: "playwright.config.ts" },
+  evidence: { dir: ".blackbox/evidence" },
+  analysis: { effects: "check" },
+});
+```
+
+## Understand Environment Precedence
+
+Blackbox resolves the service environment in this order:
+
+```text
+.env files -> named host variables -> explicit values
+```
+
+Later sources win. Blackbox does not copy the entire host environment into the SUT; list intentional passthrough variables explicitly.
+
+Blackbox adds its own run, cell, service, capture, and sidecar values after resolving the user environment. Do not persist those internal values in `.env` files.
+
+## Choose Readiness That Proves the App Can Serve
+
+Use an HTTP readiness check for an HTTP service and TCP readiness for a non-HTTP listener. `kind: "none"` is appropriate only when the command is immediately ready by construction.
+
+The readiness check should confirm application availability, not merely that the process exists.
+
+## Keep Mutable Dependencies Honest
+
+The command process is only one part of the isolation cell. If it connects to a database, queue, or cache, use dedicated test resources. A one-time pre-flow reset is suitable only when serial, no-retry attempts use independent fixtures and do not require clean state between attempts.
+
+When a retry or independent attempt requires a clean mutable dependency, run the reset provider before every attempt or recreate the cell. Otherwise Blackbox cannot make a conclusive forbidden-effect claim that depends on isolation.
+
+With the fixed endpoint above, keep Playwright at one worker with retries disabled and set `use.baseURL` to `http://127.0.0.1:3000`. Use Compose or a custom provisioner before enabling parallel cells.
+
+## Run the Flow
+
+```bash
+pnpm run db:test:reset
+pnpm exec blackbox test --flow subscribe-user
+```
+
+Blackbox starts the command with capture injected, waits for readiness, runs the selected attempts, settles evidence, and terminates the process.
+
+Here, `db:test:reset` prepares the dedicated data once for this conservative serial flow. It does not establish a general per-attempt reset guarantee.
+
+Expected result: the native attempts complete, integrity passes, the effect policy passes, and ODC is included in the report. The run is sealed under `.blackbox/evidence/`.
+
+## Next Steps
+
+- **[Configure Source Maps and Service Layouts](/docs/blackbox/guides/source-maps-and-service-layouts):** Map compiled or bundled output back to source.
+- **[Configure Isolation and Parallelism](/docs/blackbox/guides/playwright-isolation-and-parallelism):** Make shared dependencies safe.
+- **[Run and Inspect Evidence](/docs/blackbox/quickstart/add-runtime-evidence):** Rejoin the Quickstart at Step 3.

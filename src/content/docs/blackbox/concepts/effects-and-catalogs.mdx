@@ -1,178 +1,139 @@
 ---
 title: "Effects, Contracts, and Coverage"
-description: "Understand how observed boundary effects become reviewed required and forbidden contracts, effect coverage, and effect-shape coverage."
+description: "Understand how sealed observations become reviewed required and forbidden effect policy."
 sidebar_position: 3
 keywords:
   [
     "effect coverage",
     "effect contract",
+    "trace-based testing",
     "required forbidden effects",
-    "system test coverage",
-    "runtime behavior contract",
+    "offline analysis",
   ]
 ---
 
 import Aside from "@/components/mdx/Aside.astro";
-import OverviewDiagram from "@/components/blackbox/OverviewDiagram.astro";
 
-An **effect** is normalized boundary behavior from a running flow. An **effect contract** records which effects are required or forbidden. **Coverage** says whether the suite exercised and satisfied that reviewed contract.
+An **effect** is normalized boundary behavior captured from a running flow. An **effect contract** records which effects are required or forbidden. **Effect coverage** reports how analyzed attempts relate to that reviewed policy.
 
-<OverviewDiagram kind="coverage" />
+## Effects Are Blackbox's Trace-Based Testing Layer
 
-## One Flow, One Contract
+Trace-based testing checks what happened throughout one execution, not only the final response. Ted Young's 2018 **Trace Driven Development** talk describes the core loop as: define a behavioral model, gather trace data, then check that data against the model.
 
-The effect contract names one flow. By convention it lives at `features/<flow>.effects.yaml`, whether or not the project also uses a Gherkin `.feature` file:
+Blackbox applies that loop to system tests:
+
+```text
+Playwright attempt
+  → gather correlated runtime observations
+  → normalized effects
+  → check against the required and forbidden contract
+  → sealed evidence and effect verdict
+```
+
+| Trace-driven step        | Blackbox term                                                         |
+| ------------------------ | --------------------------------------------------------------------- |
+| Define a behavior model  | Reviewed required and forbidden effect contract                       |
+| Gather trace data        | Runtime observations correlated by run, cell, flow, and attempt IDs   |
+| Interpret trace events   | Normalized effects such as `postgres INSERT` or `http POST`           |
+| Check data against model | Offline effect analysis                                               |
+| Retain the result        | Attempt-scoped events and artifacts inside the sealed evidence bundle |
+
+Blackbox calls these observations **effects** because policy describes boundary behavior, not a telemetry implementation. Contracts do not depend on raw span IDs, span-tree shape, or a tracing backend.
+
+For Node.js, OpenTelemetry supplies context propagation and many semantic HTTP, database, and messaging observations. It is one capture source, not the Blackbox architecture. Other language integrations can produce the same normalized effects without OpenTelemetry.
+
+## One Flow, One Reviewed Contract
 
 ```yaml
-specVersion: "0.1"
 flow: subscribe-unknown-user
 requires:
   - { boundary: postgres, op: SELECT, key: users, service: bff }
 forbids:
   - { boundary: http, op: POST, key: /v1/payment_intents, service: bff }
-  - { boundary: postgres, op: INSERT, service: bff }
-  - { boundary: sqs, op: SendMessage, key: subscription-orders }
+  - { boundary: postgres, op: INSERT, key: subscriptions, service: bff }
 ```
 
-`requires` describes behavior that must be observed. `forbids` describes behavior that must be absent from the capture.
+- `requires` lists effects that must appear in complete evidence.
+- `forbids` lists effects that must not appear.
+- Normalized effects that match neither list remain evidence without constraining the implementation.
 
-The unknown-user contract is stronger than a `404` assertion. It proves that the system looked up the user and did not continue into payment, subscription persistence, or queue publication.
+The contract cannot prove behavior outside the capabilities declared by the capture producers in the bundle.
 
-## Recording Is Not Approval
+## Observation Is Not Approval
 
-`blackbox verify` writes runtime evidence, normalized observed effects, and reports. The first run can report `effects: not-configured`; it does not silently convert observations into an accepted effect contract.
+One recorded run describes the current implementation, including possible defects. It does not define desired behavior.
 
-Inspect the generated facts before proposing policy:
+A reviewer decides whether each observation should be:
 
-```bash
-blackbox effects show --flow subscribe-unknown-user --run latest --json
-```
+| Decision    | Meaning                                                                         |
+| ----------- | ------------------------------------------------------------------------------- |
+| Required    | The flow is incorrect when this effect is missing                               |
+| Forbidden   | The flow is incorrect when this effect occurs                                   |
+| Incidental  | The observation should not constrain implementation                             |
+| Unsupported | Capture cannot normalize the observation soundly; resolve the integrity finding |
 
-Review a proposed contract before committing it. Remove incidental observations, make important clauses specific, and add forbids for dangerous behavior.
+Moving an observed effect to `forbids` deliberately creates a failing repair target.
 
-<Aside type="warning" title="A Baseline Can Preserve a Bug">
-  The runtime knows what happened, not what should have happened. Effect-policy
-  changes need human or designated reviewer approval.
-</Aside>
-
-## Discovery and Enforcement
-
-Blackbox separates observing behavior from enforcing accepted behavior:
-
-| State                 | Command                                         | Missing contract result                                  |
-| --------------------- | ----------------------------------------------- | -------------------------------------------------------- |
-| Discover observations | `blackbox verify --flow <id>`                   | `effects: not-configured`; no effect-verification claim  |
-| Validate policy       | `blackbox effects check --flow <id>`            | Validation finding                                       |
-| Enforce contract      | `blackbox verify --flow <id> --require-effects` | Failure for a selected flow without an accepted contract |
-| Assert inside a test  | `expect(capture).toMatchCatalog()`              | Failed Playwright assertion                              |
-
-CI does not silently change the meaning of `verify`. Use `--require-effects` when every selected flow must have a reviewed effect contract.
-
-## Who Computes What
-
-Blackbox uses one effect-evaluation kernel through several surfaces:
-
-| Surface              | Scope                       | Responsibility                                                               |
-| -------------------- | --------------------------- | ---------------------------------------------------------------------------- |
-| `toObserveEffects()` | One Playwright assertion    | Evaluate inline required and forbidden shapes                                |
-| `toMatchCatalog()`   | One Playwright assertion    | Load the active flow contract and evaluate it immediately                    |
-| `blackbox verify`    | One verification invocation | Run flows, capture evidence, evaluate accepted contracts, and return results |
-| Coverage modules     | Current invocation          | Aggregate completed attempt results into flow and shape coverage             |
-| `blackboxReporter()` | Current invocation          | Render outputs and apply explicitly configured aggregate gates               |
-| Sinks                | Delivery                    | Write files, stdout, annotations, or CI-facing results                       |
-
-Matchers are optional for a facade effect verdict. Use them when the test itself should fail at the assertion site or when inline policy belongs in test source. `verify` evaluates accepted YAML contracts directly through the same kernel.
-
-## Inline and Catalog Matchers
-
-Use inline effects when the contract belongs directly in the test:
-
-```ts
-await expect(capture).toObserveEffects({
-  requires: [effect.postgres("INSERT", { table: "subscriptions" })],
-  forbids: [effect.http("POST", { path: "/v1/refunds" })],
-});
-```
-
-Or use the effect contract selected by the active flow ID:
-
-```ts
-await expect(capture).toMatchCatalog();
-```
-
-`toObserveEffects()` and `toMatchCatalog()` use the same evaluation kernel. Inline shapes are useful for focused assertions. Effect contracts are useful when the contract should remain a standalone review artifact.
-
-## Three Coverage Views
-
-Blackbox separates three related questions.
-
-### Evaluation Scopes
-
-| Scope                   | Meaning                                                                 |
-| ----------------------- | ----------------------------------------------------------------------- |
-| Attempt                 | One captured execution of one Playwright test                           |
-| Verification invocation | The attempts selected by one `blackbox verify` or Playwright invocation |
-| Flow aggregate          | One flow contract across checked attempts in the current invocation     |
-| Requirement result      | A result derived from every flow aggregate bound to one requirement     |
-
-One failed checked attempt cannot be hidden by a later passing attempt. A flow aggregate is:
-
-- `satisfied` when at least one attempt was checked and every completed checked attempt satisfied the contract;
-- `failed` when any completed checked attempt violated the contract;
-- `uncovered` when no attempt checked the contract.
-
-Generated coverage describes the current invocation. Retained run directories do not enter a later aggregate unless a replay command explicitly selects them.
-
-### Effect Coverage
-
-`catalog/coverage.json` reports one aggregate state per effect contract for the current invocation.
+For example, this normalized insert remains visible in the sealed evidence even when the contract mentions only the user lookup and forbidden payment call:
 
 ```json
 {
-  "catalog": {
-    "service": "unknown",
-    "entryCount": 1,
-    "apiVersion": "effect-catalog/v0.2"
-  },
-  "totals": {
-    "seen": 1,
-    "satisfied": 1,
-    "failed": 0,
-    "uncovered": 0,
-    "forbidden": 0
-  },
-  "perEntry": [
-    {
-      "id": "subscribe-unknown-user",
-      "state": "satisfied",
-      "runs": 1,
-      "passes": 1,
-      "failures": 0,
-      "forbidViolations": []
-    }
-  ]
+  "boundary": "postgres",
+  "op": "INSERT",
+  "key": "subscriptions",
+  "service": "api"
 }
 ```
 
-### Effect-Shape Coverage
+Leaving the insert unlisted means it is incidental for policy purposes. It does not mean Blackbox discarded it or approved it as required behavior.
 
-`shape/coverage.json` asks whether individual contract clauses were asserted at least once. Its summary distinguishes contract shapes that were asserted, unasserted shapes, and inline-only shapes used by `toObserveEffects()` but not stored in a contract.
+<Aside type="warning" title="A Baseline Can Preserve a Defect">
+  Capture records facts. People approve policy. Do not let a coding agent turn
+  one successful execution into accepted behavior automatically.
+</Aside>
 
-This is the closest Blackbox equivalent to "which reviewed effects are covered?" A contract can exist while one of its shapes never participates in an assertion path the suite ran.
+## Analysis Is Offline
 
-### Observable Decision Coverage
+The analyzer consumes the sealed evidence bundle and the reviewed effect contract. The SUT and test runner do not need to remain running.
 
-Observable decision coverage is an enriched decision view. It joins branch-arm execution with captured span signatures to ask whether tests exercising different arms produced distinguishable evidence. It does not consume effect matchers, and it does not replace effect or shape coverage. The current engine does not compute the atomic-condition independence required for full OMC/DC.
+The same complete evidence, contract, and analysis policy produce the same result. This makes verdict computation deterministic; it does not make the SUT deterministic.
 
-## New and Missing Behavior
+## Keep Coverage Views Separate
 
-A later run can reveal:
+| View           | Question                                                         |
+| -------------- | ---------------------------------------------------------------- |
+| Effect verdict | Did one analyzed attempt satisfy required and forbidden policy?  |
+| Flow coverage  | Did selected attempts check the accepted contract for this flow? |
+| Shape coverage | Which individual contract clauses participated in evaluation?    |
+| ODC            | Did exercised decision outcomes leave distinguishable evidence?  |
 
-- a missing required clause;
-- a forbidden match;
-- a new observed effect not represented in the accepted contract;
-- an uncovered entry or shape.
+ODC does not strengthen an effect verdict. Effect-policy changes do not strengthen ODC.
 
-The correct response is not always "update the contract." Repair the implementation when the contract is still right. Change the contract only when the behavior change is intentional and reviewed.
+## Failure Semantics
 
-Continue with [Requirements, Flows, and Verdicts](/docs/blackbox/concepts/specifications-flows-and-verdicts), or go directly to [Observable Decision Coverage](/docs/blackbox/concepts/omc-dc-coverage).
+Blackbox fails rather than silently accepting:
+
+- a missing required effect;
+- an observed forbidden effect;
+- an incomplete or integrity-invalid bundle;
+- an observation that the declared capture capability cannot normalize soundly;
+- a contract mismatch or unsupported contract version.
+
+An otherwise valid normalized effect that matches no clause is not a policy failure.
+
+Changing implementation is the default repair. Change the contract only when the intended behavior changed and a person approved that change.
+
+## Related Trace Terminology
+
+- Ted Young's [Trace Driven Development: Unifying Testing and Observability](https://www.youtube.com/watch?v=NU-fTr-udZg) presents the model-data-check loop and the idea of applying the same behavioral assertions to trace data from different execution environments.
+- The OpenTelemetry project defines [trace-based testing](https://opentelemetry.io/blog/2023/testing-otel-demo/) as triggering an operation and validating both its output and emitted trace; its demo uses this approach across integration and end-to-end flows.
+- The [OpenTelemetry trace model](https://opentelemetry.io/docs/specs/otel/overview/#tracing-signal) defines a distributed trace as events from one logical operation correlated across component and process boundaries.
+- [OpenTelemetry semantic conventions](https://opentelemetry.io/docs/specs/semconv/general/trace/) give common meanings to HTTP, database, messaging, and other span operations that a capture producer can normalize.
+
+Blackbox shares this trace-based testing lineage, then adds its own attempt identity, effect vocabulary, sealed evidence, integrity result, and offline policy analysis.
+
+## Next Steps
+
+- **[Runtime Evidence](/docs/blackbox/concepts/runtime-evidence):** Understand the sealed input to analysis.
+- **[Effect Contract Schema](/docs/blackbox/reference/catalog-schema):** Review the current policy vocabulary.
+- **[Observable Decision Coverage](/docs/blackbox/concepts/omc-dc-coverage):** Read the separate decision-evidence layer.

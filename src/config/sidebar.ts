@@ -152,26 +152,34 @@ const sidebar: SidebarConfig = {
           label: "What is Blackbox?",
           href: "/docs/blackbox/overview/what-is-blackbox",
         },
+        {
+          label: "How Blackbox Works?",
+          href: "/docs/blackbox/overview/how-blackbox-works",
+        },
       ],
     },
     {
       label: "Quickstart",
       items: [
         {
-          label: "Demo or Your Project",
+          label: "Blackbox Quickstart",
           href: "/docs/blackbox/quickstart/",
         },
         {
-          label: "Run the Demo in 5 Minutes",
-          href: "/docs/blackbox/quickstart/demo",
+          label: "1. Build One Behavioral Harness",
+          href: "/docs/blackbox/quickstart/build-behavioral-harness",
         },
         {
-          label: "Add Blackbox to One System Test",
+          label: "2. Connect a Host-Command SUT",
           href: "/docs/blackbox/quickstart/add-to-existing-test",
         },
         {
-          label: "Verify Runtime Effects",
+          label: "3. Run and Inspect Evidence",
           href: "/docs/blackbox/quickstart/add-runtime-evidence",
+        },
+        {
+          label: "4. Enforce Effects and Read ODC",
+          href: "/docs/blackbox/quickstart/enforce-runtime-effects",
         },
       ],
     },
@@ -198,34 +206,65 @@ const sidebar: SidebarConfig = {
           label: "Observable Decision Coverage",
           href: "/docs/blackbox/concepts/omc-dc-coverage",
         },
+        {
+          label: "Human and Agent Verification Loop",
+          href: "/docs/blackbox/guides/spec-driven-and-agentic-verification",
+        },
       ],
     },
     {
       label: "Guides",
       items: [
         {
+          label: "Choose How Blackbox Starts Your SUT",
+          href: "/docs/blackbox/guides/set-up-the-testbed",
+        },
+        {
+          label: "Run a Host Command",
+          href: "/docs/blackbox/guides/run-a-host-command",
+        },
+        {
+          label: "Use an Existing Compose Project",
+          href: "/docs/blackbox/guides/use-existing-compose",
+        },
+        {
+          label: "Build From a Dockerfile",
+          href: "/docs/blackbox/guides/build-from-dockerfile",
+        },
+        {
+          label: "Run Compiled Artifacts",
+          href: "/docs/blackbox/guides/run-compiled-artifacts",
+        },
+        {
+          label: "Connect an External SUT",
+          href: "/docs/blackbox/guides/connect-external-sut",
+        },
+        {
+          label: "Use a Custom Provisioner",
+          href: "/docs/blackbox/guides/use-custom-provisioner",
+        },
+        {
+          label: "Configure Isolation and Parallelism",
+          href: "/docs/blackbox/guides/playwright-isolation-and-parallelism",
+        },
+        {
+          label: "Configure Source Maps and Service Layouts",
+          href: "/docs/blackbox/guides/source-maps-and-service-layouts",
+        },
+        {
           label: "Recover Behavior From Existing Tests",
           href: "/docs/blackbox/guides/recover-behavior-from-existing-tests",
         },
         {
-          label: "Turn Requirements Into a System Test",
+          label: "Turn One Requirement Into a System Test",
           href: "/docs/blackbox/guides/turn-requirements-into-system-test",
         },
         {
-          label: "Testbed and Instrumentation",
-          href: "/docs/blackbox/guides/set-up-the-testbed",
+          label: "Use Blackbox With Coding Agents",
+          href: "/docs/blackbox/guides/agent-skills",
         },
         {
-          label: "Playwright Flows, Isolation, and Parallelism",
-          href: "/docs/blackbox/guides/playwright-isolation-and-parallelism",
-        },
-        {
-          label: "Spec-Driven and Agentic Verification",
-          href: "/docs/blackbox/guides/spec-driven-and-agentic-verification",
-        },
-        { label: "Agent Skills", href: "/docs/blackbox/guides/agent-skills" },
-        {
-          label: "Reports and CI Gates",
+          label: "Add Blackbox to CI",
           href: "/docs/blackbox/guides/reports-and-ci-gates",
         },
       ],

@@ -1,29 +1,45 @@
 ---
 title: "Observable Decision Coverage"
-description: "Compare the runtime evidence produced by tests exercising each arm of a decision, and find masking candidates and missing arm coverage."
+description: "Use canonical decisions and sealed runtime evidence to find propagation, masking candidates, and missing arms."
 sidebar_position: 5
 keywords:
   [
     "observable decision coverage",
-    "OMC/DC coverage",
+    "ODC coverage",
     "observable MC/DC",
-    "system test decision coverage",
+    "OMC/DC",
+    "canonical decisions",
     "effect propagation",
-    "masking candidate",
   ]
 ---
 
 import ObservableDecisionCoverageDiagram from "@/components/blackbox/ObservableDecisionCoverageDiagram.astro";
+import Aside from "@/components/mdx/Aside.astro";
 
-Observable decision coverage compares the runtime evidence produced by tests exercising each arm of a binary decision. It shows whether the arm evidence is distinguishable, indistinguishable, or incomplete.
+**Observable decision coverage (ODC)** asks whether different outcomes of an exercised decision produced distinguishable runtime effects.
 
-> **Current support boundary:** Blackbox compares decision arms. It does not yet prove that every atomic condition inside a compound expression independently changes the decision outcome. The current implementation is observable decision coverage, not full observable MC/DC.
+ODC is language-neutral. A language capture implementation contributes canonical decision definitions, source locations, source maps, arm hits, and observed effects to the sealed bundle. `@suites/blackbox-coverage-odc` analyzes those records offline.
 
 <ObservableDecisionCoverageDiagram />
 
-## From Branch Execution to Runtime Evidence
+## From OMC/DC to Blackbox ODC
 
-Consider a subscription endpoint with an early decision:
+Blackbox ODC is inspired by the observability problem behind **Observable Modified Condition/Decision Coverage (OMC/DC)**. The original OMC/DC work strengthened MC/DC with a propagation requirement: exercising a structural obligation is not enough when its influence becomes masked before reaching a variable monitored by the test oracle.
+
+Blackbox applies that question at a different level:
+
+| Criterion        | What it asks                                                                                  |
+| ---------------- | --------------------------------------------------------------------------------------------- |
+| Branch coverage  | Did each decision outcome execute?                                                            |
+| MC/DC            | Did each atomic condition independently affect its decision?                                  |
+| OMC/DC           | Did the MC/DC obligation remain observable along a path to a monitored oracle variable?       |
+| **Blackbox ODC** | Did exercised decision outcomes produce distinguishable attempt-scoped runtime effect traces? |
+
+Blackbox ODC is therefore **not** a claim of MC/DC or OMC/DC compliance. It does not prove atomic-condition independence or the formal OMC/DC path obligation. It adapts their observability motivation to system tests, where database, HTTP, cache, and messaging effects form the monitored evidence.
+
+## What ODC Asks
+
+Consider a decision that rejects an unknown subscriber before downstream work:
 
 ```ts
 if (!user) {
@@ -33,90 +49,59 @@ if (!user) {
 await createSubscription(user);
 ```
 
-Ordinary branch coverage can show that tests ran both arms. Blackbox asks an additional question: did tests exercising those arms produce distinguishable captured runtime evidence?
+Ordinary branch coverage can show that tests executed both outcomes. ODC asks whether those outcomes left distinguishable captured evidence.
 
-Different evidence supports a `propagating` verdict. Indistinguishable evidence produces a `masking-candidate`: both arms ran, but this run did not reveal a meaningful distinction in their captured span signatures.
+| Verdict             | Meaning                                                                 |
+| ------------------- | ----------------------------------------------------------------------- |
+| `propagating`       | Compared outcomes produced distinguishable canonical evidence           |
+| `masking-candidate` | Both outcomes ran, but their evidence signatures were indistinguishable |
+| `coverage-gap`      | The bundle contains evidence for only part of the decision              |
+| `undecidable`       | The available evidence cannot support a sound comparison                |
+| `multi-arm`         | The current binary comparison does not cover the decision shape         |
 
-This is stronger evidence than knowing that both arms executed. It is not a causal proof that the decision alone produced every difference. Blackbox compares the full captured evidence attached to tests in each arm bucket; other behavior in those tests can also affect their signatures.
+These are evidence classifications, not causal proof. Other behavior in the compared attempts can also affect the signatures.
 
-## What Blackbox Computes
+## Read One Concrete Comparison
 
-For each endpoint represented in the run, the Node coverage producer:
+For the decision above, suppose the two complete attempts produce these normalized signatures:
 
-1. Converts per-test V8 coverage into Istanbul branch maps and arm counters.
-2. Groups tests that exercised the true and false arms of each binary decision.
-3. Builds a canonical, multiplicity-preserving span signature for each arm bucket.
-4. Compares the two signatures and emits a verdict.
+| Outcome      | Normalized evidence                                      |
+| ------------ | -------------------------------------------------------- |
+| User exists  | `postgres SELECT users`, `postgres INSERT subscriptions` |
+| User missing | `postgres SELECT users`                                  |
 
-A test can belong to both arm buckets when it exercises a decision both ways, such as through a loop or repeated call.
+The `INSERT subscriptions` observation distinguishes the exercised outcomes, so the decision is `propagating`. If both rows contained only `postgres SELECT users`, the result would be `masking-candidate`.
 
-The signature can include canonical HTTP, database, and messaging spans. File-scoped internal function spans and otherwise untyped spans can also contribute. Blackbox deliberately compares stable span shapes rather than complete payload values, so two writes with the same operation and table but different values may collapse to the same shape.
+ODC uses the full evidence signatures, including valid observations that are not listed in the effect contract. This makes ODC causally legible without turning every observation into required policy.
 
-## Observable Decision Coverage Is Not Effect Coverage
+## ODC Is Not Effect Coverage
 
-These reports answer different questions:
+- **Effect analysis** evaluates reviewed required and forbidden behavior.
+- **ODC** compares evidence associated with decision outcomes.
+- **MC/DC** requires atomic-condition independence that ODC does not claim.
 
-| Coverage view                | Question                                                                                | Inputs                                          |
-| ---------------------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| Catalog coverage             | Did the run satisfy the reviewed required and forbidden effects?                        | Catalog entries, matchers, and observed effects |
-| Shape coverage               | Which catalog clauses participated in assertions?                                       | Catalog shapes and matcher results              |
-| Observable decision coverage | Did tests exercising different decision arms produce distinguishable captured evidence? | Per-test spans and per-test branch-arm coverage |
+ODC does not read effect contracts to decide whether an arm is correct. It uses canonical decisions and captured evidence from the sealed bundle.
 
-The decision-coverage engine does not read effect-contract requirements or matcher results. Changing an effect contract does not strengthen a decision verdict. Better-discriminating scenarios or richer instrumentation can change the evidence it compares.
+## Research Lineage
 
-## Read the Verdicts
+- [Modified condition/decision coverage](https://en.wikipedia.org/wiki/Modified_condition/decision_coverage) is an accessible primer on the MC/DC condition-independence requirement and its common variants.
+- Whalen, Gay, You, Heimdahl, and Staats introduced OMC/DC in the 2013 paper [Observable Modified Condition/Decision Coverage](https://greg4cr.github.io/pdf/13omcdc.pdf).
+- Meng, Gay, and Whalen generalized the observability idea beyond MC/DC in [Ensuring the Observability of Structural Test Obligations](https://greg4cr.github.io/pdf/18omcdc.pdf), covering observable forms of branch, condition, decision, and MC/DC coverage.
 
-Verdicts describe the evidence available from the current run. They are not additional test pass or fail statuses, and they do not all indicate defects.
+These works define MC/DC and OMC/DC. They motivate Blackbox ODC, but they do not specify Blackbox's effect-signature comparison.
 
-| Verdict             | What the engine observed                                                    | Typical next action                                                                            |
-| ------------------- | --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `propagating`       | Both arms were exercised and their canonical span signatures differed.      | Inspect the differing evidence when the decision matters to review.                            |
-| `masking-candidate` | Both arms were exercised and observed, but their signatures were identical. | Decide whether the equality is intentional; otherwise improve the scenario or instrumentation. |
-| `coverage-gap`      | Exactly one arm was exercised.                                              | Add a case for the missing arm when the decision matters.                                      |
-| `undecidable`       | The available observations do not support a sound comparison.               | Check run completeness, captured spans, and instrumentation.                                   |
-| `multi-arm`         | The branch has more than two arms.                                          | Review it manually; per-arm-pair comparison is not implemented.                                |
-| `unsupported-mcdc`  | Reserved for future condition analysis involving side-effecting operands.   | Do not expect the current comparator to emit this verdict yet.                                 |
+## Default Reporting and Explicit Gates
 
-There is no current `unobservable` verdict. Blackbox does not statically prove that no path exists from a decision to an observed effect.
+ODC runs by default when the bundle contains the required decision capability. Its findings are report-only unless a team explicitly enables an ODC gate.
 
-## Why This Is Not Full MC/DC Yet
+Effect contract failures and capture-integrity failures still fail independently of ODC policy.
 
-Modified Condition/Decision Coverage requires evidence that every atomic condition can independently affect its enclosing decision. For example:
+<Aside type="note" title="First Capture Implementation">
+  Node emits canonical decision records. The ODC analyzer and protocol remain
+  independent of Node, V8, Istanbul, Playwright, or a specific source language.
+</Aside>
 
-```ts
-if (authenticated && subscribed && !suspended) {
-  enableFeature();
-}
-```
+## Next Steps
 
-Full MC/DC must construct suitable execution pairs for `authenticated`, `subscribed`, and `suspended`, holding the other conditions fixed according to the selected MC/DC policy. Blackbox does not currently construct those condition-independence pairs.
-
-Today, the engine works from Istanbul decision and branch-arm counters. Logical expressions can expose operand coverage, but condition independence is not computed. Decisions with more than two arms receive `multi-arm` rather than a condition-level verdict.
-
-The package and report paths retain the `omcdc` name. Read that as the current artifact namespace and the direction of the analysis, not as a claim that full observable MC/DC is implemented.
-
-## Read the Report
-
-Start with the test result and effect reports. Open decision coverage when the review question concerns masking, missing decision arms, or whether different paths left distinguishable evidence.
-
-1. Open `catalog/coverage.json` for required and forbidden effect results.
-2. Open `shape/coverage.json` to see which catalog clauses were asserted.
-3. Open `omcdc/verdict.md` for endpoint summaries, branch rows, verdict counts, and hints.
-4. Open `omcdc/verdict.html` for interactive branch inspection and source snippets when available.
-5. Use `omcdc/verdict.json` for automation and agent workflows.
-
-For the subscription example, compare the rows reached by `subscribe-flow` and `subscribe-unknown-user`. The useful result is not merely that `/subscriptions` returned two different responses. It is that tests exercising the two arms left distinguishable runtime evidence.
-
-## Current Limits
-
-- The engine analyzes decisions exercised by the captured tests. It does not establish a complete denominator for unrun inputs or unexecuted code.
-- Arm signatures are correlational evidence from test buckets, not decision-to-effect data-flow proofs.
-- Canonical signatures preserve span shapes and counts but omit many payload values.
-- Multi-arm decisions do not receive per-arm-pair analysis.
-- `unsupported-mcdc` is reserved; the side-effecting-operand detector is not implemented.
-- Detached asynchronous work can escape attribution when trace context is lost.
-- Coverage currently targets JavaScript executing in supported Node SUTs, not native addons or other languages.
-
-Blackbox supports Playwright parallelism through isolated per-worker SUT stacks. Each worker receives its own topology, so V8 counters and captured evidence do not mix. Concurrent tests sharing one SUT process cannot be separated reliably because V8 coverage counters are process-wide.
-
-Continue to [Reports and CI Gates](/docs/blackbox/guides/reports-and-ci-gates) to inspect and retain these artifacts in CI.
+- **[Runtime Evidence](/docs/blackbox/concepts/runtime-evidence):** See what the sealed bundle must contain.
+- **[Add Blackbox to CI](/docs/blackbox/guides/reports-and-ci-gates):** Keep ODC diagnostic or enable an explicit gate.

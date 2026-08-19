@@ -1,0 +1,101 @@
+---
+title: "Use an Existing Compose Project"
+description: "Give Blackbox your Compose files and let it create isolated projects, discover services, inject capture, and map host ports."
+keywords:
+  ["Blackbox Docker Compose", "Compose system tests", "isolated services"]
+---
+
+Use Compose when your SUT and its mutable dependencies already run as one declared topology.
+
+Complete [Quickstart Step 1](/docs/blackbox/quickstart/build-behavioral-harness) first. This setup replaces the host-command provisioning in Step 2. Keep the Playwright adapter and fixture from that step.
+
+## Point Blackbox at Your Files
+
+```ts title="blackbox.config.ts"
+import { defineBlackboxConfig } from "@suites/blackbox";
+
+export default defineBlackboxConfig({
+  sut: {
+    source: {
+      kind: "compose",
+      files: ["compose.yml", "compose.test.yml"],
+    },
+    services: {
+      api: {
+        from: "api",
+        capture: { language: "node" },
+      },
+      worker: {
+        from: "worker",
+        capture: { language: "node" },
+      },
+    },
+  },
+  lifecycle: { ownership: "blackbox" },
+  isolation: { scope: "flow" },
+  runner: { kind: "playwright", config: "playwright.config.ts" },
+  evidence: { dir: ".blackbox/evidence" },
+  analysis: { effects: "check" },
+});
+```
+
+The `from` value binds a Blackbox service identity to a Compose service. Infrastructure services remain part of the cell even when they do not produce Blackbox evidence.
+
+## Keep the Compose File Production-Shaped
+
+Your Compose files describe the application, ports, health checks, networks, and dependencies. Blackbox generates a cell-specific override that adds capture, private sidecar connectivity, dynamic host ports, and project identity.
+
+You do not add Blackbox environment variables, replace the Node binary, expose a debug endpoint, or import a Blackbox OpenTelemetry provider in application code.
+
+## Let Blackbox Discover the Common Case
+
+Blackbox derives:
+
+- Compose project names from run and cell identity.
+- Host ports from the started project.
+- Declared health checks.
+- SUT endpoints from published ports.
+- Service capture and analyzer selection.
+- Executed artifacts and source maps.
+
+Override only ambiguous endpoints, readiness, capture language, or service layout.
+
+## Include Every Mutable Dependency
+
+For a conclusive flow cell, include databases, caches, queues, object stores, workers, and mutable mock servers used by the flow. Blackbox either resets those resources before the next attempt or replaces the cell.
+
+Static host ports make parallel cells collide. Allow Blackbox to assign and read back host ports instead.
+
+## Run in Parallel
+
+Set Playwright's worker count in its native configuration:
+
+```ts title="playwright.config.ts"
+import { defineConfig } from "@playwright/test";
+import { blackboxPlaywright } from "@suites/blackbox/playwright";
+
+import blackbox from "./blackbox.config.js";
+
+export default defineConfig({
+  ...blackboxPlaywright(blackbox),
+  fullyParallel: true,
+  workers: 4,
+});
+```
+
+Then run the flow normally:
+
+```bash
+pnpm exec blackbox doctor --json
+pnpm exec blackbox test --flow subscribe-user
+```
+
+Each Playwright worker receives distinct cells. Evidence from those cells joins by run, flow, and attempt identity after execution.
+
+Expected result: every worker reports a distinct cell and mapped endpoint, the selected attempts pass, and the sealed run contains evidence partitions for those cells.
+
+## Next Steps
+
+- **[Configure Isolation and Parallelism](/docs/blackbox/guides/playwright-isolation-and-parallelism)**
+- **[Configure Source Maps and Service Layouts](/docs/blackbox/guides/source-maps-and-service-layouts)**
+- **[Run and Inspect Evidence](/docs/blackbox/quickstart/add-runtime-evidence):** Rejoin the Quickstart at Step 3.

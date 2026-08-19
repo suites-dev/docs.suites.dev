@@ -1,121 +1,44 @@
 ---
-title: "Report Formats"
-description: "Reference for Blackbox effect, requirement, shape, observable decision, JUnit, Markdown, and HTML report artifacts."
-sidebar_position: 5
-keywords: ["report formats", "coverage json", "shape coverage json"]
-toc_min_heading_level: 2
-seo:
-  primary_keyword: "report formats"
-  secondary_keywords:
-    [
-      "coverage json",
-      "omcdc json",
-      "shape coverage json",
-      "junit coverage report",
-    ]
-  search_intent: "reference intent from users and automation authors consuming Blackbox generated reports"
-  snippet_angle: "explain each Blackbox report file, its producer, format, consumer, and stability expectation"
+title: "Report Contracts"
+description: "Understand the language-neutral analyzer results and the boundary for Blackbox reporter extensions."
+sidebar_position: 9
+keywords: ["Blackbox reports", "effect verdict", "ODC report", "reporter SDK"]
 ---
 
-Blackbox produces machine-readable verdicts and human-readable reports from the same test run. Use JSON for gates and repair loops; use Markdown or HTML to understand why a gate failed.
+Blackbox analyzes a sealed evidence bundle offline and produces structured results. Reporters format and deliver those results without changing them.
 
-## Artifact Family
+## Analysis Results
 
-| Producer or setting           | Artifact                     | Format   | Purpose                                                             |
-| ----------------------------- | ---------------------------- | -------- | ------------------------------------------------------------------- |
-| Catalog coverage module       | `catalog/coverage.json`      | JSON     | Per-flow effect contract verdicts and totals.                       |
-| Shape coverage module         | `shape/coverage.json`        | JSON     | Declared, asserted, and observed boundary shapes.                   |
-| `effects-report` reporter     | `effects-report.md`          | Markdown | Reviewable effect and shape coverage summary.                       |
-| `effects-report` reporter     | `effects-report.html`        | HTML     | Browser view of the same summary.                                   |
-| Node decision producer        | `omcdc/verdict.json`         | JSON     | Machine-readable observable decision report.                        |
-| Node decision producer        | `omcdc/verdict.md`           | Markdown | Human-readable observable decision report.                          |
-| Node decision producer        | `omcdc/verdict.html`         | HTML     | Interactive branch-arm evidence report.                             |
-| Facade or requirements engine | `requirements/coverage.json` | JSON     | EARS requirement verdicts joined through feature tags and flow IDs. |
-| `junit`                       | `omcdc.junit.xml`            | XML      | CI-facing test-result view of decision verdicts.                    |
+| Result                       | Required behavior                                                           |
+| ---------------------------- | --------------------------------------------------------------------------- |
+| Bundle integrity             | Reports missing, inconsistent, or unsupported evidence                      |
+| Effect verification          | Fails missing requirements, forbidden observations, and contract mismatches |
+| Effect coverage              | Reports which accepted clauses were exercised                               |
+| Observable decision coverage | Runs by default and remains report-only until explicitly gated              |
 
-## Stability Notes
+Keep these results separate. A green native test does not override an effect failure, and a high ODC score does not prove the effect contract passed.
 
-1. `catalog/coverage.json` and `requirements/coverage.json` are the direct inputs for CI and agent repair loops.
-2. `shape/coverage.json` explains whether catalog shapes were actually named by matchers.
-3. `omcdc/verdict.json` carries detailed branch evidence and may evolve while the engine is alpha.
-4. Markdown and HTML are presentation artifacts; do not parse them as APIs.
-5. Raw span and `node/v8` files are producer inputs, not public report contracts.
+## Reporter Extensions
 
-## What Each Artifact Is For
+Blackbox report adapters produce outputs such as:
 
-### `omcdc/verdict.json`
+- Human-readable summaries.
+- HTML reports.
+- Machine-readable JSON.
+- JUnit.
+- CI annotations.
 
-Contains endpoints, branch coordinates, true-arm test IDs, false-arm test IDs, not-observed test IDs, verdicts, hints, and observed effect shapes. Use it when an agent or tool needs to understand why a branch is propagating, masked, or still a gap.
+A reporter receives analyzer results. It must not reopen the SUT, reinterpret raw language-specific data, or recalculate the verdict.
 
-### `omcdc/verdict.md`
+## Automation Rules
 
-Contains the same observable decision story in a reviewable form: endpoint sections, verdict counts, branch tables, hints, and branch evidence. Use it when a reviewer needs to understand the result without opening the interactive report.
+1. Parse the structured analyzer result, not rendered Markdown or HTML.
+2. Preserve the sealed bundle when a gate fails.
+3. Identify protocol, sidecar, runner, and capture versions with the report.
+4. Treat unsupported or malformed capture as an integrity failure; retain valid unlisted effects as evidence.
+5. Enable an ODC gate only through explicit repository policy.
 
-### `omcdc/verdict.html`
+## See Also
 
-The interactive observable decision report. Use it when a developer needs to inspect branch arms, hints, source snippets when available, and the relationship between decisions and captured evidence.
-
-### `catalog/coverage.json`
-
-Summarizes effect contract coverage. It answers whether accepted contracts were seen, satisfied, failed, or uncovered.
-
-The shape is based on:
-
-1. `catalog`: service name, entry count, and catalog API version.
-2. `totals`: seen, satisfied, failed, uncovered, and forbidden-entry counts.
-3. `perEntry`: state, run/pass/failure counts, and `forbidViolations` with the matched shape and last observed location.
-
-Entry states are `satisfied`, `failed`, or `uncovered` for the current verification invocation. A flow is `failed` when any completed checked attempt violates its contract; a later passing attempt does not hide that failure. A flow can fail because a required effect is missing, a forbidden effect appeared, or a count constraint did not match.
-
-### `shape/coverage.json`
-
-Summarizes effect shapes, not whole catalog entries. It answers whether declared or inline boundary shapes were asserted and observed.
-
-Shape states are:
-
-1. `asserted`: declared in the catalog and named by a matcher.
-2. `unasserted`: declared in the catalog but never named by a matcher.
-3. `inline`: named by a matcher but not declared in the catalog.
-
-### `requirements/coverage.json`
-
-Joins EARS requirement IDs to the runtime result of their bound flows. A requirement is:
-
-1. `proven` when every bound flow is satisfied.
-2. `violated` when at least one bound flow failed.
-3. `unproven` when no bound flow failed but at least one was not exercised.
-4. `unbound` when the requirement has no accepted flow connection.
-
-When multiple flows bind to one requirement, the worst verdict wins.
-
-### `omcdc.junit.xml`
-
-Maps observable decision verdicts into CI test-result vocabulary:
-
-| Decision verdict    | JUnit mapping          |
-| ------------------- | ---------------------- |
-| `propagating`       | pass                   |
-| `masking-candidate` | failure                |
-| `coverage-gap`      | skipped                |
-| `undecidable`       | pass with `system-out` |
-| `multi-arm`         | pass with `system-out` |
-| `unsupported-mcdc`  | pass with `system-out` |
-
-## Artifact Delivery
-
-Coverage modules and reporters render artifacts. Sinks deliver them.
-
-That separation matters: the same proof can become files, stdout output, GitHub Actions annotations, or CI test results without changing the evidence or the coverage model.
-
-The default file sink writes below the configured coverage directory. When `GITHUB_ACTIONS=true`, the default also includes the GitHub Actions sink. That sink reads `omcdc/verdict.json` and emits workflow annotations for actionable verdicts:
-
-1. `masking-candidate` becomes a warning.
-2. `coverage-gap` becomes a notice.
-3. Other verdicts are silent.
-
-## Practical Reading Order
-
-1. Start with the filename.
-2. Check whether the output is JSON, Markdown, HTML, or XML.
-3. Check whether it is intended for humans or automation.
-4. Use the related concept pages if you need the model behind it.
+- [Add Verification Gates to CI](/docs/blackbox/guides/reports-and-ci-gates) - Apply reports in a lifecycle.
+- [Observable Decision Coverage](/docs/blackbox/concepts/omc-dc-coverage) - Interpret decision findings.

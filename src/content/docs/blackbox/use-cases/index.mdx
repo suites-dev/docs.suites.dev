@@ -1,44 +1,36 @@
 ---
 title: "Use Cases"
-description: "Choose a Blackbox adoption path for refactors, legacy modernization, incident regressions, or distributed system workflows."
+description: "Apply Blackbox to refactors, legacy modernization, incident regressions, and distributed workflows."
 sidebar_position: 1
 keywords:
   [
     "system test use cases",
-    "refactor regression testing",
-    "legacy modernization testing",
-    "microservices verification",
+    "refactor regression",
+    "legacy modernization",
     "incident regression",
   ]
 ---
 
-Blackbox is most valuable where a visible response can stay green while important boundary behavior changes. Choose the use case closest to the risk you need to control.
+Blackbox is useful when a visible result can stay green while important behavior inside a running system changes.
 
-## Choose a Starting Point
+## Choose the Risk
 
-| Use case                           | First contract                                                               | Read next                                                                     |
-| ---------------------------------- | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| Refactor a working system          | Capture one consequential flow before changing internals                     | [Covering Before Refactor](/docs/blackbox/use-cases/covering-before-refactor) |
-| Modernize a legacy system          | Preserve reviewed effects while replacing components in stages               | [Legacy Modernization](/docs/blackbox/use-cases/legacy-modernization)         |
-| Prevent an incident from returning | Encode the effect that must happen and the effect that must never recur      | [Incident Regression](/docs/blackbox/use-cases/incident-regression)           |
-| Verify a microservice workflow     | Check the database, cache, HTTP, and queue behavior behind one public result | [Microservices Regression](/docs/blackbox/use-cases/microservices-regression) |
+| Use case                           | Behavior to protect                                         | Read next                                                                             |
+| ---------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Refactor a working system          | Selected boundary effects that must remain stable           | [Cover Behavior Before a Refactor](/docs/blackbox/use-cases/covering-before-refactor) |
+| Modernize a legacy system          | Reviewed behavior while components move in stages           | [Modernize a Legacy System](/docs/blackbox/use-cases/legacy-modernization)            |
+| Prevent an incident from returning | Effects that must occur and effects that must stay absent   | [Prevent an Incident Regression](/docs/blackbox/use-cases/incident-regression)        |
+| Verify a distributed workflow      | Database, HTTP, cache, and queue behavior behind one result | [Verify a Microservice Workflow](/docs/blackbox/use-cases/microservices-regression)   |
 
-## Common Pattern
+## Use the Same Small Loop
 
-Every use case follows the same small loop:
+1. Select one consequential executable flow.
+2. Review the behavior the flow should protect.
+3. Run the flow in an isolated capture cell.
+4. Seal and analyze the runtime evidence.
+5. Repair implementation against deterministic findings.
+6. Let a person accept the result or return it to the agent.
 
-1. Choose one stable Playwright flow.
-2. Run it in a controlled topology.
-3. Capture the boundary effects.
-4. Review required and forbidden clauses.
-5. Change the implementation.
-6. Rerun against the same contract.
-7. Ratify any intentional behavior change.
+EARS and Gherkin are optional governance layers. Use them when reviewed intent and traceability matter. Runtime effects remain independent from that choice.
 
-EARS requirements and Gherkin are governance layers. Use EARS when requirement-level traceability matters and Gherkin when reviewers need readable examples. Runtime effects are required when the claim concerns what the running system actually did.
-
-## Do Not Start With the Entire Suite
-
-Pick flows where the cost of silent behavior drift is clear: payment, authorization, publication, persistence, destructive operations, retries, or compensation.
-
-[Start with the demo or one system test](/docs/blackbox/quickstart/) to reach a runtime verdict. [Testing Layers](/docs/blackbox/concepts/testing-layers) explains where Blackbox fits alongside lower-level tests.
+Start with the [Blackbox Quickstart](/docs/blackbox/quickstart/) and choose the SUT source strategy that matches your project.

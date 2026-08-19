@@ -1,12 +1,12 @@
 ---
 title: "Testing Layers"
-description: "Place Blackbox across unit, integration, system, and E2E testing, with managed dependencies defining the strongest runtime-evidence gate."
+description: "Place Blackbox at the system and E2E layers, where a running system crosses boundaries whose behavior matters."
 sidebar_position: 1
 keywords:
   [
     "unit integration system E2E tests",
     "testing pyramid",
-    "managed dependencies",
+    "behavioral verification",
     "system testing",
     "Suites Blackbox",
   ]
@@ -14,64 +14,64 @@ keywords:
 
 import TestingPyramidDiagram from "@/components/blackbox/TestingPyramidDiagram.astro";
 
-Testing layers trade speed and failure locality for realism. Blackbox belongs where a running, composed system crosses boundaries whose behavior matters.
+Blackbox verifies behavior at the **system** and **end-to-end (E2E)** layers. It complements unit and integration tests instead of replacing them.
 
 <TestingPyramidDiagram />
 
-## Four Different Questions
+## Choose the Layer by the Question
 
-| Layer       | Main question                                                       | Typical dependency shape                                      |
-| ----------- | ------------------------------------------------------------------- | ------------------------------------------------------------- |
-| Unit        | Does local logic behave correctly?                                  | Collaborators replaced with doubles                           |
-| Integration | Do selected components or adapters collaborate correctly?           | A small number of real providers or infrastructure components |
-| System      | Does the composed SUT behave correctly through its public boundary? | Topology and dependencies owned by the test                   |
-| E2E         | Does the full deployed journey work?                                | May include shared, remote, or third-party dependencies       |
+| Layer       | Main question                                                        | Typical scope                                    |
+| ----------- | -------------------------------------------------------------------- | ------------------------------------------------ |
+| Unit        | Does local logic behave correctly?                                   | One unit with collaborators replaced             |
+| Integration | Do selected components or adapters collaborate correctly?            | A small set of real components                   |
+| System      | Does the composed system behave correctly through a public boundary? | The SUT and controlled infrastructure            |
+| E2E         | Does the deployed user journey work?                                 | The full system, including external dependencies |
 
-Use lower layers for fast feedback and precise diagnosis. Use system and E2E tests for behavior that only exists after services, stores, caches, queues, and remote calls are composed.
-
-## Managed and Unmanaged Dependencies
-
-A **managed dependency** is started, configured, reset, and cleaned up by the test environment. Examples include a Postgres container, Redis container, LocalStack queue, or payment stub in a per-worker Compose stack.
-
-An **unmanaged dependency** is outside the run's control: a shared identity provider, a remote email service, a staging database, or a vendor endpoint.
-
-The distinction affects confidence:
-
-- controlled state makes missing and forbidden effects reproducible;
-- per-worker stacks keep parallel flows isolated;
-- shared dependencies add realism but can make failures environmental;
-- remote side effects may be observable without being safely resettable.
-
-## The Blackbox Sweet Spot
-
-Blackbox is strongest around **controlled system tests**. Playwright drives a real public boundary while the testbed owns the SUT topology and managed dependencies. Runtime observations can then become deterministic catalog and coverage results.
-
-The same model can support broader E2E tests. Treat those results according to the control you actually have. A remote vendor timeout and a missing queue publication in an isolated testbed do not carry the same diagnostic meaning.
+Use lower layers for fast diagnosis. Use Blackbox when correctness depends on what a composed, running system does across database, HTTP, queue, cache, and other boundaries.
 
 ## What Blackbox Adds
 
-At the system and E2E layers, a test usually checks input and output. Blackbox adds four questions about the middle:
+A typical system test proves that an input produced an expected output. Blackbox also checks the behavior between them:
 
-1. Which required boundary effects appeared?
-2. Which required effects were missing?
-3. Which forbidden effects appeared?
-4. Which cataloged flows or effect shapes were not exercised?
+- Did every required effect occur?
+- Did a forbidden effect occur?
+- Could Blackbox determine whether an effect matched?
+- Did exercised decisions remain observable at a boundary?
 
-Observable decision coverage adds a fifth, advanced question: did tests exercising important decision arms produce distinguishable runtime evidence?
+These verdicts come from captured runtime evidence, not from source-code inspection or an agent's explanation.
+
+## Control Determines Confidence
+
+A **capture cell** is the isolated runtime boundary that contains the sidecar, system under test, and required infrastructure. The configured isolation scope determines how much state a flow shares:
+
+| Scope    | Use it when                                                            |
+| -------- | ---------------------------------------------------------------------- |
+| `flow`   | Each behavioral flow needs its own isolated cell. This is the default. |
+| `worker` | A runner worker can safely share one cell across several flows.        |
+| `test`   | Each individual test needs a fresh cell.                               |
+
+Remote or shared dependencies can still participate in an E2E flow. Their results carry less deterministic confidence when Blackbox cannot control or reset their state.
+
+## Runners and Languages Stay Independent
+
+The test runner starts and ends the lifecycle. A language-specific capture implementation observes the SUT. Neither choice defines the other.
+
+Playwright and Node are the first implementations. The architecture also supports other runner adapters and capture implementations without changing the sealed evidence format or analysis model.
 
 ## Suites Unit and Suites Blackbox
 
-Suites Unit and Suites Blackbox cover different confidence surfaces.
+| Need                                          | Suites Unit | Suites Blackbox |
+| --------------------------------------------- | ----------- | --------------- |
+| Isolate a class or provider                   | Yes         | No              |
+| Generate type-safe mocks and stubs            | Yes         | No              |
+| Diagnose local logic quickly                  | Yes         | No              |
+| Drive a composed system or E2E flow           | No          | Yes             |
+| Verify required and forbidden runtime effects | No          | Yes             |
+| Report observable decision coverage           | No          | Yes             |
 
-| Need                                           | Suites Unit | Suites Blackbox |
-| ---------------------------------------------- | ----------- | --------------- |
-| Isolate a TypeScript class or provider         | Yes         | No              |
-| Generate type-safe mocks and stubs             | Yes         | No              |
-| Diagnose local logic quickly                   | Yes         | No              |
-| Drive a Playwright system or E2E flow          | No          | Yes             |
-| Check required and forbidden runtime effects   | No          | Yes             |
-| Produce effect and observable decision reports | No          | Yes             |
+Keep local correctness cheap. Add Blackbox where a running system must provide evidence of its behavior.
 
-The pyramid still matters. Keep local correctness cheap. Add Blackbox where composed behavior needs evidence from a real run.
+## Next Steps
 
-Next, read [Runtime Evidence](/docs/blackbox/concepts/runtime-evidence).
+- **[Runtime Evidence](/docs/blackbox/concepts/runtime-evidence):** See how a run becomes a sealed evidence bundle.
+- **[Requirements, Flows, and Verdicts](/docs/blackbox/concepts/specifications-flows-and-verdicts):** Connect reviewed intent to executable behavior.

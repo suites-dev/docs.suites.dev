@@ -1,51 +1,47 @@
 ---
-title: "Diagnostics and Debug Logs"
-description: "Explain how to collect useful logs, debug failed runs, and decide whether the issue is setup, traces, catalog drift, or Blackbox."
+title: "Collect Diagnostics"
+description: "Collect the static identity, runtime versions, sealed evidence, and analyzer findings needed to diagnose one Blackbox flow."
 sidebar_position: 5
-keywords:
-  [
-    "blackbox diagnostics",
-    "blackbox debug logs",
-    "effect coverage troubleshooting",
-  ]
-toc_min_heading_level: 2
-seo:
-  primary_keyword: "Diagnostics and Debug Logs"
-  secondary_keywords: ["blackbox diagnostics", "blackbox debug logs"]
-  search_intent: "troubleshooting intent from users collecting logs and artifacts for failed Blackbox runs"
-  snippet_angle: "separate setup, no-span, catalog, feature drift, and report generation failures before filing an issue"
+keywords: ["blackbox diagnostics", "sealed evidence", "capture integrity"]
 ---
 
-Use the facade before opening raw logs. It separates project readiness, connected-artifact state, and a live verification failure.
+Reduce the issue to one stable flow. Preserve evidence before changing implementation or accepted behavior.
+
+## Confirm Static Identity
 
 ```bash
-blackbox doctor --json
-blackbox status --flow subscribe-unknown-user --json
-blackbox verify --flow subscribe-unknown-user --json
+pnpm exec blackbox suites discover e2e/tests --json
+pnpm exec blackbox suites check e2e/tests --json
 ```
 
-Run `blackbox explain <finding-rule>` when the JSON output includes an unfamiliar diagnostic code.
+When the flow uses requirements, also retain the output from `requirements validate`, `requirements check`, and `requirements drift`.
 
-## Common Failure Classes
+## Classify the Runtime Failure
 
-1. Setup failures.
-2. No-span failures.
-3. Catalog or feature drift.
-4. Report generation failures.
-5. Integration or environment failures.
+| Failure class     | First evidence to inspect                                   |
+| ----------------- | ----------------------------------------------------------- |
+| Flow not selected | Runner-native tags and configured tag prefixes              |
+| Cell not ready    | Provisioning, sidecar, SUT, and infrastructure lifecycle    |
+| Capture empty     | Baggage identity, capture capabilities, and lifecycle close |
+| Bundle rejected   | Protocol version and integrity findings                     |
+| Effect failure    | Accepted contract and normalized observations               |
+| ODC finding       | Exact sources, maps, decisions, and boundary signatures     |
+| Report missing    | Analyzer result and reporter extension                      |
 
-## First Checks
+## Preserve One Diagnostic Package
 
-1. Run `blackbox doctor --json` without starting the SUT.
-2. Run `blackbox status --flow <flow-id> --json` to detect stale or disconnected artifacts.
-3. Re-run only the affected flow with `blackbox verify --flow <flow-id> --json`.
-4. Save the layered result, report directory, logs, and generated artifacts from that run.
-5. Identify whether the failure is in setup, execution, evidence collection, comparison, or rendering.
-6. Reduce the case to a minimal reproduction before filing a bug.
+Collect:
 
-## What To Keep
+- Exact command and native runner output.
+- Flow ID and accepted effect contract.
+- Relevant Gherkin and EARS files, when used.
+- Runner, capture, protocol, CLI, and reporter versions.
+- Sidecar image digest and isolation scope.
+- Sealed evidence bundle and integrity result.
+- Structured analyzer output.
 
-1. The command that failed.
-2. The smallest relevant log excerpt.
-3. The artifact or report that proves the failure.
-4. The configuration that reproduces it.
+Redact secrets and sensitive payloads without changing the structure needed to reproduce the issue.
+
+Run `pnpm exec blackbox doctor --json` for project and runtime readiness. Run `pnpm exec blackbox analyze --run <run-id>` to reproduce analysis from the preserved bundle without restarting the SUT.
+
+Continue with [Report a Bug](/docs/blackbox/troubleshooting/reporting-a-bug) after reducing the issue to one flow.

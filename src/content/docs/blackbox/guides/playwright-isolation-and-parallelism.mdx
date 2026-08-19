@@ -1,98 +1,114 @@
 ---
-title: "Playwright Flows, Isolation, and Parallelism"
-description: "Use native Playwright flow tags, fixtures, trace propagation, reset groups, and per-worker SUT stacks without mixing runtime evidence."
-sidebar_position: 2
-keywords:
-  [
-    "Playwright flow ID",
-    "Blackbox Playwright",
-    "parallel system tests",
-    "testbed isolation",
-  ]
+title: "Configure Isolation and Parallelism"
+description: "Map Playwright workers, flows, retries, and attempts to clean Blackbox isolation cells."
+sidebar_position: 8
+keywords: ["Blackbox isolation", "Playwright parallelism", "capture cell"]
 ---
 
-import PlaywrightParallelismSimulator from "@/components/blackbox/PlaywrightParallelismSimulator.astro";
+Blackbox preserves Playwright’s native scheduling while preventing mutable state and runtime evidence from crossing flow boundaries.
 
-Blackbox uses native Playwright APIs. You declare one behavioral flow with `test.describe(..., { tag: "@flow:<id>" })`, then let Playwright schedule the tests normally.
+Use this page after choosing a SUT source in Quickstart Step 2. It is a Step 2 deep dive; after the isolation check passes, rejoin at Step 3.
 
-<PlaywrightParallelismSimulator />
+## Start With Flow Isolation
 
-## Declare One Flow
+```ts title="blackbox.config.ts"
+export default defineBlackboxConfig({
+  // ...SUT, runner, evidence, and analysis...
+  isolation: { scope: "flow" },
+});
+```
+
+`flow` is the default because it isolates behaviors without paying full topology startup for every assertion.
+
+| Scope    | Created                              | Reused                            | Reset                                     | Destroyed                                   |
+| -------- | ------------------------------------ | --------------------------------- | ----------------------------------------- | ------------------------------------------- |
+| `flow`   | First attempt for a flow in a worker | Attempts for that worker and flow | Before each independent attempt and retry | When the flow completes or the worker exits |
+| `worker` | Worker start                         | All flows assigned to the worker  | Before each independent attempt           | Worker exit                                 |
+| `test`   | Before each attempt                  | Never                             | A new cell provides clean state           | Immediately after the attempt               |
+
+A flow cell includes the SUT, mutable dependencies assigned to it, service identities, capture configuration, and one evidence partition.
+
+## Let Playwright Schedule Normally
+
+```ts title="playwright.config.ts"
+import { defineConfig } from "@playwright/test";
+import { blackboxPlaywright } from "@suites/blackbox/playwright";
+
+import blackbox from "./blackbox.config.js";
+
+export default defineConfig({
+  ...blackboxPlaywright(blackbox),
+  testDir: "e2e",
+  fullyParallel: true,
+  workers: 4,
+});
+```
+
+Blackbox derives cell identity from the selected scope and Playwright worker identity:
+
+- The same flow running in two workers receives two cells.
+- Retries receive new attempt identities and clean state.
+- A restarted worker receives a new worker identity.
+- Serial tests stay on one worker but remain distinct attempts.
+- Evidence joins after execution by run, flow, cell, and attempt identity.
+
+## Reset Every Mutable Dependency
+
+A reset boundary must cover:
+
+- Relational and document databases.
+- Caches.
+- Queues, delayed messages, and background workers.
+- Object stores.
+- Mutable mock servers.
+- Scheduled work from an earlier attempt.
+
+Managed provisioners reset, restore, or replace the resources they own. A custom or external setup supplies its own reset guarantee.
+
+If Blackbox cannot establish the isolation assurance required by policy, it reports an inconclusive integrity result instead of treating absent effects as proof.
+
+## Keep One Stable Flow ID
+
+The default tag is `@flow:<id>`:
 
 ```ts
-import { expect, test } from "./blackbox-testbed";
-
-test.describe(
-  "Reject an unknown subscriber",
-  { tag: "@flow:subscribe-unknown-user" },
-  () => {
-    test("request stops before payment", async ({ request, capture }) => {
-      const response = await request.post("/subscriptions", {
-        data: { userId: "ghost-user", tier: "pro" },
-      });
-
-      expect(response.status()).toBe(404);
-      await expect(capture).toMatchCatalog();
-    });
-  },
-);
+test.describe("subscribe user", { tag: "@flow:subscribe-user" }, () => {
+  // Attempts that exercise one reviewed behavioral contract.
+});
 ```
 
-Every test inside the `describe` inherits `@flow:subscribe-unknown-user`. The capture fixture uses that ID to load `features/subscribe-unknown-user.effects.yaml`, record coverage, and connect optional requirement and feature tags.
+Missing and duplicate flow tags fail. Multiple attempts and retries may share a flow ID because attempt identity remains separate.
 
-## Keep Flow Scope Narrow
+Split flows when cases require different effect contracts or isolation boundaries.
 
-A flow should describe one reviewable behavior, not an entire user journey. Prefer:
+## Understand Partial Attempts
 
-- one request and its direct effects;
-- one negative path and its forbids;
-- one webhook or message-handling path;
-- one branch arm that needs observable decision evidence.
+Timed-out, interrupted, and skipped attempts are sealed as partial. They cannot support conclusive negative-effect or ODC verdicts.
 
-Split flows when two scenarios have different required or forbidden effects.
+An assertion failure may still contain complete runtime evidence when every capture service settled successfully. Blackbox reports the test failure separately from evidence integrity.
 
-## Run In Parallel Safely
+## Preserve Correlation
 
-Playwright can still run workers in parallel:
+The Playwright adapter adds W3C trace context and Blackbox baggage to HTTP requests. Node capture binds inbound work to the current attempt and propagates that identity across supported boundaries.
+
+Do not replace these headers manually. Use `blackboxHeaders` only when a client outside Playwright’s request fixture needs explicit propagation.
+
+## Validate Cell Separation
 
 ```bash
-npx playwright test --config ./e2e/playwright.config.ts --workers 4
+pnpm exec blackbox test --flow subscribe-user
 ```
 
-Blackbox isolation depends on the testbed. Per-worker SUT stacks prevent spans, databases, queues, and caches from bleeding across flows.
-
-## Avoid Shared Writes
-
-Parallel tests must not write accepted artifacts. `blackbox verify` writes runtime evidence and reports only. Skills may propose requirements, feature files, and effect contracts; `suites align --write` transforms native suite source deterministically. Each accepted change pauses for human review.
-
-Generated reports can be merged after the run:
-
-```text
-.blackbox-coverage/.coverage-partials/catalog-coverage.w0.json
-.blackbox-coverage/.coverage-partials/catalog-coverage.w1.json
--> .blackbox-coverage/catalog/coverage.json
-```
-
-## Use Stable Artifact Names
-
-Keep each flow's reviewed artifacts aligned:
-
-```text
-features/subscribe-unknown-user.feature
-features/subscribe-unknown-user.effects.yaml
-@flow:subscribe-unknown-user
-```
-
-The CLI checks that feature basename, Gherkin `@flow`, Playwright tag, and effect YAML `flow` agree.
+Expected result: each worker and flow resolves to the intended cell, resets complete before independent attempts, and the manifest records no missing-isolation finding.
 
 ## Summary
 
-- **Use native Playwright `test.describe` tags** for flow IDs.
-- **Keep one flow narrow** enough to review.
-- **Run workers in parallel** only when the testbed isolates SUT state.
-- **Never write accepted artifacts during `verify`.**
+- **Use `flow` isolation by default.**
+- **Include all mutable dependencies in the cell or reset contract.**
+- **Enable Playwright parallelism only when ports and mutable dependencies are cell-specific.**
+- **Treat partial attempts and missing isolation as inconclusive evidence.**
 
 ## Next Steps
 
-- **[Verify runtime effects](/docs/blackbox/quickstart/add-runtime-evidence):** Capture evidence and evaluate the selected flow contract.
-- **[Add reports and CI gates](/docs/blackbox/guides/reports-and-ci-gates):** Aggregate isolated attempts and enforce reviewed behavior.
+- **[Choose How Blackbox Starts Your SUT](/docs/blackbox/guides/set-up-the-testbed)**
+- **[Run and Inspect Evidence](/docs/blackbox/quickstart/add-runtime-evidence):** Rejoin the Quickstart at Step 3.

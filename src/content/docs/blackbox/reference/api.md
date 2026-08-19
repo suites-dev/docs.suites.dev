@@ -1,76 +1,62 @@
 ---
-title: "API Reference"
-description: "Public package entry points for Blackbox core effects, Playwright fixtures, testbeds, diagnostics, mocks, and extensibility."
+title: "Package Responsibilities"
+description: "Understand the stable user facade, extension packages, language integrations, and private runtime boundary."
 sidebar_position: 2
 keywords:
   [
-    "Blackbox API reference",
-    "@suites/blackbox exports",
-    "Playwright Blackbox API",
-    "effect coverage API",
+    "Blackbox packages",
+    "runner adapter",
+    "capture package",
+    "evidence protocol",
   ]
 ---
 
-Blackbox is alpha. Treat documented package exports as the public surface and deep `dist/` imports as internal.
+Normal projects configure Blackbox through `@suites/blackbox` and `@suites/blackbox/playwright`. Extension packages expose runner, provisioning, capture, protocol, and analysis contracts without leaking private runtime internals.
 
-## Package Entry Points
+## User-Facing Packages
 
-| Import                                | Purpose                                                                       |
-| ------------------------------------- | ----------------------------------------------------------------------------- |
-| `@suites/blackbox`                    | Main convenience exports                                                      |
-| `@suites/blackbox/core`               | Effect builders, catalog model, evaluator, and predicates                     |
-| `@suites/blackbox/runners/playwright` | Playwright fixtures, matchers, captures, and trace helpers                    |
-| `@suites/blackbox/playwright`         | `defineBlackboxConfig` and `blackboxReporter` config helpers                  |
-| `@suites/blackbox/testbed`            | `createBlackboxTestbed`, testbed types, connect helpers, and disposal helpers |
-| `@suites/blackbox/diagnostics`        | Topology and sequence diagnostics                                             |
-| `@suites/blackbox/mocks`              | Test-environment boundary mocks                                               |
-| `@suites/blackbox/extensibility`      | Runtime adapter, coverage producer, reporter, and sink contracts              |
+| Package                       | Responsibility                                                                   |
+| ----------------------------- | -------------------------------------------------------------------------------- |
+| `@suites/blackbox`            | Configuration, effects, and analysis facade                                      |
+| `@suites/blackbox/playwright` | `blackboxPlaywright()` and `createBlackboxTest()`                                |
+| `@suites/blackbox/effects`    | Effect-contract types and helpers                                                |
+| `@suites/blackbox-cli`        | `test`, `analyze`, static specifications, flows, project diagnostics, and Skills |
 
-Packaged Playwright global setup and teardown subpaths are implementation-facing config targets returned by `defineBlackboxConfig()`. Prefer the helper instead of importing those subpaths directly.
+Most users do not import any lower-level package.
 
-## Minimal Runtime Use
+## Extension Packages
 
-```ts
-import { effect } from "@suites/blackbox/core";
-import { expect, test } from "./blackbox-testbed";
+| Package                              | Responsibility                                                                                          |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------- |
+| `@suites/blackbox-protocol`          | Versioned language-neutral identities, capabilities, messages, integrity failures, and evidence schemas |
+| `@suites/blackbox-testbed`           | SUT source declarations, environment resolution, cells, and custom provisioning contracts               |
+| `@suites/blackbox-runner`            | Framework-neutral flow, attempt, retry, and correlation lifecycle                                       |
+| `@suites/blackbox-runner-playwright` | Native Playwright adapter                                                                               |
+| `@suites/blackbox-capture-node`      | Small in-process Node effect and native-artifact capture payload                                        |
+| `@suites/blackbox-analyzer-node`     | Offline V8 and source-map decoding into neutral decision evidence                                       |
+| `@suites/blackbox-effects`           | Language-neutral sealed-evidence effect checking                                                        |
+| `@suites/blackbox-coverage-odc`      | Language-neutral ODC engine and renderers                                                               |
 
-test.describe("Customer checkout", { tag: "@flow:checkout-flow" }, () => {
-  test("creates an order", async ({ capture }) => {
-    await expect(capture).toObserveEffects([
-      effect.postgres("INSERT", { table: "orders" }),
-      effect.forbid(effect.http("POST", { path: "/refunds" })),
-    ]);
-  });
-});
+Capture and analysis remain separate. A SUT-side language package does not carry AST analysis, report rendering, or CLI code into the application process.
+
+## Add Another Language
+
+A language integration normally has two packages:
+
+```text
+@suites/blackbox-capture-<language>
+@suites/blackbox-analyzer-<language>
 ```
 
-The `effect.forbid()` wrapper is for the single or array matcher form. In `{ requires, forbids }`, put bare effect shapes in `forbids`.
+The capture package emits normalized effects or native artifacts during execution. The analyzer converts those artifacts into language-neutral decisions offline. Both bind to published JSON Schemas from `@suites/blackbox-protocol`.
 
-## Configuration Use
+## Private Runtime Boundary
 
-```ts
-import { defineConfig } from "@playwright/test";
-import {
-  blackboxReporter,
-  defineBlackboxConfig,
-} from "@suites/blackbox/playwright";
-import { testbed } from "./blackbox-testbed.js";
+`@suites/blackbox-runtime` owns the sidecar, control transport, artifact store, and evidence sealing. It is private and is not a user import.
 
-export default defineConfig({
-  ...defineBlackboxConfig({ mode: "testbed", testbed }),
-  reporter: [
-    ["list"],
-    blackboxReporter({ outputDir: "./e2e/.blackbox-coverage" }),
-  ],
-});
-```
+The CLI and public facade configure the runtime. Runner adapters, provisioners, capture packages, and analyzers communicate through published contracts.
 
-## Error Model
+## See Also
 
-Runtime APIs reject with normal JavaScript errors. Playwright matchers return matcher failures that Playwright reports against the active test. CLI commands use a separate JSON envelope and exit-code contract documented in [CLI Reference](/docs/blackbox/reference/cli) and [Exit Codes](/docs/blackbox/reference/exit-codes).
-
-## Stability
-
-No stable-major compatibility guarantee applies during alpha. Pin versions through the lockfile and update the runtime, CLI, Node adapter, and instrumentation payload together.
-
-For detailed signatures, continue to [Testbed API](/docs/blackbox/reference/testbed-api), [Playwright Flow Tags](/docs/blackbox/reference/scenario-dsl), and [Matchers and Effect Builders](/docs/blackbox/reference/matchers-and-effect-builders).
+- [Configuration](/docs/blackbox/reference/configuration)
+- [Runtime Evidence](/docs/blackbox/concepts/runtime-evidence)

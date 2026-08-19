@@ -1,0 +1,91 @@
+---
+title: "Configure Source Maps and Service Layouts"
+description: "Connect executed artifacts to original source without relying on fragile global path prefixes."
+keywords: ["Blackbox source maps", "service layout", "TypeScript coverage"]
+---
+
+Blackbox identifies executable artifacts by content digest. Runtime paths help discovery, but they are not the final identity used by offline analysis.
+
+Use this page after choosing a SUT source in Quickstart Step 2. It is a Step 2 deep dive; after artifact validation passes, rejoin at Step 3.
+
+## Start From the Executed Artifact
+
+For TypeScript, Node executes JavaScript rather than the original `.ts` file:
+
+```text
+src/server.ts
+    | tsc
+    v
+dist/server.js + dist/server.js.map
+```
+
+Capture begins with `dist/server.js`, its V8 ranges, and its exact source map. The Node analyzer attributes the decision evidence to `src/server.ts` offline.
+
+## Choose Source-Map Discovery
+
+```ts
+layout: {
+  artifactRoot: "dist",
+  sourceMaps: "discover",
+}
+```
+
+Use automatic discovery for ordinary inline maps and adjacent `.map` files. Use an explicit manifest when build output stores maps elsewhere. Disable maps only when original-source attribution is not required.
+
+## Keep One Layout Per Service
+
+Each service owns its executable boundary:
+
+```ts
+services: {
+  api: {
+    layout: { artifactRoot: "services/api/dist", sourceMaps: "discover" },
+  },
+  worker: {
+    layout: { artifactRoot: "services/worker/dist", sourceMaps: "discover" },
+  },
+}
+```
+
+This handles monorepos, different runtime binaries, mixed languages, and services built by different tools without global container-root or source-prefix switches.
+
+## Understand the Join Rules
+
+| Build shape                | Blackbox captures                              |
+| -------------------------- | ---------------------------------------------- |
+| TypeScript `dist/`         | Executed JavaScript, V8 ranges, and source map |
+| Bundled JavaScript         | Exact bundle and bundle map                    |
+| Container paths            | Logical runtime path plus content digest       |
+| Inline source map          | Map bytes extracted from executed source       |
+| Sidecar `.map`             | Separate content-addressed artifact            |
+| Runtime-transformed source | Exact executed text from the runtime           |
+| Compiled language          | Native coverage plus debug and source metadata |
+
+Blackbox never silently substitutes an on-disk original when the runtime measured transformed code.
+
+## Diagnose Missing Attribution
+
+Check these conditions when a decision cannot map to source:
+
+- The configured artifact root contains the files the runtime executed.
+- The map belongs to the exact captured JavaScript digest.
+- Bundler source paths resolve inside the captured artifact set.
+- The language capture declared the required coverage capability.
+- The evidence manifest contains no missing-artifact or digest finding.
+
+An unresolved source identity produces an integrity or undecidable result, not zero successful coverage.
+
+## Validate the Captured Layout
+
+```bash
+pnpm exec blackbox doctor --json
+pnpm exec blackbox test --flow subscribe-user
+```
+
+Expected result: the sealed manifest references the executed artifact digest and its matching source map, and ODC has source-backed decision records instead of a missing-attribution finding.
+
+## Next Steps
+
+- **[Run Compiled Artifacts](/docs/blackbox/guides/run-compiled-artifacts)**
+- **[Runtime Evidence](/docs/blackbox/concepts/runtime-evidence)**
+- **[Run and Inspect Evidence](/docs/blackbox/quickstart/add-runtime-evidence):** Rejoin the Quickstart at Step 3.
