@@ -118,11 +118,11 @@ export default defineConfig({
     },
     "/docs/blackbox/quickstart/connect-specifications-to-runtime-evidence": {
       status: 301,
-      destination: "/docs/blackbox/guides/turn-requirements-into-system-test",
+      destination: "/docs/blackbox/quickstart/start-without-test",
     },
     "/docs/blackbox/quickstart/define-new-behavior": {
       status: 301,
-      destination: "/docs/blackbox/guides/turn-requirements-into-system-test",
+      destination: "/docs/blackbox/quickstart/start-without-test",
     },
     "/docs/blackbox/quickstart/first-proven-feature": {
       status: 301,
@@ -143,6 +143,10 @@ export default defineConfig({
     "/docs/blackbox/guides/spec-driven-and-agentic-verification": {
       status: 301,
       destination: "/docs/blackbox/guides/agent-skills",
+    },
+    "/docs/blackbox/guides/turn-requirements-into-system-test": {
+      status: 301,
+      destination: "/docs/blackbox/quickstart/start-without-test",
     },
     "/docs/blackbox/guides/reading-coverage-reports": {
       status: 301,

@@ -1,6 +1,6 @@
 ---
-title: "4. Enforce Effects and Read ODC"
-description: "Reanalyze sealed evidence, distinguish behavior failures from integrity failures, and close the implementation-repair loop."
+title: "4. Approve Effect Policy and Read ODC"
+description: "Approve required and forbidden runtime behavior, derive verdicts from sealed evidence, interpret ODC, and close the repair loop."
 sidebar_position: 5
 keywords:
   [
@@ -11,30 +11,70 @@ keywords:
   ]
 ---
 
-Blackbox analyzes immutable evidence without restarting the application. You can change policy, upgrade an analyzer, or inspect a failure without reproducing the original environment.
+Step 3 recorded facts. This step decides which facts express behavior the team intends to protect, then applies that reviewed policy to the immutable run.
 
-## Reanalyze the Latest Run
+## 1. Approve the Effect Policy
+
+An **effect contract** lists runtime actions that must happen and actions that must not happen. For this flow, require the user lookup and forbid a payment request:
+
+```yaml title="e2e/features/subscribe-user.effects.yaml"
+specVersion: "0.1"
+flow: subscribe-user
+
+requires:
+  - { boundary: postgres, op: SELECT, key: users, service: api }
+
+forbids:
+  - { boundary: http, op: POST, key: /v1/payment_intents, service: api }
+```
+
+Review this file as policy. Do not copy every observation into it.
+
+This contract contains rules shared by both attempts. The successful attempt's `INSERT subscriptions` remains useful decision evidence, but it is not required for the unknown-user attempt. Protect behavior that applies to only one case with a separately scoped flow or policy rather than weakening the meaning of `requires`.
+
+## 2. Analyze Without Mutating the Run
 
 ```bash
 pnpm exec blackbox analyze --run latest
 ```
 
-`blackbox analyze` never starts the SUT. It verifies bundle integrity and checks the accepted **effect contract**: the list of runtime actions that must happen or must not happen. It also reconstructs code decisions and computes **observable decision coverage (ODC)**, which compares the effects produced by different decision outcomes. In this Quickstart, effects gate the command and ODC remains report-only.
+The original evidence remains sealed. Blackbox writes a derived analysis result that identifies both inputs:
 
-## Keep Four Results Separate
+```text
+evidence  sha256:7b1c…
+policy    sha256:95af…
 
-| Result    | Question                                                        |
-| --------- | --------------------------------------------------------------- |
-| Test      | Did the native Playwright assertion pass?                       |
-| Integrity | Is the captured evidence complete and trustworthy?              |
-| Effects   | Did required effects occur and forbidden effects remain absent? |
-| ODC       | Did exercised decision outcomes leave distinguishable evidence? |
+FLOW subscribe-user
+  tests       PASS    2 attempts
+  integrity   PASS    capture complete
+  effects     PASS    required and forbidden policy satisfied
+  ODC         REPORT  user-exists outcomes produced distinct evidence
+```
 
-Blackbox refuses a conclusive effect or ODC result when capture is empty, a service never became ready, an attempt is partial, an artifact hash fails, a required capability is absent, or the configured isolation assurance is missing.
+Changing the contract creates a new policy digest and derived result; it does not rewrite what the application did. The next `blackbox test` run snapshots the accepted policy alongside its new evidence.
 
-## Repair Without Redefining Success
+## 3. Read ODC as a Separate Signal
 
-Suppose the rejected attempt returns `404` but still calls the payment provider:
+**Observable decision coverage (ODC)** compares the effect signatures associated with exercised decision outcomes. The report for this flow can show:
+
+```text
+DECISION user-exists
+  known-user    SELECT users → INSERT subscriptions
+  unknown-user  SELECT users
+  result        PROPAGATING
+```
+
+`PROPAGATING` means the two outcomes produced distinguishable effects. Other results are:
+
+- **Masking candidate:** both outcomes ran but their effect signatures matched.
+- **Coverage gap:** only part of the decision was exercised.
+- **Undecidable:** the available evidence cannot support a sound comparison.
+
+A passing effect contract does not imply strong ODC, and a propagating decision does not prove that its behavior is correct.
+
+## 4. Repair Without Redefining Success
+
+Suppose the unknown-user attempt returns `404` but still calls the payment provider:
 
 ```text
 FLOW subscribe-user
@@ -46,28 +86,17 @@ FLOW subscribe-user
   http POST /v1/payment_intents service=api
 ```
 
-The implementation can change. The coding agent reruns the same harness until the forbidden effect disappears.
+The coding agent changes implementation and reruns the same accepted flow until the forbidden effect disappears.
 
 ```text
-analyze -> deterministic finding -> repair implementation -> blackbox test
+finding → repair implementation → blackbox test → new sealed evidence
 ```
 
-Changes to the native assertion, flow identity, accepted feature, effect contract, SUT source strategy, isolation configuration, or ODC gate return to human review because they redefine success. Ordinary application implementation changes remain inside the repair loop.
+Changes to the native assertion, flow identity, reviewed feature, effect contract, application lifecycle, isolation configuration, or ODC gate return to human review because they redefine success.
 
-## Read ODC as a Different Signal
+## 5. Gate ODC Only After Review
 
-ODC compares the effect signatures associated with branch outcomes:
-
-- **Propagating:** the exercised outcomes produced distinguishable evidence.
-- **Masking candidate:** both outcomes ran but their evidence signatures matched.
-- **Coverage gap:** only part of the decision was exercised.
-- **Undecidable:** the available evidence cannot support a sound comparison.
-
-A passing effect contract does not imply strong ODC, and a propagating decision does not prove that its behavior is correct.
-
-## Gate ODC Only After Review
-
-The Quickstart reports ODC first so you can inspect the comparison before making it merge-blocking. When the team accepts this decision as a gate, make the policy explicit:
+The Quickstart reports ODC first. When the team accepts this decision as a merge gate, make the policy explicit:
 
 ```ts title="blackbox.config.ts"
 analysis: {
@@ -76,10 +105,10 @@ analysis: {
 }
 ```
 
-`odc: "check"` makes configured ODC findings affect the command exit code. Keep it absent while ODC is diagnostic.
+Keep ODC report-only while the team is still deciding which decision outcomes must remain observably different.
 
 ## Result
 
-You completed the Blackbox loop with one reviewed harness, a controlled SUT, sealed runtime evidence, an effect verdict, and an ODC report. The same `blackbox test` command now becomes the project’s effect gate in CI; ODC joins the gate only after explicit review.
+You completed both Blackbox loops with one stable flow: readable intent aligned to a passing system test, sealed runtime evidence, an approved effect verdict, an ODC report, and a bounded implementation-repair loop.
 
 Continue with [Add Blackbox to CI](/docs/blackbox/guides/reports-and-ci-gates).

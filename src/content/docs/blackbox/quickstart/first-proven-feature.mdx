@@ -1,101 +1,87 @@
 ---
 title: "3. Run and Inspect Evidence"
 slug: "blackbox/quickstart/add-runtime-evidence"
-description: "Run one flow and inspect its effect, artifact, integrity, and decision evidence."
+description: "Run one accepted flow, confirm evidence integrity, and inspect the effects produced by each attempt before defining policy."
 sidebar_position: 4
-keywords: ["Blackbox runtime evidence", "sealed evidence", "effect contract"]
+keywords: ["Blackbox runtime evidence", "sealed evidence", "runtime effects"]
 ---
 
-Every Blackbox test run records evidence. Run first, inspect what happened, and only then approve which runtime actions become policy.
+The behavior-alignment loop produced one accepted `subscribe-user` flow. Now run that flow against the system under test and inspect what actually happened.
 
-An **effect** is a meaningful action your application performs at a system boundary, such as reading a database row, calling another API, changing a cache, or publishing a message.
+An **effect** is a meaningful action at a system boundary, such as reading a database row, calling another API, changing a cache, or publishing a message.
 
-## 1. Run the Flow
+## 1. Run the Accepted Flow
 
 ```bash
 pnpm run db:test:reset
 pnpm exec blackbox test --flow subscribe-user
 ```
 
-Blackbox performs one lifecycle:
+Blackbox performs one runtime lifecycle:
 
 ```text
-create cell -> start application -> run Playwright attempts -> settle capture
-    -> seal evidence -> check effects -> analyze decisions -> report
+create cell → start application → run Playwright attempts → settle capture
+    → seal evidence → analyze observed effects and decisions → report
 ```
 
-The result keeps its claims separate. On this first run, no effect contract has been accepted yet, so Blackbox records effects without treating them as required or forbidden.
+No effect contract has been accepted yet, so Blackbox records facts without treating them as required or forbidden policy.
 
 ```text
 FLOW subscribe-user
-  tests       PASS  2 attempts
-  integrity   PASS  capture complete
+  tests       PASS         2 attempts
+  integrity   PASS         capture complete
   effects     NOT CHECKED  no accepted contract
-  ODC         REPORT  interpret in Step 4
+  ODC         REPORT       available for review in Step 4
 ```
 
-## 2. Inspect the Sealed Run
+## 2. Confirm the Evidence Is Trustworthy
 
-Blackbox stores immutable inputs and derived analysis separately:
+Do not interpret absent effects or ODC when integrity is inconclusive. For this run, `integrity PASS` means the expected capture service became ready, both attempts settled, required artifacts were present, and their identities and digests passed validation.
+
+This is the first important milestone:
 
 ```text
-.blackbox/evidence/<run-id>/
-  manifest.json
-  config.snapshot.json
-  cells/
-    <cell-id>/
-      manifest.json
-      events.jsonl
-      attempts/
-        <attempt-id>/events.jsonl
-  artifacts/sha256/<digest>
-  derived/
-    effects/<attempt-id>.json
-    decisions/<attempt-id>.json
-    odc/verdict.json
-  reports/summary.json
+FIRST TRUSTWORTHY RUNTIME EVIDENCE
+tests PASS + integrity PASS
 ```
 
-The manifest records flow, worker, retry, cell, service, producer capabilities, artifact hashes, isolation assurance, and integrity findings. The artifact store contains the exact executed JavaScript and source-map bytes used by offline analysis.
+The native assertions still answer only what the client observed. The sealed evidence can now answer what the application did behind those responses.
 
-## 3. Read One Effect
+## 3. Inspect the Same Run Offline
 
-An effect observation tells you what this execution did. A reviewed effect contract later tells Blackbox what the flow must or must not do.
-
-The successful attempt can include this normalized observation:
-
-```json
-{
-  "boundary": "postgres",
-  "op": "INSERT",
-  "key": "subscriptions",
-  "service": "api"
-}
+```bash
+pnpm exec blackbox analyze --run latest
 ```
 
-This observation is a fact from one attempt. It is not automatically a requirement. Decide which observations express behavior you intend to protect.
+`blackbox analyze` does not restart the application. With no accepted effect policy, it prints the observations grouped by attempt:
 
-## 4. Approve the Effect Contract
+```text
+ATTEMPT known-user
+  postgres SELECT users                 service=api
+  postgres INSERT subscriptions         service=api
 
-An **effect contract** lists runtime actions that must happen and actions that must not happen. For this flow, require the user lookup and forbid payment:
-
-```yaml title="e2e/features/subscribe-user.effects.yaml"
-specVersion: "0.1"
-flow: subscribe-user
-
-requires:
-  - { boundary: postgres, op: SELECT, key: users, service: api }
-
-forbids:
-  - { boundary: http, op: POST, key: /v1/payment_intents, service: api }
+ATTEMPT unknown-user
+  postgres SELECT users                 service=api
 ```
 
-Review this file as policy. The observed subscription insert remains evidence, but it is not required for every attempt. Do not copy every observation into the contract.
+The unknown-user attempt also contains no payment-provider request. That absence becomes a conclusive negative fact only because integrity and the configured isolation assurance passed.
 
-The inline `toObserveEffects()` form and this YAML use the same required-and-forbidden vocabulary. The Quickstart uses YAML because Blackbox snapshots reviewed policy into the sealed run and can reapply it offline. Keep one accepted contract for the flow instead of maintaining divergent inline and YAML rules.
+## 4. Keep Observation and Policy Separate
+
+The subscription insert is an observed fact from one attempt. The missing payment call is another fact. Neither becomes accepted behavior merely because the runtime produced it.
+
+Ask:
+
+- Which actions must always happen for this flow?
+- Which actions must never happen?
+- Which differences merely help explain the two decision outcomes?
+
+The next step turns the reviewed answers into policy. The sealed evidence remains unchanged.
+
+For the complete artifact layout and integrity fields, see [Runtime Evidence](/docs/blackbox/concepts/runtime-evidence). If decision attribution is missing, use [Source Maps and Service Layouts](/docs/blackbox/guides/source-maps-and-service-layouts).
 
 ## Result
 
-You now have one immutable run, inspected effects, and a reviewed effect contract. The next step applies that contract to the sealed evidence and explains the ODC report without restarting the application.
+You have one immutable run with passing tests, passing integrity, and attempt-specific observed effects. No observation has silently become policy.
 
-Continue with [Enforce Effects and Read ODC](/docs/blackbox/quickstart/enforce-runtime-effects).
+Continue with [Step 4: Approve Effect Policy and Read ODC](/docs/blackbox/quickstart/enforce-runtime-effects).

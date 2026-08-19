@@ -1,0 +1,124 @@
+---
+title: "1B. Start Without a Test"
+description: "Start with one behavior in human language and turn it into the same reviewed subscribe-user Playwright flow used by the Quickstart."
+sidebar_position: 3
+keywords:
+  ["spec-driven development", "EARS requirements", "Gherkin system test"]
+---
+
+Start here when you have an application behavior but no system or E2E test yet. A coding agent can propose the structured artifacts and test shell; a person approves their meaning before implementation begins.
+
+This route produces the same `subscribe-user.feature`, `subscribe-user.system.test.ts`, and `@flow:subscribe-user` identity as Step 1A.
+
+## Install Blackbox
+
+Install the public facade, CLI, and Playwright:
+
+```bash
+pnpm add -D @suites/blackbox @suites/blackbox-cli @playwright/test
+```
+
+Keep all `@suites/blackbox*` packages on the same version.
+
+If you want a coding agent to propose the requirement and Gherkin, [install the Blackbox Skills first](/docs/blackbox/guides/agent-skills). You can also author and review both artifacts directly.
+
+## 1. Structure the Behavior for Review
+
+**EARS**—Easy Approach to Requirements Syntax—turns ordinary product intent into small, reviewable requirements. It is optional when your team already has an accepted Gherkin scenario, but this Quickstart uses it to demonstrate the complete alignment loop.
+
+Give `$blackbox-requirements` the goal or write these requirements directly:
+
+```text title="requirements/subscriptions.ears"
+REQ-001: When a known user submits a subscription request, the API shall respond with 201.
+REQ-002: When an unknown user submits a subscription request, the API shall respond with 404.
+REQ-003: When an unknown user submits a subscription request, the API shall not call the payment provider.
+```
+
+```bash
+pnpm exec blackbox requirements validate ./requirements --json
+```
+
+Validation proves structure. A person approves what the requirements mean.
+
+## 2. Generate and Review Gherkin
+
+**Gherkin** expresses the approved behavior as readable scenarios:
+
+```bash
+pnpm exec blackbox features generate \
+  requirements/subscriptions.ears \
+  --flow subscribe-user \
+  --description "subscribing known and unknown users" \
+  --requirement REQ-001 \
+  --requirement REQ-002 \
+  --requirement REQ-003 \
+  --out e2e/features \
+  --write \
+  --json
+```
+
+Ask `$blackbox-gherkin` to review the proposal. A person accepts the final wording and flow identity:
+
+```gherkin title="e2e/features/subscribe-user.feature"
+@flow:subscribe-user
+Feature: Subscribe a user
+
+  @requirement:REQ-001
+  Scenario: Known user is subscribed
+    When the client subscribes user "alice"
+    Then the response status is 201
+
+  @requirement:REQ-002 @requirement:REQ-003
+  Scenario: Unknown user is rejected
+    When the client subscribes user "ghost"
+    Then the response status is 404
+    And the payment provider is not called
+```
+
+```bash
+pnpm exec blackbox features check ./e2e/features --requirements ./requirements --json
+```
+
+## 3. Generate the Playwright Shell
+
+```bash
+pnpm exec blackbox suites generate \
+  e2e/features/subscribe-user.feature \
+  --out e2e \
+  --write \
+  --json
+```
+
+Blackbox generates the shared tagged structure and visible TODO bodies:
+
+```ts title="e2e/subscribe-user.system.test.ts"
+import { expect, test } from "@playwright/test";
+
+test.describe("subscribe user", { tag: "@flow:subscribe-user" }, () => {
+  test("known user is subscribed", async ({ request }) => {
+    // TODO: submit a subscription for "alice".
+    // TODO: assert that the response status is 201.
+  });
+
+  test("unknown user is rejected", async ({ request }) => {
+    // TODO: submit a subscription for "ghost".
+    // TODO: assert that the response status is 404.
+  });
+});
+```
+
+The generator creates the accepted structure, not working application code. Step 2 connects the application and replaces these TODOs with the real request and visible assertions.
+
+## 4. Check the Alignment
+
+```bash
+pnpm exec blackbox requirements check ./requirements --tests ./e2e --json
+pnpm exec blackbox requirements drift ./requirements --tests ./e2e --json
+pnpm exec blackbox suites check ./e2e --json
+```
+
+Expected result: the requirements, feature, and Playwright shell all report the same `subscribe-user` flow identity.
+
+## Result
+
+You have the same reviewed feature and two-attempt Playwright shell used by the rest of the Quickstart. Continue with [Step 2: Connect Your Application](/docs/blackbox/quickstart/add-to-existing-test), complete the application-specific TODOs, and run until the native test reports `2 passed`.

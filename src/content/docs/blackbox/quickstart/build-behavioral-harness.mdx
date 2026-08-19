@@ -1,15 +1,13 @@
 ---
 title: "1A. Start From an Existing Test"
-description: "Keep one passing system or E2E test and give its behavior a stable Blackbox flow identity."
+description: "Keep one passing system or E2E test, give it a stable flow identity, and emit readable behavior for review."
 sidebar_position: 2
 keywords: ["Blackbox behavioral harness", "flow ID", "Playwright system test"]
 ---
 
-Start here when you already have a passing Playwright system or E2E test. Keep its working action and assertion, then give the behavior one stable `@flow:<id>`.
+Start here when you already have a passing Playwright system or E2E test. Keep its working action and assertion, assign one stable `@flow:<id>`, then generate a readable behavior proposal from the executable flow.
 
-If you do not have a system test yet, use [Step 1B: Start Without a Test](/docs/blackbox/guides/turn-requirements-into-system-test).
-
-A **behavioral harness** is the reviewed definition of success that an agent must satisfy without rewriting.
+If you do not have a system test yet, use [Step 1B: Start Without a Test](/docs/blackbox/quickstart/start-without-test).
 
 ## 1. Install Blackbox
 
@@ -63,17 +61,19 @@ Expected result:
 2 passed
 ```
 
-The assertions prove the visible responses. They do not yet prove which hidden runtime actions—called **effects**—occurred, such as database queries, HTTP calls, cache changes, or published messages.
+The assertions prove the visible responses. They do not yet prove what the application did behind those responses.
 
-## 4. Optional: Generate Readable Behavior
+## 4. Generate and Review Readable Behavior
 
-Emit a baseline feature from the executable suite:
+The runtime loop does not require Gherkin. This Quickstart includes one feature so you can experience the behavior-alignment loop before runtime capture.
+
+Emit a proposal from the executable suite:
 
 ```bash
 pnpm exec blackbox features emit ./e2e --out ./e2e/features
 ```
 
-Review the generated file as a behavior proposal:
+Review the generated behavior:
 
 ```gherkin title="e2e/features/subscribe-user.feature"
 @flow:subscribe-user
@@ -88,19 +88,21 @@ Feature: Subscribe a user
     Then the response status is 404
 ```
 
-Edit the wording until it communicates the accepted behavior without exposing implementation detail. The executable test remains the runtime source; the feature is its reviewed projection.
+Generated wording is a proposal, not accepted product intent. Edit it until a person agrees that it describes the executable behavior without exposing implementation detail.
 
-## 5. Check Flow Identity
+## 5. Check the Alignment
 
 ```bash
-pnpm exec blackbox suites discover ./e2e
-pnpm exec blackbox suites check ./e2e
+pnpm exec blackbox features check ./e2e/features --json
+pnpm exec blackbox suites check ./e2e --json
 ```
 
-The file stem, feature tag, and Playwright tag should all resolve to `subscribe-user`.
+Expected result: both commands exit successfully and report one aligned `subscribe-user` flow. The feature and Playwright test use the same stable identity.
+
+For bulk recovery, alignment writes, requirement binding, and drift handling, use [Add Readable Behavior Specifications](/docs/blackbox/guides/recover-behavior-from-existing-tests) after the Quickstart.
 
 ## Result
 
-You now have one passing native flow and one stable identity. If you generated the optional feature, you also have a reviewable behavior document. Runtime evidence can join this harness without making Gherkin a runtime dependency.
+You have one passing Playwright flow and one reviewed readable feature joined by `@flow:subscribe-user`. The behavior-alignment loop is ready to enter runtime verification.
 
 Continue with [Step 2: Connect Your Application](/docs/blackbox/quickstart/add-to-existing-test).

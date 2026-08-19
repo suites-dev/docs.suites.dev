@@ -91,6 +91,6 @@ An agent can operate across the whole loop, but it does not replace the determin
 ## Next Steps
 
 - **[Add Readable Behavior Specifications](/docs/blackbox/guides/recover-behavior-from-existing-tests)**
-- **[Start Without a Test](/docs/blackbox/guides/turn-requirements-into-system-test)**
+- **[Start Without a Test](/docs/blackbox/quickstart/start-without-test)**
 - **[How Blackbox Works?](/docs/blackbox/overview/how-blackbox-works)**
-- **[Enforce Effects and Read ODC](/docs/blackbox/quickstart/enforce-runtime-effects):** Enter the implementation-repair loop at Step 4.
+- **[Approve Effect Policy and Read ODC](/docs/blackbox/quickstart/enforce-runtime-effects):** Enter the implementation-repair loop at Step 4.

@@ -171,7 +171,7 @@ const sidebar: SidebarConfig = {
         },
         {
           label: "1B. Start Without a Test",
-          href: "/docs/blackbox/guides/turn-requirements-into-system-test",
+          href: "/docs/blackbox/quickstart/start-without-test",
         },
         {
           label: "2. Connect Your Application",
@@ -182,7 +182,7 @@ const sidebar: SidebarConfig = {
           href: "/docs/blackbox/quickstart/add-runtime-evidence",
         },
         {
-          label: "4. Enforce Effects and Read ODC",
+          label: "4. Approve Effect Policy and Read ODC",
           href: "/docs/blackbox/quickstart/enforce-runtime-effects",
         },
       ],

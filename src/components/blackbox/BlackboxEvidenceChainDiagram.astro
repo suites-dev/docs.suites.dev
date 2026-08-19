@@ -1,161 +1,551 @@
-<figure class="bb-evidence-chain" aria-label="Agentic Blackbox chain from human intent to runtime evidence and verdicts">
+<figure
+  class="bb-evidence-chain"
+  aria-label="Blackbox behavior-alignment and runtime-verification loops"
+>
   <div class="bb-evidence-chain__viewport">
     <svg
       class="bb-evidence-chain__desktop"
-      viewBox="0 0 1100 500"
+      viewBox="0 0 1100 700"
       role="img"
-      aria-labelledby="bb-evidence-chain-title bb-evidence-chain-desc"
+      aria-labelledby="bb-two-loops-title bb-two-loops-desc"
       font-family="Inter, ui-sans-serif, system-ui, sans-serif"
     >
-      <title id="bb-evidence-chain-title">The agentic chain from human intent to runtime proof</title>
-      <desc id="bb-evidence-chain-desc">A human approves intent. A coding agent uses Blackbox Skills to propose EARS requirements, Gherkin scenarios, an executable flow, runtime configuration, and effect policy. Deterministic Blackbox components run the real system, seal runtime evidence, and compute separate test, integrity, effect, and observable decision coverage verdicts. The agent interprets findings and repairs the implementation.</desc>
+      <title id="bb-two-loops-title">Two Blackbox loops joined by one stable flow identity</title>
+      <desc id="bb-two-loops-desc">The behavior-alignment loop starts from human intent or an existing system test and keeps optional EARS and Gherkin aligned with a tagged Playwright flow. The runtime-verification loop runs that same flow against an isolated system under test, captures effects and executed decisions, computes separate verdicts, and sends findings to an agent for implementation repair. People approve behavior and policy.</desc>
       <defs>
-        <marker id="bb-evidence-chain-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <marker
+          id="bb-two-loops-arrow"
+          viewBox="0 0 10 10"
+          refX="8"
+          refY="5"
+          markerWidth="7"
+          markerHeight="7"
+          orient="auto"
+        >
           <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"></path>
+        </marker>
+        <marker
+          id="bb-two-loops-agent-arrow"
+          viewBox="0 0 10 10"
+          refX="8"
+          refY="5"
+          markerWidth="7"
+          markerHeight="7"
+          orient="auto"
+        >
+          <path d="M0 0 L10 5 L0 10 z" fill="#c4b5fd"></path>
         </marker>
       </defs>
 
-      <rect x="8" y="8" width="1084" height="484" rx="12" fill="#0b1120" stroke="#334155"></rect>
-      <text x="36" y="42" fill="#f8fafc" font-size="20" font-weight="800">Human intent becomes runtime proof</text>
-      <text x="36" y="66" fill="#cbd5e1" font-size="12">The agent works across the chain; deterministic Blackbox components compute every gate.</text>
+      <rect
+        x="8"
+        y="8"
+        width="1084"
+        height="684"
+        rx="12"
+        fill="#0b1120"
+        stroke="#334155"
+      ></rect>
+      <text x="36" y="43" fill="#f8fafc" font-size="20" font-weight="800"
+        >Two loops. One accepted flow.</text
+      >
+      <text x="36" y="67" fill="#cbd5e1" font-size="12"
+        >Readable behavior stays aligned with the test; runtime evidence proves what the system did.</text
+      >
 
-      <rect x="36" y="86" width="1028" height="60" rx="9" fill="#2e1065" stroke="#a78bfa"></rect>
-      <text x="550" y="109" text-anchor="middle" fill="#ddd6fe" font-size="11" font-weight="800">CODING AGENT + BLACKBOX SKILLS · INVOLVED THROUGHOUT</text>
-      <text x="550" y="132" text-anchor="middle" fill="#f5f3ff" font-size="11">requirements → Gherkin → application setup → runtime actions → decision comparison → repair</text>
+      <rect
+        x="36"
+        y="86"
+        width="1028"
+        height="56"
+        rx="9"
+        fill="#2e1065"
+        stroke="#a78bfa"
+      ></rect>
+      <text
+        x="550"
+        y="109"
+        text-anchor="middle"
+        fill="#ddd6fe"
+        font-size="11"
+        font-weight="800"
+        >CODING AGENT + BLACKBOX SKILLS · INVOLVED THROUGHOUT</text
+      >
+      <text x="550" y="130" text-anchor="middle" fill="#f5f3ff" font-size="11"
+        >propose behavior → connect the application → inspect findings → repair implementation</text
+      >
 
-      <rect x="36" y="174" width="210" height="206" rx="10" fill="#172554" stroke="#60a5fa"></rect>
-      <text x="56" y="202" fill="#93c5fd" font-size="10" font-weight="800">1 · HUMAN INTENT</text>
-      <text x="56" y="232" fill="#eff6ff" font-size="17" font-weight="800">What should happen?</text>
-      <line x1="56" y1="249" x2="226" y2="249" stroke="#3b82f6" stroke-opacity="0.55"></line>
-      <text x="56" y="276" fill="#bfdbfe" font-size="10" font-weight="700">NATURAL LANGUAGE</text>
-      <text x="56" y="299" fill="#f8fafc" font-size="12">Goal or change request</text>
-      <text x="56" y="331" fill="#bfdbfe" font-size="10" font-weight="700">APPROVED STRUCTURE</text>
-      <text x="56" y="354" fill="#f8fafc" font-size="12">EARS requirement</text>
+      <rect
+        x="36"
+        y="164"
+        width="1028"
+        height="194"
+        rx="10"
+        fill="#172554"
+        stroke="#60a5fa"
+      ></rect>
+      <text x="56" y="190" fill="#93c5fd" font-size="10" font-weight="800"
+        >1 · BEHAVIOR ALIGNMENT LOOP</text
+      >
+      <text x="56" y="212" fill="#dbeafe" font-size="12"
+        >Start from intent or a passing test. People review meaning; static gates keep the artifacts aligned.</text
+      >
 
-      <line x1="246" y1="277" x2="286" y2="277" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-evidence-chain-arrow)"></line>
-      <text x="266" y="261" text-anchor="middle" fill="#c4b5fd" font-size="8" font-weight="800">SKILLS</text>
+      <rect
+        x="56"
+        y="232"
+        width="184"
+        height="76"
+        rx="8"
+        fill="#111827"
+        stroke="#60a5fa"
+      ></rect>
+      <text x="148" y="258" text-anchor="middle" fill="#bfdbfe" font-size="10" font-weight="800"
+        >NEW BEHAVIOR</text
+      >
+      <text x="148" y="282" text-anchor="middle" fill="#f8fafc" font-size="13" font-weight="800"
+        >Human intent</text
+      >
+      <text x="148" y="299" text-anchor="middle" fill="#cbd5e1" font-size="9"
+        >goal or change request</text
+      >
 
-      <rect x="296" y="174" width="210" height="206" rx="10" fill="#312e81" stroke="#818cf8"></rect>
-      <text x="316" y="202" fill="#c7d2fe" font-size="10" font-weight="800">2 · BEHAVIOR HARNESS</text>
-      <text x="316" y="232" fill="#eef2ff" font-size="17" font-weight="800">Agent fills the gaps</text>
-      <line x1="316" y1="249" x2="486" y2="249" stroke="#6366f1" stroke-opacity="0.65"></line>
-      <text x="316" y="276" fill="#e0e7ff" font-size="12">Gherkin + <tspan font-family="ui-monospace, monospace">@flow</tspan></text>
-      <text x="316" y="302" fill="#e0e7ff" font-size="12">Playwright assertions</text>
-      <text x="316" y="328" fill="#e0e7ff" font-size="12">Runtime configuration</text>
-      <text x="316" y="354" fill="#e0e7ff" font-size="12">Effect policy · allowed actions</text>
+      <line
+        x1="240"
+        y1="270"
+        x2="292"
+        y2="270"
+        stroke="#94a3b8"
+        stroke-width="2"
+        marker-end="url(#bb-two-loops-arrow)"
+      ></line>
 
-      <line x1="506" y1="277" x2="546" y2="277" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-evidence-chain-arrow)"></line>
-      <text x="526" y="261" text-anchor="middle" fill="#e2e8f0" font-size="8" font-weight="800">TEST</text>
+      <rect
+        x="302"
+        y="232"
+        width="224"
+        height="76"
+        rx="8"
+        fill="#1e1b4b"
+        stroke="#818cf8"
+      ></rect>
+      <text x="414" y="258" text-anchor="middle" fill="#c7d2fe" font-size="10" font-weight="800"
+        >READABLE BEHAVIOR</text
+      >
+      <text x="414" y="282" text-anchor="middle" fill="#f8fafc" font-size="13" font-weight="800"
+        >Optional EARS + Gherkin</text
+      >
+      <text x="414" y="299" text-anchor="middle" fill="#cbd5e1" font-size="9"
+        >agent proposes · person approves</text
+      >
 
-      <rect x="556" y="174" width="210" height="206" rx="10" fill="#12251e" stroke="#4ade80"></rect>
-      <text x="576" y="202" fill="#86efac" font-size="10" font-weight="800">3 · REAL SYSTEM RUN</text>
-      <text x="576" y="232" fill="#f0fdf4" font-size="17" font-weight="800">What happened?</text>
-      <line x1="576" y1="249" x2="746" y2="249" stroke="#22c55e" stroke-opacity="0.5"></line>
-      <text x="576" y="276" fill="#dcfce7" font-size="12">Playwright runs the flow</text>
-      <text x="576" y="302" fill="#dcfce7" font-size="12">Effects = DB · HTTP · message actions</text>
-      <text x="576" y="328" fill="#dcfce7" font-size="12">Branches taken</text>
-      <text x="576" y="354" fill="#dcfce7" font-size="12">Exact runtime artifacts</text>
+      <line
+        x1="526"
+        y1="270"
+        x2="608"
+        y2="270"
+        stroke="#94a3b8"
+        stroke-width="2"
+        marker-end="url(#bb-two-loops-arrow)"
+      ></line>
 
-      <line x1="766" y1="277" x2="806" y2="277" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-evidence-chain-arrow)"></line>
-      <text x="786" y="261" text-anchor="middle" fill="#e2e8f0" font-size="8" font-weight="800">PROOF</text>
+      <rect
+        x="618"
+        y="232"
+        width="222"
+        height="76"
+        rx="8"
+        fill="#312e81"
+        stroke="#a5b4fc"
+      ></rect>
+      <text x="729" y="258" text-anchor="middle" fill="#e0e7ff" font-size="10" font-weight="800"
+        >SHARED CHECKPOINT</text
+      >
+      <text x="729" y="282" text-anchor="middle" fill="#f8fafc" font-size="13" font-weight="800"
+        >Tagged Playwright flow</text
+      >
+      <text x="729" y="299" text-anchor="middle" fill="#c7d2fe" font-size="10" font-family="ui-monospace, monospace"
+        >@flow:subscribe-user</text
+      >
 
-      <rect x="816" y="174" width="248" height="206" rx="10" fill="#3b2f0b" stroke="#fbbf24"></rect>
-      <text x="836" y="202" fill="#fde68a" font-size="10" font-weight="800">4 · DETERMINISTIC VERDICTS</text>
-      <text x="836" y="232" fill="#fef3c7" font-size="17" font-weight="800">Did they agree?</text>
-      <line x1="836" y1="249" x2="1044" y2="249" stroke="#f59e0b" stroke-opacity="0.55"></line>
-      <rect x="836" y="267" width="92" height="36" rx="7" fill="#111827" stroke="#64748b"></rect>
-      <text x="882" y="290" text-anchor="middle" fill="#f8fafc" font-size="11" font-weight="800">TEST</text>
-      <rect x="944" y="267" width="100" height="36" rx="7" fill="#111827" stroke="#64748b"></rect>
-      <text x="994" y="290" text-anchor="middle" fill="#f8fafc" font-size="11" font-weight="800">INTEGRITY</text>
-      <rect x="836" y="317" width="92" height="36" rx="7" fill="#111827" stroke="#64748b"></rect>
-      <text x="882" y="334" text-anchor="middle" fill="#f8fafc" font-size="10" font-weight="800">EFFECTS</text>
-      <text x="882" y="346" text-anchor="middle" fill="#cbd5e1" font-size="7.5">runtime actions</text>
-      <rect x="944" y="317" width="100" height="36" rx="7" fill="#111827" stroke="#64748b"></rect>
-      <text x="994" y="334" text-anchor="middle" fill="#f8fafc" font-size="10" font-weight="800">ODC</text>
-      <text x="994" y="346" text-anchor="middle" fill="#cbd5e1" font-size="7.5">decision effects</text>
+      <rect
+        x="874"
+        y="232"
+        width="166"
+        height="76"
+        rx="8"
+        fill="#111827"
+        stroke="#64748b"
+      ></rect>
+      <text x="957" y="258" text-anchor="middle" fill="#cbd5e1" font-size="10" font-weight="800"
+        >EXISTING BEHAVIOR</text
+      >
+      <text x="957" y="282" text-anchor="middle" fill="#f8fafc" font-size="13" font-weight="800"
+        >Passing test</text
+      >
+      <text x="957" y="299" text-anchor="middle" fill="#cbd5e1" font-size="9"
+        >keep its assertions</text
+      >
+      <line
+        x1="874"
+        y1="270"
+        x2="850"
+        y2="270"
+        stroke="#94a3b8"
+        stroke-width="2"
+        marker-end="url(#bb-two-loops-arrow)"
+      ></line>
 
-      <rect x="84" y="410" width="932" height="56" rx="9" fill="#111827" stroke="#475569"></rect>
-      <text x="550" y="434" text-anchor="middle" fill="#bbf7d0" font-size="12" font-weight="800">Finding → $blackbox-repair → implementation change → the same approved flow runs again</text>
-      <text x="550" y="454" text-anchor="middle" fill="#fde68a" font-size="10">Skills propose. Blackbox computes. People approve behavior and policy.</text>
+      <path
+        d="M 676 308 C 630 344, 502 344, 456 308"
+        fill="none"
+        stroke="#c4b5fd"
+        stroke-width="1.8"
+        stroke-dasharray="5 4"
+        marker-end="url(#bb-two-loops-agent-arrow)"
+      ></path>
+      <text x="566" y="337" text-anchor="middle" fill="#ddd6fe" font-size="9" font-weight="800"
+        >EMIT · REVIEW · ALIGN</text
+      >
+      <text x="56" y="340" fill="#bfdbfe" font-size="9" font-weight="700"
+        >STATIC GATES · requirements · features · suites · drift</text
+      >
+
+      <rect
+        x="36"
+        y="382"
+        width="1028"
+        height="204"
+        rx="10"
+        fill="#12251e"
+        stroke="#4ade80"
+      ></rect>
+      <text x="56" y="408" fill="#86efac" font-size="10" font-weight="800"
+        >2 · RUNTIME VERIFICATION LOOP</text
+      >
+      <text x="56" y="430" fill="#dcfce7" font-size="12"
+        >The same flow runs against the real system. Blackbox seals evidence before computing verdicts.</text
+      >
+
+      <rect
+        x="56"
+        y="452"
+        width="190"
+        height="80"
+        rx="8"
+        fill="#312e81"
+        stroke="#a5b4fc"
+      ></rect>
+      <text x="151" y="479" text-anchor="middle" fill="#e0e7ff" font-size="10" font-weight="800"
+        >SAME @flow TEST</text
+      >
+      <text x="151" y="503" text-anchor="middle" fill="#f8fafc" font-size="13" font-weight="800"
+        >Playwright attempts</text
+      >
+      <text x="151" y="520" text-anchor="middle" fill="#c7d2fe" font-size="9"
+        >known user · unknown user</text
+      >
+
+      <line
+        x1="246"
+        y1="492"
+        x2="286"
+        y2="492"
+        stroke="#94a3b8"
+        stroke-width="2"
+        marker-end="url(#bb-two-loops-arrow)"
+      ></line>
+
+      <rect
+        x="296"
+        y="452"
+        width="180"
+        height="80"
+        rx="8"
+        fill="#111827"
+        stroke="#4ade80"
+      ></rect>
+      <text x="386" y="479" text-anchor="middle" fill="#bbf7d0" font-size="10" font-weight="800"
+        >ISOLATED SUT</text
+      >
+      <text x="386" y="503" text-anchor="middle" fill="#f8fafc" font-size="13" font-weight="800"
+        >Real application</text
+      >
+      <text x="386" y="520" text-anchor="middle" fill="#cbd5e1" font-size="9"
+        >services + mutable state</text
+      >
+
+      <line
+        x1="476"
+        y1="492"
+        x2="516"
+        y2="492"
+        stroke="#94a3b8"
+        stroke-width="2"
+        marker-end="url(#bb-two-loops-arrow)"
+      ></line>
+
+      <rect
+        x="526"
+        y="452"
+        width="222"
+        height="80"
+        rx="8"
+        fill="#102a23"
+        stroke="#22c55e"
+      ></rect>
+      <text x="637" y="479" text-anchor="middle" fill="#86efac" font-size="10" font-weight="800"
+        >SEALED EVIDENCE</text
+      >
+      <text x="637" y="503" text-anchor="middle" fill="#f8fafc" font-size="13" font-weight="800"
+        >Effects + decisions</text
+      >
+      <text x="637" y="520" text-anchor="middle" fill="#cbd5e1" font-size="9"
+        >exact artifacts · integrity</text
+      >
+
+      <line
+        x1="748"
+        y1="492"
+        x2="788"
+        y2="492"
+        stroke="#94a3b8"
+        stroke-width="2"
+        marker-end="url(#bb-two-loops-arrow)"
+      ></line>
+
+      <rect
+        x="798"
+        y="452"
+        width="242"
+        height="80"
+        rx="8"
+        fill="#3b2f0b"
+        stroke="#fbbf24"
+      ></rect>
+      <text x="919" y="479" text-anchor="middle" fill="#fde68a" font-size="10" font-weight="800"
+        >SEPARATE VERDICTS</text
+      >
+      <text x="919" y="503" text-anchor="middle" fill="#f8fafc" font-size="12" font-weight="800"
+        >test · integrity · effects · ODC</text
+      >
+      <text x="919" y="520" text-anchor="middle" fill="#cbd5e1" font-size="9"
+        >no missing proof becomes a pass</text
+      >
+
+      <text x="550" y="563" text-anchor="middle" fill="#bbf7d0" font-size="10"
+        >The stable flow ID connects readable behavior, every attempt, captured evidence, and every verdict.</text
+      >
+
+      <rect
+        x="84"
+        y="612"
+        width="932"
+        height="58"
+        rx="9"
+        fill="#111827"
+        stroke="#475569"
+      ></rect>
+      <text x="550" y="637" text-anchor="middle" fill="#bbf7d0" font-size="12" font-weight="800"
+        >Finding → agent repairs implementation → the same approved flow runs again</text
+      >
+      <text x="550" y="658" text-anchor="middle" fill="#fde68a" font-size="10"
+        >Skills propose. Blackbox computes. People approve behavior and policy.</text
+      >
     </svg>
 
     <svg
       class="bb-evidence-chain__mobile"
-      viewBox="0 0 420 1110"
+      viewBox="0 0 420 1320"
       role="img"
-      aria-labelledby="bb-evidence-chain-mobile-title bb-evidence-chain-mobile-desc"
+      aria-labelledby="bb-two-loops-mobile-title bb-two-loops-mobile-desc"
       font-family="Inter, ui-sans-serif, system-ui, sans-serif"
     >
-      <title id="bb-evidence-chain-mobile-title">The agentic chain from human intent to runtime proof</title>
-      <desc id="bb-evidence-chain-mobile-desc">A human approves intent. A coding agent uses Blackbox Skills to build the behavior harness and connect the runtime. Deterministic Blackbox components run the system, save evidence, and return separate test, integrity, effect, and observable decision coverage verdicts. The agent repairs the implementation.</desc>
+      <title id="bb-two-loops-mobile-title">Two Blackbox loops joined by one stable flow identity</title>
+      <desc id="bb-two-loops-mobile-desc">Human intent or an existing test enters a behavior-alignment loop. Optional EARS and Gherkin stay aligned with one tagged Playwright flow. The same flow enters a runtime-verification loop through the isolated system, sealed effects and decision evidence, separate verdicts, and agent repair.</desc>
       <defs>
-        <marker id="bb-evidence-chain-mobile-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <marker
+          id="bb-two-loops-mobile-arrow"
+          viewBox="0 0 10 10"
+          refX="8"
+          refY="5"
+          markerWidth="7"
+          markerHeight="7"
+          orient="auto"
+        >
           <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"></path>
         </marker>
       </defs>
 
-      <rect x="8" y="8" width="404" height="1094" rx="12" fill="#0b1120" stroke="#334155"></rect>
-      <text x="28" y="40" fill="#f8fafc" font-size="17" font-weight="800">Human intent becomes runtime proof</text>
-      <text x="28" y="62" fill="#cbd5e1" font-size="10">Agentic throughout · deterministic at every gate</text>
+      <rect
+        x="8"
+        y="8"
+        width="404"
+        height="1304"
+        rx="12"
+        fill="#0b1120"
+        stroke="#334155"
+      ></rect>
+      <text x="28" y="40" fill="#f8fafc" font-size="17" font-weight="800"
+        >Two loops. One accepted flow.</text
+      >
+      <text x="28" y="62" fill="#cbd5e1" font-size="10"
+        >Readable behavior + runtime proof</text
+      >
 
-      <rect x="28" y="84" width="364" height="78" rx="9" fill="#2e1065" stroke="#a78bfa"></rect>
-      <text x="210" y="108" text-anchor="middle" fill="#ddd6fe" font-size="10" font-weight="800">CODING AGENT + BLACKBOX SKILLS</text>
-      <text x="210" y="130" text-anchor="middle" fill="#f5f3ff" font-size="10">requirements → Gherkin → application setup</text>
-      <text x="210" y="148" text-anchor="middle" fill="#f5f3ff" font-size="10">runtime actions → decision comparison → repair</text>
+      <rect
+        x="28"
+        y="84"
+        width="364"
+        height="72"
+        rx="9"
+        fill="#2e1065"
+        stroke="#a78bfa"
+      ></rect>
+      <text x="210" y="108" text-anchor="middle" fill="#ddd6fe" font-size="10" font-weight="800"
+        >CODING AGENT + BLACKBOX SKILLS</text
+      >
+      <text x="210" y="130" text-anchor="middle" fill="#f5f3ff" font-size="9.5"
+        >propose → connect → inspect → repair</text
+      >
+      <text x="210" y="147" text-anchor="middle" fill="#fde68a" font-size="8.5"
+        >people approve behavior and policy</text
+      >
 
-      <rect x="28" y="188" width="364" height="166" rx="10" fill="#172554" stroke="#60a5fa"></rect>
-      <text x="48" y="216" fill="#93c5fd" font-size="10" font-weight="800">1 · HUMAN INTENT</text>
-      <text x="48" y="246" fill="#eff6ff" font-size="17" font-weight="800">What should happen?</text>
-      <line x1="48" y1="263" x2="372" y2="263" stroke="#3b82f6" stroke-opacity="0.55"></line>
-      <text x="48" y="290" fill="#bfdbfe" font-size="10" font-weight="700">NATURAL LANGUAGE</text>
-      <text x="48" y="313" fill="#f8fafc" font-size="12">Goal or change request</text>
-      <text x="48" y="337" fill="#f8fafc" font-size="12">Approved EARS requirement</text>
+      <rect
+        x="28"
+        y="180"
+        width="364"
+        height="464"
+        rx="10"
+        fill="#172554"
+        stroke="#60a5fa"
+      ></rect>
+      <text x="48" y="208" fill="#93c5fd" font-size="10" font-weight="800"
+        >1 · BEHAVIOR ALIGNMENT LOOP</text
+      >
+      <text x="48" y="229" fill="#dbeafe" font-size="9.5"
+        >Two entrances meet at one tagged test.</text
+      >
 
-      <line x1="210" y1="354" x2="210" y2="386" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-evidence-chain-mobile-arrow)"></line>
-      <text x="224" y="376" fill="#c4b5fd" font-size="9" font-weight="800">SKILLS</text>
+      <rect x="48" y="250" width="148" height="70" rx="8" fill="#111827" stroke="#60a5fa"></rect>
+      <text x="122" y="275" text-anchor="middle" fill="#bfdbfe" font-size="9" font-weight="800"
+        >NEW BEHAVIOR</text
+      >
+      <text x="122" y="298" text-anchor="middle" fill="#f8fafc" font-size="12" font-weight="800"
+        >Human intent</text
+      >
 
-      <rect x="28" y="398" width="364" height="174" rx="10" fill="#312e81" stroke="#818cf8"></rect>
-      <text x="48" y="426" fill="#c7d2fe" font-size="10" font-weight="800">2 · BEHAVIOR HARNESS</text>
-      <text x="48" y="456" fill="#eef2ff" font-size="17" font-weight="800">Agent fills the gaps</text>
-      <line x1="48" y1="473" x2="372" y2="473" stroke="#6366f1" stroke-opacity="0.65"></line>
-      <text x="48" y="500" fill="#e0e7ff" font-size="12">Gherkin + @flow · Playwright assertions</text>
-      <text x="48" y="526" fill="#e0e7ff" font-size="12">App configuration · allowed runtime actions</text>
-      <text x="48" y="552" fill="#c7d2fe" font-size="10">Skills propose; people approve the target.</text>
+      <rect x="224" y="250" width="148" height="70" rx="8" fill="#111827" stroke="#64748b"></rect>
+      <text x="298" y="275" text-anchor="middle" fill="#cbd5e1" font-size="9" font-weight="800"
+        >EXISTING BEHAVIOR</text
+      >
+      <text x="298" y="298" text-anchor="middle" fill="#f8fafc" font-size="12" font-weight="800"
+        >Passing test</text
+      >
 
-      <line x1="210" y1="572" x2="210" y2="604" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-evidence-chain-mobile-arrow)"></line>
-      <text x="224" y="594" fill="#e2e8f0" font-size="9" font-weight="800">BLACKBOX TEST</text>
+      <line x1="122" y1="320" x2="122" y2="350" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-two-loops-mobile-arrow)"></line>
+      <rect x="48" y="362" width="324" height="76" rx="8" fill="#1e1b4b" stroke="#818cf8"></rect>
+      <text x="210" y="388" text-anchor="middle" fill="#c7d2fe" font-size="9" font-weight="800"
+        >READABLE BEHAVIOR</text
+      >
+      <text x="210" y="412" text-anchor="middle" fill="#f8fafc" font-size="12.5" font-weight="800"
+        >Optional EARS + Gherkin</text
+      >
+      <text x="210" y="429" text-anchor="middle" fill="#cbd5e1" font-size="9"
+        >agent proposes · person approves</text
+      >
 
-      <rect x="28" y="616" width="364" height="166" rx="10" fill="#12251e" stroke="#4ade80"></rect>
-      <text x="48" y="644" fill="#86efac" font-size="10" font-weight="800">3 · REAL SYSTEM RUN</text>
-      <text x="48" y="674" fill="#f0fdf4" font-size="17" font-weight="800">What happened?</text>
-      <line x1="48" y1="691" x2="372" y2="691" stroke="#22c55e" stroke-opacity="0.5"></line>
-      <text x="48" y="718" fill="#dcfce7" font-size="12">Playwright runs the isolated flow</text>
-      <text x="48" y="744" fill="#dcfce7" font-size="12">DB/API/message actions · branches · exact code</text>
-      <text x="48" y="768" fill="#bbf7d0" font-size="10">Deterministic capture produces sealed evidence.</text>
+      <line x1="210" y1="438" x2="210" y2="468" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-two-loops-mobile-arrow)"></line>
+      <line x1="298" y1="320" x2="298" y2="480" stroke="#94a3b8" stroke-width="2"></line>
+      <line x1="298" y1="480" x2="274" y2="480" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-two-loops-mobile-arrow)"></line>
 
-      <line x1="210" y1="782" x2="210" y2="814" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-evidence-chain-mobile-arrow)"></line>
-      <text x="224" y="804" fill="#e2e8f0" font-size="9" font-weight="800">PROOF</text>
+      <rect x="48" y="480" width="324" height="82" rx="8" fill="#312e81" stroke="#a5b4fc"></rect>
+      <text x="210" y="507" text-anchor="middle" fill="#e0e7ff" font-size="9" font-weight="800"
+        >SHARED CHECKPOINT</text
+      >
+      <text x="210" y="531" text-anchor="middle" fill="#f8fafc" font-size="13" font-weight="800"
+        >Tagged Playwright flow</text
+      >
+      <text x="210" y="550" text-anchor="middle" fill="#c7d2fe" font-size="9.5" font-family="ui-monospace, monospace"
+        >@flow:subscribe-user</text
+      >
+      <text x="210" y="588" text-anchor="middle" fill="#ddd6fe" font-size="9" font-weight="800"
+        >Existing tests can emit Gherkin for review.</text
+      >
+      <text x="210" y="614" text-anchor="middle" fill="#bfdbfe" font-size="8.5"
+        >STATIC GATES · requirements · features · suites · drift</text
+      >
 
-      <rect x="28" y="826" width="364" height="174" rx="10" fill="#3b2f0b" stroke="#fbbf24"></rect>
-      <text x="48" y="854" fill="#fde68a" font-size="10" font-weight="800">4 · DETERMINISTIC VERDICTS</text>
-      <text x="48" y="884" fill="#fef3c7" font-size="17" font-weight="800">Did they agree?</text>
-      <rect x="48" y="902" width="148" height="32" rx="6" fill="#111827" stroke="#64748b"></rect>
-      <text x="122" y="923" text-anchor="middle" fill="#f8fafc" font-size="11" font-weight="800">TEST</text>
-      <rect x="224" y="902" width="148" height="32" rx="6" fill="#111827" stroke="#64748b"></rect>
-      <text x="298" y="923" text-anchor="middle" fill="#f8fafc" font-size="11" font-weight="800">INTEGRITY</text>
-      <rect x="48" y="946" width="148" height="32" rx="6" fill="#111827" stroke="#64748b"></rect>
-      <text x="122" y="960" text-anchor="middle" fill="#f8fafc" font-size="10" font-weight="800">EFFECTS</text>
-      <text x="122" y="972" text-anchor="middle" fill="#cbd5e1" font-size="7.5">runtime actions</text>
-      <rect x="224" y="946" width="148" height="32" rx="6" fill="#111827" stroke="#64748b"></rect>
-      <text x="298" y="960" text-anchor="middle" fill="#f8fafc" font-size="10" font-weight="800">ODC</text>
-      <text x="298" y="972" text-anchor="middle" fill="#cbd5e1" font-size="7.5">decision effects</text>
+      <rect
+        x="28"
+        y="670"
+        width="364"
+        height="520"
+        rx="10"
+        fill="#12251e"
+        stroke="#4ade80"
+      ></rect>
+      <text x="48" y="698" fill="#86efac" font-size="10" font-weight="800"
+        >2 · RUNTIME VERIFICATION LOOP</text
+      >
+      <text x="48" y="719" fill="#dcfce7" font-size="9.5"
+        >The same flow produces sealed runtime evidence.</text
+      >
 
-      <rect x="28" y="1022" width="364" height="58" rx="8" fill="#111827" stroke="#475569"></rect>
-      <text x="210" y="1044" text-anchor="middle" fill="#bbf7d0" font-size="10" font-weight="800">Finding → $blackbox-repair → run again</text>
-      <text x="210" y="1065" text-anchor="middle" fill="#fde68a" font-size="9">People approve behavior and policy.</text>
+      <rect x="48" y="742" width="324" height="76" rx="8" fill="#312e81" stroke="#a5b4fc"></rect>
+      <text x="210" y="768" text-anchor="middle" fill="#e0e7ff" font-size="9" font-weight="800"
+        >SAME @flow TEST</text
+      >
+      <text x="210" y="792" text-anchor="middle" fill="#f8fafc" font-size="12.5" font-weight="800"
+        >Known-user + unknown-user attempts</text
+      >
+
+      <line x1="210" y1="818" x2="210" y2="846" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-two-loops-mobile-arrow)"></line>
+      <rect x="48" y="858" width="324" height="76" rx="8" fill="#111827" stroke="#4ade80"></rect>
+      <text x="210" y="884" text-anchor="middle" fill="#bbf7d0" font-size="9" font-weight="800"
+        >ISOLATED SUT</text
+      >
+      <text x="210" y="908" text-anchor="middle" fill="#f8fafc" font-size="12.5" font-weight="800"
+        >Real application + mutable state</text
+      >
+
+      <line x1="210" y1="934" x2="210" y2="962" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-two-loops-mobile-arrow)"></line>
+      <rect x="48" y="974" width="324" height="76" rx="8" fill="#102a23" stroke="#22c55e"></rect>
+      <text x="210" y="1000" text-anchor="middle" fill="#86efac" font-size="9" font-weight="800"
+        >SEALED EVIDENCE</text
+      >
+      <text x="210" y="1024" text-anchor="middle" fill="#f8fafc" font-size="12.5" font-weight="800"
+        >Effects + decisions + integrity</text
+      >
+
+      <line x1="210" y1="1050" x2="210" y2="1078" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-two-loops-mobile-arrow)"></line>
+      <rect x="48" y="1090" width="324" height="76" rx="8" fill="#3b2f0b" stroke="#fbbf24"></rect>
+      <text x="210" y="1116" text-anchor="middle" fill="#fde68a" font-size="9" font-weight="800"
+        >SEPARATE VERDICTS</text
+      >
+      <text x="210" y="1140" text-anchor="middle" fill="#f8fafc" font-size="11.5" font-weight="800"
+        >test · integrity · effects · ODC</text
+      >
+
+      <rect x="28" y="1216" width="364" height="72" rx="8" fill="#111827" stroke="#475569"></rect>
+      <text x="210" y="1241" text-anchor="middle" fill="#bbf7d0" font-size="10" font-weight="800"
+        >Finding → agent repair → run again</text
+      >
+      <text x="210" y="1263" text-anchor="middle" fill="#fde68a" font-size="9"
+        >The accepted flow and policy stay fixed.</text
+      >
     </svg>
   </div>
-  <figcaption>The coding agent and Blackbox Skills work across the chain. An <strong>effect</strong> is a runtime action such as a database write, API call, or message. <strong>ODC</strong> asks whether different code-decision outcomes produced distinguishable effects.</figcaption>
+
+  <figcaption>
+    The behavior-alignment loop can start from human intent or a passing test.
+    EARS and Gherkin are optional at runtime; the stable <code>@flow:</code>
+    identity joins readable behavior to the runtime-verification loop. An
+    <strong>effect</strong> is a database, API, cache, or messaging action.
+    <strong>ODC</strong> asks whether different code-decision outcomes produced
+    distinguishable effects.
+  </figcaption>
 </figure>
 
 <style>

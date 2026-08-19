@@ -1,6 +1,6 @@
 ---
 title: "Blackbox Quickstart"
-description: "Take one Playwright system flow from a passing test to trustworthy runtime evidence, effect checks, and observable decision coverage."
+description: "Align one readable behavior with a Playwright flow, then verify its runtime effects and observable decisions."
 sidebar_position: 1
 keywords:
   [
@@ -11,9 +11,16 @@ keywords:
   ]
 ---
 
-Complete one trustworthy Blackbox flow in four steps. You will keep or create one Playwright system test, connect the application, inspect what it did, and turn the accepted behavior into deterministic verdicts.
+Complete both Blackbox loops with one subscription behavior. First align readable intent with an executable Playwright flow. Then run that flow against the application, inspect its evidence, and compute separate runtime verdicts.
 
-This Quickstart uses a compiled Node.js and TypeScript application started with a host command. The flow runs serially against dedicated test data so the first setup is easy to reason about.
+```text
+Behavior alignment:    human-readable behavior ↔ @flow system test
+Runtime verification:  @flow system test → SUT → evidence → verdicts → repair
+```
+
+This Quickstart uses Gherkin so you can experience the complete alignment loop. Gherkin remains optional during runtime execution.
+
+The runtime example uses a compiled Node.js and TypeScript application started with a host command. It runs serially against dedicated test data so the first setup is easy to reason about.
 
 ## Before You Start
 
@@ -26,19 +33,27 @@ You need:
 
 ## Choose Your Starting Point
 
-| Your situation                                  | Start here                                                                                                                               |
-| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| **I already have a passing system or E2E test** | [Step 1A: Start From an Existing Test](/docs/blackbox/quickstart/build-behavioral-harness) keeps the test and gives it a stable flow ID. |
-| **I do not have a system or E2E test yet**      | [Step 1B: Start Without a Test](/docs/blackbox/guides/turn-requirements-into-system-test) creates a tagged test shell from one behavior. |
+| Your situation                                  | Start here                                                                                                                                                             |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **I already have a passing system or E2E test** | [Step 1A: Start From an Existing Test](/docs/blackbox/quickstart/build-behavioral-harness) keeps it, assigns a stable flow ID, and emits readable behavior for review. |
+| **I do not have a system or E2E test yet**      | [Step 1B: Start Without a Test](/docs/blackbox/quickstart/start-without-test) turns one reviewed behavior into the same tagged Playwright flow.                        |
 
-Both routes reach the same checkpoint before runtime capture: one passing Playwright flow with exactly one stable `@flow:<id>`.
+Both routes produce the same artifacts:
+
+```text
+e2e/features/subscribe-user.feature
+e2e/subscribe-user.system.test.ts
+@flow:subscribe-user
+```
+
+Before runtime capture, the Playwright flow must pass.
 
 ## Follow the Four Steps
 
-1. **Get one accepted system flow.** Keep a passing test in [Step 1A](/docs/blackbox/quickstart/build-behavioral-harness), or create its shell from plain-language intent in [Step 1B](/docs/blackbox/guides/turn-requirements-into-system-test).
+1. **Align one readable behavior and executable flow.** Start from a passing test in [Step 1A](/docs/blackbox/quickstart/build-behavioral-harness), or from human intent in [Step 1B](/docs/blackbox/quickstart/start-without-test). Review the Gherkin and keep one stable flow ID across both artifacts.
 2. **[Connect your application](/docs/blackbox/quickstart/add-to-existing-test).** Tell Blackbox how to start the system under test, add the Playwright fixture, and make the native flow pass.
-3. **[Run and inspect evidence](/docs/blackbox/quickstart/add-runtime-evidence).** Run the flow, inspect its captured effects, and approve only the runtime actions that should become policy.
-4. **[Enforce effects and read ODC](/docs/blackbox/quickstart/enforce-runtime-effects).** Apply the policy to sealed evidence, read the separate verdicts, and repair the implementation without redefining success.
+3. **[Run and inspect evidence](/docs/blackbox/quickstart/add-runtime-evidence).** Run the accepted flow and inspect the effects and decision evidence it produced. Observations are facts, not policy.
+4. **[Approve effects and read ODC](/docs/blackbox/quickstart/enforce-runtime-effects).** Approve the smallest effect policy, analyze the sealed evidence, and repair implementation without redefining success.
 
 ## What Success Looks Like
 
@@ -50,7 +65,7 @@ FLOW subscribe-user
   ODC         REPORT  user-exists outcomes produced distinct evidence
 ```
 
-At that point, the visible response, evidence integrity, required and forbidden runtime actions, and decision propagation are separate results. The same flow can become a CI gate.
+At that point, readable intent, native assertions, evidence integrity, effect policy, and decision propagation remain separate but connected by one stable flow identity.
 
 ## If Your Application Starts Differently
 
