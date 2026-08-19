@@ -1,6 +1,6 @@
 ---
 title: "How Blackbox Works?"
-description: "See one behavior move from an EARS requirement and Gherkin scenario through a real system run to runtime evidence and four clear verdicts."
+description: "Follow one accepted behavior through a real system run, sealed runtime evidence, separate verdicts, and agent-assisted repair."
 sidebar_position: 2
 keywords:
   [
@@ -21,178 +21,94 @@ seo:
 import Aside from "@/components/mdx/Aside.astro";
 import BlackboxEvidenceChainDiagram from "@/components/blackbox/BlackboxEvidenceChainDiagram.astro";
 
-Blackbox connects an approved behavior to one real system flow, records what happened, and returns four separate results.
+Blackbox works by connecting an accepted behavior to one tagged system flow, running that flow against the real application, recording what happened, and calculating separate verdicts from sealed evidence.
 
 <BlackboxEvidenceChainDiagram />
 
-Read the chain from left to right: **human intent → agent-built harness → real execution → runtime evidence → verdicts → agent repair**.
+Read the chain from left to right: **human intent → agent-assisted harness → system execution → effects and decision evidence → verdicts → repair**.
 
-Three terms appear throughout Blackbox:
+## Two Starting Paths, One Runtime Chain
 
-| Term                                   | Plain meaning                                                                                                                                      | Subscription example                                     |
-| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| **System under test (SUT)**            | The application and services whose behavior Blackbox runs or connects to.                                                                          | The compiled subscription API.                           |
-| **Effect**                             | A meaningful runtime action performed at a system boundary, such as reading a database, calling an API, changing a cache, or publishing a message. | `SELECT users` or `INSERT subscriptions`.                |
-| **Observable decision coverage (ODC)** | A comparison of the effects produced when tests exercise different outcomes of a code decision.                                                    | A known user causes an insert; an unknown user does not. |
+| Starting situation               | How it reaches Blackbox                                                                              |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| **A passing system or E2E test** | Keep the test and give the behavior one stable `@flow:<id>`.                                         |
+| **No system or E2E test yet**    | Describe one behavior. An agent can propose EARS, Gherkin, and a tagged test shell for human review. |
 
-The agent is involved all the way through. [Blackbox Skills](/docs/blackbox/guides/agent-skills) help it structure requirements, propose Gherkin, build the runtime and effect layers, interpret ODC, and repair the implementation. People approve the artifacts that define success. Deterministic Blackbox commands validate those artifacts and compute every runtime verdict.
+EARS and Gherkin keep intent readable, but they are optional at runtime. Both paths must eventually produce one accepted, passing system flow.
 
-## Start With or Without a Test
+## 1. A Person Accepts the Target
 
-Blackbox exercises running software through a system or E2E test. Runtime verification eventually needs one, but you do **not** need one before adopting Blackbox.
+The target may begin as a change request, an EARS requirement, a Gherkin scenario, or an existing test. Blackbox Skills can help a coding agent fill the gaps between those artifacts.
 
-| Your situation                                  | Start here                                                                                                                                                                                              |
-| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **I already have a passing system or E2E test** | Keep it. Give one important flow a stable `@flow:<id>` and optionally generate readable behavior from it.                                                                                               |
-| **I have no system or E2E test yet**            | Start with one behavior in plain language. Blackbox Skills can help the agent propose requirements, Gherkin, and a tagged Playwright skeleton. Step 2 connects the application and makes the flow real. |
+The person still approves what success means: the behavior, native assertions, stable flow ID, required and forbidden effects, isolation assumptions, and any coverage gate.
 
-Both paths meet at the same checkpoint:
+## 2. The Flow Exercises the Real Application
 
-```text
-Existing passing test ──> add a stable flow ID ───────────┐
-                                                          ├──> one accepted, tagged system flow
-No test yet ──> describe behavior ──> create a test shell ┘
-                                                                     │
-                                                                     ▼
-                                       connect application → make it pass → capture → verdicts
-```
+The **system under test (SUT)** is the application and services being verified. Blackbox starts it or connects to it, waits until it is ready, creates an isolated test cell, and opens a unique attempt for each Playwright test execution.
 
-## One Subscription Flow, End to End
+The `@flow:<id>` connects the accepted behavior to every attempt, retry, captured event, artifact, and report.
 
-The walkthrough below follows the longer path: there is an application and a behavior to build, but no system test yet. If you already have a passing test, keep it and join at step 2.
+## 3. Capture Records Effects and Executed Code
 
-### 1. No Test Yet: Start With Human Intent
+An **effect** is a meaningful action at a system boundary: a database operation, API call, cache change, or published message. Blackbox also records the executed code and source maps needed to reconstruct decisions later.
 
-A person starts with a goal or change request in natural language. `$blackbox-requirements` can turn it into atomic EARS requirements for review:
+One subscription flow might leave this trace:
 
-```text title="requirements/subscriptions.ears"
-REQ-001: When a known user subscription is accepted, the API shall persist an active subscription record.
-REQ-004: When an unknown user subscribes, the API shall not request payment or persist a subscription record.
-```
+| Attempt      | Visible result | Runtime effects                                                   |
+| ------------ | -------------- | ----------------------------------------------------------------- |
+| Known user   | `201`          | Read `users`, then insert `subscriptions`                         |
+| Unknown user | `404`          | Read `users`; no subscription insert and no payment-provider call |
 
-After approval, `$blackbox-gherkin` can fill the next gap: readable examples with one shared flow ID.
+The test checks the visible result. Effects show what the application did behind that result.
 
-```gherkin title="e2e/features/subscribe-user.feature"
-@flow:subscribe-user
-Feature: Subscribe a user
+## 4. Blackbox Seals First and Analyzes Offline
 
-  @requirement:REQ-001
-  Scenario: Known user is subscribed
-    When the client subscribes user "alice"
-    Then the response status is 201
+During the run, Blackbox correlates each observation with the attempt that caused it. At attempt close, it waits for related work, checks capture integrity, stores exact artifacts by digest, and seals the evidence.
 
-  @requirement:REQ-004
-  Scenario: Unknown user is rejected
-    When the client subscribes user "ghost"
-    Then the response status is 404
-```
+Offline analysis then:
 
-The agent proposes these artifacts; a person approves their meaning. EARS and Gherkin keep the intent readable, but they are optional during runtime. They do not run the application.
+- Checks approved required and forbidden effects.
+- Joins executed code to source maps.
+- Reconstructs exercised decision outcomes.
+- Calculates **observable decision coverage (ODC)**—whether different outcomes of a code decision produced distinguishable runtime effects.
 
-### 2. Reach the Shared Checkpoint
+Because analysis is offline, the same sealed run can be inspected again without restarting the application.
 
-Blackbox can generate the tagged Playwright structure. The stable `@flow:subscribe-user` identity connects the readable behavior to the future run. The completed flow will look like this:
-
-```ts title="e2e/subscribe-user.system.test.ts"
-import { expect, test } from "@playwright/test";
-
-test.describe("subscribe user", { tag: "@flow:subscribe-user" }, () => {
-  test("known user is subscribed", async ({ request }) => {
-    const response = await request.post("/subscriptions", {
-      data: { userId: "alice" },
-    });
-
-    expect(response.status()).toBe(201);
-  });
-
-  test("unknown user is rejected", async ({ request }) => {
-    const response = await request.post("/subscriptions", {
-      data: { userId: "ghost" },
-    });
-
-    expect(response.status()).toBe(404);
-  });
-});
-```
-
-If you started with an existing test, this is where you join: keep its working action and assertion, then add the stable flow ID. Both starting paths now have one accepted, tagged system flow.
-
-### 3. Connect the Application and Make the Flow Pass
-
-`$blackbox-runtime` helps the agent connect the application, capture, and isolation setup. For a new flow, the agent or developer completes the project-specific request, assertion, fixtures, and test data, then runs the native test until it passes.
-
-The deterministic CLI then runs the accepted flow:
-
-```bash
-pnpm exec blackbox test --flow subscribe-user
-```
-
-### 4. See What Actually Happened
-
-Blackbox connects every observation to the attempt that caused it. It turns trace-based observations into normalized [effects](/docs/blackbox/concepts/effects-and-catalogs), such as a database read, HTTP call, or published message. This example produces two different evidence signatures:
-
-| Attempt      | Response | Observed effects                                                |
-| ------------ | -------- | --------------------------------------------------------------- |
-| Known user   | `201`    | `postgres SELECT users` → `postgres INSERT subscriptions`       |
-| Unknown user | `404`    | `postgres SELECT users`; no subscription insert or payment call |
-
-The native assertions check what the client sees. After the first run, `$blackbox-effects` helps the agent inspect these facts and propose which actions should become required or forbidden behavior:
-
-```yaml title="e2e/features/subscribe-user.effects.yaml"
-specVersion: "0.1"
-flow: subscribe-user
-
-requires:
-  - { boundary: postgres, op: SELECT, key: users, service: api }
-
-forbids:
-  - { boundary: http, op: POST, key: /v1/payment_intents, service: api }
-```
-
-The agent proposes the contract; a person approves the policy. Observed actions do not automatically become requirements.
-
-The effect contract checks required and forbidden work. [Observable decision coverage (ODC)](/docs/blackbox/concepts/omc-dc-coverage) compares the complete signatures for exercised decision outcomes. Here it asks: did the known-user and unknown-user outcomes leave distinguishable runtime effects?
-
-### 5. Read Separate Verdicts
+## 5. Each Verdict Answers One Question
 
 ```text
 FLOW subscribe-user
-  tests       PASS    2 attempts
+  tests       PASS    approved responses observed
   integrity   PASS    capture complete
-  effects     PASS    required and forbidden policy satisfied
-  ODC         REPORT  user-exists outcomes produced distinct evidence
+  effects     PASS    required work happened; forbidden work did not
+  ODC         REPORT  exercised outcomes produced distinct evidence
 ```
 
-Each line answers a different question:
+| Verdict       | What it tells you                                                  |
+| ------------- | ------------------------------------------------------------------ |
+| **Tests**     | The system returned the expected visible result.                   |
+| **Integrity** | The evidence is complete enough to support a conclusion.           |
+| **Effects**   | The accepted required and forbidden runtime policy was satisfied.  |
+| **ODC**       | Exercised decision outcomes propagated to distinguishable effects. |
 
-| Verdict       | Meaning                                                           |
-| ------------- | ----------------------------------------------------------------- |
-| **Tests**     | The client received the approved responses.                       |
-| **Integrity** | The runtime evidence is complete enough to trust.                 |
-| **Effects**   | Required work happened and forbidden work did not.                |
-| **ODC**       | The exercised decision outcomes produced distinguishable effects. |
+## 6. The Agent Repairs Against a Fixed Target
 
-`$blackbox-odc` helps the agent interpret decision propagation. `$blackbox-repair` turns a deterministic finding into an implementation change, then runs the same accepted flow again. Changing the approved behavior or policy still requires human review.
+Blackbox Skills can help the agent propose specifications, connect the runtime, review effects, interpret ODC, and repair implementation. Deterministic CLI, runner, capture, and analyzer components compute the gates.
 
-## What Blackbox Does Around the Test
+```text
+Skills propose → people approve the target → Blackbox computes
+       ↑                                          ↓
+       └──────── agent repairs implementation ← finding
+```
 
-| Moment        | Blackbox action                                                                  |
-| ------------- | -------------------------------------------------------------------------------- |
-| **Before**    | Starts or connects to the SUT, isolates mutable state, and opens an attempt.     |
-| **During**    | Propagates the flow and attempt identity; records effects and executed branches. |
-| **At close**  | Waits for related work, validates capture, and seals the evidence.               |
-| **Afterward** | Checks effects, reconstructs decisions, calculates ODC, and writes the verdicts. |
+The agent may change implementation and rerun the same flow. If passing requires changing the accepted behavior, assertion, effect policy, isolation promise, or coverage gate, control returns to a person.
 
-For Node.js, a small capture component uses OpenTelemetry for boundary effects and V8 for executed code. A cell-local sidecar validates identities and stores the evidence. Other languages can provide different capture and analysis components without changing this lifecycle.
-
-<Aside type="note" title="Isolation Is Part of the Evidence">
-  A fresh API process with a shared, dirty database is not isolated. Blackbox
-  can prove that a forbidden effect was absent only when the flow's mutable
-  state is isolated or reset.
+<Aside type="note" title="Isolation Makes Negative Claims Trustworthy">
+  A new API process that shares a dirty database is not an isolated system.
+  Blackbox can conclude that a forbidden effect was absent only when the flow's
+  mutable state is isolated or reset.
 </Aside>
 
-Host commands, Compose, Dockerfiles, compiled artifacts, external SUTs, and custom provisioners all follow the same chain. Only SUT startup and lifecycle ownership change.
+## Run the Chain
 
-## Try the Chain
-
-The [Blackbox Quickstart](/docs/blackbox/quickstart/) builds this example from left to right. If your SUT starts differently, build the behavioral harness first and then [choose the matching SUT setup](/docs/blackbox/guides/set-up-the-testbed).
+The [Blackbox Quickstart](/docs/blackbox/quickstart/) takes one flow through this lifecycle. If the application does not use the default host command, first build the flow, then [choose the matching application setup](/docs/blackbox/guides/set-up-the-testbed).

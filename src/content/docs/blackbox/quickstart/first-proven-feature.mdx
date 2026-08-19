@@ -26,14 +26,12 @@ create cell -> start application -> run Playwright attempts -> settle capture
 
 The result keeps its claims separate. On this first run, no effect contract has been accepted yet, so Blackbox records effects without treating them as required or forbidden.
 
-**Observable decision coverage (ODC)** compares the effects associated with different outcomes of a code decision. It reports whether those outcomes left meaningfully different evidence.
-
 ```text
 FLOW subscribe-user
   tests       PASS  2 attempts
   integrity   PASS  capture complete
   effects     NOT CHECKED  no accepted contract
-  ODC         REPORT  user-exists outcomes produced distinct evidence
+  ODC         REPORT  interpret in Step 4
 ```
 
 ## 2. Inspect the Sealed Run

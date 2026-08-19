@@ -35,33 +35,13 @@ Blackbox connects accepted behavior, native execution, sealed runtime evidence, 
 
 Suppose an unknown user receives the expected `404`, but the implementation also calls a payment API. The response assertion remains green because it cannot see that hidden **effect**—a meaningful runtime action performed by the application.
 
-Keep the native assertion:
+The native test still proves the response. Blackbox independently checks the approved boundary rule: the user lookup must happen, and the payment call must not.
 
-```ts title="e2e/subscribe-user.system.test.ts"
-expect(response.status()).toBe(404);
-```
-
-Then approve the boundary behavior independently:
-
-```yaml title="e2e/features/subscribe-user.effects.yaml"
-specVersion: "0.1"
-flow: subscribe-user
-
-requires:
-  - { boundary: postgres, op: SELECT, key: users, service: api }
-
-forbids:
-  - { boundary: http, op: POST, key: /v1/payment_intents, service: api }
-```
-
-Blackbox keeps the results separate:
-
-```text
-tests       PASS
-integrity   PASS
-effects     FAIL   forbidden payment call observed
-ODC         REPORT opposite branch outcomes produced distinct effects
-```
+| Result        | Finding                                      |
+| ------------- | -------------------------------------------- |
+| Test          | Pass—the client received `404`.              |
+| Evidence      | Complete—the runtime capture can be trusted. |
+| Effect policy | Fail—the forbidden payment call happened.    |
 
 A green assertion with a failed effect verdict means the visible result was correct while the accepted boundary behavior was not. **[Observable decision coverage (ODC)](/docs/blackbox/concepts/omc-dc-coverage)** compares the effects produced by different code-decision outcomes; here it compares the unknown-user attempt with the known-user attempt.
 
@@ -83,30 +63,10 @@ The agent can repeat the implementation loop without waiting for a person after 
   guarantee.
 </Aside>
 
-## Start From What You Have
+## Fit It Around the Workflow You Already Have
 
-Blackbox does not require a particular specification framework or test runner. Start with the surface that already carries useful behavior:
+Blackbox can begin with a passing system test or with one behavior a team still needs to turn into a test. EARS and Gherkin can keep intent readable, but they are optional. Runtime verification uses the accepted system flow and records what the running software actually did.
 
-- **Existing suite:** Recover readable behavior and align the accepted native flow.
-- **New behavior:** Connect approved requirements and examples to a native flow.
-- **Accepted flow:** Add runtime observation and a required-or-forbidden effect contract.
+Blackbox is a fit when a correct response is not enough—when database writes, external calls, messages, decision outcomes, or the absence of harmful work also matter.
 
-EARS requirements and Gherkin are optional. Specifications guide the agent; Blackbox verifies what the running system actually did.
-
-<Aside type="note" title="Start Before Runtime">
-  Without starting or attaching capture to the SUT, Blackbox can validate
-  requirements, features, flow identities, and suite alignment. Those checks
-  prove structural agreement, not runtime behavior.
-</Aside>
-
-Blackbox keeps test, feature, effect, requirement, and observable-decision verdicts separate. Missing evidence remains explicit instead of becoming confidence.
-
-## Start With One Consequential Flow
-
-Choose one system or E2E flow where wrong behavior would matter. First [understand how Blackbox runs and analyzes that flow](/docs/blackbox/overview/how-blackbox-works), then [build the complete loop in the Quickstart](/docs/blackbox/quickstart/).
-
-If your starting point differs from the golden path:
-
-- **Already have a passing system or E2E test:** Keep it and [give one flow a stable identity](/docs/blackbox/quickstart/build-behavioral-harness).
-- **No system or E2E test yet:** Start with [one behavior in plain language and create the system flow](/docs/blackbox/guides/turn-requirements-into-system-test), then join the Quickstart.
-- **Different SUT setup:** Build the harness first, then [choose how Blackbox starts or connects to your SUT](/docs/blackbox/guides/set-up-the-testbed).
+Next, [see how one flow moves through Blackbox](/docs/blackbox/overview/how-blackbox-works), then [prove it in the Quickstart](/docs/blackbox/quickstart/).

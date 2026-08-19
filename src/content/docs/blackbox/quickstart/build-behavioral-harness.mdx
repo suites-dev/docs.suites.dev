@@ -1,18 +1,15 @@
 ---
-title: "1. Start With One System Flow"
-description: "Keep one passing system or E2E test and give it a stable identity, or create a tagged test shell when none exists."
+title: "1A. Start From an Existing Test"
+description: "Keep one passing system or E2E test and give its behavior a stable Blackbox flow identity."
 sidebar_position: 2
 keywords: ["Blackbox behavioral harness", "flow ID", "Playwright system test"]
 ---
 
-Runtime verification needs one system or E2E flow. Blackbox does not require you to have that test before you begin.
+Start here when you already have a passing Playwright system or E2E test. Keep its working action and assertion, then give the behavior one stable `@flow:<id>`.
 
-| Your situation                                  | Next action                                                                                                                                                                                                                            |
-| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **I already have a passing system or E2E test** | Continue on this page. Keep its working action and assertion.                                                                                                                                                                          |
-| **I have no system or E2E test yet**            | Follow the [alternate Step 1](/docs/blackbox/guides/turn-requirements-into-system-test). Start with one behavior in plain language, create the tagged test shell, then continue to Step 2 to connect the application and make it pass. |
+If you do not have a system test yet, use [Step 1B: Start Without a Test](/docs/blackbox/guides/turn-requirements-into-system-test).
 
-A **behavioral harness** is the reviewed definition of success that an agent must satisfy without rewriting. Both routes produce the same thing: one accepted system flow with one stable `@flow:<id>`.
+A **behavioral harness** is the reviewed definition of success that an agent must satisfy without rewriting.
 
 ## 1. Install Blackbox
 
@@ -106,4 +103,4 @@ The file stem, feature tag, and Playwright tag should all resolve to `subscribe-
 
 You now have one passing native flow and one stable identity. If you generated the optional feature, you also have a reviewable behavior document. Runtime evidence can join this harness without making Gherkin a runtime dependency.
 
-Continue with [Connect a Host-Command SUT](/docs/blackbox/quickstart/add-to-existing-test).
+Continue with [Step 2: Connect Your Application](/docs/blackbox/quickstart/add-to-existing-test).

@@ -1,11 +1,13 @@
 ---
-title: "Recover Behavior From Existing Tests"
-description: "Generate reviewed Gherkin from a passing system test and keep its flow identity aligned."
+title: "Add Readable Behavior Specifications"
+description: "Generate reviewed Gherkin from passing system tests and keep readable behavior aligned with executable flows."
 sidebar_position: 10
 keywords: ["existing system tests", "Gherkin recovery", "suite alignment"]
 ---
 
-Use this guide as an alternate Quickstart Step 1 when a passing `.system.test.ts` file already contains behavior worth making explicit. No running SUT or capture environment is required. After review, rejoin at Step 2.
+Use this guide after a Playwright system flow passes and you want readable Gherkin for review, traceability, or agent context. Gherkin is optional for runtime verification; it does not replace the executable test or runtime evidence.
+
+If you have no system test yet, use [Quickstart Step 1B](/docs/blackbox/guides/turn-requirements-into-system-test) instead. That route starts from plain-language intent and creates the test shell before connecting the application.
 
 If you want a coding agent to review the generated Gherkin, [install the Blackbox Skills first](/docs/blackbox/guides/agent-skills). The deterministic CLI steps work without a Skill.
 
@@ -86,4 +88,4 @@ pnpm exec blackbox requirements drift ./requirements --tests ./e2e --json
 
 ## Result
 
-You have a passing native flow and a reviewed readable projection joined by one stable ID. Rejoin at [Quickstart Step 2: Connect a Host-Command SUT](/docs/blackbox/quickstart/add-to-existing-test), or replace that provisioning with another [SUT setup](/docs/blackbox/guides/set-up-the-testbed).
+You have a passing native flow and a reviewed readable projection joined by one stable ID. Run `features check` and `suites check` whenever either artifact changes so the documentation stays tied to executable behavior.

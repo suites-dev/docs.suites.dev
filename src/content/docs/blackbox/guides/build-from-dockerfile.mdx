@@ -6,7 +6,7 @@ keywords: ["Blackbox Dockerfile", "container system test", "Node capture"]
 
 Use a Dockerfile source when one service already has a repeatable container build but the project does not need a full Compose topology.
 
-Complete [Quickstart Step 1](/docs/blackbox/quickstart/build-behavioral-harness) first. This setup replaces the host-command provisioning in Step 2. Keep its Playwright adapter and fixture.
+Complete [Quickstart Step 1A](/docs/blackbox/quickstart/build-behavioral-harness) or [Step 1B](/docs/blackbox/guides/turn-requirements-into-system-test) first. This setup replaces sections 1 and 2 of Step 2. After configuring the Dockerfile, return to the common Playwright integration in section 3.
 
 ## Configure the Build
 
@@ -67,13 +67,12 @@ Do not treat a fresh application container connected to shared mutable state as 
 
 ```bash
 pnpm exec blackbox doctor --json
-pnpm exec blackbox test --flow subscribe-user
 ```
 
-Expected result: the image builds, the health check passes on a mapped port, the native flow passes, and Blackbox seals captured artifacts and events.
+Expected result: Blackbox resolves the Dockerfile, build context, service port, capture capability, and readiness plan without a configuration error.
 
 ## Next Steps
 
 - **[Use an Existing Compose Project](/docs/blackbox/guides/use-existing-compose):** Isolate a multi-service topology.
 - **[Configure Source Maps and Service Layouts](/docs/blackbox/guides/source-maps-and-service-layouts):** Verify artifact discovery.
-- **[Run and Inspect Evidence](/docs/blackbox/quickstart/add-runtime-evidence):** Rejoin the Quickstart at Step 3.
+- **[Add Blackbox to Playwright](/docs/blackbox/quickstart/add-to-existing-test#3-add-blackbox-to-playwright):** Rejoin Step 2 at the shared adapter setup.

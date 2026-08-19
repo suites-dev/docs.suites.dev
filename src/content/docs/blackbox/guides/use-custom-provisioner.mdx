@@ -6,7 +6,7 @@ keywords: ["Blackbox custom provisioner", "Testcontainers", "test environment"]
 
 Use the custom provisioner extension seam when the built-in command, Compose, Dockerfile, artifact, and external strategies do not represent your topology. This is an advanced integration for teams that own the provider and its lifecycle tests.
 
-Complete [Quickstart Step 1](/docs/blackbox/quickstart/build-behavioral-harness) first. A custom provisioner replaces only the host-command provisioning in Step 2. Keep the Playwright adapter and fixture.
+Complete [Quickstart Step 1A](/docs/blackbox/quickstart/build-behavioral-harness) or [Step 1B](/docs/blackbox/guides/turn-requirements-into-system-test) first. A custom provisioner replaces sections 1 and 2 of Step 2. Keep the common Playwright adapter and fixture.
 
 ## Implement the Typed Cell Contract
 
@@ -35,7 +35,7 @@ Cleanup must be idempotent because worker interruption and setup failure can inv
 
 Test the provider's start, readiness, failure, and idempotent cleanup behavior directly. Include repeated-cell and interrupted-start cases for every isolation scope the provider supports.
 
-After the provider is bound through the Blackbox facade used by your installed version, run a representative flow with `blackbox test`. The facade binding is version-specific; do not infer a configuration field from the lower-level `CellProvisioner` interface.
+After the provider is bound through the Blackbox facade used by your installed version, return to Step 2 and run the native Playwright flow. The facade binding is version-specific; do not infer a configuration field from the lower-level `CellProvisioner` interface.
 
 ## Good Uses
 
@@ -47,5 +47,5 @@ After the provider is bound through the Blackbox facade used by your installed v
 
 ## Next Step
 
-- [Configure Isolation and Parallelism](/docs/blackbox/guides/playwright-isolation-and-parallelism)
-- [Run and Inspect Evidence](/docs/blackbox/quickstart/add-runtime-evidence) to rejoin the Quickstart at Step 3.
+- [Isolate Tests and Run in Parallel](/docs/blackbox/guides/playwright-isolation-and-parallelism)
+- [Add Blackbox to Playwright](/docs/blackbox/quickstart/add-to-existing-test#3-add-blackbox-to-playwright) to rejoin Step 2 at the shared adapter setup.

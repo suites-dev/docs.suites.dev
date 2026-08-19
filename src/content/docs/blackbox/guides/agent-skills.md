@@ -75,9 +75,22 @@ Skills must not silently redefine:
 Skills propose -> CLI and runtime compute -> agent repairs -> human approves
 ```
 
+## Know What Computes Each Result
+
+| Work                                | Owner                        |
+| ----------------------------------- | ---------------------------- |
+| Propose requirements and contracts  | Blackbox Skills              |
+| Validate static artifacts and drift | Blackbox CLI                 |
+| Execute native tests and attempts   | Runner adapter               |
+| Observe and seal runtime evidence   | Language capture and sidecar |
+| Check effects and calculate ODC     | Offline analyzers            |
+| Accept behavior, policy, and result | People                       |
+
+An agent can operate across the whole loop, but it does not replace the deterministic components that produce findings or the people who approve the target.
+
 ## Next Steps
 
-- **[Recover Behavior From Existing Tests](/docs/blackbox/guides/recover-behavior-from-existing-tests)**
-- **[Turn One Requirement Into a System Test](/docs/blackbox/guides/turn-requirements-into-system-test)**
-- **[Human and Agent Verification Loop](/docs/blackbox/guides/spec-driven-and-agentic-verification)**
+- **[Add Readable Behavior Specifications](/docs/blackbox/guides/recover-behavior-from-existing-tests)**
+- **[Start Without a Test](/docs/blackbox/guides/turn-requirements-into-system-test)**
+- **[How Blackbox Works?](/docs/blackbox/overview/how-blackbox-works)**
 - **[Enforce Effects and Read ODC](/docs/blackbox/quickstart/enforce-runtime-effects):** Enter the implementation-repair loop at Step 4.

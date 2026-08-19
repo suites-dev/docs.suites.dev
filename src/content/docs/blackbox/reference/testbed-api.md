@@ -29,7 +29,7 @@ A cell owns:
 - A private sidecar and evidence partition.
 - Reset and teardown responsibility.
 
-The scope is `flow`, `worker`, or `test`. See [Configure Isolation and Parallelism](/docs/blackbox/guides/playwright-isolation-and-parallelism) for lifecycle timing.
+The scope is `flow`, `worker`, or `test`. See [Isolate Tests and Run in Parallel](/docs/blackbox/guides/playwright-isolation-and-parallelism) for lifecycle timing.
 
 ## Managed Lifecycle
 
@@ -66,5 +66,5 @@ The provisioner does not depend on Playwright. It operates behind the runner-neu
 
 ## See Also
 
-- [Choose How Blackbox Starts Your SUT](/docs/blackbox/guides/set-up-the-testbed)
+- [Choose How Blackbox Runs Your Application](/docs/blackbox/guides/set-up-the-testbed)
 - [Configuration](/docs/blackbox/reference/configuration)

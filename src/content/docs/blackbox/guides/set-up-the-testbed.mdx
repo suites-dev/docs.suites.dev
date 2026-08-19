@@ -1,11 +1,11 @@
 ---
-title: "Choose How Blackbox Starts Your SUT"
-description: "Choose a SUT source strategy while keeping the same isolation, capture, evidence, and analysis lifecycle."
+title: "Choose How Blackbox Runs Your Application"
+description: "Choose an application source strategy while keeping the same isolation, capture, evidence, and analysis lifecycle."
 sidebar_position: 1
 keywords: ["Blackbox testbed", "SUT setup", "system test provisioning"]
 ---
 
-Blackbox adapts to the way you already start your system. The source strategy changes provisioning; the runner, capture protocol, evidence format, and analyzers stay the same.
+Use this guide only when the host-command Quickstart does not match how you run the application. The source strategy changes provisioning; the Playwright integration, capture protocol, evidence format, and analysis remain the same.
 
 ```text
 Compose ───────┐
@@ -18,16 +18,14 @@ custom setup ──┘
 
 ## Choose From What You Already Have
 
-| Starting point                     | Source kind  | Lifecycle owner  | Quickstart role                         | Guide                                                                             |
-| ---------------------------------- | ------------ | ---------------- | --------------------------------------- | --------------------------------------------------------------------------------- |
-| A normal start command             | `command`    | Blackbox         | Step 2 provisioning                     | [Run a Host Command](/docs/blackbox/guides/run-a-host-command)                    |
-| One or more Compose files          | `compose`    | Blackbox         | Replace Step 2 provisioning             | [Use an Existing Compose Project](/docs/blackbox/guides/use-existing-compose)     |
-| A Dockerfile                       | `dockerfile` | Blackbox         | Replace Step 2 provisioning             | [Build From a Dockerfile](/docs/blackbox/guides/build-from-dockerfile)            |
-| Compiled `dist/` folders           | `artifacts`  | Blackbox         | Replace Step 2 provisioning             | [Run Compiled Artifacts](/docs/blackbox/guides/run-compiled-artifacts)            |
-| A process you already run          | `external`   | You              | Replace Step 2 provisioning             | [Connect an External SUT](/docs/blackbox/guides/connect-external-sut)             |
-| Testcontainers or another platform | `custom`     | Your provisioner | Replace Step 2 provisioning             | [Use a Custom Provisioner](/docs/blackbox/guides/use-custom-provisioner)          |
-| Parallel or unusual cell lifecycle | —            | Varies           | Step 2 deep dive, then rejoin at Step 3 | [Configure Isolation](/docs/blackbox/guides/playwright-isolation-and-parallelism) |
-| Nonstandard compiled layouts       | —            | Varies           | Step 2 deep dive, then rejoin at Step 3 | [Configure Source Maps](/docs/blackbox/guides/source-maps-and-service-layouts)    |
+| What you already use                | Choose this setup                                                             |
+| ----------------------------------- | ----------------------------------------------------------------------------- |
+| A normal start command              | [Connect Your Application](/docs/blackbox/quickstart/add-to-existing-test)    |
+| One or more Compose files           | [Use an Existing Compose Project](/docs/blackbox/guides/use-existing-compose) |
+| A Dockerfile                        | [Build From a Dockerfile](/docs/blackbox/guides/build-from-dockerfile)        |
+| Compiled `dist/` folders            | [Run Compiled Artifacts](/docs/blackbox/guides/run-compiled-artifacts)        |
+| A process another tool already runs | [Connect an External SUT](/docs/blackbox/guides/connect-external-sut)         |
+| Testcontainers or another platform  | [Use a Custom Provisioner](/docs/blackbox/guides/use-custom-provisioner)      |
 
 Use `command` for the first flow when it represents your application honestly. Choose Compose when correctness depends on databases, caches, queues, or other mutable services that must be isolated together.
 
@@ -83,6 +81,6 @@ You supply:
 
 An isolated API process sharing one database with another flow is not an isolated system. Include databases, queues, caches, object stores, background workers, and mutable mock servers inside the cell or reset them before each independent attempt.
 
-Keep the Playwright adapter and project fixture from Quickstart Step 2 for every source strategy. After the selected guide passes its validation command, rejoin at [Step 3: Run and Inspect Evidence](/docs/blackbox/quickstart/add-runtime-evidence).
+Keep the Playwright adapter and project fixture from Quickstart Step 2 for every source strategy. After configuring the selected source, return to [Step 2, section 3: Add Blackbox to Playwright](/docs/blackbox/quickstart/add-to-existing-test#3-add-blackbox-to-playwright). Run the native test there before continuing to Step 3.
 
-Use [Configure Isolation and Parallelism](/docs/blackbox/guides/playwright-isolation-and-parallelism) and [Configure Source Maps and Service Layouts](/docs/blackbox/guides/source-maps-and-service-layouts) as Step 2 deep dives, not separate adoption paths. [Use Blackbox With Coding Agents](/docs/blackbox/guides/agent-skills) is a cross-cutting workflow, and [Add Blackbox to CI](/docs/blackbox/guides/reports-and-ci-gates) follows Step 4.
+After the first serial run works, [isolate tests before enabling parallelism](/docs/blackbox/guides/playwright-isolation-and-parallelism). Use [Source Maps and Service Layouts](/docs/blackbox/guides/source-maps-and-service-layouts) only when automatic artifact discovery cannot attribute decisions to source. [Add Blackbox to CI](/docs/blackbox/guides/reports-and-ci-gates) follows Quickstart Step 4.

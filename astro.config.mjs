@@ -128,9 +128,21 @@ export default defineConfig({
       status: 301,
       destination: "/docs/blackbox/quickstart/add-runtime-evidence",
     },
+    "/docs/blackbox/quickstart/demo": {
+      status: 301,
+      destination: "/docs/blackbox/quickstart/",
+    },
     "/docs/blackbox/guides": {
       status: 301,
       destination: "/docs/blackbox/guides/set-up-the-testbed",
+    },
+    "/docs/blackbox/guides/run-a-host-command": {
+      status: 301,
+      destination: "/docs/blackbox/quickstart/add-to-existing-test",
+    },
+    "/docs/blackbox/guides/spec-driven-and-agentic-verification": {
+      status: 301,
+      destination: "/docs/blackbox/guides/agent-skills",
     },
     "/docs/blackbox/guides/reading-coverage-reports": {
       status: 301,

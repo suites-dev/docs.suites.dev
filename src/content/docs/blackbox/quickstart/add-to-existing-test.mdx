@@ -1,13 +1,15 @@
 ---
-title: "2. Connect a Host-Command SUT"
-description: "Tell Blackbox how to start a compiled Node service, configure Playwright, and attach capture without changing application code."
+title: "2. Connect Your Application"
+description: "Tell Blackbox how to start the application, connect Playwright, and attach Node capture without changing application code."
 sidebar_position: 3
 keywords: ["Blackbox host command", "Playwright configuration", "Node capture"]
 ---
 
-Blackbox can start the same command you already use for system tests. The application and services Blackbox runs are the **system under test (SUT)**. This Quickstart keeps that process serial, resets dedicated test data before the selected flow, and uses independent fixture keys for its two attempts. Use a managed topology when you need parallel cells or automatic dependency replacement.
+The application and services Blackbox runs are the **system under test (SUT)**. This Quickstart starts the SUT with the same host command you already use for system tests. It keeps the run serial, resets dedicated test data before the selected flow, and uses independent fixture keys for its two attempts.
 
-Arrive here with one accepted, tagged flow. It can be a passing test you kept in [Step 1](/docs/blackbox/quickstart/build-behavioral-harness), or a generated test shell from the [alternate Step 1](/docs/blackbox/guides/turn-requirements-into-system-test). This page connects the application and completes the runtime setup both paths need.
+Arrive here with one accepted, tagged flow. It can be a passing test you kept in [Step 1A](/docs/blackbox/quickstart/build-behavioral-harness), or a generated test shell from [Step 1B](/docs/blackbox/guides/turn-requirements-into-system-test).
+
+Every setup needs the Playwright adapter and project fixture in sections 3 and 4. Sections 1 and 2 use a host command. If your application starts from Compose, a Dockerfile, compiled artifacts, an external process, or a custom provisioner, [choose that setup first](/docs/blackbox/guides/set-up-the-testbed), then return at section 3.
 
 ## 1. Build Executable JavaScript and Source Maps
 
@@ -80,7 +82,7 @@ Put a dedicated test database URL in `.env.blackbox`; do not pass through a deve
 DATABASE_URL=postgresql://blackbox:blackbox@127.0.0.1:5432/blackbox_quickstart
 ```
 
-Environment files load first, selected host variables load next, and explicit `values` win. Blackbox adds run, cell, service, capture, and sidecar identity itself. An **effect** is a captured runtime action such as a database query or API call; `analysis.effects: "check"` makes the accepted required and forbidden effects a gate. **Observable decision coverage (ODC)** compares the effects produced by different code-decision outcomes. It still reports by default without gating this first run.
+Environment files load first, selected host variables load next, and explicit `values` win. Blackbox adds run, cell, service, capture, and sidecar identity itself.
 
 ## 3. Add Blackbox to Playwright
 
@@ -137,7 +139,7 @@ The two attempts share one flow-owned SUT process and database. They use differe
 This one-time reset prepares the tutorial fixture; it is not a per-attempt reset guarantee. If retries are enabled or a test requires a clean database before every independent attempt, run the reset provider before each attempt or recreate the cell.
 
 :::note Expand the Topology Before Enabling Parallelism
-The host command does not allocate a port or database per worker. Before enabling `fullyParallel`, more workers, or retries, follow [Use an Existing Compose Project](/docs/blackbox/guides/use-existing-compose) and [Configure Isolation and Parallelism](/docs/blackbox/guides/playwright-isolation-and-parallelism).
+The host command does not allocate a port or database per worker. Before enabling `fullyParallel`, more workers, or retries, follow [Use an Existing Compose Project](/docs/blackbox/guides/use-existing-compose) and [Isolate Tests and Run in Parallel](/docs/blackbox/guides/playwright-isolation-and-parallelism).
 :::
 
 ## 6. Complete a Newly Generated Flow
@@ -146,10 +148,24 @@ Skip this section if you kept an existing passing test.
 
 If Step 1 generated a test shell, replace its TODOs with the real application request and visible assertion. Use the prepared test data—for this example, `alice` exists and `ghost` does not. Blackbox provides the tagged structure and runtime connection; your project provides these application-specific details.
 
-The next page runs the flow and shows its native test result separately from its runtime evidence.
+## 7. Confirm the Flow Passes
+
+Run the connected flow with Playwright before asking Blackbox to evaluate runtime behavior:
+
+```bash
+pnpm exec playwright test e2e/subscribe-user.system.test.ts
+```
+
+Expected result:
+
+```text
+2 passed
+```
+
+Fix application actions, assertions, fixtures, test data, or readiness until this native result passes. Step 3 keeps that result separate from runtime integrity, effects, and ODC.
 
 ## Result
 
 Your Playwright flow now runs through Blackbox at an explicit base URL. The next run captures effects and exact executable artifacts while preserving the test’s native result.
 
-Continue with [Run and Inspect Evidence](/docs/blackbox/quickstart/add-runtime-evidence).
+Continue with [Step 3: Run and Inspect Evidence](/docs/blackbox/quickstart/add-runtime-evidence).

@@ -46,5 +46,5 @@ When `lifecycle.ownership` is `user`, attach the service’s language capture pa
 
 ## See Also
 
-- [Run a Host Command](/docs/blackbox/guides/run-a-host-command)
+- [Connect Your Application](/docs/blackbox/quickstart/add-to-existing-test)
 - [Configuration](/docs/blackbox/reference/configuration)

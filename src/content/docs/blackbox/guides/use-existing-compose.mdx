@@ -7,7 +7,7 @@ keywords:
 
 Use Compose when your SUT and its mutable dependencies already run as one declared topology.
 
-Complete [Quickstart Step 1](/docs/blackbox/quickstart/build-behavioral-harness) first. This setup replaces the host-command provisioning in Step 2. Keep the Playwright adapter and fixture from that step.
+Complete [Quickstart Step 1A](/docs/blackbox/quickstart/build-behavioral-harness) or [Step 1B](/docs/blackbox/guides/turn-requirements-into-system-test) first. This setup replaces sections 1 and 2 of Step 2. After configuring Compose, return to the common Playwright integration in section 3.
 
 ## Point Blackbox at Your Files
 
@@ -83,19 +83,16 @@ export default defineConfig({
 });
 ```
 
-Then run the flow normally:
+Check the configuration before returning to the Quickstart:
 
 ```bash
 pnpm exec blackbox doctor --json
-pnpm exec blackbox test --flow subscribe-user
 ```
 
-Each Playwright worker receives distinct cells. Evidence from those cells joins by run, flow, and attempt identity after execution.
-
-Expected result: every worker reports a distinct cell and mapped endpoint, the selected attempts pass, and the sealed run contains evidence partitions for those cells.
+Expected result: Blackbox resolves the Compose files, declared services, capture capabilities, and readiness plan without a configuration error. The first runtime execution remains Quickstart Step 3.
 
 ## Next Steps
 
-- **[Configure Isolation and Parallelism](/docs/blackbox/guides/playwright-isolation-and-parallelism)**
+- **[Isolate Tests and Run in Parallel](/docs/blackbox/guides/playwright-isolation-and-parallelism)**
 - **[Configure Source Maps and Service Layouts](/docs/blackbox/guides/source-maps-and-service-layouts)**
-- **[Run and Inspect Evidence](/docs/blackbox/quickstart/add-runtime-evidence):** Rejoin the Quickstart at Step 3.
+- **[Add Blackbox to Playwright](/docs/blackbox/quickstart/add-to-existing-test#3-add-blackbox-to-playwright):** Rejoin Step 2 at the shared adapter setup.

@@ -1,6 +1,6 @@
 ---
 title: "Blackbox Quickstart"
-description: "Start from an existing system test or create one from human intent, then connect runtime effects, sealed evidence, and observable decision coverage."
+description: "Take one Playwright system flow from a passing test to trustworthy runtime evidence, effect checks, and observable decision coverage."
 sidebar_position: 1
 keywords:
   [
@@ -11,76 +11,47 @@ keywords:
   ]
 ---
 
-import BlackboxEvidenceChainDiagram from "@/components/blackbox/BlackboxEvidenceChainDiagram.astro";
+Complete one trustworthy Blackbox flow in four steps. You will keep or create one Playwright system test, connect the application, inspect what it did, and turn the accepted behavior into deterministic verdicts.
 
-Blackbox exercises your application through a system or E2E flow. If you already have one, keep it. If you do not, start from one behavior in plain language and create a tagged test shell. Both paths then use the same runtime workflow.
+This Quickstart uses a compiled Node.js and TypeScript application started with a host command. The flow runs serially against dedicated test data so the first setup is easy to reason about.
 
-<BlackboxEvidenceChainDiagram />
+## Before You Start
+
+You need:
+
+- A Node.js project using pnpm and Playwright, or a project where you can add Playwright.
+- An application that builds to executable JavaScript with source maps.
+- A test database or equivalent mutable state that is safe to reset.
+- One application behavior worth protecting.
 
 ## Choose Your Starting Point
 
-| Your situation                                  | What to do                                                                                                                                                                               |
-| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **I already have a passing system or E2E test** | Follow [Step 1](/docs/blackbox/quickstart/build-behavioral-harness) to keep the test and give its flow a stable identity.                                                                |
-| **I have no system or E2E test yet**            | Use the [alternate Step 1](/docs/blackbox/guides/turn-requirements-into-system-test) to turn one plain-language behavior into a tagged Playwright test shell. Then continue with Step 2. |
+| Your situation                                  | Start here                                                                                                                               |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| **I already have a passing system or E2E test** | [Step 1A: Start From an Existing Test](/docs/blackbox/quickstart/build-behavioral-harness) keeps the test and gives it a stable flow ID. |
+| **I do not have a system or E2E test yet**      | [Step 1B: Start Without a Test](/docs/blackbox/guides/turn-requirements-into-system-test) creates a tagged test shell from one behavior. |
 
-Both paths meet at **one accepted system flow with one stable `@flow:<id>`**. An existing flow already passes. A newly generated flow becomes runnable in Step 2, when you connect the application and complete its project-specific action, assertion, fixtures, test data, and reset behavior.
+Both routes reach the same checkpoint before runtime capture: one passing Playwright flow with exactly one stable `@flow:<id>`.
 
-## Three Terms Before You Start
+## Follow the Four Steps
 
-| Term                                   | Meaning                                                                                                                                           |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **System under test (SUT)**            | The application and services Blackbox runs or connects to for the test.                                                                           |
-| **Effect**                             | Something meaningful the running application does, such as reading or writing a database, calling an API, changing a cache, or sending a message. |
-| **Observable decision coverage (ODC)** | Whether different outcomes of a code decision produced distinguishable runtime effects.                                                           |
+1. **Get one accepted system flow.** Keep a passing test in [Step 1A](/docs/blackbox/quickstart/build-behavioral-harness), or create its shell from plain-language intent in [Step 1B](/docs/blackbox/guides/turn-requirements-into-system-test).
+2. **[Connect your application](/docs/blackbox/quickstart/add-to-existing-test).** Tell Blackbox how to start the system under test, add the Playwright fixture, and make the native flow pass.
+3. **[Run and inspect evidence](/docs/blackbox/quickstart/add-runtime-evidence).** Run the flow, inspect its captured effects, and approve only the runtime actions that should become policy.
+4. **[Enforce effects and read ODC](/docs/blackbox/quickstart/enforce-runtime-effects).** Apply the policy to sealed evidence, read the separate verdicts, and repair the implementation without redefining success.
 
-After the two paths meet, Step 2 connects the SUT and gets the native flow passing. Step 3 runs the application and inspects its evidence. Step 4 applies the effect and ODC verdicts, repairs the implementation, and runs the same flow again. People approve behavior and policy; Blackbox computes the gates.
-
-## What You Will Build
-
-This Quickstart uses a conservative host-command setup:
-
-- One Playwright flow, either kept from your suite or created from one reviewed behavior.
-- A compiled Node.js and TypeScript application as the SUT.
-- A host command that Blackbox starts and stops on one fixed port.
-- One Playwright worker, no retries, dedicated test data reset before the flow, and independent fixture keys for its two attempts.
-- Two attempts under one `@flow:` tag.
-- One required runtime action and one forbidden runtime action, expressed as effects.
-- One ODC comparison showing whether opposite branch outcomes produced different effects.
-
-Your project ends with:
+## What Success Looks Like
 
 ```text
-blackbox.config.ts
-playwright.config.ts
-
-e2e/
-  fixtures.ts
-  subscribe-user.system.test.ts
-  features/
-    subscribe-user.feature
-    subscribe-user.effects.yaml
-
-dist/
-  server.js
-  server.js.map
+FLOW subscribe-user
+  tests       PASS    2 attempts
+  integrity   PASS    capture complete
+  effects     PASS    required and forbidden policy satisfied
+  ODC         REPORT  user-exists outcomes produced distinct evidence
 ```
 
-## The Four Steps
+At that point, the visible response, evidence integrity, required and forbidden runtime actions, and decision propagation are separate results. The same flow can become a CI gate.
 
-1. **Get one tagged system flow.** [Keep an existing test](/docs/blackbox/quickstart/build-behavioral-harness), or [create a test shell from plain-language intent](/docs/blackbox/guides/turn-requirements-into-system-test). Both routes end with the same stable flow ID.
-2. **[Connect a host-command SUT](/docs/blackbox/quickstart/add-to-existing-test).** Tell Blackbox how to start the application. Complete any generated test TODOs and get the native flow passing before collecting evidence.
-3. **[Run and inspect evidence](/docs/blackbox/quickstart/add-runtime-evidence).** Execute the flow and inspect its effects, exact artifacts, integrity result, and decision evidence.
-4. **[Enforce effects and read ODC](/docs/blackbox/quickstart/enforce-runtime-effects).** Reanalyze sealed evidence, repair implementation, and add the same checks to CI.
+## If Your Application Starts Differently
 
-## Static Specifications Are Optional
-
-The runtime needs one stable `@flow:<id>` tag. Gherkin and EARS add readable intent and traceability when your team needs them; they are not runtime prerequisites.
-
-The existing-test route includes one generated-and-reviewed feature file so you can experience the static behavior layer before runtime capture. You can skip that optional file and continue to Step 2. The no-test route can start from an ordinary goal or change request; it does not require a pre-existing EARS file.
-
-## Use Your Existing SUT Setup
-
-The golden path uses one serial host command because it has the fewest moving parts and makes fixed-port routing explicit. Its one-time setup reset is tutorial setup, not proof of clean state for arbitrary retries or attempts. When each attempt requires a clean database, run the reset provider before every attempt or recreate the cell. Use Compose or another managed topology when parallel workers, retries, or dependency-per-cell isolation matter. The verification lifecycle stays the same.
-
-[Choose how Blackbox starts your SUT](/docs/blackbox/guides/set-up-the-testbed)
+Finish Step 1 first. Then use [Choose How Blackbox Runs Your Application](/docs/blackbox/guides/set-up-the-testbed) to replace only the host-command portion of Step 2 with Compose, a Dockerfile, compiled artifacts, an external process, or a custom provisioner.

@@ -74,7 +74,7 @@ ODC runs as a report when `odc` is absent. Set `odc: "check"` only after the rep
 | `external`   | Already-running service endpoints                 |
 | `custom`     | A typed provisioner implementation                |
 
-[Choose How Blackbox Starts Your SUT](/docs/blackbox/guides/set-up-the-testbed) compares the strategies.
+[Choose How Blackbox Runs Your Application](/docs/blackbox/guides/set-up-the-testbed) compares the strategies.
 
 ## Service Fields
 

@@ -1,5 +1,5 @@
 ---
-title: "Configure Isolation and Parallelism"
+title: "Isolate Tests and Run in Parallel"
 description: "Map Playwright workers, flows, retries, and attempts to clean Blackbox isolation cells."
 sidebar_position: 8
 keywords: ["Blackbox isolation", "Playwright parallelism", "capture cell"]
@@ -7,7 +7,7 @@ keywords: ["Blackbox isolation", "Playwright parallelism", "capture cell"]
 
 Blackbox preserves Playwright’s native scheduling while preventing mutable state and runtime evidence from crossing flow boundaries.
 
-Use this page after choosing a SUT source in Quickstart Step 2. It is a Step 2 deep dive; after the isolation check passes, rejoin at Step 3.
+Use this guide after the serial Quickstart works and before enabling multiple Playwright workers or retries. Parallel execution is trustworthy only when each cell owns or resets every mutable dependency used by its attempts.
 
 ## Start With Flow Isolation
 
@@ -110,5 +110,5 @@ Expected result: each worker and flow resolves to the intended cell, resets comp
 
 ## Next Steps
 
-- **[Choose How Blackbox Starts Your SUT](/docs/blackbox/guides/set-up-the-testbed)**
-- **[Run and Inspect Evidence](/docs/blackbox/quickstart/add-runtime-evidence):** Rejoin the Quickstart at Step 3.
+- **[Choose How Blackbox Runs Your Application](/docs/blackbox/guides/set-up-the-testbed)**
+- **[Add Blackbox to CI](/docs/blackbox/guides/reports-and-ci-gates):** Run the verified parallel setup as a gate.

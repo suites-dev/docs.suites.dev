@@ -6,7 +6,7 @@ keywords: ["Blackbox source maps", "service layout", "TypeScript coverage"]
 
 Blackbox identifies executable artifacts by content digest. Runtime paths help discovery, but they are not the final identity used by offline analysis.
 
-Use this page after choosing a SUT source in Quickstart Step 2. It is a Step 2 deep dive; after artifact validation passes, rejoin at Step 3.
+Use this page when Step 3 reports missing or undecidable source attribution, or when a bundle or monorepo needs an explicit layout. Complete the normal Quickstart run first whenever automatic discovery works.
 
 ## Start From the Executed Artifact
 
@@ -78,14 +78,12 @@ An unresolved source identity produces an integrity or undecidable result, not z
 ## Validate the Captured Layout
 
 ```bash
-pnpm exec blackbox doctor --json
-pnpm exec blackbox test --flow subscribe-user
+pnpm exec blackbox analyze --run latest
 ```
 
-Expected result: the sealed manifest references the executed artifact digest and its matching source map, and ODC has source-backed decision records instead of a missing-attribution finding.
+Expected result: the sealed manifest references the executed artifact digest and its matching source map, and ODC has source-backed decision records instead of a missing-attribution finding. Reconfigure the layout and re-run the flow only when the existing evidence lacks the required artifact.
 
 ## Next Steps
 
 - **[Run Compiled Artifacts](/docs/blackbox/guides/run-compiled-artifacts)**
-- **[Runtime Evidence](/docs/blackbox/concepts/runtime-evidence)**
-- **[Run and Inspect Evidence](/docs/blackbox/quickstart/add-runtime-evidence):** Rejoin the Quickstart at Step 3.
+- **[Runtime Evidence](/docs/blackbox/concepts/runtime-evidence):** Understand what the sealed bundle preserves.

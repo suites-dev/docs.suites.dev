@@ -49,4 +49,4 @@ Blackbox does not discover the whole legacy domain or decide whether historical 
 ## Next Steps
 
 - [Recover One Flow From Existing Tests](/docs/blackbox/guides/recover-behavior-from-existing-tests)
-- [Choose How Blackbox Starts Your SUT](/docs/blackbox/guides/set-up-the-testbed)
+- [Choose How Blackbox Runs Your Application](/docs/blackbox/guides/set-up-the-testbed)

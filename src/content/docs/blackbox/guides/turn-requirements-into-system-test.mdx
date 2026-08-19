@@ -1,12 +1,14 @@
 ---
-title: "Turn One Behavior Into a System Test"
-description: "Start with one behavior in plain language and turn it into a reviewed, passing Playwright system flow."
+title: "1B. Start Without a Test"
+description: "Start with one behavior in plain language and turn it into a reviewed Playwright system-flow shell."
 sidebar_position: 11
 keywords:
   ["spec-driven development", "EARS requirements", "Gherkin system test"]
 ---
 
-Use this guide as the alternate Quickstart Step 1 when you have no system or E2E test yet. Start with one behavior you can describe in plain language. You do not need an existing EARS requirement or Gherkin file. This guide creates the tagged test shell; Quickstart Step 2 connects the application and makes it runnable.
+Start here when you have no system or E2E test yet. Describe one behavior in plain language, review it, and create a tagged Playwright shell. You do not need an existing EARS requirement or Gherkin file.
+
+This step defines the behavior. [Step 2](/docs/blackbox/quickstart/add-to-existing-test) connects the application, completes the project-specific test code, and makes the flow pass.
 
 ## Install Blackbox
 
@@ -99,4 +101,4 @@ pnpm exec blackbox suites check ./e2e --json
 
 ## Result
 
-The approved requirement, reviewed scenario, and tagged Playwright shell now share one flow identity. Continue with [Quickstart Step 2: Connect a Host-Command SUT](/docs/blackbox/quickstart/add-to-existing-test), complete the application-specific TODOs, and run until the native test passes. You can replace that provisioning with another [SUT setup](/docs/blackbox/guides/set-up-the-testbed).
+The approved requirement, reviewed scenario, and tagged Playwright shell now share one flow identity. Continue with [Step 2: Connect Your Application](/docs/blackbox/quickstart/add-to-existing-test), complete the application-specific TODOs, and run until the native test passes. You can replace the host-command setup with another [application setup](/docs/blackbox/guides/set-up-the-testbed).
