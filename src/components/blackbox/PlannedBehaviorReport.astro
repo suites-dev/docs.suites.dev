@@ -1,0 +1,160 @@
+<figure class="bb-terminal-report" aria-labelledby="bb-terminal-report-title">
+  <div class="bb-terminal-report__window">
+    <header>
+      <span class="bb-terminal-report__dots" aria-hidden="true">
+        <i></i><i></i><i></i>
+      </span>
+      <span id="bb-terminal-report-title">blackbox behavior report</span>
+      <strong>planned</strong>
+    </header>
+
+    <pre aria-label="Planned Blackbox behavior report for a checkout retry"><code><span class="dim">FLOW</span>      checkout retry                               <span class="fail">FAIL</span>
+
+<span class="dim">├─ GHERKIN</span>  lines 3-6
+<span class="dim">│</span>            3  <span class="gherkin">Given</span> checkout encounters a transient timeout
+<span class="dim">│</span>            4  <span class="gherkin">When</span> the order completes after a retry
+<span class="dim">│</span>            5  <span class="gherkin">Then</span> one order is confirmed
+<span class="dim">│</span>            6  <span class="gherkin">And</span> one charge request is sent
+<span class="dim">│</span>
+<span class="dim">├─ SUITE</span>    line 5  →  <span class="pass">PASS</span>  one confirmation + one order ID
+<span class="dim">├─ EFFECTS</span>  line 6  →  <span class="fail">FAIL</span>  expected 1 charge, observed 2
+<span class="dim">├─ ODC</span>      <span class="report">ALPHA TARGET</span>  separate finding
+<span class="dim">└─ EFFECT FINDING</span>  <span class="fail verdict">FAIL</span>  duplicate charge requests occurred
+
+<span class="dim">ODC remains separate and cannot change the effect finding.</span></code></pre>
+  </div>
+
+  <figcaption>
+    Planned report preview. This is product direction, not a current Blackbox
+    report format or schema.
+  </figcaption>
+</figure>
+
+<style>
+  .bb-terminal-report {
+    width: 100%;
+    margin: 24px 0 32px;
+  }
+
+  .bb-terminal-report__window {
+    overflow: hidden;
+    border: 1px solid #27364f;
+    border-radius: 9px;
+    background: #080d18;
+  }
+
+  .bb-terminal-report header {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    min-height: 38px;
+    padding: 0 13px;
+    border-bottom: 1px solid #27364f;
+    color: #93a4bc;
+    background: #0b1220;
+    font-family: var(--font-technical);
+    font-size: 0.75rem;
+  }
+
+  .bb-terminal-report header > span:nth-child(2) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .bb-terminal-report header strong {
+    color: #d8b4fe;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .bb-terminal-report__dots {
+    display: flex;
+    gap: 5px;
+  }
+
+  .bb-terminal-report__dots i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #fb7185;
+  }
+
+  .bb-terminal-report__dots i:nth-child(2) {
+    background: #fbbf24;
+  }
+
+  .bb-terminal-report__dots i:nth-child(3) {
+    background: #4ade80;
+  }
+
+  .bb-terminal-report pre {
+    overflow-x: auto;
+    overflow-y: hidden;
+    margin: 0;
+    padding: 18px 20px 20px;
+    color: #e5edf8;
+    background: transparent;
+    font-family: var(--font-technical);
+    font-size: 0.8125rem;
+    line-height: 1.65;
+    white-space: pre;
+    overflow-wrap: normal;
+  }
+
+  .bb-terminal-report code {
+    display: block;
+    min-width: max-content;
+    color: inherit;
+    background: transparent;
+    font: inherit;
+  }
+
+  .bb-terminal-report .dim {
+    color: #93a4bc;
+  }
+
+  .bb-terminal-report .gherkin {
+    color: #d8b4fe;
+    font-weight: 700;
+  }
+
+  .bb-terminal-report .pass {
+    color: #86efac;
+    font-weight: 800;
+  }
+
+  .bb-terminal-report .fail {
+    color: #fda4af;
+    font-weight: 800;
+  }
+
+  .bb-terminal-report .report {
+    color: #fcd34d;
+    font-weight: 800;
+  }
+
+  .bb-terminal-report .verdict {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+  }
+
+  .bb-terminal-report figcaption {
+    margin-top: 9px;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    text-align: center;
+  }
+
+  @media (max-width: 640px) {
+    .bb-terminal-report pre {
+      padding: 14px;
+      font-size: 0.75rem;
+      line-height: 1.6;
+    }
+  }
+</style>

@@ -1,0 +1,270 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="920"
+  height="240"
+  viewBox="0 0 920 240"
+  role="img"
+  aria-labelledby="title desc"
+>
+  <title id="title">
+    Intent to deterministic findings and implementation repair
+  </title>
+  <desc id="desc">
+    Intent becomes accepted behavior, which guides implementation. The
+    implementation runs as a system, produces evidence, and receives findings.
+    Those findings send the agent back to repair the implementation without
+    changing accepted behavior.
+  </desc>
+  <defs>
+    <marker
+      id="arrow"
+      viewBox="0 0 10 10"
+      refX="8"
+      refY="5"
+      markerWidth="7"
+      markerHeight="7"
+      orient="auto"
+    >
+      <path d="M0 0 10 5 0 10Z" fill="#94a3b8" />
+    </marker>
+    <marker
+      id="repair-arrow"
+      viewBox="0 0 10 10"
+      refX="8"
+      refY="5"
+      markerWidth="7"
+      markerHeight="7"
+      orient="auto"
+    >
+      <path d="M0 0 10 5 0 10Z" fill="#4ade80" />
+    </marker>
+  </defs>
+
+  <rect
+    x="8"
+    y="8"
+    width="904"
+    height="224"
+    rx="10"
+    fill="#0b1120"
+    stroke="#334155"
+  />
+
+  <g font-family="Inter, ui-sans-serif, system-ui, sans-serif">
+    <text x="32" y="39" fill="#f8fafc" font-size="16" font-weight="800">
+      Behavioral verification loop
+    </text>
+    <text x="32" y="60" fill="#cbd5e1" font-size="11">
+      Accepted intent guides implementation. Runtime findings guide repair.
+    </text>
+
+    <rect
+      x="32"
+      y="86"
+      width="104"
+      height="58"
+      rx="7"
+      fill="#3b2f0b"
+      stroke="#fbbf24"
+    />
+    <text
+      x="84"
+      y="120"
+      text-anchor="middle"
+      fill="#fef3c7"
+      font-size="12"
+      font-weight="800"
+    >
+      Intent
+    </text>
+
+    <line
+      x1="136"
+      y1="115"
+      x2="158"
+      y2="115"
+      stroke="#94a3b8"
+      stroke-width="2"
+      marker-end="url(#arrow)"
+    />
+
+    <rect
+      x="168"
+      y="86"
+      width="142"
+      height="58"
+      rx="7"
+      fill="#172554"
+      stroke="#60a5fa"
+    />
+    <text
+      x="239"
+      y="113"
+      text-anchor="middle"
+      fill="#eff6ff"
+      font-size="11"
+      font-weight="800"
+    >
+      Accepted
+    </text>
+    <text
+      x="239"
+      y="129"
+      text-anchor="middle"
+      fill="#bfdbfe"
+      font-size="11"
+      font-weight="800"
+    >
+      behavior
+    </text>
+
+    <line
+      x1="310"
+      y1="115"
+      x2="332"
+      y2="115"
+      stroke="#94a3b8"
+      stroke-width="2"
+      marker-end="url(#arrow)"
+    />
+
+    <rect
+      x="342"
+      y="86"
+      width="126"
+      height="58"
+      rx="7"
+      fill="#1f2937"
+      stroke="#94a3b8"
+    />
+    <text
+      x="405"
+      y="120"
+      text-anchor="middle"
+      fill="#f8fafc"
+      font-size="11"
+      font-weight="800"
+    >
+      Implementation
+    </text>
+
+    <line
+      x1="468"
+      y1="115"
+      x2="490"
+      y2="115"
+      stroke="#94a3b8"
+      stroke-width="2"
+      marker-end="url(#arrow)"
+    />
+
+    <rect
+      x="500"
+      y="86"
+      width="126"
+      height="58"
+      rx="7"
+      fill="#111827"
+      stroke="#64748b"
+    />
+    <text
+      x="563"
+      y="113"
+      text-anchor="middle"
+      fill="#f8fafc"
+      font-size="11"
+      font-weight="800"
+    >
+      Running
+    </text>
+    <text
+      x="563"
+      y="129"
+      text-anchor="middle"
+      fill="#cbd5e1"
+      font-size="11"
+      font-weight="800"
+    >
+      system
+    </text>
+
+    <line
+      x1="626"
+      y1="115"
+      x2="648"
+      y2="115"
+      stroke="#94a3b8"
+      stroke-width="2"
+      marker-end="url(#arrow)"
+    />
+
+    <rect
+      x="658"
+      y="86"
+      width="104"
+      height="58"
+      rx="7"
+      fill="#12251e"
+      stroke="#4ade80"
+    />
+    <text
+      x="710"
+      y="120"
+      text-anchor="middle"
+      fill="#f0fdf4"
+      font-size="11"
+      font-weight="800"
+    >
+      Evidence
+    </text>
+
+    <line
+      x1="762"
+      y1="115"
+      x2="784"
+      y2="115"
+      stroke="#94a3b8"
+      stroke-width="2"
+      marker-end="url(#arrow)"
+    />
+
+    <rect
+      x="794"
+      y="86"
+      width="94"
+      height="58"
+      rx="7"
+      fill="#3b2f0b"
+      stroke="#fbbf24"
+    />
+    <text
+      x="841"
+      y="120"
+      text-anchor="middle"
+      fill="#fef3c7"
+      font-size="11"
+      font-weight="800"
+    >
+      Findings
+    </text>
+
+    <path
+      d="M841 144V194H405V154"
+      fill="none"
+      stroke="#4ade80"
+      stroke-width="2"
+      stroke-dasharray="7 5"
+      marker-end="url(#repair-arrow)"
+    />
+    <text
+      x="623"
+      y="215"
+      text-anchor="middle"
+      fill="#bbf7d0"
+      font-size="11"
+      font-weight="700"
+    >
+      agent repairs the implementation
+    </text>
+  </g>
+</svg>

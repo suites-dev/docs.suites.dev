@@ -1,139 +1,120 @@
 ---
-title: "Effects, Contracts, and Coverage"
-description: "Understand how sealed observations become reviewed required and forbidden effect policy."
-sidebar_position: 3
+title: "OpenTelemetry and Effects"
+description: "See how Blackbox turns eligible OpenTelemetry observations into effects and bounded findings."
+sidebar_position: 5
 keywords:
   [
-    "effect coverage",
+    "behavioral assurance",
+    "effects catalog",
     "effect contract",
-    "trace-based testing",
     "required forbidden effects",
-    "offline analysis",
+    "runtime evidence",
+    "deterministic findings",
   ]
 ---
 
 import Aside from "@/components/mdx/Aside.astro";
 
-An **effect** is normalized boundary behavior captured from a running flow. An **effect contract** records which effects are required or forbidden. **Effect coverage** reports how analyzed attempts relate to that reviewed policy.
+Checkout shows one successful order and one order ID, so the native assertion passes. Runtime evidence contains two charge requests because a retry repeated the side effect.
 
-## Effects Are Blackbox's Trace-Based Testing Layer
+The accepted flow allows one charge. Two eligible charge effects are enough for Blackbox to establish the violation, even if other evidence is incomplete.
 
-Trace-based testing checks what happened throughout one execution, not only the final response. Ted Young's 2018 **Trace Driven Development** talk describes the core loop as: define a behavioral model, gather trace data, then check that data against the model.
-
-Blackbox applies that loop to system tests:
-
-```text
-Playwright attempt
-  → gather correlated runtime observations
-  → normalized effects
-  → check against the required and forbidden contract
-  → sealed evidence and effect verdict
-```
-
-| Trace-driven step        | Blackbox term                                                         |
-| ------------------------ | --------------------------------------------------------------------- |
-| Define a behavior model  | Reviewed required and forbidden effect contract                       |
-| Gather trace data        | Runtime observations correlated by run, cell, flow, and attempt IDs   |
-| Interpret trace events   | Normalized effects such as `postgres INSERT` or `http POST`           |
-| Check data against model | Offline effect analysis                                               |
-| Retain the result        | Attempt-scoped events and artifacts inside the sealed evidence bundle |
-
-Blackbox calls these observations **effects** because policy describes boundary behavior, not a telemetry implementation. Contracts do not depend on raw span IDs, span-tree shape, or a tracing backend.
-
-For Node.js, OpenTelemetry supplies context propagation and many semantic HTTP, database, and messaging observations. It is one capture source, not the Blackbox architecture. Other language integrations can produce the same normalized effects without OpenTelemetry.
-
-## One Flow, One Reviewed Contract
-
-```yaml
-flow: subscribe-unknown-user
-requires:
-  - { boundary: postgres, op: SELECT, key: users, service: bff }
-forbids:
-  - { boundary: http, op: POST, key: /v1/payment_intents, service: bff }
-  - { boundary: postgres, op: INSERT, key: subscriptions, service: bff }
-```
-
-- `requires` lists effects that must appear in complete evidence.
-- `forbids` lists effects that must not appear.
-- Normalized effects that match neither list remain evidence without constraining the implementation.
-
-The contract cannot prove behavior outside the capabilities declared by the capture producers in the bundle.
-
-## Observation Is Not Approval
-
-One recorded run describes the current implementation, including possible defects. It does not define desired behavior.
-
-A reviewer decides whether each observation should be:
-
-| Decision    | Meaning                                                                         |
-| ----------- | ------------------------------------------------------------------------------- |
-| Required    | The flow is incorrect when this effect is missing                               |
-| Forbidden   | The flow is incorrect when this effect occurs                                   |
-| Incidental  | The observation should not constrain implementation                             |
-| Unsupported | Capture cannot normalize the observation soundly; resolve the integrity finding |
-
-Moving an observed effect to `forbids` deliberately creates a failing repair target.
-
-For example, this normalized insert remains visible in the sealed evidence even when the contract mentions only the user lookup and forbidden payment call:
-
-```json
-{
-  "boundary": "postgres",
-  "op": "INSERT",
-  "key": "subscriptions",
-  "service": "api"
-}
-```
-
-Leaving the insert unlisted means it is incidental for policy purposes. It does not mean Blackbox discarded it or approved it as required behavior.
-
-<Aside type="warning" title="A Baseline Can Preserve a Defect">
-  Capture records facts. People approve policy. Do not let a coding agent turn
-  one successful execution into accepted behavior automatically.
+<Aside type="info" title="Alpha Status">
+  Effects are the **committed core**. The integrated path from accepted claims
+  through managed capture and offline findings is an **Alpha target**. Current
+  HTTP and PostgreSQL work is prototype evidence, not a released support claim.
+  The public effects-catalog syntax is not frozen.
 </Aside>
 
-## Analysis Is Offline
+## From Observation to Finding
 
-The analyzer consumes the sealed evidence bundle and the reviewed effect contract. The SUT and test runner do not need to remain running.
+An **effect** is a normalized fact about supported behavior at a system boundary during one runtime attempt. Depending on the available proof, an effect can show that an operation was observed, succeeded, or committed.
 
-The same complete evidence, contract, and analysis policy produce the same result. This makes verdict computation deterministic; it does not make the SUT deterministic.
+OpenTelemetry provides runtime observations. Blackbox admits only supported, attributable observations and normalizes them into portable effects. A span is evidence input, not automatically an effect.
 
-## Keep Coverage Views Separate
+<img
+  src="/img/blackbox/observation-to-finding.svg"
+  alt="A person-approved effect claim and sealed evidence from a fresh runtime attempt meet at the Analyzer. OpenTelemetry spans pass through effects-catalog admission and normalization before becoming portable effect facts."
+  style="display: block; width: 100%; height: auto;"
+/>
 
-| View           | Question                                                         |
-| -------------- | ---------------------------------------------------------------- |
-| Effect verdict | Did one analyzed attempt satisfy required and forbidden policy?  |
-| Flow coverage  | Did selected attempts check the accepted contract for this flow? |
-| Shape coverage | Which individual contract clauses participated in evaluation?    |
-| ODC            | Did exercised decision outcomes leave distinguishable evidence?  |
+Runtime records facts. It does not decide whether those facts are acceptable. A person approves effect policy, and the Analyzer evaluates the accepted claim against the evidence.
 
-ODC does not strengthen an effect verdict. Effect-policy changes do not strengthen ODC.
+## Use the Effects Catalog as Shared Vocabulary
 
-## Failure Semantics
+An **effects catalog** is a reviewed collection of portable effect contracts. It connects OpenTelemetry observations to stable product intent without tying accepted behavior to raw span IDs or trace structure.
 
-Blackbox fails rather than silently accepting:
+Each catalog entry defines the intent represented by an effect, when an observation qualifies, and which proof strengths it can support. Accepted behavior then references that shared intent.
 
-- a missing required effect;
-- an observed forbidden effect;
-- an incomplete or integrity-invalid bundle;
-- an observation that the declared capture capability cannot normalize soundly;
-- a contract mismatch or unsupported contract version.
+The public syntax is not frozen. This YAML is an illustrative catalog view, not a supported file format or schema:
 
-An otherwise valid normalized effect that matches no clause is not a policy failure.
+```yaml title="Illustrative effects catalog"
+effects:
+  payment-charge-request:
+    intent: Payment service received a charge request
+    matches:
+      capability: io.http.client
+      operation: request
+      target: payment-service
+      url: https://payment-service/charges
+    supports: [observed, succeeded]
 
-Changing implementation is the default repair. Change the contract only when the intended behavior changed and a person approved that change.
+  subscription-record-written:
+    intent: A subscription record was inserted
+    matches:
+      capability: datastore.sql.client
+      operation: insert
+      target: subscriptions
+      query: INSERT INTO subscriptions (customer_id, plan_id) VALUES (?, ?)
+    supports: [observed, succeeded, committed]
+```
 
-## Related Trace Terminology
+The catalog supplies the shared intents. A claim such as “at most one charge per completed order” remains separate, human-approved policy.
 
-- Ted Young's [Trace Driven Development: Unifying Testing and Observability](https://www.youtube.com/watch?v=NU-fTr-udZg) presents the model-data-check loop and the idea of applying the same behavioral assertions to trace data from different execution environments.
-- The OpenTelemetry project defines [trace-based testing](https://opentelemetry.io/blog/2023/testing-otel-demo/) as triggering an operation and validating both its output and emitted trace; its demo uses this approach across integration and end-to-end flows.
-- The [OpenTelemetry trace model](https://opentelemetry.io/docs/specs/otel/overview/#tracing-signal) defines a distributed trace as events from one logical operation correlated across component and process boundaries.
-- [OpenTelemetry semantic conventions](https://opentelemetry.io/docs/specs/semconv/general/trace/) give common meanings to HTTP, database, messaging, and other span operations that a capture producer can normalize.
+| Runtime input                                                     | Catalog intent             | Accepted claim                         |
+| ----------------------------------------------------------------- | -------------------------- | -------------------------------------- |
+| Two attributable HTTP client observations at the payment boundary | Two charge-request effects | At most one charge per completed order |
 
-Blackbox shares this trace-based testing lineage, then adds its own attempt identity, effect vocabulary, sealed evidence, integrity result, and offline policy analysis.
+The catalog defines the middle column. A person approves the claim on the right. Runtime observations cannot add catalog entries, redefine their intent, or turn themselves into policy.
+
+## Required and Forbidden Effects
+
+- A **required effect** describes behavior that must occur.
+- A **forbidden effect** describes behavior that must not occur.
+- An unlisted effect remains evidence, but it does not constrain the implementation.
+
+Observed behavior can inform a proposal. It never becomes accepted policy without human approval.
+
+## Positive Facts and Absence Need Different Evidence
+
+| Claim                   | What positive facts can establish   | What needs bounded completeness        |
+| ----------------------- | ----------------------------------- | -------------------------------------- |
+| **At least N**          | Satisfaction after N matching facts | Violation below N                      |
+| **At most N**           | Violation after more than N facts   | Satisfaction at or below N             |
+| **Exactly N**           | Violation after more than N facts   | Satisfaction at N or violation below N |
+| **Forbidden or absent** | Violation after one matching fact   | Satisfaction with zero matches         |
+
+If evidence is incomplete, Blackbox cannot establish a completeness-dependent absence, upper-bound, or exactness result. The finding stays inconclusive instead of turning missing evidence into success.
+
+Managed capture starts fresh for every attempt, retry, and sequence member. Blackbox does not merge their evidence to strengthen a claim.
+
+## What Deterministic Assurance Means
+
+The same accepted claim, declared realization, analysis policy, and sealed evidence produce the same finding. This does not mean the application will behave identically on every run.
+
+Findings remain distinct:
+
+- **Satisfied:** The evidence meets the claim's proof burden.
+- **Violated:** The evidence establishes a counterexample or missed obligation.
+- **Inconclusive:** The available evidence cannot support the required conclusion.
+- **Unsupported:** The declared capability or realization is unavailable.
+- **Integrity failure:** Identities or lifecycle evidence conflict with the claim.
+
+## Observable Decision Coverage Stays Separate
+
+**Observable Decision Coverage (ODC)** is an Alpha target that compares declared decision outcomes with projected effects. It cannot alter an ordinary effect finding or strengthen incomplete effect evidence.
 
 ## Next Steps
 
-- **[Runtime Evidence](/docs/blackbox/concepts/runtime-evidence):** Understand the sealed input to analysis.
-- **[Effect Contract Schema](/docs/blackbox/reference/catalog-schema):** Review the current policy vocabulary.
-- **[Observable Decision Coverage](/docs/blackbox/concepts/omc-dc-coverage):** Read the separate decision-evidence layer.
+- **[Runtime Evidence and Integrity](/docs/blackbox/concepts/runtime-evidence):** See what makes evidence usable for a claim.
+- **[Observable Decision Coverage](/docs/blackbox/concepts/omc-dc-coverage):** Explore the separate comparison layer.

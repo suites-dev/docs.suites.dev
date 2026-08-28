@@ -191,24 +191,28 @@ const sidebar: SidebarConfig = {
       label: "Concepts",
       items: [
         {
-          label: "Testing Layers",
-          href: "/docs/blackbox/concepts/testing-layers",
+          label: "Human-Agent Verification Loop",
+          href: "/docs/blackbox/concepts/human-agent-verification-loop",
         },
         {
-          label: "Runtime Evidence",
+          label: "Accepted Intent and Executable Flows",
+          href: "/docs/blackbox/concepts/specifications-flows-and-verdicts",
+        },
+        {
+          label: "Runtime Evidence and Integrity",
           href: "/docs/blackbox/concepts/runtime-evidence",
         },
         {
-          label: "Effects, Contracts, and Coverage",
+          label: "OpenTelemetry and Effects",
           href: "/docs/blackbox/concepts/effects-and-catalogs",
-        },
-        {
-          label: "Requirements, Flows, and Verdicts",
-          href: "/docs/blackbox/concepts/specifications-flows-and-verdicts",
         },
         {
           label: "Observable Decision Coverage",
           href: "/docs/blackbox/concepts/omc-dc-coverage",
+        },
+        {
+          label: "System and E2E Verification",
+          href: "/docs/blackbox/concepts/testing-layers",
         },
       ],
     },

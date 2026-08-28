@@ -1,111 +1,82 @@
 ---
-title: "Requirements, Flows, and Verdicts"
-description: "Connect reviewed requirements, executable flows, effect contracts, and runtime evidence without confusing their authority."
-sidebar_position: 4
+title: "Accepted Intent and Executable Flows"
+description: "Follow accepted intent through Gherkin, SuitePlan, the declared system realization, runtime evidence, and findings without confusing their authority."
+sidebar_position: 3
 keywords:
-  ["EARS requirements", "Gherkin", "flow ID", "specification verification"]
+  [
+    "accepted intent",
+    "Gherkin",
+    "SuitePlan",
+    "executable system flows",
+    "behavioral verification",
+  ]
 ---
 
-import VerificationTriangleDiagram from "@/components/blackbox/VerificationTriangleDiagram.astro";
+import Aside from "@/components/mdx/Aside.astro";
 
-Blackbox connects reviewed intent to executable behavior through an explicit **flow ID**. It does not infer that two similar descriptions prove the same behavior.
-
-<VerificationTriangleDiagram />
-
-## One ID Connects the Chain
-
-For `subscribe-unknown-user`, the same stable ID can appear in:
-
-- `@flow:subscribe-unknown-user` in Gherkin.
-- A runner-native flow tag. The default recognized prefix is `@flow:`.
-- `subscribe-unknown-user.effects.yaml` in the configured features directory.
-- The sealed runtime evidence and resulting reports.
-
-The ID establishes identity. Each artifact still answers a different question.
-
-| Artifact         | What it contributes                                |
-| ---------------- | -------------------------------------------------- |
-| EARS requirement | Reviewed normative intent with a stable `REQ-*` ID |
-| Gherkin feature  | Readable scenarios and requirement bindings        |
-| Executable flow  | Runner-native steps and assertions                 |
-| Effect contract  | Required and forbidden boundary behavior           |
-| Evidence bundle  | What the running system actually did               |
-| Analysis report  | Deterministic effect and coverage verdicts         |
-
-## Validate the Static Chain First
-
-You can validate requirements, Gherkin, and generated suites without starting the SUT.
-
-```bash
-pnpm exec blackbox requirements validate requirements --json
-pnpm exec blackbox features check e2e/tests --requirements requirements --json
-pnpm exec blackbox requirements check requirements --tests e2e/tests --json
-pnpm exec blackbox requirements drift requirements --tests e2e/tests --json
-pnpm exec blackbox suites check e2e/tests --json
-```
-
-These commands prove that accepted files are parseable, IDs resolve, and suite structure agrees with Gherkin. They do not prove that the implementation behaves correctly.
-
-## Express Intent in Reviewable Artifacts
-
-An EARS requirement states the expected outcome:
-
-```text
-REQ-004: When an unknown user subscribes, the bff shall not request payment, persist a subscription record, or publish a subscription order.
-```
-
-Gherkin projects that intent into a flow people can review:
+An accepted checkout scenario says one completed order produces one charge:
 
 ```gherkin
-@flow:subscribe-unknown-user
-@requirement:REQ-004
-Feature: Rejecting unknown subscription users
-
-  Scenario: ghost-user attempts to subscribe
-    When ghost-user POSTs /subscriptions
-    Then the response status is 404
+Scenario: Charge one completed order once
+  Given checkout encounters a transient timeout
+  When the order completes after a retry
+  Then one order is confirmed
+  And one charge request is sent
 ```
 
-Blackbox Skills can propose both artifacts. A person accepts or rejects them. The CLI validates their structure and relationship.
+Gherkin makes that intent readable. The system suite makes it executable. Runtime evidence records what the system did. None of those later stages may silently reinterpret the accepted target.
 
-## Execute, Capture, and Analyze Separately
+<Aside type="info" title="Alpha Target">
+  The Alpha workflow uses Gherkin as the readable expression of accepted intent.
+  Gherkin guides realization; it is not runtime evidence and cannot change an
+  effect finding.
+</Aside>
 
-The runtime lifecycle keeps three responsibilities independent:
+## Keep the Chain Directional
 
-1. A **runner adapter** executes the tagged flow and reports native test results.
-2. A **capture implementation** records supported SUT behavior inside an isolated capture cell.
-3. The **offline analyzer** verifies the sealed evidence against the accepted effect contract and computes coverage.
+```text
+accepted intent → Gherkin → SuitePlan → RunnerBundle → RunPlan
+                                              ↓
+                              fresh execution → sealed evidence → findings
+```
 
-This separation lets Playwright run a Node SUT today without making either technology part of the evidence protocol.
+Each artifact has one responsibility:
 
-| Result                       | What it proves                                            |
-| ---------------------------- | --------------------------------------------------------- |
-| Native test status           | Runner assertions passed or failed                        |
-| Feature and suite checks     | Accepted files and executable structure agree             |
-| Effect verdict               | Required and forbidden boundary effects matched           |
-| Evidence integrity result    | The bundle is complete enough for the requested analysis  |
-| Observable decision coverage | Exercised decisions remained visible at a system boundary |
+| Artifact             | Responsibility                                                     |
+| -------------------- | ------------------------------------------------------------------ |
+| **Gherkin**          | Express accepted intent in scenarios people can review.            |
+| **SuitePlan**        | Own the accepted meaning compiled from that reviewed behavior.     |
+| **RunnerBundle**     | Own the concrete actions and checks that realize the SuitePlan.    |
+| **RunPlan**          | Select a declared realization without adding or weakening meaning. |
+| **Runtime evidence** | Record bounded facts from one fresh execution.                     |
+| **Findings**         | State what deterministic analysis concluded from accepted inputs.  |
 
-One green result never turns a missing layer into proof.
+## Preserve Identity Across Representations
 
-## Use Only the Layers You Need
+Stable identities connect the accepted case, its declared realization, each runtime attempt, and the resulting evidence. Similar titles or nearby source order do not establish that relationship.
 
-You can adopt Blackbox with:
+This prevents evidence from one case, retry, or sequence member from being used to complete another case's claim.
 
-- Requirements, Gherkin, and suite checks without runtime execution.
-- Runtime effect verification without EARS or Gherkin.
-- The complete chain when intent, executable behavior, and runtime effects all need active review.
+## Let the Suite Realize Intent
 
-The complete chain is stronger only when each artifact has an owner. More files without review create ceremony, not verification.
+The executable system suite supplies concrete actions and native assertions. Those details belong to the RunnerBundle because they describe how the accepted case runs.
 
-## Keep Authority Explicit
+The realization can be repaired when it is missing, stale, or incorrect. Repair does not grant permission to change the SuitePlan.
 
-Skills propose. The CLI validates and transforms. Runner and capture integrations collect evidence. The analyzer computes verdicts. A person decides which requirement, scenario, suite change, effect contract, or repair becomes accepted.
+## Let Evidence Record Facts
 
-That boundary gives a coding agent deterministic findings to repair against without letting it silently redefine success.
+Runtime opens a fresh managed-capture boundary and records supported observations from the running system. Eligible observations become effects inside sealed evidence.
+
+Evidence describes the execution, including defects. It never becomes accepted behavior automatically.
+
+## Let the Analyzer Produce Findings
+
+The Analyzer compares the accepted meaning and analysis policy with sealed evidence. It owns the findings; Runtime does not decide what passed, and the coding agent does not manufacture a verdict.
+
+A failed finding normally returns to the agent for implementation repair. A proposed change to accepted intent or policy returns to a person.
 
 ## Next Steps
 
-- **[Add Readable Behavior Specifications](/docs/blackbox/guides/recover-behavior-from-existing-tests):** Add reviewed Gherkin to a suite you already run.
-- **[Start Without a Test](/docs/blackbox/quickstart/start-without-test):** Start a new flow from reviewed intent.
-- **[Use Blackbox With Coding Agents](/docs/blackbox/guides/agent-skills):** Apply the authority model to agent-driven work.
+- **[Human-Agent Verification Loop](/docs/blackbox/concepts/human-agent-verification-loop):** See who proposes, computes, repairs, and approves.
+- **[Runtime Evidence and Integrity](/docs/blackbox/concepts/runtime-evidence):** Understand fresh attempts, capture, and evidence limits.
+- **[OpenTelemetry and Effects](/docs/blackbox/concepts/effects-and-catalogs):** See how eligible observations become effects.

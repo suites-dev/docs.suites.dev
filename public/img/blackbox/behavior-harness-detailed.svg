@@ -1,0 +1,421 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 1040 560"
+  role="img"
+  aria-labelledby="title desc"
+>
+  <title id="title">Blackbox inside a coding-agent harness</title>
+  <desc id="desc">
+    People steer the desired state. Accepted behavior, architecture, and
+    constraints guide a coding agent before it acts. The agent changes the
+    implementation, which becomes running software. Other computational controls
+    and inferential review evaluate the implementation. Blackbox provides
+    deterministic behavioral feedback from the running software. Feedback
+    returns to the agent, while proposed target changes return to people.
+  </desc>
+  <defs>
+    <marker
+      id="arrow"
+      viewBox="0 0 10 10"
+      refX="8"
+      refY="5"
+      markerWidth="7"
+      markerHeight="7"
+      orient="auto"
+    >
+      <path d="M0 0 10 5 0 10Z" fill="#94a3b8" />
+    </marker>
+    <marker
+      id="guide"
+      viewBox="0 0 10 10"
+      refX="8"
+      refY="5"
+      markerWidth="7"
+      markerHeight="7"
+      orient="auto"
+    >
+      <path d="M0 0 10 5 0 10Z" fill="#60a5fa" />
+    </marker>
+    <marker
+      id="feedback"
+      viewBox="0 0 10 10"
+      refX="8"
+      refY="5"
+      markerWidth="7"
+      markerHeight="7"
+      orient="auto"
+    >
+      <path d="M0 0 10 5 0 10Z" fill="#4ade80" />
+    </marker>
+    <marker
+      id="human"
+      viewBox="0 0 10 10"
+      refX="8"
+      refY="5"
+      markerWidth="7"
+      markerHeight="7"
+      orient="auto"
+    >
+      <path d="M0 0 10 5 0 10Z" fill="#fbbf24" />
+    </marker>
+  </defs>
+
+  <rect
+    x="8"
+    y="8"
+    width="1024"
+    height="544"
+    rx="10"
+    fill="#0b1120"
+    stroke="#334155"
+  />
+  <g font-family="Inter, ui-sans-serif, system-ui, sans-serif">
+    <text x="36" y="47" fill="#f8fafc" font-size="20" font-weight="800">
+      Blackbox inside a coding-agent harness
+    </text>
+    <text x="36" y="71" fill="#cbd5e1" font-size="12">
+      Guidance constrains the work. Feedback evaluates what happened. People
+      remain responsible for the target.
+    </text>
+
+    <rect
+      x="36"
+      y="100"
+      width="188"
+      height="74"
+      rx="7"
+      fill="#3b2f0b"
+      stroke="#fbbf24"
+    />
+    <text
+      x="130"
+      y="129"
+      text-anchor="middle"
+      fill="#fef3c7"
+      font-size="14"
+      font-weight="800"
+    >
+      People
+    </text>
+    <text x="130" y="152" text-anchor="middle" fill="#fde68a" font-size="11">
+      Steer the desired state
+    </text>
+
+    <rect
+      x="276"
+      y="92"
+      width="426"
+      height="90"
+      rx="8"
+      fill="#172554"
+      stroke="#60a5fa"
+    />
+    <text x="296" y="119" fill="#93c5fd" font-size="10" font-weight="800">
+      FEEDFORWARD GUIDANCE
+    </text>
+    <rect
+      x="296"
+      y="133"
+      width="174"
+      height="32"
+      rx="5"
+      fill="#111827"
+      stroke="#3b82f6"
+    />
+    <text
+      x="383"
+      y="154"
+      text-anchor="middle"
+      fill="#dbeafe"
+      font-size="11"
+      font-weight="700"
+    >
+      Accepted behavior
+    </text>
+    <rect
+      x="486"
+      y="133"
+      width="196"
+      height="32"
+      rx="5"
+      fill="#111827"
+      stroke="#3b82f6"
+    />
+    <text
+      x="584"
+      y="154"
+      text-anchor="middle"
+      fill="#dbeafe"
+      font-size="11"
+      font-weight="700"
+    >
+      Architecture + constraints
+    </text>
+
+    <path
+      d="M224 137H266"
+      fill="none"
+      stroke="#60a5fa"
+      stroke-width="2"
+      marker-end="url(#guide)"
+    />
+    <text
+      x="245"
+      y="127"
+      text-anchor="middle"
+      fill="#bfdbfe"
+      font-size="9"
+      font-weight="700"
+    >
+      sets
+    </text>
+
+    <rect
+      x="798"
+      y="100"
+      width="198"
+      height="74"
+      rx="7"
+      fill="#1f2937"
+      stroke="#94a3b8"
+    />
+    <text
+      x="897"
+      y="129"
+      text-anchor="middle"
+      fill="#f8fafc"
+      font-size="14"
+      font-weight="800"
+    >
+      Coding agent
+    </text>
+    <text x="897" y="152" text-anchor="middle" fill="#cbd5e1" font-size="11">
+      Propose, change, repair
+    </text>
+    <path
+      d="M702 137H788"
+      fill="none"
+      stroke="#60a5fa"
+      stroke-width="2"
+      marker-end="url(#guide)"
+    />
+    <text
+      x="745"
+      y="127"
+      text-anchor="middle"
+      fill="#bfdbfe"
+      font-size="9"
+      font-weight="700"
+    >
+      guides
+    </text>
+
+    <path
+      d="M897 100V80H130V90"
+      fill="none"
+      stroke="#fbbf24"
+      stroke-width="2"
+      stroke-dasharray="5 5"
+      marker-end="url(#human)"
+    />
+    <text
+      x="650"
+      y="75"
+      text-anchor="middle"
+      fill="#fde68a"
+      font-size="9"
+      font-weight="700"
+    >
+      proposed target changes return to people
+    </text>
+
+    <rect
+      x="646"
+      y="226"
+      width="174"
+      height="66"
+      rx="7"
+      fill="#111827"
+      stroke="#64748b"
+    />
+    <text
+      x="733"
+      y="253"
+      text-anchor="middle"
+      fill="#f8fafc"
+      font-size="13"
+      font-weight="800"
+    >
+      Implementation
+    </text>
+    <text x="733" y="274" text-anchor="middle" fill="#cbd5e1" font-size="10">
+      Changed by the agent
+    </text>
+    <path
+      d="M897 174V207H733V216"
+      fill="none"
+      stroke="#94a3b8"
+      stroke-width="2"
+      marker-end="url(#arrow)"
+    />
+
+    <rect
+      x="852"
+      y="226"
+      width="144"
+      height="66"
+      rx="7"
+      fill="#111827"
+      stroke="#64748b"
+    />
+    <text
+      x="924"
+      y="253"
+      text-anchor="middle"
+      fill="#f8fafc"
+      font-size="13"
+      font-weight="800"
+    >
+      Running software
+    </text>
+    <text x="924" y="274" text-anchor="middle" fill="#cbd5e1" font-size="10">
+      Behavior in execution
+    </text>
+    <line
+      x1="820"
+      y1="259"
+      x2="842"
+      y2="259"
+      stroke="#94a3b8"
+      stroke-width="2"
+      marker-end="url(#arrow)"
+    />
+
+    <rect
+      x="36"
+      y="345"
+      width="960"
+      height="136"
+      rx="9"
+      fill="#111827"
+      stroke="#475569"
+    />
+    <text x="56" y="374" fill="#cbd5e1" font-size="10" font-weight="800">
+      FEEDBACK AFTER ACTION
+    </text>
+
+    <rect
+      x="56"
+      y="392"
+      width="250"
+      height="66"
+      rx="7"
+      fill="#1f2937"
+      stroke="#64748b"
+    />
+    <text
+      x="181"
+      y="418"
+      text-anchor="middle"
+      fill="#f8fafc"
+      font-size="12"
+      font-weight="800"
+    >
+      Other computational controls
+    </text>
+    <text x="181" y="440" text-anchor="middle" fill="#cbd5e1" font-size="10">
+      Mechanical implementation checks
+    </text>
+
+    <rect
+      x="326"
+      y="392"
+      width="238"
+      height="66"
+      rx="7"
+      fill="#1f2937"
+      stroke="#64748b"
+    />
+    <text
+      x="445"
+      y="418"
+      text-anchor="middle"
+      fill="#f8fafc"
+      font-size="12"
+      font-weight="800"
+    >
+      Inferential review
+    </text>
+    <text x="445" y="440" text-anchor="middle" fill="#cbd5e1" font-size="10">
+      Semantic judgment and tradeoffs
+    </text>
+
+    <rect
+      x="584"
+      y="384"
+      width="392"
+      height="82"
+      rx="8"
+      fill="#12251e"
+      stroke="#4ade80"
+      stroke-width="3"
+    />
+    <text x="604" y="409" fill="#86efac" font-size="9" font-weight="800">
+      BLACKBOX
+    </text>
+    <text
+      x="780"
+      y="431"
+      text-anchor="middle"
+      fill="#f0fdf4"
+      font-size="13"
+      font-weight="800"
+    >
+      Deterministic behavioral feedback
+    </text>
+    <text x="780" y="451" text-anchor="middle" fill="#bbf7d0" font-size="10">
+      Findings from bounded evidence of running software
+    </text>
+
+    <path
+      d="M733 292V319H181V382"
+      fill="none"
+      stroke="#94a3b8"
+      stroke-width="2"
+      marker-end="url(#arrow)"
+    />
+    <path
+      d="M733 292V319H445V382"
+      fill="none"
+      stroke="#94a3b8"
+      stroke-width="2"
+      marker-end="url(#arrow)"
+    />
+    <path
+      d="M924 292V374"
+      fill="none"
+      stroke="#4ade80"
+      stroke-width="2"
+      marker-end="url(#feedback)"
+    />
+    <path
+      d="M181 458V510H897V184"
+      fill="none"
+      stroke="#94a3b8"
+      stroke-width="2"
+      marker-end="url(#arrow)"
+    />
+    <path d="M445 458V510" fill="none" stroke="#94a3b8" stroke-width="2" />
+    <path d="M780 466V510" fill="none" stroke="#4ade80" stroke-width="2" />
+    <text
+      x="603"
+      y="534"
+      text-anchor="middle"
+      fill="#bbf7d0"
+      font-size="11"
+      font-weight="700"
+    >
+      feedback returns to the agent for review or repair
+    </text>
+  </g>
+</svg>

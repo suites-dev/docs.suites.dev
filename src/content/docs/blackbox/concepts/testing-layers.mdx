@@ -1,77 +1,76 @@
 ---
-title: "Testing Layers"
-description: "Place Blackbox at the system and E2E layers, where a running system crosses boundaries whose behavior matters."
-sidebar_position: 1
+title: "System and E2E Verification"
+description: "Understand how Blackbox adds bounded runtime evidence and deterministic effect findings to system and E2E suites."
+sidebar_position: 7
 keywords:
   [
-    "unit integration system E2E tests",
-    "testing pyramid",
-    "behavioral verification",
-    "system testing",
+    "system verification",
+    "E2E verification",
+    "runtime effects",
+    "behavioral assurance",
     "Suites Blackbox",
   ]
 ---
 
-import TestingPyramidDiagram from "@/components/blackbox/TestingPyramidDiagram.astro";
+import Aside from "@/components/mdx/Aside.astro";
 
-Blackbox verifies behavior at the **system** and **end-to-end (E2E)** layers. It complements unit and integration tests instead of replacing them.
+Checkout shows one successful order and one order ID, so the native system test passes. Runtime observations show that a retry sent two charge requests.
 
-<TestingPyramidDiagram />
+| Result                      | Conclusion                                |
+| --------------------------- | ----------------------------------------- |
+| **Native assertion**        | One confirmation and one order ID passed  |
+| **Blackbox effect finding** | Two charges occurred when one was allowed |
 
-## Choose the Layer by the Question
+The test is green. The customer was charged twice.
 
-| Layer       | Main question                                                        | Typical scope                                    |
-| ----------- | -------------------------------------------------------------------- | ------------------------------------------------ |
-| Unit        | Does local logic behave correctly?                                   | One unit with collaborators replaced             |
-| Integration | Do selected components or adapters collaborate correctly?            | A small set of real components                   |
-| System      | Does the composed system behave correctly through a public boundary? | The SUT and controlled infrastructure            |
-| E2E         | Does the deployed user journey work?                                 | The full system, including external dependencies |
+<Aside type="info" title="Alpha Status">
+  **Effects** are the committed core. The path from accepted Gherkin through a
+  system suite, managed runtime capture, and offline findings is an **Alpha
+  target**. Observable Decision Coverage is also an **Alpha target** and remains
+  separate. Current Playwright, Docker, Node, and OpenTelemetry work is
+  prototype evidence, not a released support matrix.
+</Aside>
 
-Use lower layers for fast diagnosis. Use Blackbox when correctness depends on what a composed, running system does across database, HTTP, queue, cache, and other boundaries.
+## Extend the System Suite
 
-## What Blackbox Adds
+The executable suite still drives the system and owns its native assertions. Blackbox adds evidence about what the running system did across supported boundaries.
 
-A typical system test proves that an input produced an expected output. Blackbox also checks the behavior between them:
+| Part                     | Responsibility                                                               |
+| ------------------------ | ---------------------------------------------------------------------------- |
+| **System or E2E suite**  | Perform actions and check visible outcomes.                                  |
+| **Runtime observations** | Record supported OpenTelemetry signals during a finite attempt.              |
+| **Effects**              | Normalize eligible observations into portable boundary facts.                |
+| **Evidence integrity**   | Establish whether those facts are attributable and usable for a claim.       |
+| **Findings**             | State what the Analyzer concluded from accepted claims and bounded evidence. |
 
-- Did every required effect occur?
-- Did a forbidden effect occur?
-- Could Blackbox determine whether an effect matched?
-- Did exercised decisions remain observable at a boundary?
+A passing assertion and a violated effect claim can coexist. A failed assertion also does not erase effects that occurred before the failure.
 
-These verdicts come from captured runtime evidence, not from source-code inspection or an agent's explanation.
+## Bound Every Conclusion
 
-## Control Determines Confidence
+Managed capture starts fresh for every case attempt, retry, and sequence member. Sequence members may share declared application state, but they do not share attempts or evidence.
 
-A **capture cell** is the isolated runtime boundary that contains the sidecar, system under test, and required infrastructure. The configured isolation scope determines how much state a flow shares:
+| Evidence                                         | Supported conclusion                                                           |
+| ------------------------------------------------ | ------------------------------------------------------------------------------ |
+| **A matching eligible effect exists**            | Establish presence or disprove a forbidden-effect claim.                       |
+| **No match exists in complete bounded evidence** | May establish absence or another completeness-dependent result.                |
+| **Evidence is incomplete**                       | Cannot establish absence, upper-bound satisfaction, or exactness satisfaction. |
 
-| Scope    | Use it when                                                            |
-| -------- | ---------------------------------------------------------------------- |
-| `flow`   | Each behavioral flow needs its own isolated cell. This is the default. |
-| `worker` | A runner worker can safely share one cell across several flows.        |
-| `test`   | Each individual test needs a fresh cell.                               |
+Incomplete evidence produces an inconclusive or integrity finding. It never turns an empty observation into success.
 
-Remote or shared dependencies can still participate in an E2E flow. Their results carry less deterministic confidence when Blackbox cannot control or reset their state.
+## Keep Repairs Separate From Product Decisions
 
-## Runners and Languages Stay Independent
+Blackbox keeps accepted intent, the executable suite, runtime evidence, and findings separate. A coding agent can repair the suite or implementation and rerun the same accepted behavior.
 
-The test runner starts and ends the lifecycle. A language-specific capture implementation observes the SUT. Neither choice defines the other.
+Changing accepted Gherkin, effect policy, evidence requirements, or gate policy returns to a person.
 
-Playwright and Node are the first implementations. The architecture also supports other runner adapters and capture implementations without changing the sealed evidence format or analysis model.
+## Keep Observable Decision Coverage Separate
 
-## Suites Unit and Suites Blackbox
+**Observable Decision Coverage** compares accepted decision outcomes with projected effect signatures across exact declared cases.
 
-| Need                                          | Suites Unit | Suites Blackbox |
-| --------------------------------------------- | ----------- | --------------- |
-| Isolate a class or provider                   | Yes         | No              |
-| Generate type-safe mocks and stubs            | Yes         | No              |
-| Diagnose local logic quickly                  | Yes         | No              |
-| Drive a composed system or E2E flow           | No          | Yes             |
-| Verify required and forbidden runtime effects | No          | Yes             |
-| Report observable decision coverage           | No          | Yes             |
-
-Keep local correctness cheap. Add Blackbox where a running system must provide evidence of its behavior.
+ODC cannot erase, rewrite, or strengthen an ordinary effect finding.
 
 ## Next Steps
 
-- **[Runtime Evidence](/docs/blackbox/concepts/runtime-evidence):** See how a run becomes a sealed evidence bundle.
-- **[Requirements, Flows, and Verdicts](/docs/blackbox/concepts/specifications-flows-and-verdicts):** Connect reviewed intent to executable behavior.
+- **[Start With Blackbox](/docs/blackbox/quickstart/):** Apply the model to a system flow.
+- **[Human-Agent Verification Loop](/docs/blackbox/concepts/human-agent-verification-loop):** See how findings guide repairs while people retain authority.
+- **[OpenTelemetry and Effects](/docs/blackbox/concepts/effects-and-catalogs):** Explore the effect-assurance model.

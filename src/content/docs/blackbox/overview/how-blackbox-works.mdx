@@ -1,139 +1,105 @@
 ---
-title: "How Blackbox Works?"
-description: "See how Blackbox keeps readable behavior aligned with executable flows, then verifies what the running system actually did."
+title: "How Blackbox Works"
+description: "Follow accepted behavior through its declared system realization, fresh runtime evidence, deterministic findings, and agent repair."
 sidebar_position: 2
 keywords:
   [
     "how Blackbox works",
     "behavioral verification loop",
-    "sealed runtime evidence",
-    "Blackbox architecture",
-    "observable decision coverage",
+    "runtime evidence",
+    "deterministic findings",
+    "coding agent harness",
   ]
 seo:
   primary_keyword: "how Blackbox works"
-  secondary_keywords:
-    ["behavioral verification loop", "sealed runtime evidence"]
-  search_intent: "developers understanding how Blackbox aligns specifications with system tests and turns runtime evidence into deterministic verification"
-  snippet_angle: "follow one flow through behavior alignment, isolated execution, evidence capture, verdicts, and repair"
+  secondary_keywords: ["behavioral verification loop", "runtime evidence"]
+  search_intent: "developers understanding how Blackbox turns accepted behavior and system execution into deterministic repair findings"
+  snippet_angle: "follow accepted behavior through declared realization, fresh capture, sealed evidence, analysis, and agent repair"
 ---
 
 import Aside from "@/components/mdx/Aside.astro";
 import BlackboxEvidenceChainDiagram from "@/components/blackbox/BlackboxEvidenceChainDiagram.astro";
 
-Blackbox works through two connected loops. The **behavior-alignment loop** keeps human-readable intent and executable system tests together. The **runtime-verification loop** runs that same test against the real application and proves what happened.
+An accepted checkout scenario says one completed order produces one charge:
 
-One stable `@flow:<id>` joins the loops.
+```gherkin
+Scenario: Charge one completed order once
+  Given checkout encounters a transient timeout
+  When the order completes after a retry
+  Then one order is confirmed
+  And one charge request is sent
+```
+
+The system suite sees one confirmation and one order ID, but runtime evidence contains two charge requests. The native assertion passes; the Blackbox effect finding fails. The coding agent now has a clear repair problem without gaining permission to redefine success.
+
+<Aside type="info" title="Alpha Status">
+  Gherkin-to-suite alignment is an **Alpha target**. Effects are the **committed
+  core** of behavioral assurance. Observable Decision Coverage is an **Alpha
+  target** and remains separate from effect findings.
+</Aside>
 
 <BlackboxEvidenceChainDiagram />
 
-## Loop 1: Keep Behavior and Tests Aligned
+## One Chain, Two Correction Loops
 
-Teams can enter the alignment loop from either direction:
+Blackbox uses one accepted behavior across two connected loops:
 
-| Starting point                      | What Blackbox helps you do                                                                                     |
-| ----------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| **New behavior in human language**  | Structure the intent, review readable examples, and generate a tagged Playwright test shell.                   |
-| **An existing passing system test** | Give it a stable flow ID, emit readable behavior from the executable test, and review what the test expresses. |
+- **Alignment loop:** Keep Gherkin, accepted meaning, and the executable system realization aligned before runtime work begins.
+- **Verification loop:** Execute the declared realization, capture fresh evidence, analyze it, and return findings for repair.
 
-**EARS** is a small structured format for writing unambiguous requirements. **Gherkin** expresses behavior as readable scenarios. Both help people and coding agents discuss intent; neither is required to execute the runtime loop.
+A coding agent can work across both loops. A person approves accepted behavior and any policy that determines success. [See who proposes, computes, repairs, and approves](/docs/blackbox/concepts/human-agent-verification-loop).
 
-The alignment loop is deliberately two-way:
+## 1. Accept the Behavior
 
-```text
-human intent → optional EARS/Gherkin → tagged system flow
-                         ↑                    │
-                         └── emit and review ─┘
-```
+A person reviews and approves the Gherkin scenario. Blackbox compiles that behavior into a **SuitePlan**, which owns its accepted meaning.
 
-Static commands validate requirements, flow identities, feature-to-suite alignment, and drift. A coding agent may propose or repair the artifacts. A person approves their meaning.
+The agent may propose scenarios or corrections. Neither generated code nor observed runtime behavior can silently rewrite the SuitePlan.
 
-This avoids two common failures:
+## 2. Declare How the Behavior Runs
 
-- A readable specification that no longer matches executable tests.
-- A passing test whose behavior is difficult for people or agents to review.
+The system suite provides the concrete actions and checks that realize the accepted behavior. A **RunnerBundle** owns that realization.
 
-## The Shared Checkpoint: One Accepted Flow
+A **RunPlan** selects the declared cases and realization for this run. It cannot add, weaken, or reinterpret accepted meaning.
 
-Both starting paths must reach the same checkpoint: one passing Playwright flow with exactly one stable `@flow:<id>`.
+## 3. Capture a Fresh Attempt
 
-For the subscription example, `@flow:subscribe-user` connects:
+Runtime opens a fresh managed-capture boundary for every case attempt, retry, and sequence member. It owns the attempt identities, capture lifecycle, correlation, and resulting evidence.
 
-- The reviewed `subscribe-user.feature` file, when the team uses one.
-- The `subscribe-user.system.test.ts` Playwright flow.
-- Its known-user and unknown-user attempts.
-- Every captured event, artifact, effect, and verdict from those attempts.
+During that attempt, the current Node capture path uses OpenTelemetry to observe supported HTTP and database work across service boundaries. OpenTelemetry supplies observations; it does not decide which effects are accepted or forbidden.
 
-Changing a description does not change the identity. Reusing the same ID for unrelated behavior is rejected.
+## 4. Normalize and Seal Observations
 
-## Loop 2: Verify the Running System
+In the current Alpha path, Blackbox receives OpenTelemetry Protocol (OTLP) trace data, retains the raw capture, and normalizes eligible observations into **effects**. Other spans do not silently become effects or policy.
 
-The second loop starts from that accepted flow:
+Runtime records capture capability, completion, loss, and integrity facts before sealing the evidence. An observation proves what Blackbox saw; it does not by itself prove that nothing else happened. Evidence from separate executions is never merged to complete a claim.
 
-```text
-tagged flow → isolated SUT → sealed evidence → separate verdicts
-     ↑                                               │
-     └──────────── agent repairs implementation ─────┘
-```
+## 5. Analyze the Sealed Evidence
 
-Three terms matter here:
+The Analyzer compares accepted meaning and analysis policy with the sealed evidence. With the same SuitePlan, declared realization, analysis policy, and sealed evidence, it returns the same findings. This determinism applies to analysis, not to whether a distributed application behaves identically on every run.
 
-| Term                                   | Plain meaning                                                                                             |
-| -------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| **System under test (SUT)**            | The application and services Blackbox starts or connects to for the flow.                                 |
-| **Effect**                             | A meaningful boundary action, such as a database operation, API call, cache change, or published message. |
-| **Observable decision coverage (ODC)** | Whether different outcomes of an exercised code decision produced distinguishable runtime effects.        |
+## Read Each Finding Separately
 
-Blackbox opens an attempt for each Playwright execution, propagates its identity into the SUT, records supported effects and executed code, waits for related work to settle, and seals the evidence with its integrity findings.
+| Result          | Question it answers                                                        |
+| --------------- | -------------------------------------------------------------------------- |
+| **Native test** | Did the system return the expected visible result?                         |
+| **Integrity**   | Is the captured evidence eligible for this conclusion?                     |
+| **Effects**     | Did required work happen, and did forbidden work remain absent?            |
+| **ODC**         | Did exercised decision outcomes produce distinguishable effect signatures? |
 
-The subscription flow can produce two evidence signatures:
+**Effects are the committed core.** **[Observable Decision Coverage (ODC)](/docs/blackbox/concepts/omc-dc-coverage)** is an Alpha target. It remains separate and cannot change an ordinary effect finding.
 
-| Attempt      | Visible result | Observed runtime effects                                             |
-| ------------ | -------------- | -------------------------------------------------------------------- |
-| Known user   | `201`          | Read `users`, then insert `subscriptions`                            |
-| Unknown user | `404`          | Read `users`; no subscription insert and no payment-provider request |
+## Let Evidence Limit the Claim
 
-The native assertions check the responses. Effects show what the application did behind those responses. ODC compares the two complete signatures and asks whether the decision outcomes remained observable at the system boundary.
+Blackbox can report effects it observed even when other evidence is incomplete. It cannot establish a claim that depends on complete visibility when capture or isolation is insufficient, including:
 
-## Evidence Comes Before Policy
+- The absence of a forbidden effect.
+- Satisfaction of an upper bound.
+- Satisfaction of an exact count.
 
-The first run records facts. An observed database write does not automatically become required behavior.
+Missing evidence never becomes proof that nothing happened.
 
-A person reviews the evidence and approves the smallest required-and-forbidden effect policy. Offline analysis then records both the immutable evidence identity and the reviewed policy identity in a derived verdict. Reanalysis does not rewrite the original run.
+## Repair Without Moving the Target
 
-The next runtime run snapshots the accepted policy alongside its new evidence.
+A failed finding returns to the coding agent for implementation repair and another run. If passing requires changing accepted behavior or analysis policy, control returns to a person.
 
-## Each Verdict Answers One Question
-
-```text
-FLOW subscribe-user
-  tests       PASS    approved responses observed
-  integrity   PASS    capture complete
-  effects     PASS    required work happened; forbidden work did not
-  ODC         REPORT  exercised outcomes produced distinct evidence
-```
-
-| Verdict       | What it tells you                                                  |
-| ------------- | ------------------------------------------------------------------ |
-| **Tests**     | The system returned the expected visible result.                   |
-| **Integrity** | The available evidence is complete enough for this conclusion.     |
-| **Effects**   | The accepted required and forbidden runtime policy was satisfied.  |
-| **ODC**       | Exercised decision outcomes propagated to distinguishable effects. |
-
-Blackbox does not turn missing capture or uncertain isolation into a passing result.
-
-## The Agent Works Across Both Loops
-
-Blackbox Skills help a coding agent propose requirements, review Gherkin, connect the application, inspect effects, interpret ODC, and repair implementation. Deterministic CLI, runner, capture, and analyzer components compute the gates.
-
-The agent may repair implementation and rerun the same accepted flow. If passing requires changing the behavior, assertion, effect policy, isolation promise, or coverage gate, control returns to a person.
-
-<Aside type="note" title="Isolation Makes Negative Claims Trustworthy">
-  A new API process that shares a dirty database is not an isolated system.
-  Blackbox can conclude that a forbidden effect was absent only when the flow's
-  mutable state is isolated or reset.
-</Aside>
-
-## Run Both Loops
-
-The [Blackbox Quickstart](/docs/blackbox/quickstart/) aligns one subscription behavior, connects the application, captures runtime evidence, and closes the repair loop. If the application does not use the default host command, build the accepted flow first and then [choose the matching application setup](/docs/blackbox/guides/set-up-the-testbed).
+Continue with the [Blackbox Quickstart](/docs/blackbox/quickstart/) to follow one behavior through the workflow.

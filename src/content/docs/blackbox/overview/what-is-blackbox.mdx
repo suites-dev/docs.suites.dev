@@ -1,72 +1,90 @@
 ---
 title: "What is Blackbox?"
-description: "Suites Blackbox is a behavioral verification framework for software developed with coding agents. It runs real flows, saves trustworthy evidence, and returns deterministic findings while people control what success means."
+description: "Suites Blackbox adds deterministic behavioral feedback to a coding-agent harness. It verifies selected system behavior against human-approved meaning using bounded runtime evidence."
 sidebar_position: 1
 keywords:
   [
     "behavior harness",
-    "behavioral verification framework",
-    "agentic software engineering",
+    "behavioral verification",
     "coding agent verification",
+    "deterministic feedback",
     "runtime evidence",
     "Suites Blackbox",
   ]
 seo:
   primary_keyword: "behavior harness"
-  secondary_keywords: ["behavioral verification framework", "runtime evidence"]
-  search_intent: "developers evaluating deterministic verification and behavior harnesses for coding agents"
-  snippet_angle: "approve success, run real system flows, seal runtime evidence, and return deterministic findings without letting agents redefine the target"
+  secondary_keywords: ["behavioral verification", "runtime evidence"]
+  search_intent: "developers evaluating deterministic behavioral feedback for coding-agent harnesses"
+  snippet_angle: "keep people in control of accepted behavior while coding agents repair implementations from deterministic runtime findings"
 ---
 
-import HumanAgentVerificationLoopDiagram from "@/components/blackbox/HumanAgentVerificationLoopDiagram.astro";
+import PlannedBehaviorReport from "@/components/blackbox/PlannedBehaviorReport.astro";
 import Aside from "@/components/mdx/Aside.astro";
 
-**Suites Blackbox is a behavioral verification framework for software developed with coding agents.**
+**Suites Blackbox is the deterministic behavioral verification layer in a coding-agent harness.**
 
-People approve what success means. Blackbox runs real system flows, captures and seals evidence of what the software did, and returns deterministic findings an agent can repair against without redefining the accepted target.
+It compares human-approved behavior with bounded runtime evidence from declared system and E2E flows, then returns findings that guide implementation repair without letting the coding agent redefine success.
 
-System and E2E tests provide the execution boundary. They are how Blackbox reaches the running software, not the whole product.
+## Why does Blackbox Exist?
 
-<HumanAgentVerificationLoopDiagram />
+**Because verification becomes the new constraint**
 
-Blackbox connects accepted behavior, native execution, sealed runtime evidence, and deterministic analysis. [See how one flow moves through the complete system](/docs/blackbox/overview/how-blackbox-works).
+Coding agents can generate implementations and tests faster than people can establish that the result is correct. When one agent derives both from the same interpretation, the code and test can share the same blind spot.
 
-## Catch Green Tests That Miss the Behavior
+This creates a **verification bottleneck**:
 
-Suppose an unknown user receives the expected `404`, but the implementation also calls a payment API. The response assertion remains green because it cannot see that hidden **effect**—a meaningful runtime action performed by the application.
+- **More candidates:** Code is cheap to generate but expensive to verify.
+- **Review queues grow:** Pull requests arrive faster than people can assess runtime behavior.
+- **Green tests miss effects:** Expected responses can hide missing or forbidden work.
 
-The native test still proves the response. Blackbox independently checks the approved boundary rule: the user lookup must happen, and the payment call must not.
+Harness engineering addresses that problem with **feedforward guidance** that defines the target and constraints before the agent acts, and **feedback** that evaluates the result against them afterward.
 
-| Result        | Finding                                      |
-| ------------- | -------------------------------------------- |
-| Test          | Pass—the client received `404`.              |
-| Evidence      | Complete—the runtime capture can be trusted. |
-| Effect policy | Fail—the forbidden payment call happened.    |
+![Intent becomes accepted behavior, which guides implementation and a running system. Runtime evidence produces findings that send the agent back to repair the implementation.](/img/blackbox/verification-repair-loop.svg)
 
-A green assertion with a failed effect verdict means the visible result was correct while the accepted boundary behavior was not. **[Observable decision coverage (ODC)](/docs/blackbox/concepts/omc-dc-coverage)** compares the effects produced by different code-decision outcomes; here it compares the unknown-user attempt with the known-user attempt.
+[See how people, coding agents, Skills, and deterministic Blackbox components share the verification loop](/docs/blackbox/concepts/human-agent-verification-loop).
 
-## Keep Authority and Verification Separate
+## Who Blackbox is For?
 
-| Participant                              | Responsibility                                                                 |
-| ---------------------------------------- | ------------------------------------------------------------------------------ |
-| **People**                               | Approve the target, analysis policy, and final result.                         |
-| **Coding agents and Blackbox skills**    | Propose artifacts, implement behavior, and repair findings.                    |
-| **Blackbox CLI, runtime, and analyzers** | Execute flows, correlate and seal evidence, and compute deterministic results. |
+Blackbox is for teams that use coding agents such as Claude Code, Codex, and others to build or change behavior across real service boundaries.
 
-The agent can repeat the implementation loop without waiting for a person after every change. It must stop when passing would require changing accepted requirements, scenarios, assertions, effect contracts, or verification policy.
+- **System and E2E verification:** Check selected flows through the running system.
+- **Deterministic repair findings:** Give coding agents findings they can act on without redefining success.
+- **Bounded runtime evidence:** Base verdicts on captured behavior within a declared evidence boundary.
 
-<Aside type="note" title="Negative Claims Need Isolated State">
-  The system under test (SUT) is the application and services being verified. A
-  forbidden effect is conclusive only when the SUT and its mutable dependencies
-  are isolated or reset for the attempt. Blackbox manages this boundary for
-  owned lifecycles; external systems must provide an equivalent isolation
-  guarantee.
-</Aside>
+## How does Blackbox work?
 
-## Fit It Around the Workflow You Already Have
+People decide what success means. A coding agent and its skills can propose, implement, diagnose, and repair. Blackbox executes the declared realization, manages the evidence boundary, and analyzes the result.
 
-Blackbox can begin with a passing system test or with one behavior a team still needs to turn into a test. EARS and Gherkin can keep intent readable, but they are optional. Runtime verification uses the accepted system flow and records what the running software actually did.
+In the Alpha target flow, Gherkin expresses accepted behavior in a readable, reviewable form. The executable system suite realizes that behavior; Gherkin does not become runtime evidence or change effect findings.
 
-Blackbox is a fit when a correct response is not enough—when database writes, external calls, messages, decision outcomes, or the absence of harmful work also matter.
+The figure below zooms into the accepted-behavior-to-evidence part of the wider harness loop.
 
-Next, [see how one flow moves through Blackbox](/docs/blackbox/overview/how-blackbox-works), then [prove it in the Quickstart](/docs/blackbox/quickstart/).
+<img
+  src="/img/blackbox/intent-to-evidence-documents.svg"
+  alt="An accepted specification becomes Gherkin, an executable system suite, and runtime evidence in one continuous flow."
+  style="display: block; width: 100%; height: auto;"
+/>
+
+Failed findings return to the agent for repair; changes to accepted behavior return to a person. With the same accepted meaning, realization, policy, and sealed evidence, Blackbox returns the same finding. [See how the complete loop works](/docs/blackbox/overview/how-blackbox-works).
+
+## Verify What the System Did
+
+A system or E2E flow can pass on its visible result while required work is missing or forbidden work occurs. Blackbox verifies those **effects**, such as database writes, published messages, and external calls.
+
+OpenTelemetry is one capture source. Blackbox correlates supported observations with the current attempt and normalizes them into effects before analysis.
+
+Return to the checkout example. The customer sees one successful order and one order ID, but a retry sends two charge requests. A planned terminal report could connect the accepted scenario, executable suite, effect finding, and ODC finding in one report:
+
+<PlannedBehaviorReport />
+
+The passing assertion and failed effect finding answer different questions. The visible order is correct, but charging the customer twice is not.
+
+**Effects are the committed core of Blackbox behavioral assurance.** **[Observable Decision Coverage (ODC)](/docs/blackbox/concepts/omc-dc-coverage)** is an Alpha target and remains separate: it cannot change ordinary effect findings.
+
+## Keep Assurance Bounded by the Evidence
+
+Blackbox establishes claims about declared behavior inside a managed evidence boundary. It does not prove that the approved target expresses what people truly wanted, and it does not prove the entire application correct.
+
+Evidence quality limits the verdict. If capture is incomplete, Blackbox cannot establish claims that depend on seeing everything: the absence of a forbidden effect, an upper bound, or exactness. Missing observations never become proof of success.
+
+Managed capture starts fresh for every case attempt, retry, and sequence member. That boundary prevents evidence from another execution from silently influencing the current finding.

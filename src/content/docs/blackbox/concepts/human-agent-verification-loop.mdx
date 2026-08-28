@@ -1,0 +1,55 @@
+---
+title: "Human-Agent Verification Loop"
+description: "See how accepted Gherkin guides an agent and how Blackbox returns deterministic feedback."
+sidebar_position: 1
+keywords:
+  [
+    "human agent verification loop",
+    "coding agent verification",
+    "feedforward feedback",
+    "Blackbox CLI",
+  ]
+---
+
+import Aside from "@/components/mdx/Aside.astro";
+
+An accepted scenario allows one charge for one completed order. The test sees one confirmation and one order ID, but Blackbox finds two charge requests in runtime evidence.
+
+The agent repairs the implementation. A person decides if the accepted behavior should change.
+
+<Aside type="info" title="Alpha Status">
+  The typed Gherkin-to-Playwright path is an **Alpha target**. Effects are the
+  **committed core**. Observable Decision Coverage is an **Alpha target** and
+  remains separate.
+</Aside>
+
+## Feedforward and Feedback
+
+**Feedforward** guides the agent before it acts. **Feedback** tells the agent what deterministic checks found afterward.
+
+<img
+  src="/img/blackbox/human-agent-verification-loop.svg"
+  alt="Person-approved Gherkin becomes generated runtime bindings and TypeScript guidance. Those types guide a person or coding agent writing the project-owned Playwright suite. The CLI checks and prepares the run. The runner executes while Runtime captures fresh evidence. The Analyzer returns findings to the agent, while changes to accepted behavior return to the person."
+  style="display: block; width: 100%; height: auto;"
+/>
+
+## Read the Flow
+
+1. A person approves the Gherkin scenario and effect expectations.
+2. Blackbox generates runtime bindings and `.d.ts` guidance from that accepted intent.
+3. Those types guide the project-owned Playwright suite. The CLI checks it and prepares the declared run.
+4. The runner executes the selected suite. Runtime captures a fresh attempt and seals the evidence.
+5. The Analyzer returns integrity and effect findings.
+
+The return path depends on the problem:
+
+- **Suite or binding problem:** The agent repairs the project-owned suite.
+- **Runtime or effect problem:** The agent repairs the implementation and reruns.
+- **Target or policy change:** A person decides.
+
+People own accepted behavior. Runtime owns evidence, and the Analyzer owns findings.
+
+## Next Steps
+
+- **[How Blackbox Works](/docs/blackbox/overview/how-blackbox-works):** Continue through evidence and analysis.
+- **[Runtime Evidence and Integrity](/docs/blackbox/concepts/runtime-evidence):** Understand the evidence boundary.

@@ -1,0 +1,78 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 1200 420"
+  role="img"
+  aria-labelledby="odc-title odc-description"
+>
+  <title id="odc-title">Observable Decision Coverage comparison flow</title>
+  <desc id="odc-description">
+    An accepted comparison defines exact members, varying and controlled
+    dimensions, decision scope, and an effect projection. Decision evidence and
+    sealed effect evidence enter offline eligibility checks. The result is an
+    ODC association finding or an unavailable result. Ordinary effect
+    findings remain unchanged.
+  </desc>
+  <defs>
+    <linearGradient id="odc-background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#081120" />
+      <stop offset="1" stop-color="#0f172a" />
+    </linearGradient>
+    <marker id="odc-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 10 5 0 10Z" fill="#94a3b8" />
+    </marker>
+  </defs>
+
+  <rect x="6" y="6" width="1188" height="408" rx="16" fill="url(#odc-background)" stroke="#334155" />
+
+  <g font-family="Inter, ui-sans-serif, system-ui, sans-serif">
+    <text x="34" y="44" fill="#f8fafc" font-size="20" font-weight="800">ODC compares declared cases, not convenient runs</text>
+
+    <g text-anchor="middle">
+      <rect x="34" y="82" width="250" height="210" rx="11" fill="#3b2f0b" stroke="#fbbf24" stroke-width="2" />
+      <text x="159" y="112" fill="#fde68a" font-size="9" font-weight="800">PERSON APPROVED</text>
+      <text x="159" y="148" fill="#fef3c7" font-size="17" font-weight="800">Comparison</text>
+      <text x="159" y="180" fill="#fde68a" font-size="11">exact member cases</text>
+      <text x="159" y="204" fill="#fde68a" font-size="11">varying + controlled dimensions</text>
+      <text x="159" y="228" fill="#fde68a" font-size="11">decision scope</text>
+      <text x="159" y="252" fill="#fde68a" font-size="11">effect projection</text>
+    </g>
+
+    <g text-anchor="middle">
+      <rect x="334" y="82" width="250" height="210" rx="11" fill="#172554" stroke="#60a5fa" stroke-width="2" />
+      <text x="459" y="112" fill="#93c5fd" font-size="9" font-weight="800">EXACT EXECUTIONS</text>
+      <text x="459" y="148" fill="#eff6ff" font-size="17" font-weight="800">Evidence</text>
+      <rect x="362" y="172" width="194" height="38" rx="7" fill="#0f172a" stroke="#3b82f6" />
+      <text x="459" y="196" fill="#bfdbfe" font-size="11">decision evidence</text>
+      <rect x="362" y="220" width="194" height="38" rx="7" fill="#0f172a" stroke="#3b82f6" />
+      <text x="459" y="244" fill="#bfdbfe" font-size="11">sealed effect evidence</text>
+    </g>
+
+    <g text-anchor="middle">
+      <rect x="634" y="82" width="230" height="210" rx="11" fill="#12302a" stroke="#34d399" stroke-width="2" />
+      <text x="749" y="112" fill="#6ee7b7" font-size="9" font-weight="800">OFFLINE</text>
+      <text x="749" y="148" fill="#ecfdf5" font-size="17" font-weight="800">Check eligibility</text>
+      <text x="749" y="184" fill="#a7f3d0" font-size="11">exact attempts</text>
+      <text x="749" y="208" fill="#a7f3d0" font-size="11">complete inputs</text>
+      <text x="749" y="232" fill="#a7f3d0" font-size="11">verified controls</text>
+      <text x="749" y="256" fill="#a7f3d0" font-size="11">then compare</text>
+    </g>
+
+    <g text-anchor="middle">
+      <rect x="914" y="82" width="252" height="210" rx="11" fill="#2e1065" stroke="#c084fc" stroke-width="2" />
+      <text x="1040" y="112" fill="#d8b4fe" font-size="9" font-weight="800">ALPHA TARGET</text>
+      <text x="1040" y="148" fill="#faf5ff" font-size="17" font-weight="800">Association</text>
+      <text x="1040" y="184" fill="#e9d5ff" font-size="11">outcomes have distinct</text>
+      <text x="1040" y="205" fill="#e9d5ff" font-size="11">projected signatures</text>
+      <text x="1040" y="235" fill="#c4b5fd" font-size="10" font-weight="700">or unavailable</text>
+      <text x="1040" y="258" fill="#e9d5ff" font-size="10">when prerequisites fail</text>
+    </g>
+
+    <line x1="284" y1="187" x2="324" y2="187" stroke="#94a3b8" stroke-width="2" marker-end="url(#odc-arrow)" />
+    <line x1="584" y1="187" x2="624" y2="187" stroke="#94a3b8" stroke-width="2" marker-end="url(#odc-arrow)" />
+    <line x1="864" y1="187" x2="904" y2="187" stroke="#94a3b8" stroke-width="2" marker-end="url(#odc-arrow)" />
+
+    <rect x="34" y="326" width="1132" height="50" rx="10" fill="#14301f" stroke="#4ade80" stroke-width="2" />
+    <text x="600" y="356" text-anchor="middle" fill="#dcfce7" font-size="13" font-weight="800">Ordinary integrity and effect findings remain unchanged</text>
+    <text x="1166" y="398" text-anchor="end" fill="#64748b" font-size="9">Observable Decision Coverage</text>
+  </g>
+</svg>
