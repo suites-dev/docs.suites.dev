@@ -1,7 +1,7 @@
 ---
 title: "OpenTelemetry and Effects"
 description: "See how Blackbox turns eligible OpenTelemetry observations into effects and bounded findings."
-sidebar_position: 5
+sidebar_position: 4
 keywords:
   [
     "behavioral assurance",
@@ -17,7 +17,7 @@ import Aside from "@/components/mdx/Aside.astro";
 
 Checkout shows one successful order and one order ID, so the native assertion passes. Runtime evidence contains two charge requests because a retry repeated the side effect.
 
-The accepted flow allows one charge. Two eligible charge effects are enough for Blackbox to establish the violation, even if other evidence is incomplete.
+The accepted flow permits at most one charge request. Two eligible charge-request effects establish the violation, even if other evidence is incomplete.
 
 <Aside type="info" title="Alpha Status">
   Effects are the **committed core**. The integrated path from accepted claims
@@ -38,13 +38,23 @@ OpenTelemetry provides runtime observations. Blackbox admits only supported, att
   style="display: block; width: 100%; height: auto;"
 />
 
-Runtime records facts. It does not decide whether those facts are acceptable. A person approves effect policy, and the Analyzer evaluates the accepted claim against the evidence.
+The accepted claim and runtime evidence remain separate until the Analyzer compares them.
 
 ## Use the Effects Catalog as Shared Vocabulary
 
-An **effects catalog** is a reviewed collection of portable effect contracts. It connects OpenTelemetry observations to stable product intent without tying accepted behavior to raw span IDs or trace structure.
+An **effects catalog** is a reviewed collection of portable effect contracts. It connects OpenTelemetry observations to stable effect intent without tying accepted claims to raw span IDs or trace structure.
 
-Each catalog entry defines the intent represented by an effect, when an observation qualifies, and which proof strengths it can support. Accepted behavior then references that shared intent.
+Each catalog entry defines the intent represented by an effect, when an observation qualifies, and which proof strengths it can support. Accepted claims then reference that shared effect intent.
+
+**Effect intent** names what the normalized fact represents. It is catalog vocabulary, not human intent, accepted meaning, or policy.
+
+Proof strength describes what the admitted evidence can establish:
+
+| Proof strength | What it establishes                                                                        |
+| -------------- | ------------------------------------------------------------------------------------------ |
+| **Observed**   | A supported, attributable matching operation was recorded.                                 |
+| **Succeeded**  | The matching operation reached a valid successful terminal.                                |
+| **Committed**  | Separate commit evidence and settling requirements establish the accepted commit contract. |
 
 The public syntax is not frozen. This YAML is an illustrative catalog view, not a supported file format or schema:
 
@@ -69,19 +79,20 @@ effects:
     supports: [observed, succeeded, committed]
 ```
 
-The catalog supplies the shared intents. A claim such as “at most one charge per completed order” remains separate, human-approved policy.
+The catalog supplies shared effect intents. A claim such as “at most one charge request per completed order” remains separate, human-approved policy.
 
-| Runtime input                                                     | Catalog intent             | Accepted claim                         |
-| ----------------------------------------------------------------- | -------------------------- | -------------------------------------- |
-| Two attributable HTTP client observations at the payment boundary | Two charge-request effects | At most one charge per completed order |
+| Runtime input                                                     | Catalog effect intent      | Accepted claim                                 |
+| ----------------------------------------------------------------- | -------------------------- | ---------------------------------------------- |
+| Two attributable HTTP client observations at the payment boundary | Two charge-request effects | At most one charge request per completed order |
 
-The catalog defines the middle column. A person approves the claim on the right. Runtime observations cannot add catalog entries, redefine their intent, or turn themselves into policy.
+The catalog defines the middle column. A person approves the claim on the right. Runtime observations cannot add catalog entries, redefine their effect intent, or turn themselves into policy.
 
-## Required and Forbidden Effects
+## Express Presence, Absence, and Cardinality
 
-- A **required effect** describes behavior that must occur.
-- A **forbidden effect** describes behavior that must not occur.
-- An unlisted effect remains evidence, but it does not constrain the implementation.
+- A **presence claim** requires an effect to occur.
+- An **absence claim** forbids an effect from occurring.
+- A **cardinality claim** sets an allowed lower bound, upper bound, or exact count.
+- An effect not referenced by the accepted claim remains recorded evidence, but it does not constrain the implementation.
 
 Observed behavior can inform a proposal. It never becomes accepted policy without human approval.
 
@@ -96,13 +107,9 @@ Observed behavior can inform a proposal. It never becomes accepted policy withou
 
 If evidence is incomplete, Blackbox cannot establish a completeness-dependent absence, upper-bound, or exactness result. The finding stays inconclusive instead of turning missing evidence into success.
 
-Managed capture starts fresh for every attempt, retry, and sequence member. Blackbox does not merge their evidence to strengthen a claim.
+## Read Findings and Verdicts
 
-## What Deterministic Assurance Means
-
-The same accepted claim, declared realization, analysis policy, and sealed evidence produce the same finding. This does not mean the application will behave identically on every run.
-
-Findings remain distinct:
+A **finding** is the Analyzer's result for one accepted claim. Its **verdict** is the terminal status:
 
 - **Satisfied:** The evidence meets the claim's proof burden.
 - **Violated:** The evidence establishes a counterexample or missed obligation.
@@ -110,11 +117,6 @@ Findings remain distinct:
 - **Unsupported:** The declared capability or realization is unavailable.
 - **Integrity failure:** Identities or lifecycle evidence conflict with the claim.
 
-## Observable Decision Coverage Stays Separate
-
-**Observable Decision Coverage (ODC)** is an Alpha target that compares declared decision outcomes with projected effects. It cannot alter an ordinary effect finding or strengthen incomplete effect evidence.
-
 ## Next Steps
 
-- **[Runtime Evidence and Integrity](/docs/blackbox/concepts/runtime-evidence):** See what makes evidence usable for a claim.
 - **[Observable Decision Coverage](/docs/blackbox/concepts/omc-dc-coverage):** Explore the separate comparison layer.

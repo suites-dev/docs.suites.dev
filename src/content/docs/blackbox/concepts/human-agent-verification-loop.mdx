@@ -1,6 +1,6 @@
 ---
 title: "Human-Agent Verification Loop"
-description: "See how accepted Gherkin guides an agent and how Blackbox returns deterministic feedback."
+description: "See how approved guidance directs a coding agent and how deterministic system findings drive repair."
 sidebar_position: 1
 keywords:
   [
@@ -13,43 +13,35 @@ keywords:
 
 import Aside from "@/components/mdx/Aside.astro";
 
-An accepted scenario allows one charge for one completed order. The test sees one confirmation and one order ID, but Blackbox finds two charge requests in runtime evidence.
+Imagine a system or E2E test that sees one confirmed order and passes. The accepted effect claim allows at most one charge request, but runtime evidence contains two.
 
-The agent repairs the implementation. A person decides if the accepted behavior should change.
+An **effect** is a normalized runtime fact at a supported system boundary. Blackbox compares person-approved **effect claims** with sealed evidence under an **analysis policy**, the approved rule for producing findings.
+
+Here, **deterministic** means the same accepted inputs, declared realization, analysis policy, and sealed evidence produce the same finding. It does not mean the running system behaves identically every time.
 
 <Aside type="info" title="Alpha Status">
   The typed Gherkin-to-Playwright path is an **Alpha target**. Effects are the
-  **committed core**. Observable Decision Coverage is an **Alpha target** and
-  remains separate.
+  **committed core**.
 </Aside>
 
 ## Feedforward and Feedback
 
-**Feedforward** guides the agent before it acts. **Feedback** tells the agent what deterministic checks found afterward.
+**Feedforward** gives the agent approved guidance before it acts. **Feedback** returns deterministic findings after the system runs.
+
+This framing follows Birgitta Böckeler's <a href="https://martinfowler.com/articles/harness-engineering.html" target="_blank" rel="noopener noreferrer">Harness engineering for coding agent users</a>, which describes guides as feedforward controls and sensors as feedback controls. Blackbox applies that model to behavioral verification: accepted scenarios and effect claims guide the agent, while Analyzer findings drive repair.
 
 <img
   src="/img/blackbox/human-agent-verification-loop.svg"
-  alt="Person-approved Gherkin becomes generated runtime bindings and TypeScript guidance. Those types guide a person or coding agent writing the project-owned Playwright suite. The CLI checks and prepares the run. The runner executes while Runtime captures fresh evidence. The Analyzer returns findings to the agent, while changes to accepted behavior return to the person."
+  alt="Person-approved Gherkin, effect claims, and analysis policy guide a coding agent. The agent realizes the behavior in a system or E2E suite. Blackbox captures fresh runtime evidence and returns deterministic findings. Implementation repairs return to the agent, while proposed changes to human intent return to the person."
   style="display: block; width: 100%; height: auto;"
 />
 
-## Read the Flow
+## Route Feedback Without Moving Authority
 
-1. A person approves the Gherkin scenario and effect expectations.
-2. Blackbox generates runtime bindings and `.d.ts` guidance from that accepted intent.
-3. Those types guide the project-owned Playwright suite. The CLI checks it and prepares the declared run.
-4. The runner executes the selected suite. Runtime captures a fresh attempt and seals the evidence.
-5. The Analyzer returns integrity and effect findings.
+Findings about the suite or implementation return to the coding agent as a repair problem. The agent reruns the same approved scenario and claims.
 
-The return path depends on the problem:
-
-- **Suite or binding problem:** The agent repairs the project-owned suite.
-- **Runtime or effect problem:** The agent repairs the implementation and reruns.
-- **Target or policy change:** A person decides.
-
-People own accepted behavior. Runtime owns evidence, and the Analyzer owns findings.
+A proposed change to Gherkin, effect claims, or analysis policy returns to a person. Feedback can drive repair, but it cannot give the generator permission to redefine success.
 
 ## Next Steps
 
-- **[How Blackbox Works](/docs/blackbox/overview/how-blackbox-works):** Continue through evidence and analysis.
-- **[Runtime Evidence and Integrity](/docs/blackbox/concepts/runtime-evidence):** Understand the evidence boundary.
+- **[Human Intent and Verification Authority](/docs/blackbox/concepts/specifications-flows-and-verdicts):** See what each representation may and may not change.

@@ -90,7 +90,7 @@
         Effect claim
       </text>
       <text x="159" y="168" fill="#fde68a" font-size="10">
-        required or forbidden behavior
+        presence, absence, or cardinality
       </text>
     </g>
 

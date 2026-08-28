@@ -20,14 +20,14 @@ seo:
 import Aside from "@/components/mdx/Aside.astro";
 import BlackboxEvidenceChainDiagram from "@/components/blackbox/BlackboxEvidenceChainDiagram.astro";
 
-An accepted checkout scenario says one completed order produces one charge:
+An accepted checkout scenario says one completed order produces at most one charge request:
 
 ```gherkin
-Scenario: Charge one completed order once
+Scenario: Do not charge a completed order twice
   Given checkout encounters a transient timeout
   When the order completes after a retry
   Then one order is confirmed
-  And one charge request is sent
+  And no more than one charge request is sent
 ```
 
 The system suite sees one confirmation and one order ID, but runtime evidence contains two charge requests. The native assertion passes; the Blackbox effect finding fails. The coding agent now has a clear repair problem without gaining permission to redefine success.

@@ -1,7 +1,7 @@
 ---
 title: "System and E2E Verification"
-description: "Understand how Blackbox adds bounded runtime evidence and deterministic effect findings to system and E2E suites."
-sidebar_position: 7
+description: "See how native assertions and bounded Blackbox findings work together in system and E2E suites."
+sidebar_position: 6
 keywords:
   [
     "system verification",
@@ -14,63 +14,25 @@ keywords:
 
 import Aside from "@/components/mdx/Aside.astro";
 
-Checkout shows one successful order and one order ID, so the native system test passes. Runtime observations show that a retry sent two charge requests.
+Imagine a checkout system where the customer sees one successful order and one order ID, but the service sends two charge requests. The system test checks the visible result and passes.
 
-| Result                      | Conclusion                                |
-| --------------------------- | ----------------------------------------- |
-| **Native assertion**        | One confirmation and one order ID passed  |
-| **Blackbox effect finding** | Two charges occurred when one was allowed |
-
-The test is green. The customer was charged twice.
+<img
+  src="/img/blackbox/system-e2e-two-results.svg"
+  alt="The same checkout execution produces two results: the native assertion passes with one confirmation and one order ID, while the Blackbox effect finding is violated because two charge requests were observed and the accepted upper bound is one."
+  style="display: block; width: 100%; height: auto;"
+/>
 
 <Aside type="info" title="Alpha Status">
   **Effects** are the committed core. The path from accepted Gherkin through a
   system suite, managed runtime capture, and offline findings is an **Alpha
-  target**. Observable Decision Coverage is also an **Alpha target** and remains
-  separate. Current Playwright, Docker, Node, and OpenTelemetry work is
-  prototype evidence, not a released support matrix.
+  target**. Current implementation work is prototype evidence, not a released
+  support matrix.
 </Aside>
 
-## Extend the System Suite
+## Keep Both Results Independent
 
-The executable suite still drives the system and owns its native assertions. Blackbox adds evidence about what the running system did across supported boundaries.
-
-| Part                     | Responsibility                                                               |
-| ------------------------ | ---------------------------------------------------------------------------- |
-| **System or E2E suite**  | Perform actions and check visible outcomes.                                  |
-| **Runtime observations** | Record supported OpenTelemetry signals during a finite attempt.              |
-| **Effects**              | Normalize eligible observations into portable boundary facts.                |
-| **Evidence integrity**   | Establish whether those facts are attributable and usable for a claim.       |
-| **Findings**             | State what the Analyzer concluded from accepted claims and bounded evidence. |
-
-A passing assertion and a violated effect claim can coexist. A failed assertion also does not erase effects that occurred before the failure.
-
-## Bound Every Conclusion
-
-Managed capture starts fresh for every case attempt, retry, and sequence member. Sequence members may share declared application state, but they do not share attempts or evidence.
-
-| Evidence                                         | Supported conclusion                                                           |
-| ------------------------------------------------ | ------------------------------------------------------------------------------ |
-| **A matching eligible effect exists**            | Establish presence or disprove a forbidden-effect claim.                       |
-| **No match exists in complete bounded evidence** | May establish absence or another completeness-dependent result.                |
-| **Evidence is incomplete**                       | Cannot establish absence, upper-bound satisfaction, or exactness satisfaction. |
-
-Incomplete evidence produces an inconclusive or integrity finding. It never turns an empty observation into success.
-
-## Keep Repairs Separate From Product Decisions
-
-Blackbox keeps accepted intent, the executable suite, runtime evidence, and findings separate. A coding agent can repair the suite or implementation and rerun the same accepted behavior.
-
-Changing accepted Gherkin, effect policy, evidence requirements, or gate policy returns to a person.
-
-## Keep Observable Decision Coverage Separate
-
-**Observable Decision Coverage** compares accepted decision outcomes with projected effect signatures across exact declared cases.
-
-ODC cannot erase, rewrite, or strengthen an ordinary effect finding.
+Neither result overrides the other. A failed native assertion does not erase captured effects, and an effect finding does not rewrite the suite result. If the available evidence cannot support the claim, the Blackbox finding remains inconclusive instead of becoming a pass.
 
 ## Next Steps
 
-- **[Start With Blackbox](/docs/blackbox/quickstart/):** Apply the model to a system flow.
-- **[Human-Agent Verification Loop](/docs/blackbox/concepts/human-agent-verification-loop):** See how findings guide repairs while people retain authority.
-- **[OpenTelemetry and Effects](/docs/blackbox/concepts/effects-and-catalogs):** Explore the effect-assurance model.
+- **[Start With Blackbox](/docs/blackbox/quickstart/):** Apply the verification model to a system flow.

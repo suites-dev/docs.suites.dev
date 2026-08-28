@@ -195,7 +195,7 @@ const sidebar: SidebarConfig = {
           href: "/docs/blackbox/concepts/human-agent-verification-loop",
         },
         {
-          label: "Accepted Intent and Executable Flows",
+          label: "Human Intent and Verification Authority",
           href: "/docs/blackbox/concepts/specifications-flows-and-verdicts",
         },
         {

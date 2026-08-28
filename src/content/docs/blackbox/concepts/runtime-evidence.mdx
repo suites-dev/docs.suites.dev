@@ -1,74 +1,51 @@
 ---
 title: "Runtime Evidence and Integrity"
-description: "Understand how capture cells seal language-neutral evidence for deterministic offline analysis."
-sidebar_position: 4
+description: "See how fresh scope, identity, capture capability, and completeness bound every Blackbox finding."
+sidebar_position: 3
 keywords:
   [
     "runtime evidence",
-    "sealed evidence bundle",
-    "capture cell",
-    "Blackbox protocol",
+    "attempt-scoped capture",
+    "evidence integrity",
+    "evidence completeness",
   ]
 ---
 
-**Runtime evidence** is the sealed record of what supported capture implementations observed while selected system flows ran.
+Suppose a checkout case runs, fails, and retries. Runtime opens fresh capture for the retry. Evidence from the first attempt cannot complete a claim for the second.
 
-The evidence bundle separates capture from analysis. A test environment can stop before Blackbox evaluates effects, observable decisions, or report policy.
+**Runtime evidence** is the sealed record of what supported capture observed during one bounded attempt. It preserves the facts Blackbox may analyze and the limits on what those facts can establish.
 
-## Capture Has Orthogonal Parts
+An **execution** is the act of running a case. An **attempt** is one bounded execution instance with its own capture and evidence. A retry creates a new attempt.
 
-| Part              | Responsibility                                                             |
-| ----------------- | -------------------------------------------------------------------------- |
-| Test runner       | Executes tests and reports native outcomes                                 |
-| Runner adapter    | Maps runner events, tags, retries, and workers into the Blackbox lifecycle |
-| Runner SDK        | Defines framework-neutral attempts and flow identity                       |
-| Capture cell      | Isolates the sidecar, SUT, and required infrastructure                     |
-| Language capture  | Produces normalized effects and exact native coverage artifacts            |
-| Sidecar           | Validates capture integrity and seals the evidence bundle                  |
-| Language analyzer | Joins native coverage, source, and debug metadata into neutral decisions   |
-| Analyzer          | Reads the sealed bundle offline and computes effect and ODC findings       |
+**Managed capture** is the Blackbox-controlled observation scope opened for that attempt.
 
-Playwright is the first runner adapter. Node is the first SUT capture implementation. Future adapters and language captures bind to the same protocol.
+## Bound One Attempt at a Time
 
-## Evidence Is Scoped to a Capture Cell
+Managed capture starts fresh for every case attempt, retry, and sequence member.
 
-A **capture cell** contains one sidecar plus the SUT and infrastructure needed by its selected tests.
+<img
+  src="/img/blackbox/attempt-evidence-boundary.svg"
+  alt="The original attempt and its retry use separate capture and evidence boundaries. Evidence from the first attempt cannot cross into the retry, and each sequence member also receives its own boundary."
+  style="display: block; width: 100%; height: auto;"
+/>
 
-| Isolation | Use it when                                                                 |
-| --------- | --------------------------------------------------------------------------- |
-| `flow`    | Each selected flow should receive an independent cell. This is the default. |
-| `worker`  | Several flows may safely share a worker-owned cell.                         |
-| `test`    | Each native test needs its own cell, including tests within one flow.       |
+Sequence members may share declared application state. They do not share attempts or evidence. Blackbox never merges separate attempts to strengthen a claim.
 
-Isolation is a runtime policy, not a property of Playwright workers or Node processes.
+## Establish Four Evidence Conditions
 
-## Flow Identity Uses Baggage
+| Condition              | Checkout question                                                                         | Bounded result when unmet                         |
+| ---------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| **Fresh scope**        | Did new capture open for this retry attempt?                                              | Integrity failure.                                |
+| **Identity**           | Do the case, realization, attempt, participating service, and evidence identifiers agree? | Integrity failure.                                |
+| **Capture capability** | Could declared capture observe the payment boundary?                                      | Unsupported for claims that need that capability. |
+| **Completeness**       | Did payment-boundary capture finish cleanly for this attempt?                             | Inconclusive for completeness-dependent claims.   |
 
-Only tests whose tags match a configured flow prefix trigger capture. The default prefix is `@flow:`.
+Blackbox does not reinterpret foreign or partial evidence as an empty successful run. Incomplete evidence cannot establish completeness-dependent absence, upper-bound satisfaction, or exactness satisfaction.
 
-Blackbox carries test and flow identity in W3C baggage. It does not replace the application's `traceparent`, so existing distributed tracing remains under application control.
+## Separate Capture From Analysis
 
-## The Bundle Is Language-Neutral
-
-The sealed bundle can contain:
-
-- exact source artifacts and source maps;
-- normalized boundary effects;
-- canonical decision definitions and arm observations;
-- runner attempts, retries, outcomes, and partial-run state;
-- capture capabilities and producer versions;
-- integrity failures and artifact hashes;
-- snapshots of the reviewed contract and analysis policy.
-
-Canonical JSON Schemas live in top-level `protocol/` and publish through `@suites/blackbox-protocol`. Language packages bind to those schemas instead of translating TypeScript types into new wire contracts.
-
-## Integrity Comes Before Verdicts
-
-Blackbox fails capture when evidence is empty, incomplete, incompatible, or associated with the wrong cell or service identity. Analysis must not reinterpret a capture failure as an empty successful run.
-
-Negative effect claims are valid only within a complete bundle whose capture implementation declared the relevant capability.
+Runtime owns attempts, capture lifecycle, identities, and evidence. It records and seals supported facts. The Analyzer later evaluates accepted claims against that evidence.
 
 ## Next Steps
 
-- **[OpenTelemetry and Effects](/docs/blackbox/concepts/effects-and-catalogs):** Learn how eligible observations become effects and findings.
-- **[Observable Decision Coverage](/docs/blackbox/concepts/omc-dc-coverage):** Learn how declared decision outcomes are compared with projected effects.
+- **[OpenTelemetry and Effects](/docs/blackbox/concepts/effects-and-catalogs):** See how eligible observations become portable effects and bounded findings.
