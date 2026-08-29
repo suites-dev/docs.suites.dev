@@ -25,28 +25,28 @@
   <rect x="6" y="6" width="1188" height="418" rx="16" fill="url(#attempt-background)" stroke="#334155" />
 
   <g font-family="Inter, ui-sans-serif, system-ui, sans-serif">
-    <text x="34" y="43" fill="#f8fafc" font-size="21" font-weight="800">One attempt, one evidence boundary</text>
-    <text x="34" y="68" fill="#cbd5e1" font-size="13">A retry starts fresh. Its evidence never inherits facts from the attempt before it.</text>
+    <text x="34" y="43" fill="#f8fafc" font-size="24" font-weight="800">One attempt, one evidence boundary</text>
+    <text x="34" y="68" fill="#cbd5e1" font-size="15">A retry starts fresh. Its evidence never inherits facts from the attempt before it.</text>
 
     <rect x="34" y="105" width="500" height="220" rx="14" fill="#0f1b2d" stroke="#64748b" stroke-width="2" />
     <rect x="52" y="92" width="126" height="28" rx="7" fill="#1e293b" stroke="#64748b" />
-    <text x="115" y="111" text-anchor="middle" fill="#cbd5e1" font-size="10" font-weight="800">ATTEMPT 1</text>
+    <text x="115" y="111" text-anchor="middle" fill="#cbd5e1" font-size="14" font-weight="800">ATTEMPT 1</text>
 
     <g text-anchor="middle">
       <rect x="58" y="145" width="132" height="126" rx="10" fill="#111827" stroke="#94a3b8" />
-      <text x="124" y="174" fill="#94a3b8" font-size="9" font-weight="800">CAPTURE A</text>
-      <text x="124" y="211" fill="#f8fafc" font-size="16" font-weight="800">Open fresh</text>
-      <text x="124" y="238" fill="#cbd5e1" font-size="11">new scope</text>
+      <text x="124" y="174" fill="#94a3b8" font-size="14" font-weight="800">CAPTURE A</text>
+      <text x="124" y="211" fill="#f8fafc" font-size="18" font-weight="800">Open fresh</text>
+      <text x="124" y="238" fill="#cbd5e1" font-size="14">new scope</text>
 
       <rect x="218" y="145" width="132" height="126" rx="10" fill="#172554" stroke="#60a5fa" />
-      <text x="284" y="174" fill="#93c5fd" font-size="9" font-weight="800">EXECUTION</text>
-      <text x="284" y="211" fill="#eff6ff" font-size="16" font-weight="800">Run case</text>
-      <text x="284" y="238" fill="#bfdbfe" font-size="11">attempt 1</text>
+      <text x="284" y="174" fill="#93c5fd" font-size="14" font-weight="800">EXECUTION</text>
+      <text x="284" y="211" fill="#eff6ff" font-size="18" font-weight="800">Run case</text>
+      <text x="284" y="238" fill="#bfdbfe" font-size="14">attempt 1</text>
 
       <rect x="378" y="145" width="132" height="126" rx="10" fill="#12302a" stroke="#34d399" />
-      <text x="444" y="174" fill="#6ee7b7" font-size="9" font-weight="800">EVIDENCE A</text>
-      <text x="444" y="205" fill="#ecfdf5" font-size="16" font-weight="800">Check integrity</text>
-      <text x="444" y="229" fill="#a7f3d0" font-size="11">and seal</text>
+      <text x="444" y="174" fill="#6ee7b7" font-size="14" font-weight="800">EVIDENCE A</text>
+      <text x="444" y="205" fill="#ecfdf5" font-size="18" font-weight="800">Seal evidence</text>
+      <text x="444" y="229" fill="#a7f3d0" font-size="14">scope + identity</text>
     </g>
 
     <line x1="190" y1="208" x2="208" y2="208" stroke="#94a3b8" stroke-width="2" marker-end="url(#attempt-arrow)" />
@@ -54,23 +54,23 @@
 
     <rect x="666" y="105" width="500" height="220" rx="14" fill="#10243f" stroke="#38bdf8" stroke-width="2" />
     <rect x="684" y="92" width="172" height="28" rx="7" fill="#10243f" stroke="#38bdf8" />
-    <text x="770" y="111" text-anchor="middle" fill="#7dd3fc" font-size="10" font-weight="800">RETRY • ATTEMPT 2</text>
+    <text x="770" y="111" text-anchor="middle" fill="#7dd3fc" font-size="14" font-weight="800">RETRY • ATTEMPT 2</text>
 
     <g text-anchor="middle">
       <rect x="690" y="145" width="132" height="126" rx="10" fill="#112438" stroke="#38bdf8" />
-      <text x="756" y="174" fill="#7dd3fc" font-size="9" font-weight="800">CAPTURE B</text>
-      <text x="756" y="211" fill="#f0f9ff" font-size="16" font-weight="800">Open fresh</text>
-      <text x="756" y="238" fill="#bae6fd" font-size="11">new scope</text>
+      <text x="756" y="174" fill="#7dd3fc" font-size="14" font-weight="800">CAPTURE B</text>
+      <text x="756" y="211" fill="#f0f9ff" font-size="18" font-weight="800">Open fresh</text>
+      <text x="756" y="238" fill="#bae6fd" font-size="14">new scope</text>
 
       <rect x="850" y="145" width="132" height="126" rx="10" fill="#172554" stroke="#60a5fa" />
-      <text x="916" y="174" fill="#93c5fd" font-size="9" font-weight="800">EXECUTION</text>
-      <text x="916" y="211" fill="#eff6ff" font-size="16" font-weight="800">Run retry</text>
-      <text x="916" y="238" fill="#bfdbfe" font-size="11">attempt 2</text>
+      <text x="916" y="174" fill="#93c5fd" font-size="14" font-weight="800">EXECUTION</text>
+      <text x="916" y="211" fill="#eff6ff" font-size="18" font-weight="800">Run retry</text>
+      <text x="916" y="238" fill="#bfdbfe" font-size="14">attempt 2</text>
 
       <rect x="1010" y="145" width="132" height="126" rx="10" fill="#12302a" stroke="#34d399" />
-      <text x="1076" y="174" fill="#6ee7b7" font-size="9" font-weight="800">EVIDENCE B</text>
-      <text x="1076" y="205" fill="#ecfdf5" font-size="16" font-weight="800">Check integrity</text>
-      <text x="1076" y="229" fill="#a7f3d0" font-size="11">and seal</text>
+      <text x="1076" y="174" fill="#6ee7b7" font-size="14" font-weight="800">EVIDENCE B</text>
+      <text x="1076" y="205" fill="#ecfdf5" font-size="18" font-weight="800">Seal evidence</text>
+      <text x="1076" y="229" fill="#a7f3d0" font-size="14">scope + identity</text>
     </g>
 
     <line x1="822" y1="208" x2="840" y2="208" stroke="#94a3b8" stroke-width="2" marker-end="url(#attempt-arrow)" />
@@ -79,10 +79,10 @@
     <line x1="600" y1="116" x2="600" y2="310" stroke="#fb7185" stroke-width="2" stroke-dasharray="7 7" />
     <circle cx="600" cy="208" r="34" fill="#3b1820" stroke="#fb7185" stroke-width="2" />
     <path d="M586 194 614 222M614 194 586 222" stroke="#fda4af" stroke-width="4" stroke-linecap="round" />
-    <text x="600" y="294" text-anchor="middle" fill="#fda4af" font-size="10" font-weight="800">NO EVIDENCE TRANSFER</text>
+    <text x="600" y="294" text-anchor="middle" fill="#fda4af" font-size="15" font-weight="800">NO EVIDENCE TRANSFER</text>
 
     <rect x="34" y="352" width="1132" height="44" rx="9" fill="#3b2f0b" stroke="#a16207" />
-    <text x="600" y="379" text-anchor="middle" fill="#fef3c7" font-size="12" font-weight="700">
+    <text x="600" y="379" text-anchor="middle" fill="#fef3c7" font-size="15" font-weight="700">
       Every sequence member receives another separate attempt, capture, and evidence boundary.
     </text>
   </g>

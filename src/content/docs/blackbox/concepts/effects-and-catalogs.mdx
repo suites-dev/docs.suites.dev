@@ -15,15 +15,12 @@ keywords:
 
 import Aside from "@/components/mdx/Aside.astro";
 
-Checkout shows one successful order and one order ID, so the native assertion passes. Runtime evidence contains two charge requests because a retry repeated the side effect.
-
-The accepted flow permits at most one charge request. Two eligible charge-request effects establish the violation, even if other evidence is incomplete.
+Checkout shows one successful order and one order ID, so the native assertion passes. A retry produces two eligible charge-request effects, violating the accepted upper bound of one even if unrelated evidence is incomplete.
 
 <Aside type="info" title="Alpha Status">
   Effects are the **committed core**. The integrated path from accepted claims
   through managed capture and offline findings is an **Alpha target**. Current
   HTTP and PostgreSQL work is prototype evidence, not a released support claim.
-  The public effects-catalog syntax is not frozen.
 </Aside>
 
 ## From Observation to Finding
@@ -32,11 +29,17 @@ An **effect** is a normalized fact about supported behavior at a system boundary
 
 OpenTelemetry provides runtime observations. Blackbox admits only supported, attributable observations and normalizes them into portable effects. A span is evidence input, not automatically an effect.
 
-<img
-  src="/img/blackbox/observation-to-finding.svg"
-  alt="A person-approved effect claim and sealed evidence from a fresh runtime attempt meet at the Analyzer. OpenTelemetry spans pass through effects-catalog admission and normalization before becoming portable effect facts."
-  style="display: block; width: 100%; height: auto;"
-/>
+<picture>
+  <source
+    media="(max-width: 640px)"
+    srcset="/img/blackbox/observation-to-finding-mobile.svg"
+  />
+  <img
+    src="/img/blackbox/observation-to-finding.svg"
+    alt="A person-approved effect claim and sealed evidence from a fresh runtime attempt meet at the Analyzer. OpenTelemetry spans pass through effects-catalog admission and normalization before becoming portable effect facts."
+    style="display: block; width: 100%; height: auto;"
+  />
+</picture>
 
 The accepted claim and runtime evidence remain separate until the Analyzer compares them.
 
@@ -50,11 +53,11 @@ Each catalog entry defines the intent represented by an effect, when an observat
 
 Proof strength describes what the admitted evidence can establish:
 
-| Proof strength | What it establishes                                                                        |
-| -------------- | ------------------------------------------------------------------------------------------ |
-| **Observed**   | A supported, attributable matching operation was recorded.                                 |
-| **Succeeded**  | The matching operation reached a valid successful terminal.                                |
-| **Committed**  | Separate commit evidence and settling requirements establish the accepted commit contract. |
+| Proof strength | What it establishes                                                                               |
+| -------------- | ------------------------------------------------------------------------------------------------- |
+| **Observed**   | A supported, attributable matching operation was recorded.                                        |
+| **Succeeded**  | The admitted operation completed successfully under the capability's completion rules.            |
+| **Committed**  | Separate commit evidence confirms the state change before the accepted observation window closes. |
 
 The public syntax is not frozen. This YAML is an illustrative catalog view, not a supported file format or schema:
 
@@ -79,13 +82,9 @@ effects:
     supports: [observed, succeeded, committed]
 ```
 
-The catalog supplies shared effect intents. A claim such as “at most one charge request per completed order” remains separate, human-approved policy.
+The SQL match identifies a candidate operation. It does not establish `committed` by itself. That proof strength requires separate commit evidence and settling support.
 
-| Runtime input                                                     | Catalog effect intent      | Accepted claim                                 |
-| ----------------------------------------------------------------- | -------------------------- | ---------------------------------------------- |
-| Two attributable HTTP client observations at the payment boundary | Two charge-request effects | At most one charge request per completed order |
-
-The catalog defines the middle column. A person approves the claim on the right. Runtime observations cannot add catalog entries, redefine their effect intent, or turn themselves into policy.
+The catalog supplies shared effect intents. The separate claim “at most one charge request per completed order” remains human-approved policy. Runtime observations cannot add catalog entries, redefine effect intent, or turn themselves into policy.
 
 ## Express Presence, Absence, and Cardinality
 
@@ -116,6 +115,10 @@ A **finding** is the Analyzer's result for one accepted claim. Its **verdict** i
 - **Inconclusive:** The available evidence cannot support the required conclusion.
 - **Unsupported:** The declared capability or realization is unavailable.
 - **Integrity failure:** Identities or lifecycle evidence conflict with the claim.
+
+A required claim passes only when its verdict is **satisfied**. Every other verdict fails the selected assurance gate.
+
+Ordinary findings evaluate each case independently. ODC is the next layer because it compares declared cases only after those findings exist.
 
 ## Next Steps
 

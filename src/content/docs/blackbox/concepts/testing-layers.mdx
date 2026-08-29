@@ -22,6 +22,8 @@ Imagine a checkout system where the customer sees one successful order and one o
   style="display: block; width: 100%; height: auto;"
 />
 
+Across the model, human-approved intent defines the claim, the system suite executes it, Runtime seals what happened, and the Analyzer returns the finding.
+
 <Aside type="info" title="Alpha Status">
   **Effects** are the committed core. The path from accepted Gherkin through a
   system suite, managed runtime capture, and offline findings is an **Alpha
@@ -31,7 +33,7 @@ Imagine a checkout system where the customer sees one successful order and one o
 
 ## Keep Both Results Independent
 
-Neither result overrides the other. A failed native assertion does not erase captured effects, and an effect finding does not rewrite the suite result. If the available evidence cannot support the claim, the Blackbox finding remains inconclusive instead of becoming a pass.
+Neither result overrides the other. A failed native assertion does not erase captured effects, and an effect finding does not rewrite the suite result. Incomplete evidence produces an inconclusive finding. An unavailable capture capability or realization produces an unsupported finding. Neither becomes a pass.
 
 ## Next Steps
 

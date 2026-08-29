@@ -1,0 +1,69 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 600 980"
+  role="img"
+  aria-labelledby="odc-mobile-title odc-mobile-description"
+>
+  <title id="odc-mobile-title">Observable Decision Coverage comparison outcomes</title>
+  <desc id="odc-mobile-description">
+    A person approves exact comparison members and dimensions. Exact executions
+    provide decision and effect evidence. Offline analysis checks eligibility,
+    then reports an association as established, not established, or unavailable.
+  </desc>
+
+  <defs>
+    <linearGradient id="odc-mobile-background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#081120" />
+      <stop offset="1" stop-color="#0f172a" />
+    </linearGradient>
+    <marker id="odc-mobile-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 10 5 0 10Z" fill="#94a3b8" />
+    </marker>
+  </defs>
+
+  <rect x="6" y="6" width="588" height="968" rx="18" fill="url(#odc-mobile-background)" stroke="#334155" />
+
+  <g font-family="Inter, ui-sans-serif, system-ui, sans-serif">
+    <text x="28" y="44" fill="#f8fafc" font-size="26" font-weight="800">ODC compares declared cases</text>
+    <text x="28" y="72" fill="#cbd5e1" font-size="17">It does not select convenient runs after execution.</text>
+
+    <g text-anchor="middle">
+      <rect x="70" y="102" width="460" height="174" rx="12" fill="#3b2f0b" stroke="#fbbf24" stroke-width="2" />
+      <text x="300" y="133" fill="#fde68a" font-size="17" font-weight="800">PERSON-APPROVED COMPARISON</text>
+      <text x="300" y="170" fill="#fef3c7" font-size="24" font-weight="800">Exact member cases</text>
+      <text x="300" y="202" fill="#fde68a" font-size="18">varying + controlled dimensions</text>
+      <text x="300" y="231" fill="#fde68a" font-size="18">decision scope + effect projection</text>
+
+      <rect x="70" y="326" width="460" height="130" rx="12" fill="#172554" stroke="#60a5fa" stroke-width="2" />
+      <text x="300" y="357" fill="#93c5fd" font-size="17" font-weight="800">EXACT EXECUTIONS</text>
+      <text x="300" y="394" fill="#eff6ff" font-size="24" font-weight="800">Decision evidence</text>
+      <text x="300" y="426" fill="#bfdbfe" font-size="18">+ sealed effect evidence</text>
+
+      <rect x="70" y="506" width="460" height="150" rx="12" fill="#12302a" stroke="#34d399" stroke-width="2" />
+      <text x="300" y="537" fill="#6ee7b7" font-size="17" font-weight="800">OFFLINE</text>
+      <text x="300" y="574" fill="#ecfdf5" font-size="24" font-weight="800">Check eligibility</text>
+      <text x="300" y="606" fill="#a7f3d0" font-size="18">exact attempts + complete inputs</text>
+      <text x="300" y="634" fill="#a7f3d0" font-size="18">verified controls, then compare</text>
+
+      <rect x="70" y="706" width="460" height="206" rx="12" fill="#2e1065" stroke="#c084fc" stroke-width="2" />
+      <text x="300" y="737" fill="#d8b4fe" font-size="17" font-weight="800">ALPHA TARGET: ODC RESULT</text>
+
+      <rect x="96" y="758" width="408" height="40" rx="8" fill="#14301f" stroke="#4ade80" />
+      <text x="300" y="784" fill="#dcfce7" font-size="17" font-weight="800">ESTABLISHED: signatures differ</text>
+
+      <rect x="96" y="809" width="408" height="40" rx="8" fill="#172554" stroke="#60a5fa" />
+      <text x="300" y="835" fill="#dbeafe" font-size="17" font-weight="800">NOT ESTABLISHED: signatures match</text>
+
+      <rect x="96" y="860" width="408" height="40" rx="8" fill="#111827" stroke="#64748b" />
+      <text x="300" y="886" fill="#e2e8f0" font-size="17" font-weight="800">UNAVAILABLE: prerequisites fail</text>
+    </g>
+
+    <line x1="300" y1="276" x2="300" y2="316" stroke="#94a3b8" stroke-width="3" marker-end="url(#odc-mobile-arrow)" />
+    <line x1="300" y1="456" x2="300" y2="496" stroke="#94a3b8" stroke-width="3" marker-end="url(#odc-mobile-arrow)" />
+    <line x1="300" y1="656" x2="300" y2="696" stroke="#94a3b8" stroke-width="3" marker-end="url(#odc-mobile-arrow)" />
+
+    <text x="300" y="948" text-anchor="middle" fill="#94a3b8" font-size="17">
+      Association is not causation or correctness.
+    </text>
+  </g>
+</svg>

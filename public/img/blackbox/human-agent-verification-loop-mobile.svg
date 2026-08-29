@@ -1,0 +1,74 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 600 900"
+  role="img"
+  aria-labelledby="loop-mobile-title loop-mobile-description"
+>
+  <title id="loop-mobile-title">Human-agent behavioral verification loop</title>
+  <desc id="loop-mobile-description">
+    Person-approved intent guides a coding agent before it acts. The agent realizes
+    a system or end-to-end suite. Blackbox captures evidence and returns findings.
+    Findings return to the agent for repair, while proposed policy changes return
+    to the person.
+  </desc>
+
+  <defs>
+    <linearGradient id="loop-mobile-background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#081120" />
+      <stop offset="1" stop-color="#0f172a" />
+    </linearGradient>
+    <marker id="loop-mobile-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 10 5 0 10Z" fill="#94a3b8" />
+    </marker>
+    <marker id="loop-mobile-feedforward" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 10 5 0 10Z" fill="#fbbf24" />
+    </marker>
+    <marker id="loop-mobile-feedback" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 10 5 0 10Z" fill="#4ade80" />
+    </marker>
+  </defs>
+
+  <rect x="6" y="6" width="588" height="888" rx="18" fill="url(#loop-mobile-background)" stroke="#334155" />
+
+  <g font-family="Inter, ui-sans-serif, system-ui, sans-serif">
+    <text x="28" y="44" fill="#f8fafc" font-size="26" font-weight="800">Guidance, execution, findings, repair</text>
+    <text x="28" y="72" fill="#cbd5e1" font-size="17">Product authority stays with the person.</text>
+
+    <g text-anchor="middle">
+      <rect x="80" y="102" width="440" height="124" rx="13" fill="#3b2f0b" stroke="#fbbf24" stroke-width="2" />
+      <text x="300" y="134" fill="#fde68a" font-size="17" font-weight="800">PERSON APPROVED</text>
+      <text x="300" y="171" fill="#fef3c7" font-size="25" font-weight="800">Human intent</text>
+      <text x="300" y="202" fill="#fde68a" font-size="18">Gherkin + effect claims + analysis policy</text>
+
+      <rect x="80" y="286" width="440" height="102" rx="13" fill="#2e1065" stroke="#a78bfa" stroke-width="2" />
+      <text x="300" y="317" fill="#c4b5fd" font-size="17" font-weight="800">GENERATOR</text>
+      <text x="300" y="355" fill="#f5f3ff" font-size="25" font-weight="800">Coding agent realizes or repairs</text>
+
+      <rect x="80" y="448" width="440" height="112" rx="13" fill="#172554" stroke="#60a5fa" stroke-width="2" />
+      <text x="300" y="480" fill="#93c5fd" font-size="17" font-weight="800">EXECUTION</text>
+      <text x="300" y="517" fill="#eff6ff" font-size="25" font-weight="800">System or E2E suite</text>
+      <text x="300" y="543" fill="#bfdbfe" font-size="18">runs the application and native assertions</text>
+
+      <rect x="80" y="620" width="440" height="146" rx="13" fill="#12302a" stroke="#34d399" stroke-width="2" />
+      <text x="300" y="651" fill="#6ee7b7" font-size="17" font-weight="800">BLACKBOX</text>
+      <text x="300" y="688" fill="#ecfdf5" font-size="23" font-weight="800">Runtime captures evidence</text>
+      <line x1="120" y1="708" x2="480" y2="708" stroke="#2f6b57" />
+      <text x="300" y="742" fill="#ecfdf5" font-size="23" font-weight="800">Analyzer returns findings</text>
+    </g>
+
+    <line x1="300" y1="226" x2="300" y2="276" stroke="#fbbf24" stroke-width="3" marker-end="url(#loop-mobile-feedforward)" />
+    <text x="318" y="258" fill="#fde68a" font-size="16" font-weight="800">FEEDFORWARD</text>
+    <line x1="300" y1="388" x2="300" y2="438" stroke="#94a3b8" stroke-width="3" marker-end="url(#loop-mobile-arrow)" />
+    <line x1="300" y1="560" x2="300" y2="610" stroke="#60a5fa" stroke-width="3" marker-end="url(#loop-mobile-arrow)" />
+
+    <path d="M80 694H42V337H70" fill="none" stroke="#4ade80" stroke-width="3" marker-end="url(#loop-mobile-feedback)" />
+    <rect x="26" y="492" width="184" height="38" rx="8" fill="#14301f" stroke="#4ade80" />
+    <text x="118" y="517" text-anchor="middle" fill="#86efac" font-size="16" font-weight="800">FINDING → REPAIR</text>
+
+    <path d="M520 337H560V164H530" fill="none" stroke="#fbbf24" stroke-width="2" stroke-dasharray="8 7" marker-end="url(#loop-mobile-feedforward)" />
+
+    <rect x="80" y="808" width="440" height="52" rx="10" fill="#111827" stroke="#475569" />
+    <text x="300" y="831" text-anchor="middle" fill="#cbd5e1" font-size="16" font-weight="700">Findings drive repair. Policy changes return to the person.</text>
+    <text x="300" y="851" text-anchor="middle" fill="#cbd5e1" font-size="16" font-weight="700">Neither path redefines success.</text>
+  </g>
+</svg>

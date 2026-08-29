@@ -1,0 +1,84 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 600 1060"
+  role="img"
+  aria-labelledby="observation-mobile-title observation-mobile-description"
+>
+  <title id="observation-mobile-title">From OpenTelemetry observation to effect finding</title>
+  <desc id="observation-mobile-description">
+    A person-approved effect claim stays separate from runtime evidence. A fresh
+    attempt produces OpenTelemetry observations. Catalog admission normalizes
+    supported observations into effects. Runtime seals the evidence, then the
+    Analyzer compares the claim with that evidence and returns a finding.
+  </desc>
+
+  <defs>
+    <linearGradient id="observation-mobile-background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#081120" />
+      <stop offset="1" stop-color="#0f172a" />
+    </linearGradient>
+    <marker id="observation-mobile-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 10 5 0 10Z" fill="#94a3b8" />
+    </marker>
+    <marker id="observation-mobile-claim" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 10 5 0 10Z" fill="#fbbf24" />
+    </marker>
+    <marker id="observation-mobile-evidence" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 10 5 0 10Z" fill="#4ade80" />
+    </marker>
+  </defs>
+
+  <rect x="6" y="6" width="588" height="1048" rx="18" fill="url(#observation-mobile-background)" stroke="#334155" />
+
+  <g font-family="Inter, ui-sans-serif, system-ui, sans-serif">
+    <text x="28" y="44" fill="#f8fafc" font-size="26" font-weight="800">From observation to finding</text>
+    <text x="28" y="72" fill="#cbd5e1" font-size="17">Accepted policy and runtime evidence stay separate.</text>
+
+    <g text-anchor="middle">
+      <rect x="70" y="102" width="460" height="104" rx="12" fill="#3b2f0b" stroke="#fbbf24" stroke-width="2" />
+      <text x="300" y="133" fill="#fde68a" font-size="17" font-weight="800">PERSON-APPROVED EFFECT CLAIM</text>
+      <text x="300" y="170" fill="#fef3c7" font-size="24" font-weight="800">Presence, absence, or cardinality</text>
+    </g>
+
+    <text x="28" y="248" fill="#86efac" font-size="18" font-weight="800">RUNTIME EVIDENCE</text>
+
+    <g text-anchor="middle">
+      <rect x="70" y="268" width="460" height="92" rx="12" fill="#111827" stroke="#64748b" />
+      <text x="300" y="298" fill="#94a3b8" font-size="17" font-weight="800">RUNTIME</text>
+      <text x="300" y="333" fill="#f8fafc" font-size="23" font-weight="800">Fresh attempt and capture scope</text>
+
+      <rect x="70" y="390" width="460" height="92" rx="12" fill="#172554" stroke="#60a5fa" />
+      <text x="300" y="420" fill="#93c5fd" font-size="17" font-weight="800">OBSERVATIONS</text>
+      <text x="300" y="455" fill="#eff6ff" font-size="23" font-weight="800">OpenTelemetry spans from the run</text>
+
+      <rect x="70" y="512" width="460" height="92" rx="12" fill="#10243f" stroke="#38bdf8" />
+      <text x="300" y="542" fill="#7dd3fc" font-size="17" font-weight="800">CATALOG ADMISSION</text>
+      <text x="300" y="577" fill="#f0f9ff" font-size="23" font-weight="800">Admit supported, attributable observations</text>
+
+      <rect x="70" y="634" width="460" height="92" rx="12" fill="#12302a" stroke="#34d399" />
+      <text x="300" y="664" fill="#6ee7b7" font-size="17" font-weight="800">EFFECTS</text>
+      <text x="300" y="699" fill="#ecfdf5" font-size="23" font-weight="800">Normalize portable boundary facts</text>
+
+      <rect x="70" y="756" width="460" height="92" rx="12" fill="#14301f" stroke="#4ade80" />
+      <text x="300" y="786" fill="#86efac" font-size="17" font-weight="800">SEALED EVIDENCE</text>
+      <text x="300" y="821" fill="#f0fdf4" font-size="23" font-weight="800">Preserve scope, identity, and integrity</text>
+
+      <rect x="70" y="884" width="460" height="104" rx="12" fill="#2e1065" stroke="#c084fc" stroke-width="2" />
+      <text x="300" y="915" fill="#d8b4fe" font-size="17" font-weight="800">ANALYZER</text>
+      <text x="300" y="950" fill="#faf5ff" font-size="23" font-weight="800">Compare claim + evidence → finding</text>
+    </g>
+
+    <line x1="300" y1="360" x2="300" y2="380" stroke="#94a3b8" stroke-width="3" marker-end="url(#observation-mobile-arrow)" />
+    <line x1="300" y1="482" x2="300" y2="502" stroke="#94a3b8" stroke-width="3" marker-end="url(#observation-mobile-arrow)" />
+    <line x1="300" y1="604" x2="300" y2="624" stroke="#94a3b8" stroke-width="3" marker-end="url(#observation-mobile-arrow)" />
+    <line x1="300" y1="726" x2="300" y2="746" stroke="#94a3b8" stroke-width="3" marker-end="url(#observation-mobile-arrow)" />
+    <line x1="300" y1="848" x2="300" y2="874" stroke="#4ade80" stroke-width="3" marker-end="url(#observation-mobile-evidence)" />
+
+    <path d="M530 154H562V936H540" fill="none" stroke="#fbbf24" stroke-width="3" marker-end="url(#observation-mobile-claim)" />
+    <text x="552" y="235" text-anchor="end" fill="#fde68a" font-size="16" font-weight="800">ACCEPTED BEFORE EXECUTION</text>
+
+    <text x="300" y="1027" text-anchor="middle" fill="#cbd5e1" font-size="17" font-weight="700">
+      A span is evidence input, not automatically an effect.
+    </text>
+  </g>
+</svg>

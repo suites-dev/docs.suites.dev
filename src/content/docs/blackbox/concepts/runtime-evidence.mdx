@@ -15,9 +15,11 @@ Suppose a checkout case runs, fails, and retries. Runtime opens fresh capture fo
 
 **Runtime evidence** is the sealed record of what supported capture observed during one bounded attempt. It preserves the facts Blackbox may analyze and the limits on what those facts can establish.
 
-An **execution** is the act of running a case. An **attempt** is one bounded execution instance with its own capture and evidence. A retry creates a new attempt.
+An **execution** is the act of running a case. An **attempt** is one bounded execution instance with its own capture and evidence. A retry creates a new attempt. A **sequence member** is one declared case inside an ordered flow.
 
 **Managed capture** is the Blackbox-controlled observation scope opened for that attempt.
+
+A **capture capability** states which supported boundary activity the declared observation path can record.
 
 ## Bound One Attempt at a Time
 

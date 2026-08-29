@@ -39,16 +39,23 @@ Here, `subscriptionRenewal` is the varying dimension. Inputs such as plan and re
 If both executions are eligible, different effect signatures establish an ODC association. If both outcomes execute but produce the same projected signature, branch coverage may pass while the ODC association is not established.
 
 <Aside type="info" title="Alpha Status">
-  Observable Decision Coverage is an **Alpha target**. The current Node capture
-  mechanisms remain experimental and production-ineligible, so the current
-  implementation does not provide ODC assurance yet.
+  **Alpha target:** Observable Decision Coverage is a strong part of the Alpha
+  verification model. **Current implementation:** Node capture remains
+  experimental and production-ineligible, so it does not provide ODC assurance
+  yet.
 </Aside>
 
-<img
-  src="/img/blackbox/odc-comparison-flow.svg"
-  alt="An accepted comparison names exact cases, varying and controlled dimensions, decision scope, and an effect projection. Eligible comparisons establish an association when signatures differ and do not establish one when signatures are identical. Comparisons with missing or invalid prerequisites are unavailable."
-  style="display: block; width: 100%; height: auto;"
-/>
+<picture>
+  <source
+    media="(max-width: 640px)"
+    srcset="/img/blackbox/odc-comparison-flow-mobile.svg"
+  />
+  <img
+    src="/img/blackbox/odc-comparison-flow.svg"
+    alt="An accepted comparison names exact cases, varying and controlled dimensions, decision scope, and an effect projection. Eligible comparisons establish an association when signatures differ and do not establish one when signatures are identical. Comparisons with missing or invalid prerequisites are unavailable."
+    style="display: block; width: 100%; height: auto;"
+  />
+</picture>
 
 ## Compare Declared Cases
 
@@ -78,7 +85,7 @@ ODC does not claim behavioral correctness, causal proof, MC/DC, or OMC/DC compli
 
 ## Effect Findings Stay Unchanged
 
-Each case receives its ordinary integrity and effect findings first. ODC runs as a separate analysis afterward.
+Ordinary findings answer whether each case satisfied its own claims. After those findings exist, ODC compares the declared cases as a separate analysis.
 
 Whether an association is established, not established, or unavailable, ODC cannot erase, rewrite, or strengthen those findings.
 

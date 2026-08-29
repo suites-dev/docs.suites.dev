@@ -41,10 +41,10 @@
   />
 
   <g font-family="Inter, ui-sans-serif, system-ui, sans-serif">
-    <text x="34" y="43" fill="#f8fafc" font-size="21" font-weight="800">
+    <text x="34" y="43" fill="#f8fafc" font-size="24" font-weight="800">
       Same execution, different verification questions
     </text>
-    <text x="34" y="68" fill="#cbd5e1" font-size="13">
+    <text x="34" y="68" fill="#cbd5e1" font-size="15">
       Both conclusions describe the same checkout attempt.
     </text>
 
@@ -59,19 +59,19 @@
         stroke="#60a5fa"
         stroke-width="2"
       />
-      <text x="184" y="131" fill="#93c5fd" font-size="11" font-weight="800">
+      <text x="184" y="131" fill="#93c5fd" font-size="14" font-weight="800">
         SYSTEM OR E2E SUITE
       </text>
-      <text x="184" y="171" fill="#eff6ff" font-size="19" font-weight="800">
+      <text x="184" y="171" fill="#eff6ff" font-size="21" font-weight="800">
         Checkout execution
       </text>
-      <text x="184" y="204" fill="#bfdbfe" font-size="13">
+      <text x="184" y="204" fill="#bfdbfe" font-size="15">
         retry completes
       </text>
-      <text x="184" y="229" fill="#bfdbfe" font-size="13">
+      <text x="184" y="229" fill="#bfdbfe" font-size="15">
         native assertions run
       </text>
-      <text x="184" y="254" fill="#bfdbfe" font-size="13">
+      <text x="184" y="254" fill="#bfdbfe" font-size="15">
         runtime evidence is captured
       </text>
     </g>
@@ -102,16 +102,16 @@
         stroke="#4ade80"
         stroke-width="2"
       />
-      <text x="484" y="118" fill="#86efac" font-size="11" font-weight="800">
+      <text x="484" y="118" fill="#86efac" font-size="14" font-weight="800">
         NATIVE ASSERTION
       </text>
-      <text x="484" y="153" fill="#f0fdf4" font-size="20" font-weight="800">
+      <text x="484" y="153" fill="#f0fdf4" font-size="22" font-weight="800">
         PASS
       </text>
-      <text x="594" y="152" fill="#bbf7d0" font-size="14">
+      <text x="594" y="152" fill="#bbf7d0" font-size="16">
         One confirmation and one order ID
       </text>
-      <text x="1138" y="118" text-anchor="end" fill="#86efac" font-size="12">
+      <text x="1138" y="118" text-anchor="end" fill="#86efac" font-size="15">
         Did the visible result match?
       </text>
     </g>
@@ -127,16 +127,16 @@
         stroke="#fb7185"
         stroke-width="2"
       />
-      <text x="484" y="238" fill="#fda4af" font-size="11" font-weight="800">
+      <text x="484" y="238" fill="#fda4af" font-size="14" font-weight="800">
         BLACKBOX EFFECT FINDING
       </text>
-      <text x="484" y="273" fill="#fff1f2" font-size="20" font-weight="800">
+      <text x="484" y="273" fill="#fff1f2" font-size="22" font-weight="800">
         VIOLATED
       </text>
-      <text x="615" y="272" fill="#fecdd3" font-size="14">
+      <text x="615" y="272" fill="#fecdd3" font-size="16">
         Two charge requests observed; accepted upper bound is one
       </text>
-      <text x="1138" y="238" text-anchor="end" fill="#fda4af" font-size="12">
+      <text x="1138" y="238" text-anchor="end" fill="#fda4af" font-size="15">
         Did boundary behavior satisfy the claim?
       </text>
     </g>
