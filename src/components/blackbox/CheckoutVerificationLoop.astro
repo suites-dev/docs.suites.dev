@@ -1,0 +1,328 @@
+<figure class="bb-checkout-loop" aria-labelledby="bb-checkout-loop-title">
+  <div class="bb-checkout-loop__requirement">
+    <span>PRODUCT REQUIREMENT</span>
+    <strong id="bb-checkout-loop-title">
+      A completed checkout sends no more than one charge request.
+    </strong>
+  </div>
+
+  <div class="bb-checkout-loop__comparison">
+    <section class="bb-checkout-loop__panel test" aria-label="Generated system test">
+      <header>
+        <span>EXECUTABLE TEST</span>
+        <code>checkout.e2e.spec.ts</code>
+      </header>
+
+      <pre><code><span class="keyword">const</span> response = <span class="keyword">await</span> request.post(<span class="string">"/checkout"</span>);
+
+expect(response.status()).toBe(<span class="number">201</span>);</code></pre>
+
+      <div class="bb-checkout-loop__result">
+        <span>TEST RESULT</span>
+        <strong>PASS</strong>
+        <span>201 Created</span>
+      </div>
+    </section>
+
+    <section class="bb-checkout-loop__panel effects" aria-label="Runtime effects from the same test">
+      <header>
+        <span>RUNTIME EFFECTS</span>
+        <span>from the same test</span>
+      </header>
+
+      <div class="bb-checkout-loop__effect">
+        <span class="kind database">DATABASE</span>
+        <code>INSERT orders</code>
+        <strong>× 1</strong>
+      </div>
+
+      <div class="bb-checkout-loop__effect">
+        <span class="kind http">HTTP</span>
+        <code>POST /payments/charges</code>
+        <strong>× 2</strong>
+      </div>
+
+      <p>Observed from trace evidence during this test run.</p>
+    </section>
+  </div>
+
+  <div class="bb-checkout-loop__finding">
+    <div>
+      <span>BLACKBOX FINDING</span>
+      <strong>VIOLATED</strong>
+    </div>
+    <p>Approved at most 1 charge request. Observed 2.</p>
+  </div>
+
+  <div class="bb-checkout-loop__repair">
+    <span aria-hidden="true">↳</span>
+    <strong>Coding agent repairs the implementation</strong>
+    <span>and runs the same requirement again</span>
+  </div>
+
+  <figcaption>Conceptual example, not current CLI output.</figcaption>
+</figure>
+
+<style>
+  .bb-checkout-loop {
+    overflow: hidden;
+    margin: 24px 0 28px;
+    border: 1px solid #293241;
+    border-radius: 10px;
+    background: #05070a;
+    color: #e5edf8;
+    font-family: var(--font-technical);
+  }
+
+  .bb-checkout-loop__requirement {
+    display: grid;
+    gap: 5px;
+    padding: 18px 20px;
+    border-bottom: 1px solid #293241;
+    background: #0b1018;
+  }
+
+  .bb-checkout-loop__requirement span,
+  .bb-checkout-loop__panel header > span:first-child,
+  .bb-checkout-loop__result > span:first-child,
+  .bb-checkout-loop__finding span {
+    color: #93c5fd;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+  }
+
+  .bb-checkout-loop__requirement strong {
+    color: #f8fafc;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.45;
+  }
+
+  .bb-checkout-loop__comparison {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .bb-checkout-loop__panel {
+    min-width: 0;
+    padding: 18px 20px;
+  }
+
+  .bb-checkout-loop__panel + .bb-checkout-loop__panel {
+    border-left: 1px solid #293241;
+  }
+
+  .bb-checkout-loop__panel header {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: baseline;
+    min-height: 24px;
+    margin-bottom: 14px;
+  }
+
+  .bb-checkout-loop__panel header code,
+  .bb-checkout-loop__panel header > span:last-child {
+    color: #8190a6;
+    font-size: 0.7rem;
+  }
+
+  .bb-checkout-loop__panel pre {
+    min-height: 96px;
+    margin: 0;
+    padding: 14px;
+    border: 1px solid #233044;
+    border-radius: 7px;
+    background: #090d13;
+    color: #dbe7f5;
+    font-size: 0.78rem;
+    line-height: 1.65;
+    overflow-x: auto;
+  }
+
+  .bb-checkout-loop__panel pre code {
+    padding: 0;
+    background: transparent;
+    font: inherit;
+  }
+
+  .bb-checkout-loop .keyword {
+    color: #93c5fd;
+  }
+
+  .bb-checkout-loop .string {
+    color: #86efac;
+  }
+
+  .bb-checkout-loop .number {
+    color: #fcd34d;
+  }
+
+  .bb-checkout-loop__result {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 12px;
+    align-items: baseline;
+    margin-top: 12px;
+    padding: 10px 12px;
+    border: 1px solid #14532d;
+    border-radius: 7px;
+    background: #071a10;
+    font-size: 0.77rem;
+  }
+
+  .bb-checkout-loop__result strong {
+    color: #86efac;
+  }
+
+  .bb-checkout-loop__effect {
+    display: grid;
+    grid-template-columns: 5.2rem minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: baseline;
+    min-height: 38px;
+    padding: 9px 0;
+    border-bottom: 1px solid #1d2735;
+    font-size: 0.77rem;
+  }
+
+  .bb-checkout-loop__effect .kind {
+    font-weight: 800;
+  }
+
+  .bb-checkout-loop__effect .database {
+    color: #86efac;
+  }
+
+  .bb-checkout-loop__effect .http {
+    color: #67e8f9;
+  }
+
+  .bb-checkout-loop__effect code {
+    min-width: 0;
+    padding: 0;
+    color: #e5edf8;
+    background: transparent;
+    font: inherit;
+    overflow-wrap: anywhere;
+  }
+
+  .bb-checkout-loop__effect strong {
+    color: #f8fafc;
+  }
+
+  .bb-checkout-loop__panel.effects p {
+    margin: 12px 0 0;
+    color: #8190a6;
+    font-family: var(--font-sans);
+    font-size: 0.73rem;
+  }
+
+  .bb-checkout-loop__finding {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 20px;
+    align-items: center;
+    padding: 14px 20px;
+    border-top: 1px solid #7f1d1d;
+    border-bottom: 1px solid #7f1d1d;
+    background: #21090d;
+  }
+
+  .bb-checkout-loop__finding div {
+    display: flex;
+    gap: 12px;
+    align-items: baseline;
+  }
+
+  .bb-checkout-loop__finding span {
+    color: #fda4af;
+  }
+
+  .bb-checkout-loop__finding strong {
+    color: #fecdd3;
+    font-size: 0.86rem;
+  }
+
+  .bb-checkout-loop__finding p {
+    margin: 0;
+    color: #fff1f2;
+    font-family: var(--font-sans);
+    font-size: 0.86rem;
+  }
+
+  .bb-checkout-loop__repair {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    align-items: baseline;
+    padding: 12px 20px;
+    color: #a7b4c7;
+    background: #0b1018;
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+  }
+
+  .bb-checkout-loop__repair > span:first-child,
+  .bb-checkout-loop__repair strong {
+    color: #c4b5fd;
+  }
+
+  .bb-checkout-loop figcaption {
+    padding: 0 20px 12px;
+    color: #64748b;
+    background: #0b1018;
+    font-size: 0.66rem;
+  }
+
+  @media (max-width: 720px) {
+    .bb-checkout-loop__comparison {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .bb-checkout-loop__panel + .bb-checkout-loop__panel {
+      border-top: 1px solid #293241;
+      border-left: 0;
+    }
+
+    .bb-checkout-loop__finding {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 6px;
+    }
+  }
+
+  @media (max-width: 440px) {
+    .bb-checkout-loop__requirement,
+    .bb-checkout-loop__panel,
+    .bb-checkout-loop__finding,
+    .bb-checkout-loop__repair {
+      padding-right: 14px;
+      padding-left: 14px;
+    }
+
+    .bb-checkout-loop__panel header {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .bb-checkout-loop__result {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .bb-checkout-loop__result > span:last-child {
+      grid-column: 1 / -1;
+    }
+
+    .bb-checkout-loop__effect {
+      grid-template-columns: 4.6rem minmax(0, 1fr) auto;
+      gap: 7px;
+    }
+
+    .bb-checkout-loop figcaption {
+      padding-right: 14px;
+      padding-left: 14px;
+    }
+  }
+</style>
