@@ -6,7 +6,7 @@ keywords:
   ["Suites Blackbox reference", "Blackbox CLI", "Blackbox configuration"]
 ---
 
-Use the reference when you know the task and need an exact field, command, artifact, or contract.
+Use the reference when you need an exact committed contract or the current Alpha boundary around one that is not frozen yet.
 
 ## Configuration and Runtime
 
@@ -17,16 +17,18 @@ Use the reference when you know the task and need an exact field, command, artif
 
 ## Commands and Automation
 
-- [CLI Reference](/docs/blackbox/reference/cli): Runtime, static specification, flow, and Skill commands.
+- [CLI Reference](/docs/blackbox/reference/cli): Published runtime commands and the current status of the alignment command surface.
 - [Exit Codes](/docs/blackbox/reference/exit-codes): Distinguish behavioral findings from configuration and integrity failures.
 - [Report Contracts](/docs/blackbox/reference/report-formats): Structured test, integrity, effect, and ODC results.
 
 ## Behavior and Evidence
 
-- [Flow Identity](/docs/blackbox/reference/scenario-dsl): Stable IDs across tests, specifications, contracts, and evidence.
+- [Case and Execution Identity](/docs/blackbox/reference/scenario-dsl): Stable relationships across accepted cases, realizations, attempts, evidence, and findings.
 - [Plans and Realizations](/docs/blackbox/reference/plans-and-realizations): Accepted meaning, concrete runner realization, and selection for one run.
-- [Effect Contract Schema](/docs/blackbox/reference/catalog-schema): Required and forbidden boundary behavior.
-- [Effect Verification Model](/docs/blackbox/reference/matchers-and-effect-builders): Matching and verdict semantics.
+- [Alignment Checks and Blocking Conditions](/docs/blackbox/reference/alignment-checks): Compilation, type projection, runner binding, and run-selection gates.
+- [Capture Lifecycle and Correlation](/docs/blackbox/reference/capture-lifecycle-and-correlation): Fresh attempts, distributed attribution, application completion, and immutable sealing.
+- [Effects Catalog Contract](/docs/blackbox/reference/catalog-schema): Stable vocabulary and normalization responsibilities while public syntax remains unfrozen.
+- [Effect Claim Evaluation](/docs/blackbox/reference/matchers-and-effect-builders): Proof strength, cardinality, completeness, and verdict rules.
 - [Files and Artifacts](/docs/blackbox/reference/files-and-artifacts): Reviewed source, sealed evidence, and derived analysis.
 
 Start with the [Blackbox Quickstart](/docs/blackbox/quickstart/) when you have not completed one end-to-end flow yet.

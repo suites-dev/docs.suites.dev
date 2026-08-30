@@ -9,12 +9,9 @@ Reduce the issue to one stable flow. Preserve evidence before changing implement
 
 ## Confirm Static Identity
 
-```bash
-pnpm exec blackbox suites discover e2e/tests --json
-pnpm exec blackbox suites check e2e/tests --json
-```
+Retain the Gherkin compilation, generated-contract, typecheck, collection, and runner-lowering diagnostics for the affected case.
 
-When the flow uses requirements, also retain the output from `requirements validate`, `requirements check`, and `requirements drift`.
+The final public alignment commands are not frozen. Preserve the diagnostics produced by the supported Alpha workflow instead of relying on experimental Stage 05 command names.
 
 ## Classify the Runtime Failure
 
@@ -33,10 +30,10 @@ When the flow uses requirements, also retain the output from `requirements valid
 Collect:
 
 - Exact command and native runner output.
-- Flow ID and accepted effect contract.
-- Relevant Gherkin and EARS files, when used.
-- Runner, capture, protocol, CLI, and reporter versions.
-- Sidecar image digest and isolation scope.
+- Approved Gherkin, effect claims, and generated alignment contracts.
+- Selected plan, realization, case, attempt, retry, and evidence-window identities.
+- Runner, capture, protocol, analyzer, and renderer versions.
+- Admitted capabilities, participating services, and isolation scope.
 - Sealed evidence bundle and integrity result.
 - Structured analyzer output.
 

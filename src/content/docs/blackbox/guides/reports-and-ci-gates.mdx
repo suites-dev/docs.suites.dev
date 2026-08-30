@@ -58,15 +58,9 @@ jobs:
 
 ## Add Static Gates When You Accept Specifications
 
-```bash
-pnpm exec blackbox requirements validate ./requirements --json
-pnpm exec blackbox features check ./e2e/features --requirements ./requirements --json
-pnpm exec blackbox requirements check ./requirements --tests ./e2e --json
-pnpm exec blackbox requirements drift ./requirements --tests ./e2e --json
-pnpm exec blackbox suites check ./e2e --json
-```
+Before the runtime gate, require the accepted alignment chain to pass Gherkin compilation, generated-contract typecheck, runner collection, RunnerBundle lowering, and RunPlan selection.
 
-These commands prove structural agreement. Runtime gates prove what the executed system did.
+These checks establish structural agreement. Runtime gates establish what the selected system execution did. The final public alignment commands are not frozen, so do not copy experimental Stage 05 command names into CI.
 
 ## Choose the ODC Policy Deliberately
 

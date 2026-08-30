@@ -7,7 +7,7 @@ keywords: ["Blackbox host command", "Playwright configuration", "Node capture"]
 
 The application and services Blackbox runs are the **system under test (SUT)**. This Quickstart starts the compiled SUT with an explicit host command. It keeps the run serial, resets dedicated test data before the selected flow, and uses independent fixture keys for its two attempts.
 
-Arrive here with one accepted, tagged flow. It can be a passing test you kept in [Step 1A](/docs/blackbox/quickstart/build-behavioral-harness), or the generated `subscribe-user` shell from [Step 1B](/docs/blackbox/quickstart/start-without-test).
+Arrive here with one approved case and its aligned executable realization. It can be a passing test you kept in [Step 1A](/docs/blackbox/quickstart/build-behavioral-harness), or the project-owned suite you implemented in [Step 1B](/docs/blackbox/quickstart/start-without-test).
 
 Every setup needs the Playwright adapter and project fixture in sections 3 and 4. Sections 1 and 2 use a host command. If your application starts from Compose, a Dockerfile, compiled artifacts, an external process, or a custom provisioner, [choose that setup first](/docs/blackbox/guides/set-up-the-testbed), then return at section 3.
 
@@ -146,18 +146,18 @@ The host command does not allocate a port or database per worker. Before enablin
 
 Skip this section if you kept an existing passing test.
 
-If Step 1 generated a test shell, replace its TODOs with the real application request and visible assertion. Use the prepared test data—for this example, `alice` exists and `ghost` does not. Blackbox provides the tagged structure and runtime connection; your project provides these application-specific details.
+If Step 1 generated a test shell, replace its TODOs with the real application request and visible assertion. Use the prepared test data. In this example, `alice` exists and `ghost` does not. Blackbox provides the tagged structure and runtime connection; your project provides these application-specific details.
 
 A coding agent can complete this project-owned gap against the reviewed feature:
 
 ```text
 $blackbox-runtime
 
-Connect e2e/subscribe-user.system.test.ts to the configured subscription API.
-Implement only the request, assertions, fixtures, and dedicated test data needed
-for the two reviewed scenarios. Keep @flow:subscribe-user, the feature wording,
-and the expected 201/404 results unchanged. Stop if passing requires changing
-the accepted behavior or isolation setup.
+Connect the subscription system test to the configured API. Implement only the
+requests, assertions, fixtures, and dedicated test data needed for the reviewed
+cases. Keep the approved case identities, Gherkin, claims, and expected outcomes
+unchanged. Stop if passing requires changing the accepted behavior or isolation
+setup.
 ```
 
 ## 7. Confirm the Flow Passes

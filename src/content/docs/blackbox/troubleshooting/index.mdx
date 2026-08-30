@@ -1,48 +1,42 @@
 ---
 title: "Troubleshooting"
-description: "Diagnose flow identity, capture-cell, evidence-integrity, effect, and ODC failures in the order they occur."
+description: "Diagnose alignment, execution, capture, integrity, and effect findings at the boundary that owns them."
 sidebar_position: 1
 keywords:
   [
     "blackbox troubleshooting",
     "empty evidence",
-    "effect failure",
-    "feature drift",
+    "effect finding",
+    "suite alignment",
   ]
 ---
 
-Start with the first layer that could not produce a trusted result. Do not change accepted behavior until you know whether the failure came from identity, execution, capture, integrity, or analysis.
+Start with the earliest boundary that failed. Do not change approved intent until you know whether the problem belongs to alignment, realization, runtime capture, evidence integrity, or analysis.
 
 ## Choose the Symptom
 
-| Symptom                                                 | Start with                                                                       |
-| ------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| Flow identity or Gherkin no longer matches the suite    | [Feature Drift](/docs/blackbox/troubleshooting/feature-drift)                    |
-| A runtime bundle is empty or incomplete                 | [Empty or Incomplete Capture](/docs/blackbox/troubleshooting/no-spans-captured)  |
-| The capture cell cannot start or become ready           | [Capture Cell and Sidecar](/docs/blackbox/troubleshooting/docker-and-testbed)    |
-| An effect is missing, forbidden, unknown, or mismatched | [Effect Contract Failures](/docs/blackbox/troubleshooting/catalog-failures)      |
-| You need a minimal diagnostic package                   | [Collect Diagnostics](/docs/blackbox/troubleshooting/diagnostics-and-debug-logs) |
-| You have a reproducible product defect                  | [Report a Bug](/docs/blackbox/troubleshooting/reporting-a-bug)                   |
+| Symptom                                                                         | Start with                                                                           |
+| ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Gherkin and the executable suite no longer align                                | [Gherkin and Suite Alignment Failures](/docs/blackbox/troubleshooting/feature-drift) |
+| An attempt has no eligible evidence or incomplete capture                       | [Empty or Incomplete Capture](/docs/blackbox/troubleshooting/no-spans-captured)      |
+| The testbed cannot start, isolate, or ready the system                          | [Capture Cell and Testbed](/docs/blackbox/troubleshooting/docker-and-testbed)        |
+| An effect claim is violated, inconclusive, unsupported, or blocked by integrity | [Effect Claim Failures](/docs/blackbox/troubleshooting/catalog-failures)             |
+| You need one reproducible diagnostic chain                                      | [Collect Diagnostics](/docs/blackbox/troubleshooting/diagnostics-and-debug-logs)     |
+| You have reduced the problem to a product defect                                | [Report a Bug](/docs/blackbox/troubleshooting/reporting-a-bug)                       |
 
-## Start With Static Identity
+## Follow the Verification Chain
 
-```bash
-pnpm exec blackbox suites discover e2e/tests --json
-pnpm exec blackbox suites check e2e/tests --json
-```
+1. Confirm approved Gherkin compiled and every selected case has one exact realization.
+2. Confirm the RunPlan selected only declared cases and a declared RunnerBundle.
+3. Confirm Runtime opened fresh capture and admitted the required participants and capabilities.
+4. Confirm relevant work correlated, completed, settled, drained, closed, and sealed.
+5. Read integrity, native test, effect, and optional ODC findings separately.
 
-Resolve missing, duplicate, or conflicting flow IDs before debugging runtime evidence.
-
-## Diagnose the Runtime in Order
-
-1. Confirm the runner selected the intended flow tag.
-2. Confirm the capture cell reached ready state.
-3. Confirm test identity reached the SUT through W3C baggage.
-4. Verify bundle capabilities and integrity.
-5. Inspect effect and ODC analysis separately.
+A later stage cannot repair an earlier authority or identity failure. Start a fresh runtime attempt after an alignment, implementation, lifecycle, or capture repair.
 
 ## Useful Next Pages
 
-- [Runtime Evidence](/docs/blackbox/concepts/runtime-evidence)
-- [Choose How Blackbox Runs Your Application](/docs/blackbox/guides/set-up-the-testbed)
-- [Add Blackbox to CI](/docs/blackbox/guides/reports-and-ci-gates)
+- [Alignment Checks and Blocking Conditions](/docs/blackbox/reference/alignment-checks)
+- [Capture Lifecycle and Correlation](/docs/blackbox/reference/capture-lifecycle-and-correlation)
+- [Effect Claim Evaluation](/docs/blackbox/reference/matchers-and-effect-builders)
+- [Runtime Evidence and Integrity](/docs/blackbox/concepts/runtime-evidence)

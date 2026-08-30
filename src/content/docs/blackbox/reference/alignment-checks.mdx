@@ -1,0 +1,79 @@
+---
+title: "Alignment Checks and Blocking Conditions"
+description: "Look up which Blackbox alignment phase owns a mismatch and what must pass before runtime execution."
+sidebar_position: 4
+keywords:
+  [
+    "Blackbox alignment checks",
+    "Gherkin compilation",
+    "RunnerBundle validation",
+    "suite binding failure",
+    "behavior drift",
+  ]
+---
+
+import Aside from "@/components/mdx/Aside.astro";
+
+An approved scenario says the unknown-user case must not call the payment provider. If the system suite binds that scenario to the known-user test, both tests may pass while the wrong behavior is exercised.
+
+Blackbox prevents that run by checking the complete relationship from accepted intent to the exact runner target.
+
+<Aside type="info" title="Alpha Target">
+  These checks and blocking boundaries are accepted for Alpha 3. Public
+  diagnostic codes, command names, and artifact schemas are not defined by this
+  page.
+</Aside>
+
+## Check Alignment in Authority Order
+
+| Check                    | Passes when                                                                  | Blocks on                                                                                   |
+| ------------------------ | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| **Source compilation**   | Each accepted scenario or Examples row resolves to one stable concrete case. | Invalid Gherkin, missing or ambiguous case identity, or unresolved accepted declarations.   |
+| **Semantic compilation** | Instructions, claims, contracts, and topology resolve deterministically.     | Missing, duplicate, conflicting, phase-invalid, or nondeterministic lowering.               |
+| **Type projection**      | The generated type contract and project-owned suite agree exactly.           | Stale case, instruction, claim, fixture, contract, or binding identity.                     |
+| **Runner collection**    | The pinned target collects the expected runnable tests and registrations.    | Empty, skipped, unresolved, foreign, duplicate, or unsupported execution shape.             |
+| **Runner lowering**      | Each selected case has one exact runner and oracle realization.              | Missing, extra, redirected, ambiguous, or mismatched relation.                              |
+| **Run selection**        | A non-empty complete execution unit can be selected from declared bindings.  | Partial sequence, missing case, foreign target, or selection outside the declared topology. |
+
+Checks run in this order because a later stage cannot repair an earlier authority failure.
+
+## Stop Before Runtime on a Blocking Mismatch
+
+A blocking compilation error produces no valid SuitePlan. A blocking lowering error produces no valid RunnerBundle. Without both artifacts, Blackbox cannot create a meaningful RunPlan or treat a test execution as behavioral proof.
+
+Runtime evidence cannot heal a missing or stale relationship. A green test from an unbound or foreign target remains outside the accepted verification chain.
+
+## Preserve Meaning Across Harmless Changes
+
+Formatting, comments, source order, and display titles do not define semantic identity. When accepted cases, claims, bindings, and topology are unchanged, those presentation edits should preserve the SuitePlan meaning.
+
+By contrast:
+
+- A changed accepted outcome or claim changes SuitePlan identity.
+- A changed runner implementation may change RunnerBundle identity without changing SuitePlan meaning.
+- A changed retry, worker, project, or shard creates physical execution choices, not new accepted cases.
+
+## Repair the Earliest Failed Check
+
+| Failed check         | Canonical repair owner                                                 | Repeat from                                     |
+| -------------------- | ---------------------------------------------------------------------- | ----------------------------------------------- |
+| Source or meaning    | Person, with an agent proposing edits                                  | Source and semantic compilation                 |
+| Generated projection | Compiler or projection integration                                     | Artifact generation and typecheck               |
+| Project-owned suite  | Coding agent or test author                                            | Typecheck                                       |
+| Runner collection    | Test author, project configuration owner, or runner adapter owner      | Collection                                      |
+| Runner lowering      | Runner binding or adapter owner                                        | Lowering                                        |
+| Run selection        | Selection or accepted-topology owner, depending on the failed relation | Selection after all earlier checks remain valid |
+
+Changing approved behavior merely to make a suite pass is not an alignment repair. It is a product decision and returns to a person.
+
+## Trigger a Fresh Runtime Run After Repair
+
+Reanalysis can reproduce findings from an unchanged sealed execution. It cannot prove that repaired Gherkin, generated contracts, or suite bindings were used in that execution.
+
+After an alignment repair, compile, project, typecheck, collect, lower, and select again. Then execute a fresh attempt with the new pinned plan and realization identities.
+
+## See Also
+
+- [Align Gherkin and the Executable Suite](/docs/blackbox/guides/recover-behavior-from-existing-tests): Follow the alignment workflow.
+- [Gherkin and Suite Alignment Failures](/docs/blackbox/troubleshooting/feature-drift): Diagnose a specific mismatch.
+- [Plans and Realizations](/docs/blackbox/reference/plans-and-realizations): Look up the authority of SuitePlan, RunnerBundle, and RunPlan.

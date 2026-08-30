@@ -1,60 +1,80 @@
 ---
-title: "Effect Verification Model"
-description: "Reference the language-neutral rules for required, forbidden, unlisted, and mismatched runtime effects."
-sidebar_position: 4
+title: "Effect Claim Evaluation"
+description: "Reference how proof strength, cardinality, evidence completeness, and integrity determine an effect finding."
+sidebar_position: 6
 keywords:
   [
-    "effect verification",
-    "required effects",
-    "forbidden effects",
-    "effect matching",
+    "effect claim evaluation",
+    "effect cardinality",
+    "required effect",
+    "forbidden effect",
+    "effect verdict",
   ]
 ---
 
-Effect verification compares normalized observations from a sealed evidence bundle with a human-approved effect contract.
+A completed checkout has two eligible `payment-charge-request` effects. The accepted claim allows at most one, so the Analyzer can report **violated** immediately. It does not need complete capture to know that two is greater than one.
 
-## Contract Outcomes
+Effect evaluation compares one accepted claim with eligible, matching effect facts from one sealed attempt.
 
-| Outcome                    | Verdict        | Meaning                                                |
-| -------------------------- | -------------- | ------------------------------------------------------ |
-| Required effect matched    | Pass           | The accepted effect occurred                           |
-| Required effect missing    | Fail           | The accepted effect did not occur                      |
-| Forbidden effect absent    | Pass           | The rejected behavior stayed absent                    |
-| Forbidden effect observed  | Fail           | The system performed rejected behavior                 |
-| Valid observation unlisted | No finding     | Evidence remains available without constraining policy |
-| Observation unsupported    | Integrity fail | Capture cannot normalize the observation soundly       |
-| Contract mismatch          | Fail           | Evidence and contract cannot be compared as declared   |
-| Evidence incomplete        | Fail           | Bundle integrity cannot support the requested verdict  |
+:::info Committed Behavior
+These proof-burden and verdict rules are part of the committed effects core. Alpha execution support remains limited to certified capability cells.
+:::
 
-Unlisted normalized effects remain evidence. Unsupported capture and contract mismatches fail because the analyzer must not turn uncertainty into success.
+## Match the Requested Proof Strength
 
-## Language-Neutral Shape
+| Requested proof | Matching evidence                                                     |
+| --------------- | --------------------------------------------------------------------- |
+| **Observed**    | An admitted, attributable operation was recorded.                     |
+| **Succeeded**   | The operation also completed successfully under its capability rules. |
+| **Committed**   | Separate state evidence confirms the change was committed.            |
 
-An effect contract describes boundary behavior with normalized fields:
+A successful operation can produce both observed and succeeded facts. A successful SQL span alone does not produce committed proof.
 
-```yaml
-requires:
-  - { boundary: postgres, op: INSERT, key: subscriptions, service: bff }
-forbids:
-  - { boundary: http, op: POST, key: /v1/refunds, service: bff }
-```
+## Evaluate Cardinality With the Right Proof Burden
 
-Runner adapters do not define this vocabulary. Language capture implementations translate supported observations into the canonical evidence model. Helpers from `@suites/blackbox/effects` compile to the same contract semantics.
+Let `N` be the accepted count and `M` the number of eligible matching facts.
 
-## Counts and Patterns
+| Claim                | Satisfied when                   | Violated when                    | Inconclusive when                  |
+| -------------------- | -------------------------------- | -------------------------------- | ---------------------------------- |
+| **At least N**       | `M >= N`                         | Capture is complete and `M < N`  | `M < N` and capture is incomplete  |
+| **At most N**        | Capture is complete and `M <= N` | `M > N`                          | `M <= N` and capture is incomplete |
+| **Exactly N**        | Capture is complete and `M == N` | `M > N`, or complete and `M < N` | `M <= N` and capture is incomplete |
+| **Forbidden/absent** | Capture is complete and `M == 0` | `M > 0`                          | `M == 0` and capture is incomplete |
 
-Contracts can constrain effect values and occurrence counts. The accepted YAML schema remains the behavioral authority; convenience builders must compile to the same semantics.
+Positive counterexamples are monotonic. Once Blackbox observes more than an upper bound or any forbidden effect, later evidence cannot erase that violation.
 
-See [Effect Contract Schema](/docs/blackbox/reference/catalog-schema) for the reviewed source format.
+## Apply Eligibility Before Cardinality
 
-## Analysis Boundary
+The Analyzer evaluates evidence eligibility before it counts matches:
 
-The offline analyzer owns matching and verdict computation. A reporter can display the result, and a runner adapter can surface it, but neither may reinterpret the evidence.
+1. Plan, realization, case, attempt, and evidence identities agree.
+2. The required participant and capability were admitted.
+3. Matching facts have the requested proof strength.
+4. Lifecycle and integrity facts establish the proof burden required by the claim.
+5. Cardinality is evaluated over the eligible matching facts.
 
-## Summary
+Evidence from another attempt, retry, sequence member, service instance, or undeclared realization never enters the count.
 
-- **Contracts define required and forbidden behavior.**
-- **Capture implementations produce canonical observations.**
-- **Offline analysis computes the verdict.**
-- **Unsupported, mismatched, and incomplete evidence fails integrity or verification.**
-- **Valid unlisted effects remain evidence without becoming requirements.**
+## Keep Unlisted Effects as Evidence
+
+A valid normalized effect that no accepted claim references remains recorded evidence. It does not become required, forbidden, or a product defect automatically.
+
+A person may review that evidence and approve a new catalog entry or claim for a later plan revision.
+
+## Map Limitations to Distinct Verdicts
+
+| Condition                                                         | Verdict               |
+| ----------------------------------------------------------------- | --------------------- |
+| Eligible evidence meets the complete proof burden                 | **Satisfied**         |
+| Eligible evidence establishes a counterexample                    | **Violated**          |
+| Execution occurred but completeness is insufficient               | **Inconclusive**      |
+| Required capability or claim kind is outside declared support     | **Unsupported**       |
+| Identity, participation, protocol, loss, or seal invariant failed | **Integrity failure** |
+
+Only **satisfied** passes a required claim gate. Native test results, other effect findings, and optional ODC findings remain separate.
+
+## See Also
+
+- [Effects Catalog Contract](/docs/blackbox/reference/catalog-schema): See what catalog vocabulary and normalization must preserve.
+- [Runtime Evidence and Integrity](/docs/blackbox/concepts/runtime-evidence): Understand the evidence conditions behind completeness.
+- [OpenTelemetry and Effects](/docs/blackbox/concepts/effects-and-catalogs): Return to the complete observation-to-finding explanation.

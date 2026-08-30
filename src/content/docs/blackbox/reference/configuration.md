@@ -93,11 +93,11 @@ Use one layout per service. Do not use global path prefixes to reconcile unrelat
 
 The runtime configuration does not replace accepted behavior:
 
-```text
-requirements/**/*.ears
-e2e/features/<flow>.feature
-e2e/features/<flow>.effects.yaml
-e2e/<flow>.system.test.ts
-```
+- Approved Gherkin and stable case identities.
+- The project-owned system or E2E suite.
+- Reviewed effects-catalog vocabulary and effect claims.
+- SUT, isolation, capture, and analysis policy.
 
-Commit configuration and reviewed harness files. Ignore generated `.blackbox/evidence/` locally and retain it as a CI artifact when a gate fails.
+Commit reviewed source according to project policy. Keep generated alignment contracts reproducible, and retain complete sealed evidence when a CI finding needs investigation.
+
+The public catalog syntax and generated artifact layout are not frozen. [See the current artifact ownership boundary](/docs/blackbox/reference/files-and-artifacts).

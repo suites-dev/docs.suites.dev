@@ -14,11 +14,11 @@ keywords:
 Complete both Blackbox loops with one subscription behavior. First align readable intent with an executable Playwright flow. Then run that flow against the application, inspect its evidence, and compute separate runtime verdicts.
 
 ```text
-Behavior alignment:    human-readable behavior ↔ @flow system test
-Runtime verification:  @flow system test → SUT → evidence → verdicts → repair
+Alignment:     approved Gherkin -> generated contracts -> project suite
+Verification:  project suite -> running system -> evidence -> findings -> repair
 ```
 
-This Quickstart uses Gherkin so you can experience the complete alignment loop. Gherkin remains optional during runtime execution.
+The Alpha workflow uses approved Gherkin to preserve human intent before runtime execution. Gherkin guides the realization; it does not become runtime evidence or change an effect finding.
 
 The runtime example uses a compiled Node.js and TypeScript application started with a host command. It runs serially against dedicated test data so the first setup is easy to reason about.
 
@@ -33,39 +33,32 @@ You need:
 
 ## Choose Your Starting Point
 
-| Your situation                                  | Start here                                                                                                                                                             |
-| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **I already have a passing system or E2E test** | [Step 1A: Start From an Existing Test](/docs/blackbox/quickstart/build-behavioral-harness) keeps it, assigns a stable flow ID, and emits readable behavior for review. |
-| **I do not have a system or E2E test yet**      | [Step 1B: Start Without a Test](/docs/blackbox/quickstart/start-without-test) turns one reviewed behavior into the same tagged Playwright flow.                        |
+| Your situation                                  | Start here                                                                                                                                                      |
+| ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **I already have a passing system or E2E test** | [Step 1A: Start From an Existing Test](/docs/blackbox/quickstart/build-behavioral-harness) keeps it, recovers a Gherkin proposal, and aligns the approved case. |
+| **I do not have a system or E2E test yet**      | [Step 1B: Start Without a Test](/docs/blackbox/quickstart/start-without-test) starts from approved Gherkin and implements its executable realization.           |
 
-Both routes produce the same artifacts:
+Both routes establish the same artifact chain:
 
 ```text
-e2e/features/subscribe-user.feature
-e2e/subscribe-user.system.test.ts
-@flow:subscribe-user
+approved Gherkin
+  -> SuitePlan and generated binding contracts
+  -> project-owned Playwright suite
+  -> RunnerBundle and selectable RunPlan
 ```
 
 Before runtime capture, the Playwright flow must pass.
 
 ## Follow the Four Steps
 
-1. **Align one readable behavior and executable flow.** Start from a passing test in [Step 1A](/docs/blackbox/quickstart/build-behavioral-harness), or from human intent in [Step 1B](/docs/blackbox/quickstart/start-without-test). Review the Gherkin and keep one stable flow ID across both artifacts.
+1. **Align one readable behavior and executable flow.** Start from a passing test in [Step 1A](/docs/blackbox/quickstart/build-behavioral-harness), or from human intent in [Step 1B](/docs/blackbox/quickstart/start-without-test). Review the Gherkin and close every binding gate before runtime.
 2. **[Connect your application](/docs/blackbox/quickstart/add-to-existing-test).** Tell Blackbox how to start the system under test, add the Playwright fixture, and make the native flow pass.
 3. **[Run and inspect evidence](/docs/blackbox/quickstart/add-runtime-evidence).** Run the accepted flow and inspect the effects and decision evidence it produced. Observations are facts, not policy.
-4. **[Approve effects and read ODC](/docs/blackbox/quickstart/enforce-runtime-effects).** Approve the smallest effect policy, analyze the sealed evidence, and repair implementation without redefining success.
+4. **[Approve effect claims and read findings](/docs/blackbox/quickstart/enforce-runtime-effects).** Approve the smallest consequential claims, analyze the sealed evidence, and repair implementation without redefining success.
 
 ## What Success Looks Like
 
-```text
-FLOW subscribe-user
-  tests       PASS    2 attempts
-  integrity   PASS    capture complete
-  effects     PASS    required and forbidden policy satisfied
-  ODC         REPORT  user-exists outcomes produced distinct evidence
-```
-
-At that point, readable intent, native assertions, evidence integrity, effect policy, and decision propagation remain separate but connected by one stable flow identity.
+The walkthrough is complete when the accepted Gherkin and executable suite align, the native test passes, evidence is eligible, and each effect claim has a bounded finding. Optional ODC remains a separate result.
 
 ## If Your Application Starts Differently
 

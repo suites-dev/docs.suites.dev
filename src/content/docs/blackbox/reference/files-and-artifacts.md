@@ -1,67 +1,72 @@
 ---
 title: "Files and Artifacts"
-description: "Separate reviewed behavioral source, immutable runtime evidence, native artifacts, and derived analysis results."
+description: "Distinguish reviewed behavioral source, generated alignment contracts, sealed runtime evidence, and derived findings."
 sidebar_position: 8
-keywords: ["Blackbox artifacts", "sealed evidence", "effect contract"]
+keywords: ["Blackbox artifacts", "sealed evidence", "generated contracts"]
 ---
 
-People review and version the behavioral harness. Blackbox generates and seals evidence for each execution.
+One verified case moves through four artifact classes. A person reviews the intent, Blackbox generates alignment contracts, Runtime seals what happened, and the Analyzer derives findings.
 
-## Reviewed Source
+:::info Public Layout Not Frozen
+This page defines artifact ownership for the Alpha target. Exact filenames, directories, schemas, retention commands, and report fields are not committed here.
+:::
 
-| Artifact                           | Authority                                     |
-| ---------------------------------- | --------------------------------------------- |
-| `requirements/**/*.ears`           | Normative product intent                      |
-| `e2e/features/<flow>.feature`      | Reviewable scenario projection                |
-| `e2e/<flow>.system.test.ts`        | Executable flow and native assertions         |
-| `e2e/features/<flow>.effects.yaml` | Required and forbidden effects                |
-| `blackbox.config.ts`               | SUT, isolation, evidence, and analysis policy |
+## Keep Artifact Classes Separate
 
-## Sealed Run Layout
+| Artifact class                    | Owner                       | Purpose                                                                 |
+| --------------------------------- | --------------------------- | ----------------------------------------------------------------------- |
+| **Reviewed behavioral source**    | Person                      | Approved Gherkin, effect claims, and analysis policy.                   |
+| **Generated alignment contracts** | Compiler and runner adapter | Bind accepted meaning to typed executable realization.                  |
+| **Sealed runtime evidence**       | Runtime                     | Preserve one attempt's observations, lifecycle, identities, and limits. |
+| **Derived findings and reports**  | Analyzer and renderer       | Evaluate claims and present the result without mutating evidence.       |
 
-```text
-.blackbox/evidence/<run-id>/
-  manifest.json
-  config.snapshot.json
-  policy.snapshot.json
-  contracts/<flow>.effects.yaml
-  cells/<cell-id>/
-    manifest.json
-    events.jsonl
-    attempts/<attempt-id>/events.jsonl
-  artifacts/sha256/<digest>
-  derived/
-    effects/<attempt-id>.json
-    decisions/<attempt-id>.json
-    odc/verdict.json
-    odc/verdict.md
-  reports/
-    summary.json
-    junit.xml
-```
+An artifact from a later class cannot redefine an earlier one. Runtime observations do not rewrite Gherkin or claims, and a report does not rewrite sealed evidence.
 
-The manifest records run, cell, worker, flow, attempt, retry, isolation, reset, service, producer, capabilities, artifact references, versions, and integrity findings.
+## Review and Version the Behavioral Source
 
-## Content-Addressed Native Artifacts
+Keep these project-owned inputs under review:
 
-The artifact store can contain executed JavaScript, source maps, V8 coverage, language-specific coverage, debug metadata, and other exact analyzer inputs.
+- Approved Gherkin and its stable case identities.
+- Project-owned system or E2E suite.
+- Reviewed effects-catalog vocabulary and effect claims.
+- SUT, isolation, capture, and analysis policy.
 
-Runtime paths are discovery hints. SHA-256 digests and recorded byte lengths establish artifact identity across host, container, and CI paths.
+The public catalog authoring syntax is not frozen. Do not standardize a prototype YAML filename or shape as the Alpha contract.
 
-## Derived Analysis
+## Regenerate Alignment Contracts
 
-Derived effects, decisions, ODC, and reports can be regenerated with:
+Generated alignment artifacts may include a type contract, runtime registration, and plan projection. They guide the project-owned suite and preserve its relationship to the accepted plan. The runner adapter separately owns the concrete realization.
 
-```bash
-pnpm exec blackbox analyze --run <run-id>
-```
+Regenerate them from their canonical inputs. Do not hand-edit generated output into a second source of meaning.
 
-Do not edit sealed evidence to change a verdict. Change accepted policy through review or record a new execution.
+## Seal Runtime Evidence Per Attempt
 
-## Retention
+Sealed evidence preserves or references:
 
-- Commit reviewed source files.
-- Ignore local evidence during normal development.
-- Retain the complete run when CI fails.
-- Keep structured analyzer output with the run.
-- Preserve the original manifest and content-addressed artifacts.
+- Exact plan and realization identity.
+- Case, assignment, attempt, retry, and evidence-window identity.
+- Participating services, capabilities, and executed artifacts.
+- Raw observations and normalized effects.
+- Completion, settling, loss, closeout, and integrity facts.
+
+Retries and sequence members retain separate evidence. Sealing makes the attempt immutable; it does not make incomplete evidence complete.
+
+## Derive Analysis Without Rewriting Evidence
+
+Effect findings, integrity findings, optional ODC results, and rendered reports are derived from the exact accepted inputs and sealed evidence.
+
+Reanalysis may reproduce a result when those inputs remain identical. An implementation or alignment repair requires a fresh runtime execution.
+
+## Retain the Verification Chain
+
+- Commit reviewed behavioral source according to project policy.
+- Keep generated alignment contracts reproducible from accepted inputs.
+- Retain the complete sealed attempt when a CI finding needs investigation.
+- Preserve artifact identities and integrity facts with any derived report.
+- Never edit sealed evidence to obtain a different verdict.
+
+## See Also
+
+- [Plans and Realizations](/docs/blackbox/reference/plans-and-realizations)
+- [Capture Lifecycle and Correlation](/docs/blackbox/reference/capture-lifecycle-and-correlation)
+- [Effects Catalog Contract](/docs/blackbox/reference/catalog-schema)

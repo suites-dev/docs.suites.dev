@@ -40,7 +40,7 @@ The contract can remain stable while implementation technology changes. When the
 
 When both systems can run, execute the same flow in separate capture cells. Analyze each sealed bundle against the same contract before comparing implementation-specific evidence.
 
-Gherkin can provide a readable behavior inventory. EARS can preserve normative requirements. Use only the artifacts that participate in migration decisions.
+Approved Gherkin provides the readable behavior inventory. Keep it connected to the executable cases and runtime findings that participate in migration decisions.
 
 ## Limits
 

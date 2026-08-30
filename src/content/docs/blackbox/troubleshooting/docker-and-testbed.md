@@ -61,7 +61,7 @@ Blackbox settles correlated work, flushes capture, seals cell evidence, and only
 
 ## Recovery
 
-1. Reduce the run to one tagged flow.
+1. Reduce the run to one selected case and declared realization.
 2. Use `isolation.scope: "flow"`.
 3. Confirm every service and dependency becomes ready.
 4. Confirm service identity and capture capabilities in the cell manifest.

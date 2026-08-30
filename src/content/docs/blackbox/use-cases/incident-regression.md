@@ -1,44 +1,51 @@
 ---
 title: "Prevent an Incident Regression"
-description: "Turn the behavioral cause of an incident into required and forbidden effects that fail when it returns."
+description: "Turn the behavioral cause of an incident into approved system effects that fail when it returns."
 sidebar_position: 3
 keywords:
   ["incident regression test", "postmortem testing", "forbidden effects"]
 ---
 
-An incident regression should preserve the behavioral distinction that made the incident harmful, not only the response that accompanied it.
+An incident regression should preserve the behavioral distinction that made the incident harmful, not only the visible response that accompanied it.
 
 ## Example: A Rejected User Was Charged
 
-Suppose the API returned `404` for an unknown user, but the system had already requested payment and published an order. A response assertion can pass while the incident returns.
+Suppose the API returned `404` for an unknown user, but the system had already requested payment and published an order.
 
-Keep the `404` assertion and review this effect contract:
-
-```yaml
-specVersion: "0.1"
-flow: subscribe-unknown-user
-requires:
-  - { boundary: postgres, op: SELECT, key: users, service: bff }
-forbids:
-  - { boundary: http, op: POST, key: /v1/payment_intents, service: bff }
-  - { boundary: postgres, op: INSERT, key: subscriptions, service: bff }
-  - { boundary: sqs, op: SendMessage, key: subscription-orders }
+```gherkin
+Scenario: Reject an unknown user without creating downstream work
+  When an unknown user submits a subscription request
+  Then the response status is 404
+  And no payment charge is requested
+  And no subscription record is written
+  And no subscription order is published
 ```
 
-The native test protects the visible response. Runtime analysis protects the absence of payment, persistence, and publication.
+The Gherkin expresses the approved incident boundary. Catalog-backed claims give each hidden effect a deterministic proof burden:
 
-## Post-Incident Workflow
+| Effect intent                  | Accepted claim |
+| ------------------------------ | -------------- |
+| `payment-charge-request`       | Exactly zero.  |
+| `subscription-record-written`  | Exactly zero.  |
+| `subscription-order-published` | Exactly zero.  |
 
-1. Reproduce the narrow flow in a controlled capture cell.
+The native test protects the visible `404`. Runtime analysis protects the absence of payment, persistence, and publication within the complete declared evidence scope.
+
+## Preserve the Incident Boundary
+
+1. Reproduce the narrow case in a fresh managed-capture attempt.
 2. Identify the effects that distinguish fixed from broken behavior.
-3. Review the contract with the incident owner.
-4. Add an EARS requirement when the rule needs normative traceability.
-5. Seal and retain evidence when the CI gate fails.
-6. Return deterministic findings to the coding agent without changing the contract.
+3. Review the Gherkin, catalog vocabulary, and claims with the incident owner.
+4. Bind the accepted case to its executable system realization.
+5. Run with fresh capture and retain the sealed attempt when the finding fails.
+6. Return deterministic findings to the coding agent without changing the target.
+
+One observed forbidden effect establishes a violation. A satisfied absence claim additionally requires complete eligible evidence.
 
 Blackbox does not replace monitoring, incident management, or root-cause analysis. It turns one selected failure mode into a recurring pre-merge behavior check.
 
 ## Next Steps
 
-- [Effects and Contracts](/docs/blackbox/concepts/effects-and-catalogs)
-- [Add Verification Gates to CI](/docs/blackbox/guides/reports-and-ci-gates)
+- [OpenTelemetry and Effects](/docs/blackbox/concepts/effects-and-catalogs)
+- [Effect Claim Evaluation](/docs/blackbox/reference/matchers-and-effect-builders)
+- [Add Blackbox to CI](/docs/blackbox/guides/reports-and-ci-gates)

@@ -53,52 +53,11 @@ pnpm exec blackbox skills install --host codex --json
 pnpm exec blackbox skills install --host codex --write --json
 ```
 
-## Validate Requirements
+## Compile and Check Gherkin
 
-```bash
-pnpm exec blackbox requirements validate ./requirements --json
-pnpm exec blackbox requirements check ./requirements --tests ./e2e --json
-pnpm exec blackbox requirements drift ./requirements --tests ./e2e --json
-```
+The Alpha target compiles approved Gherkin into a SuitePlan, generated binding contracts, and exact runner relationships. Its final public commands are not frozen.
 
-## Generate and Check Gherkin
-
-```bash
-pnpm exec blackbox features generate \
-  requirements/subscriptions.ears \
-  --flow subscribe-user \
-  --description "subscribing a user" \
-  --requirement REQ-004 \
-  --out e2e/features \
-  --write \
-  --json
-
-pnpm exec blackbox features emit ./e2e --out ./baseline --json
-pnpm exec blackbox features check ./e2e/features --requirements ./requirements --json
-```
-
-`features generate` starts from approved intent. `features emit` recovers a baseline from executable tests. Review generated behavior before accepting it.
-
-## Generate and Align Suites
-
-```bash
-pnpm exec blackbox suites discover ./e2e --json
-pnpm exec blackbox suites generate \
-  e2e/features/subscribe-user.feature \
-  --out e2e \
-  --write \
-  --json
-
-pnpm exec blackbox suites align \
-  e2e/features/subscribe-user.feature \
-  --suite e2e/subscribe-user.system.test.ts \
-  --write \
-  --json
-
-pnpm exec blackbox suites check ./e2e --json
-```
-
-Omit `--write` to inspect a source transformation before applying it. A successful write may still require human approval.
+Use [Align Gherkin and the Executable Suite](/docs/blackbox/guides/recover-behavior-from-existing-tests) for the accepted workflow. Do not promote experimental Stage 05 command names into automation.
 
 ## JSON and Exit Codes
 

@@ -1,53 +1,58 @@
 ---
 title: "Empty or Incomplete Capture"
-description: "Diagnose a tagged flow that produced no evidence or a bundle that cannot support trusted analysis."
+description: "Diagnose an attempt that produced no eligible evidence or cannot support a completeness-dependent finding."
 sidebar_position: 1
 keywords:
   ["empty Blackbox evidence", "capture integrity", "missing runtime effects"]
 ---
 
-An empty report does not prove that the system did nothing. It means the requested analysis did not receive enough trusted evidence.
+An empty effect set does not prove that the system did nothing. It means Blackbox has no eligible matching evidence for the requested claim.
 
 ## Check the Lifecycle in Order
 
-1. Confirm the runner selected a tag with the configured prefix. The default is `@flow:`.
-2. Confirm the flow received the intended `flow`, `worker`, or `test` capture cell.
-3. Confirm the SUT used the expected language capture implementation.
-4. Confirm W3C baggage carried the test identity to the relevant service.
-5. Confirm the cell closed cleanly and sealed a bundle.
-6. Confirm the bundle declares the capability required by the analyzer.
+1. Confirm the selected case, realization, assignment, and physical attempt agree.
+2. Confirm required participants and capture capabilities were admitted before relevant work began.
+3. Confirm the fresh evidence window opened for this attempt.
+4. Confirm supported correlation reached every service that performed relevant work.
+5. Confirm application completion and admitted in-flight work settled.
+6. Confirm ended observations drained before receiver closeout and sealing.
+7. Check for loss, rejection, late evidence, or an unsupported capability.
 
-## Read Integrity Before Behavior
+Do not skip to effect matching. A lifecycle or identity failure limits what the Analyzer may conclude from the observations it received.
 
-Inspect the evidence manifest before the effect verdict:
+## Match the Symptom to the Boundary
 
-| Check                    | Failure meaning                                  |
-| ------------------------ | ------------------------------------------------ |
-| Flow identity            | Evidence cannot be assigned to the selected flow |
-| Capture capability       | The requested boundary was not observable        |
-| Source and map integrity | ODC cannot locate or compare decisions soundly   |
-| Lifecycle close          | Buffered evidence may be incomplete              |
-| Protocol compatibility   | The analyzer cannot safely read the bundle       |
+| Symptom                                        | Likely boundary                                              |
+| ---------------------------------------------- | ------------------------------------------------------------ |
+| No observation belongs to the attempt          | Selection, assignment, or correlation identity.              |
+| Expected service never participates            | Admission, topology, or service startup.                     |
+| Parent work appears but detached work does not | Explicit asynchronous correlation or application completion. |
+| Ended work is missing at closeout              | Drain, export, receiver intake, or recorded loss.            |
+| Observations exist but cannot become effects   | Capability admission or normalization support.               |
+| Zero matches with incomplete capture           | Completeness proof burden, not confirmed absence.            |
 
-An integrity failure must not become a passing effect result.
+Timing overlap, matching titles, and a shared OpenTelemetry trace ID do not establish attempt ownership by themselves.
 
-## Common Causes
+## Read the Result Correctly
 
-- The test did not carry a recognized flow tag.
-- The flow never crossed a supported captured boundary.
-- Test identity did not propagate to the service that emitted the effect.
-- The wrong SUT image or capture implementation entered the cell.
-- The process ended before evidence was flushed and sealed.
-- The analyzer requested a capability the bundle does not contain.
+- **Inconclusive** means execution occurred but evidence cannot support the requested completeness-dependent conclusion.
+- **Unsupported** means the required capability or claim kind is outside the declared support cell.
+- **Integrity failure** means identity, participation, lifecycle, loss, or sealing invariants failed.
 
-## Do Not Add Unrelated Instrumentation
+None of these results passes an absence, upper-bound, or exact-count requirement.
 
-Blackbox does not require an application-owned OpenTelemetry provider, debug HTTP endpoint, Node binary replacement, AST wrapping, or host-to-container source prefixes. Adding those mechanisms will not repair capture identity or evidence integrity.
+## Preserve the Diagnostic Chain
 
-## What to Collect
+Collect:
 
-- Flow ID and runner adapter version.
-- Isolation scope and test identity.
-- Capture implementation and sidecar identity.
-- Bundle manifest and integrity findings.
-- Expected boundary and smallest reproducing flow.
+- Approved case and selected realization identity.
+- Assignment, attempt, retry, sequence-member, and evidence-window identity.
+- Participating services and admitted capabilities.
+- Application-completion, settling, drain, loss, closeout, and seal facts.
+- Raw observations, normalized effects, and the resulting integrity and claim findings.
+
+## See Also
+
+- [Capture Lifecycle and Correlation](/docs/blackbox/reference/capture-lifecycle-and-correlation)
+- [Runtime Evidence and Integrity](/docs/blackbox/concepts/runtime-evidence)
+- [Effect Claim Evaluation](/docs/blackbox/reference/matchers-and-effect-builders)

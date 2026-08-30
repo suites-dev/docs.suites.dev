@@ -50,7 +50,7 @@ Blackbox derives cell identity from the selected scope and Playwright worker ide
 - Retries receive new attempt identities and clean state.
 - A restarted worker receives a new worker identity.
 - Serial tests stay on one worker but remain distinct attempts.
-- Evidence joins after execution by run, flow, cell, and attempt identity.
+- Evidence joins after execution by run, case, assignment, cell, and attempt identity.
 
 ## Reset Every Mutable Dependency
 
@@ -67,19 +67,13 @@ Managed provisioners reset, restore, or replace the resources they own. A custom
 
 If Blackbox cannot establish the isolation assurance required by policy, it reports an inconclusive integrity result instead of treating absent effects as proof.
 
-## Keep One Stable Flow ID
+## Keep Accepted Cases and Physical Attempts Separate
 
-The default tag is `@flow:<id>`:
+Each approved case has stable semantic identity and exactly one declared runner binding. The public tag and generated-field syntax for that relationship are not frozen.
 
-```ts
-test.describe("subscribe user", { tag: "@flow:subscribe-user" }, () => {
-  // Attempts that exercise one reviewed behavioral contract.
-});
-```
+Multiple attempts and runner retries can refer to the same accepted case, but each physical execution receives a new attempt and evidence window. Similar titles, file paths, and source order do not establish a binding.
 
-Missing and duplicate flow tags fail. Multiple attempts and retries may share a flow ID because attempt identity remains separate.
-
-Split flows when cases require different effect contracts or isolation boundaries.
+Use separate accepted cases when behavior requires different effect claims or isolation boundaries.
 
 ## Understand Partial Attempts
 
@@ -89,9 +83,11 @@ An assertion failure may still contain complete runtime evidence when every capt
 
 ## Preserve Correlation
 
-The Playwright adapter adds W3C trace context and Blackbox baggage to HTTP requests. Node capture binds inbound work to the current attempt and propagates that identity across supported boundaries.
+The runner and runtime integrations propagate supported trace context and opaque attempt identity across admitted service boundaries. Trace IDs help connect distributed operations, but they do not replace Blackbox attempt and window identity.
 
-Do not replace these headers manually. Use `blackboxHeaders` only when a client outside Playwright’s request fixture needs explicit propagation.
+When a custom client, message transport, or background worker crosses a boundary outside that supported path, treat the correlation requirement as unresolved until an admitted integration carries it explicitly. Timing overlap is not enough.
+
+[See the attempt-correlation and asynchronous-work rules](/docs/blackbox/reference/capture-lifecycle-and-correlation#correlate-work-without-guessing).
 
 ## Validate Cell Separation
 
@@ -99,7 +95,7 @@ Do not replace these headers manually. Use `blackboxHeaders` only when a client 
 pnpm exec blackbox test --flow subscribe-user
 ```
 
-Expected result: each worker and flow resolves to the intended cell, resets complete before independent attempts, and the manifest records no missing-isolation finding.
+Expected result: each assignment and case resolves to the intended cell, resets complete before independent attempts, and the sealed evidence records no missing-isolation finding.
 
 ## Summary
 

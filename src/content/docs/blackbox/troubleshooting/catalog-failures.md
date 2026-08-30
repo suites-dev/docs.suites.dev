@@ -1,47 +1,52 @@
 ---
-title: "Effect Contract Failures"
-description: "Diagnose missing required effects, forbidden effects, unsupported observations, mismatches, and incomplete evidence."
+title: "Effect Claim Failures"
+description: "Diagnose violated, inconclusive, unsupported, and integrity findings for one accepted effect claim."
 sidebar_position: 3
 keywords:
-  ["effect contract failures", "requires forbids", "effect assertion failure"]
-toc_min_heading_level: 2
-seo:
-  primary_keyword: "Effect Contract Failures"
-  secondary_keywords: ["effect contract failures", "requires forbids"]
-  search_intent: "troubleshooting intent from users whose required effects are missing, forbidden effects appeared, or catalog matching failed"
-  snippet_angle: "compare observed effects to the contract, decide whether implementation or contract changed, then rerun the scenario"
+  [
+    "effect claim failure",
+    "forbidden effect",
+    "incomplete evidence",
+    "effect finding",
+  ]
 ---
 
-An effect contract failure means offline analysis could not prove the behavior the team accepted. Start from the sealed evidence and contract used for that verdict.
+An unknown-user case returns `404`, but one eligible `payment-charge-request` effect appears. The forbidden claim is **violated** even though the native test passed.
 
-## Common Causes
+Start from the exact claim, sealed attempt, and finding. Do not change the accepted target merely to make the result pass.
 
-1. A required effect did not happen.
-2. A forbidden effect appeared in the run.
-3. Capture cannot normalize an observation the declared capability should support.
-4. The normalized observation and contract shape cannot be compared.
-5. Bundle integrity cannot support the verdict.
+## Classify the Finding First
 
-## First Checks
+| Finding               | What it establishes                                                                               | First check                                                  |
+| --------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| **Violated**          | Eligible evidence establishes a counterexample or complete evidence proves a missing lower bound. | Compare the implementation with the accepted claim.          |
+| **Inconclusive**      | Execution occurred, but completeness is insufficient for the requested conclusion.                | Inspect lifecycle, isolation, and loss facts.                |
+| **Unsupported**       | The required capability or claim kind is outside the declared support cell.                       | Check capability admission and the certified support matrix. |
+| **Integrity failure** | Identity, participation, protocol, loss, or sealing invariants failed.                            | Repair the earliest failed evidence boundary.                |
 
-1. Compare the observed run with the effect contract.
-2. Decide whether the contract or the implementation changed.
-3. Confirm whether the missing effect is truly required or just incidental.
-4. Check the bundle's declared capture capabilities and integrity.
-5. Confirm the analyzer and protocol versions are compatible.
+A valid normalized effect that no accepted claim references remains evidence. It is not a failure by itself.
 
-## Recovery
+## Check Eligibility Before Matching
 
-1. Update the effect contract if the new behavior is intentional and reviewed.
-2. Fix the implementation if the old effect is still required.
-3. Fix capture or protocol compatibility when an observation is unsupported or mismatched.
-4. Record a new run and analyze the new sealed bundle.
+1. Confirm plan, realization, case, attempt, and evidence identities agree.
+2. Confirm the required participant and capability were admitted.
+3. Confirm observations reached the requested proof strength.
+4. Confirm lifecycle and integrity facts support the claim's proof burden.
+5. Compare only eligible matching facts with the accepted cardinality.
 
-Unsupported capture and mismatches fail. A valid normalized observation that matches no required or forbidden clause remains evidence and is not a contract failure.
+Evidence from another retry, sequence member, service instance, or undeclared realization cannot complete the claim.
 
-## What To Report If It Still Fails
+## Repair the Right Owner
 
-1. The scenario or flow ID.
-2. The required or forbidden effect that failed.
-3. The normalized observation and accepted contract clause.
-4. The bundle integrity, protocol, runner, and capture versions.
+- Repair implementation when the accepted claim is still correct and eligible evidence contradicts it.
+- Repair capture or lifecycle when evidence cannot support the requested conclusion.
+- Return a proposed catalog, claim, or policy change to a person for approval.
+- Run a fresh managed-capture attempt after implementation, alignment, or runtime repair.
+
+Reanalysis may reproduce a finding from unchanged accepted inputs and sealed evidence. It cannot prove a repaired execution happened.
+
+## See Also
+
+- [Effects Catalog Contract](/docs/blackbox/reference/catalog-schema)
+- [Effect Claim Evaluation](/docs/blackbox/reference/matchers-and-effect-builders)
+- [Capture Lifecycle and Correlation](/docs/blackbox/reference/capture-lifecycle-and-correlation)

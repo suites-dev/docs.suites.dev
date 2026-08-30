@@ -1,91 +1,111 @@
 ---
-title: "Add Readable Behavior Specifications"
-description: "Generate reviewed Gherkin from passing system tests and keep readable behavior aligned with executable flows."
+title: "Align Gherkin and the Executable Suite"
+description: "Keep approved Gherkin, generated binding contracts, and the project-owned system suite aligned before runtime verification."
 sidebar_position: 10
-keywords: ["existing system tests", "Gherkin recovery", "suite alignment"]
+keywords:
+  [
+    "Gherkin suite alignment",
+    "Blackbox binding contract",
+    "Playwright system test",
+    "behavior drift",
+  ]
 ---
 
-Use this guide after a Playwright system flow passes and you want readable Gherkin for review, traceability, or agent context. Gherkin is optional for runtime verification; it does not replace the executable test or runtime evidence.
+import Aside from "@/components/mdx/Aside.astro";
 
-If you have no system test yet, use [Quickstart Step 1B](/docs/blackbox/quickstart/start-without-test) instead. That route starts from plain-language intent and creates the test shell before connecting the application.
+Suppose an approved checkout scenario changes from “one charge request” to “no more than one charge request,” but the Playwright suite still implements the earlier contract. Blackbox must expose that mismatch before runtime evidence can be treated as proof of the new intent.
 
-If you want a coding agent to review the generated Gherkin, [install the Blackbox Skills first](/docs/blackbox/guides/agent-skills). The deterministic CLI steps work without a Skill.
+Use this guide whenever approved Gherkin, step bindings, effect claims, or the executable system suite changes.
 
-## 1. Discover Existing Flows
+<Aside type="info" title="Alpha Target">
+  This page describes the accepted Alpha 3 alignment workflow. The final public
+  commands, generated filenames, and package APIs are not committed here.
+</Aside>
 
-```bash
-pnpm exec blackbox suites discover ./e2e --json
-```
-
-Resolve missing IDs, duplicate IDs, multiple flows in one file, and mismatched file stems before continuing.
-
-## 2. Emit Baseline Gherkin
-
-```bash
-pnpm exec blackbox features emit ./e2e --out ./baseline --json
-```
-
-The baseline represents executable structure. It cannot recover product intent that is absent from the test.
-
-Ask `$blackbox-gherkin` to review the baseline against the suite and known behavior. Move the accepted feature beside the effect contract:
+## Keep the Alignment Directional
 
 ```text
-e2e/features/subscribe-user.feature
-e2e/features/subscribe-user.effects.yaml
-e2e/subscribe-user.system.test.ts
+approved Gherkin
+  -> SuitePlan
+  -> generated type and runtime binding contracts
+  -> project-owned Playwright suite
+  -> RunnerBundle
+  -> selectable RunPlan
 ```
 
-## 3. Review the Feature
+Gherkin carries approved human intent. The generated contracts guide and check the executable suite. Neither the suite nor the generated artifacts may redefine the accepted meaning in the SuitePlan.
 
-```gherkin
-@flow:subscribe-user
-Feature: Subscribe a user
+## 1. Review the Gherkin Change
 
-  Scenario: Unknown user is rejected
-    When the client subscribes an unknown user
-    Then the response status is 404
-```
+Start with one concrete case and confirm that a person accepts:
 
-Keep the same `@flow:` token in the feature and Playwright test. Improve wording, but do not invent unverified behavior merely to make the scenario look complete.
+- The scenario and examples.
+- The required and forbidden effect claims.
+- Any ordering, shared-state, or comparison relationship.
+- The policy that determines success.
 
-## 4. Align and Check
+Formatting, comments, and presentation order may change without changing accepted meaning. A changed outcome, claim, case, or topology relationship must produce new SuitePlan identity.
 
-Preview structural alignment:
+## 2. Compile the Accepted Intent
 
-```bash
-pnpm exec blackbox suites align \
-  e2e/features/subscribe-user.feature \
-  --suite e2e/subscribe-user.system.test.ts \
-  --json
-```
+Blackbox compiles approved Gherkin and its accepted declarations into a SuitePlan. Compilation must resolve every concrete scenario or Examples row, instruction binding, claim, contract, and topology relationship exactly once.
 
-Apply the reviewed transformation:
+Stop when compilation reports missing or ambiguous meaning. A coding agent may propose a correction, but only a person can approve a change to intent or policy.
 
-```bash
-pnpm exec blackbox suites align \
-  e2e/features/subscribe-user.feature \
-  --suite e2e/subscribe-user.system.test.ts \
-  --write \
-  --json
-```
+## 3. Use the Generated Contracts as Feedforward
 
-The aligned Playwright suite retains its tagged native structure and places accepted clauses in `test.step()` blocks. Application actions and assertions remain project-owned.
+The compiler projects the accepted plan into generated artifacts that constrain the system suite:
 
-```bash
-pnpm exec blackbox suites check ./e2e --json
-```
+- A type contract exposes the accepted cases, instructions, claims, and required fixtures.
+- A runtime registration binds the suite to the exact accepted plan identity.
+- A plan projection carries the accepted semantic inputs into later runner lowering.
 
-## 5. Add Requirements Only When Needed
+These artifacts provide feedforward guidance. The later typecheck, collection, lowering, and selection checks provide feedback. Regenerate generated artifacts from accepted inputs instead of editing them as a second source of meaning.
 
-If the feature binds to `@requirement:<id>` tags, validate the requirement corpus and its relationships:
+## 4. Implement or Repair the Playwright Suite
 
-```bash
-pnpm exec blackbox requirements validate ./requirements --json
-pnpm exec blackbox features check ./e2e/features --requirements ./requirements --json
-pnpm exec blackbox requirements check ./requirements --tests ./e2e --json
-pnpm exec blackbox requirements drift ./requirements --tests ./e2e --json
-```
+The project-owned suite supplies real actions and native assertions for each accepted case. A coding agent can implement or repair this realization while the generated type contract keeps its identities and bindings aligned.
 
-## Result
+The suite is not ready when it contains an empty body, unresolved action, missing assertion, skipped accepted case, or untyped binding.
 
-You have a passing native flow and a reviewed readable projection joined by one stable ID. Run `features check` and `suites check` whenever either artifact changes so the documentation stays tied to executable behavior.
+## 5. Check the Complete Binding
+
+Before runtime execution, Blackbox checks the alignment in order:
+
+1. Typecheck the generated contract and project-owned suite together.
+2. Collect the declared Playwright target without executing test bodies.
+3. Confirm exactly one runnable binding for every selected case.
+4. Lower those bindings into a RunnerBundle.
+5. Select a non-empty RunPlan from the accepted cases and declared realization.
+
+Collection evaluates test modules, so project setup must remain safe during discovery. Passing native tests does not replace this alignment check.
+
+## Read the Expected Result
+
+Alignment is ready for runtime when:
+
+- Every selected accepted case has exactly one runnable test.
+- Every required action, oracle, claim, and topology relation is bound.
+- No missing, extra, duplicate, redirected, stale, or foreign identity remains.
+- The SuitePlan and RunnerBundle identities match.
+- A RunPlan can select the complete declared execution unit.
+
+If a check fails, repair the earliest invalid stage and repeat the downstream checks. [Use the alignment failure guide](/docs/blackbox/troubleshooting/feature-drift) to choose the repair owner.
+
+## Rerun After an Alignment Change
+
+Repeat alignment when any of these inputs changes:
+
+- Approved Gherkin or effect claims.
+- Step bindings, decoders, contracts, fixtures, or topology declarations.
+- Playwright actions, assertions, registration, or target configuration.
+- Generated type, runtime, or plan artifacts.
+- Runner adapter or compiler identity.
+
+If the earlier version already ran, start a fresh runtime execution. Evidence remains pinned to the exact plan and realization that produced it.
+
+## Next Steps
+
+- [Alignment Checks and Blocking Conditions](/docs/blackbox/reference/alignment-checks): Look up which phase owns each mismatch.
+- [Plans and Realizations](/docs/blackbox/reference/plans-and-realizations): Distinguish accepted meaning, runner realization, and run selection.
+- [How Blackbox Works](/docs/blackbox/overview/how-blackbox-works): Continue from alignment into managed capture and deterministic findings.

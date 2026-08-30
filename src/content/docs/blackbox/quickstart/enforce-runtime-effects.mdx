@@ -1,114 +1,91 @@
 ---
-title: "4. Approve Effect Policy and Read ODC"
-description: "Approve required and forbidden runtime behavior, derive verdicts from sealed evidence, interpret ODC, and close the repair loop."
+title: "4. Approve Effect Claims and Read Findings"
+description: "Approve the system effects that matter, read bounded findings from sealed evidence, and keep ODC separate."
 sidebar_position: 5
 keywords:
   [
-    "Blackbox effect verdict",
-    "offline analysis",
+    "Blackbox effect claims",
+    "effect findings",
+    "sealed evidence",
     "observable decision coverage",
-    "agent repair loop",
   ]
 ---
 
-Step 3 recorded facts. This step decides which facts express behavior the team intends to protect, then applies that reviewed policy to the immutable run.
+import Aside from "@/components/mdx/Aside.astro";
 
-## 1. Approve the Effect Policy
+Step 3 captured what the running system did. This step decides which effects express behavior the team intends to protect.
 
-An **effect contract** lists runtime actions that must happen and actions that must not happen. For this flow, require the user lookup and forbid a payment request:
+<Aside type="info" title="Alpha Target">
+  Effect semantics are the committed core. The public catalog and claim syntax,
+  execution commands, report format, and certified support matrix are not
+  frozen. This step documents the review workflow without inventing them.
+</Aside>
 
-```yaml title="e2e/features/subscribe-user.effects.yaml"
-specVersion: "0.1"
-flow: subscribe-user
+## 1. Name the Effects That Matter
 
-requires:
-  - { boundary: postgres, op: SELECT, key: users, service: api }
+For the unknown-user case, the accepted response is `404`. The hidden behavior also matters:
 
-forbids:
-  - { boundary: http, op: POST, key: /v1/payment_intents, service: api }
+| Effect intent                  | Accepted claim |
+| ------------------------------ | -------------- |
+| `user-record-read`             | At least once. |
+| `payment-charge-request`       | Exactly zero.  |
+| `subscription-record-written`  | Exactly zero.  |
+| `subscription-order-published` | Exactly zero.  |
+
+Use catalog vocabulary to name portable effects. Do not couple accepted claims to raw span names, trace IDs, or incidental attributes.
+
+[See what the Effects Catalog contract owns](/docs/blackbox/reference/catalog-schema).
+
+## 2. Approve Claims Per Concrete Case
+
+Review each presence, absence, or cardinality claim as product policy. Do not copy every observed effect into the accepted target.
+
+The known-user and unknown-user cases may share catalog vocabulary while accepting different claims. Keep those policies attached to their concrete cases instead of weakening one flow-wide rule.
+
+Changes to accepted claims return to a person. A coding agent may explain observed behavior and propose a repair, but it cannot approve a new success condition.
+
+## 3. Analyze the Sealed Attempt
+
+The Analyzer compares the approved claim with eligible matching facts from the same sealed attempt. It preserves separate results for:
+
+- The native system test.
+- Evidence integrity.
+- Each effect claim.
+- Optional ODC analysis.
+
+A planned report can connect those results, but one result does not rewrite another.
+
+```text title="Illustrative report"
+CASE unknown user is rejected
+  native test        satisfied
+  evidence integrity eligible
+  user-record-read   satisfied   observed 1
+  payment request    violated    observed 1, expected exactly 0
+  ODC                separate Alpha finding
 ```
 
-Review this file as policy. Do not copy every observation into it.
+The report format above is illustrative. [See the current report contract boundary](/docs/blackbox/reference/report-formats).
 
-This contract contains rules shared by both attempts. The successful attempt's `INSERT subscriptions` remains useful decision evidence, but it is not required for the unknown-user attempt. Protect behavior that applies to only one case with a separately scoped flow or policy rather than weakening the meaning of `requires`.
+## 4. Let Evidence Bound the Result
 
-## 2. Analyze Without Mutating the Run
+One observed forbidden payment request is enough to establish a violation. Zero observed payment requests establish satisfaction only when the required capture scope is complete.
 
-```bash
-pnpm exec blackbox analyze --run latest
-```
+[Look up the cardinality and completeness rules](/docs/blackbox/reference/matchers-and-effect-builders).
 
-The original evidence remains sealed. Blackbox writes a derived analysis result that identifies both inputs:
+## 5. Repair Without Redefining Success
 
-```text
-evidence  sha256:7b1c…
-policy    sha256:95af…
+If the unknown-user case returns `404` but still requests payment, the coding agent repairs the implementation and runs the same accepted case again with fresh capture.
 
-FLOW subscribe-user
-  tests       PASS    2 attempts
-  integrity   PASS    capture complete
-  effects     PASS    required and forbidden policy satisfied
-  ODC         REPORT  user-exists outcomes produced distinct evidence
-```
+Changes to Gherkin, claims, lifecycle requirements, isolation, or gate policy return to human review because they change the target or proof burden.
 
-Changing the contract creates a new policy digest and derived result; it does not rewrite what the application did. The next `blackbox test` run snapshots the accepted policy alongside its new evidence.
+## 6. Read ODC Separately
 
-## 3. Read ODC as a Separate Signal
+Observable Decision Coverage asks whether exercised decision outcomes produced distinguishable effect signatures. It cannot change the native result or an ordinary effect finding.
 
-**Observable decision coverage (ODC)** compares the effect signatures associated with exercised decision outcomes. The report for this flow can show:
-
-```text
-DECISION user-exists
-  known-user    SELECT users → INSERT subscriptions
-  unknown-user  SELECT users
-  result        PROPAGATING
-```
-
-`PROPAGATING` means the two outcomes produced distinguishable effects. Other results are:
-
-- **Masking candidate:** both outcomes ran but their effect signatures matched.
-- **Coverage gap:** only part of the decision was exercised.
-- **Undecidable:** the available evidence cannot support a sound comparison.
-
-A passing effect contract does not imply strong ODC, and a propagating decision does not prove that its behavior is correct.
-
-## 4. Repair Without Redefining Success
-
-Suppose the unknown-user attempt returns `404` but still calls the payment provider:
-
-```text
-FLOW subscribe-user
-  tests       PASS
-  integrity   PASS
-  effects     FAIL
-
-  forbidden effect observed
-  http POST /v1/payment_intents service=api
-```
-
-The coding agent changes implementation and reruns the same accepted flow until the forbidden effect disappears.
-
-```text
-finding → repair implementation → blackbox test → new sealed evidence
-```
-
-Changes to the native assertion, flow identity, reviewed feature, effect contract, application lifecycle, isolation configuration, or ODC gate return to human review because they redefine success.
-
-## 5. Gate ODC Only After Review
-
-The Quickstart reports ODC first. When the team accepts this decision as a merge gate, make the policy explicit:
-
-```ts title="blackbox.config.ts"
-analysis: {
-  effects: "check",
-  odc: "check",
-}
-```
-
-Keep ODC report-only while the team is still deciding which decision outcomes must remain observably different.
+ODC is an Alpha target. Keep it report-only until its accepted policy and support cell deliberately make it a gate.
 
 ## Result
 
-You completed both Blackbox loops with one stable flow: readable intent aligned to a passing system test, sealed runtime evidence, an approved effect verdict, an ODC report, and a bounded implementation-repair loop.
+You have one approved case, explicit effect claims, sealed runtime evidence, deterministic findings, and a bounded implementation-repair loop.
 
 Continue with [Add Blackbox to CI](/docs/blackbox/guides/reports-and-ci-gates).

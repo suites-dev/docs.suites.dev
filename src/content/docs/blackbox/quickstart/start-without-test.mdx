@@ -1,124 +1,66 @@
 ---
 title: "1B. Start Without a Test"
-description: "Start with one behavior in human language and turn it into the same reviewed subscribe-user Playwright flow used by the Quickstart."
+description: "Approve one Gherkin behavior, compile its binding contracts, and implement the project-owned system test."
 sidebar_position: 3
 keywords:
-  ["spec-driven development", "EARS requirements", "Gherkin system test"]
+  ["Gherkin system test", "specification-driven development", "agentic testing"]
 ---
 
-Start here when you have an application behavior but no system or E2E test yet. A coding agent can propose the structured artifacts and test shell; a person approves their meaning before implementation begins.
+import Aside from "@/components/mdx/Aside.astro";
 
-This route produces the same `subscribe-user.feature`, `subscribe-user.system.test.ts`, and `@flow:subscribe-user` identity as Step 1A.
+Start here when the team knows the intended behavior but has no system or E2E test for it yet. A coding agent can propose the scenario and implementation, while a person approves the intent before runtime verification begins.
 
-## Install Blackbox
+<Aside type="info" title="Alpha Target">
+  The Gherkin-to-suite compiler and generated binding workflow are Alpha 3
+  targets. Public commands, filenames, and package APIs are not frozen here.
+</Aside>
 
-Install the public facade, CLI, and Playwright:
+## 1. Write One Reviewable Scenario
 
-```bash
-pnpm add -D @suites/blackbox @suites/blackbox-cli @playwright/test
+Express the behavior in Gherkin before implementing the system test:
+
+```gherkin
+Scenario: Reject an unknown user without creating downstream work
+  When an unknown user submits a subscription request
+  Then the response status is 404
+  And no payment charge is requested
+  And no subscription record is written
 ```
 
-Keep all `@suites/blackbox*` packages on the same version.
+Keep the scenario focused on public behavior and consequential effects. Do not encode Playwright details, service topology, or telemetry structure into the prose.
 
-If you want a coding agent to propose the requirement and Gherkin, [install the Blackbox Skills first](/docs/blackbox/guides/agent-skills). You can also author and review both artifacts directly.
+## 2. Approve the Intent and Claims
 
-## 1. Structure the Behavior for Review
+A person approves:
 
-**EARS**—Easy Approach to Requirements Syntax—turns ordinary product intent into small, reviewable requirements. It is optional when your team already has an accepted Gherkin scenario, but this Quickstart uses it to demonstrate the complete alignment loop.
+- The concrete case and stable identity.
+- The visible outcome.
+- Required and forbidden effect claims.
+- Any ordering, shared-state, or comparison relationship.
+- The analysis policy that determines success.
 
-Give `$blackbox-requirements` the goal or write these requirements directly:
+A coding agent may propose these inputs. It cannot accept its own interpretation as product intent.
 
-```text title="requirements/subscriptions.ears"
-REQ-001: When a known user submits a subscription request, the API shall respond with 201.
-REQ-002: When an unknown user submits a subscription request, the API shall respond with 404.
-REQ-003: When an unknown user submits a subscription request, the API shall not call the payment provider.
-```
+## 3. Compile the Binding Contracts
 
-```bash
-pnpm exec blackbox requirements validate ./requirements --json
-```
+Blackbox compiles the approved Gherkin into a SuitePlan. It projects generated type and runtime binding contracts that guide the project-owned Playwright suite.
 
-Validation proves structure. A person approves what the requirements mean.
+Compilation must resolve every scenario, instruction, claim, contract, and topology relationship exactly once. Missing or ambiguous meaning stops before suite implementation or runtime work can be treated as assurance.
 
-## 2. Generate and Review Gherkin
+## 4. Implement the System Suite
 
-**Gherkin** expresses the approved behavior as readable scenarios:
+Use the generated type contract as feedforward for the test implementation. Add the real application actions and native assertions required by the accepted case.
 
-```bash
-pnpm exec blackbox features generate \
-  requirements/subscriptions.ears \
-  --flow subscribe-user \
-  --description "subscribing known and unknown users" \
-  --requirement REQ-001 \
-  --requirement REQ-002 \
-  --requirement REQ-003 \
-  --out e2e/features \
-  --write \
-  --json
-```
+The agent can repair the suite until it typechecks and binds exactly. Changes to Gherkin, effect claims, or policy return to a person.
 
-Ask `$blackbox-gherkin` to review the proposal. A person accepts the final wording and flow identity:
+## 5. Close the Alignment Gates
 
-```gherkin title="e2e/features/subscribe-user.feature"
-@flow:subscribe-user
-Feature: Subscribe a user
+Blackbox checks the generated contract and suite together, collects the declared runner target, lowers one exact RunnerBundle, and selects a non-empty RunPlan.
 
-  @requirement:REQ-001
-  Scenario: Known user is subscribed
-    When the client subscribes user "alice"
-    Then the response status is 201
+The alignment is ready when no missing, extra, duplicate, redirected, stale, foreign, empty, or skipped relation remains.
 
-  @requirement:REQ-002 @requirement:REQ-003
-  Scenario: Unknown user is rejected
-    When the client subscribes user "ghost"
-    Then the response status is 404
-    And the payment provider is not called
-```
-
-```bash
-pnpm exec blackbox features check ./e2e/features --requirements ./requirements --json
-```
-
-## 3. Generate the Playwright Shell
-
-```bash
-pnpm exec blackbox suites generate \
-  e2e/features/subscribe-user.feature \
-  --out e2e \
-  --write \
-  --json
-```
-
-Blackbox generates the shared tagged structure and visible TODO bodies:
-
-```ts title="e2e/subscribe-user.system.test.ts"
-import { expect, test } from "@playwright/test";
-
-test.describe("subscribe user", { tag: "@flow:subscribe-user" }, () => {
-  test("known user is subscribed", async ({ request }) => {
-    // TODO: submit a subscription for "alice".
-    // TODO: assert that the response status is 201.
-  });
-
-  test("unknown user is rejected", async ({ request }) => {
-    // TODO: submit a subscription for "ghost".
-    // TODO: assert that the response status is 404.
-  });
-});
-```
-
-The generator creates the accepted structure, not working application code. Step 2 connects the application and replaces these TODOs with the real request and visible assertions.
-
-## 4. Check the Alignment
-
-```bash
-pnpm exec blackbox requirements check ./requirements --tests ./e2e --json
-pnpm exec blackbox requirements drift ./requirements --tests ./e2e --json
-pnpm exec blackbox suites check ./e2e --json
-```
-
-Expected result: the requirements, feature, and Playwright shell all report the same `subscribe-user` flow identity.
+[See the exact blocking conditions](/docs/blackbox/reference/alignment-checks).
 
 ## Result
 
-You have the same reviewed feature and two-attempt Playwright shell used by the rest of the Quickstart. Continue with [Step 2: Connect Your Application](/docs/blackbox/quickstart/add-to-existing-test), complete the application-specific TODOs, and run until the native test reports `2 passed`.
+You have one approved behavior and one declared executable realization. Continue with [Step 2: Connect Your Application](/docs/blackbox/quickstart/add-to-existing-test).

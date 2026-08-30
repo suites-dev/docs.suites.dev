@@ -182,7 +182,7 @@ const sidebar: SidebarConfig = {
           href: "/docs/blackbox/quickstart/add-runtime-evidence",
         },
         {
-          label: "4. Approve Effect Policy and Read ODC",
+          label: "4. Approve Effect Claims and Read Findings",
           href: "/docs/blackbox/quickstart/enforce-runtime-effects",
         },
       ],
@@ -228,7 +228,7 @@ const sidebar: SidebarConfig = {
           href: "/docs/blackbox/guides/playwright-isolation-and-parallelism",
         },
         {
-          label: "Add Readable Behavior Specifications",
+          label: "Align Gherkin and the Executable Suite",
           href: "/docs/blackbox/guides/recover-behavior-from-existing-tests",
         },
         {

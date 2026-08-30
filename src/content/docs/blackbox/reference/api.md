@@ -19,7 +19,6 @@ Normal projects configure Blackbox through `@suites/blackbox` and `@suites/black
 | ----------------------------- | -------------------------------------------------------------------------------- |
 | `@suites/blackbox`            | Configuration, effects, and analysis facade                                      |
 | `@suites/blackbox/playwright` | `blackboxPlaywright()` and `createBlackboxTest()`                                |
-| `@suites/blackbox/effects`    | Effect-contract types and helpers                                                |
 | `@suites/blackbox-cli`        | `test`, `analyze`, static specifications, flows, project diagnostics, and Skills |
 
 Most users do not import any lower-level package.
@@ -59,4 +58,4 @@ The CLI and public facade configure the runtime. Runner adapters, provisioners, 
 ## See Also
 
 - [Configuration](/docs/blackbox/reference/configuration)
-- [Runtime Evidence](/docs/blackbox/concepts/runtime-evidence)
+- [Runtime Evidence and Integrity](/docs/blackbox/concepts/runtime-evidence)

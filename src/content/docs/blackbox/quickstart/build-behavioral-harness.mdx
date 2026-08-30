@@ -1,108 +1,65 @@
 ---
 title: "1A. Start From an Existing Test"
-description: "Keep one passing system or E2E test, give it a stable flow identity, and emit readable behavior for review."
+description: "Use one existing system test to recover a Gherkin proposal, approve the intent, and align its executable realization."
 sidebar_position: 2
-keywords: ["Blackbox behavioral harness", "flow ID", "Playwright system test"]
+keywords: ["existing system test", "Gherkin proposal", "Playwright alignment"]
 ---
 
-Start here when you already have a passing Playwright system or E2E test. Keep its working action and assertion, assign one stable `@flow:<id>`, then generate a readable behavior proposal from the executable flow.
+import Aside from "@/components/mdx/Aside.astro";
 
-If you do not have a system test yet, use [Step 1B: Start Without a Test](/docs/blackbox/quickstart/start-without-test).
+Start here when you already have a system or E2E test for consequential behavior. The test shows how the system currently runs, but it does not become approved intent automatically.
 
-## 1. Install Blackbox
+If no system test exists, use [Step 1B: Start Without a Test](/docs/blackbox/quickstart/start-without-test).
 
-Install the public facade, CLI, and Playwright:
+<Aside type="info" title="Alpha Target">
+  The Gherkin-to-suite alignment workflow is accepted for Alpha 3. Public
+  commands, generated filenames, and package APIs are not frozen here.
+</Aside>
 
-```bash
-pnpm add -D @suites/blackbox @suites/blackbox-cli @playwright/test
+## 1. Choose One Consequential Test
+
+Use a case whose hidden behavior matters, such as rejecting an unknown subscriber without charging them.
+
+Confirm that the native test passes before using it as recovery evidence. A green response assertion does not prove that the system avoided forbidden downstream work.
+
+## 2. Recover a Gherkin Proposal
+
+Read the existing test, known product intent, and observed runtime behavior. Draft one readable scenario:
+
+```gherkin
+Scenario: Reject an unknown user without creating downstream work
+  When an unknown user submits a subscription request
+  Then the response status is 404
+  And no payment charge is requested
 ```
 
-Keep all `@suites/blackbox*` packages on the same version.
+Treat the draft as a proposal. A person reviews the scenario, concrete case identity, effect claims, and success policy before Blackbox compiles them.
 
-## 2. Choose One Consequential Flow
+Do not infer accepted meaning only from test titles, source order, or what the current implementation happens to do.
 
-Use a flow whose hidden behavior matters. This example checks both outcomes of the user-exists decision.
+## 3. Compile the Approved Intent
 
-```ts title="e2e/subscribe-user.system.test.ts"
-import { expect, test } from "@playwright/test";
+Blackbox compiles the approved Gherkin into a SuitePlan and projects generated type and runtime binding contracts for the executable suite.
 
-test.describe("subscribe user", { tag: "@flow:subscribe-user" }, () => {
-  test("known user is subscribed", async ({ request }) => {
-    const response = await request.post("/subscriptions", {
-      data: { userId: "alice" },
-    });
+Compilation stops when a scenario, Examples row, instruction, claim, contract, or topology relationship is missing or ambiguous.
 
-    expect(response.status()).toBe(201);
-  });
+## 4. Align the Existing Suite
 
-  test("unknown user is rejected", async ({ request }) => {
-    const response = await request.post("/subscriptions", {
-      data: { userId: "ghost" },
-    });
+Repair the project-owned test against the generated type contract. Preserve its real actions and native assertions while binding them to the exact accepted case and claims.
 
-    expect(response.status()).toBe(404);
-  });
-});
-```
+The suite is ready only when every accepted case has one complete runnable realization. Empty, skipped, stale, redirected, or duplicate bindings block runtime verification.
 
-The flow ID is an identity, not prose. Keep `subscribe-user` stable when descriptions change.
+## 5. Read the Alignment Result
 
-## 3. Confirm the Native Test Passes
+Before continuing, confirm that:
 
-Run the test with the command your project already uses:
+- The approved Gherkin produced one stable concrete case.
+- The generated contract and project-owned test agree.
+- Runner collection finds exactly one declared realization.
+- A RunnerBundle can be lowered and a non-empty RunPlan selected.
 
-```bash
-pnpm exec playwright test e2e/subscribe-user.system.test.ts
-```
-
-Expected result:
-
-```text
-2 passed
-```
-
-The assertions prove the visible responses. They do not yet prove what the application did behind those responses.
-
-## 4. Generate and Review Readable Behavior
-
-The runtime loop does not require Gherkin. This Quickstart includes one feature so you can experience the behavior-alignment loop before runtime capture.
-
-Emit a proposal from the executable suite:
-
-```bash
-pnpm exec blackbox features emit ./e2e --out ./e2e/features
-```
-
-Review the generated behavior:
-
-```gherkin title="e2e/features/subscribe-user.feature"
-@flow:subscribe-user
-Feature: Subscribe a user
-
-  Scenario: Known user is subscribed
-    When the client subscribes user "alice"
-    Then the response status is 201
-
-  Scenario: Unknown user is rejected
-    When the client subscribes user "ghost"
-    Then the response status is 404
-```
-
-Generated wording is a proposal, not accepted product intent. Edit it until a person agrees that it describes the executable behavior without exposing implementation detail.
-
-## 5. Check the Alignment
-
-```bash
-pnpm exec blackbox features check ./e2e/features --json
-pnpm exec blackbox suites check ./e2e --json
-```
-
-Expected result: both commands exit successfully and report one aligned `subscribe-user` flow. The feature and Playwright test use the same stable identity.
-
-For bulk recovery, alignment writes, requirement binding, and drift handling, use [Add Readable Behavior Specifications](/docs/blackbox/guides/recover-behavior-from-existing-tests) after the Quickstart.
+[Use the full alignment guide](/docs/blackbox/guides/recover-behavior-from-existing-tests) when a check fails.
 
 ## Result
 
-You have one passing Playwright flow and one reviewed readable feature joined by `@flow:subscribe-user`. The behavior-alignment loop is ready to enter runtime verification.
-
-Continue with [Step 2: Connect Your Application](/docs/blackbox/quickstart/add-to-existing-test).
+You have approved Gherkin and one aligned executable realization. Continue with [Step 2: Connect Your Application](/docs/blackbox/quickstart/add-to-existing-test).
