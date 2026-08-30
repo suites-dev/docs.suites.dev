@@ -20,8 +20,10 @@ seo:
 ---
 
 import CheckoutVerificationLoop from "@/components/blackbox/CheckoutVerificationLoop.astro";
+import CheckoutGherkinReport from "@/components/blackbox/CheckoutGherkinReport.astro";
+import TextLink from "@/components/ui/primitives/TextLink.astro";
 
-**Blackbox automatically turns product requirements into system and E2E tests. It verifies not only whether they pass, but also runtime effects revealed by traces, then guides coding agents to fix behavior that does not match the requirements.**
+**Blackbox automatically turns product requirements into system and E2E tests. It verifies not only whether they pass, but also runtime effects revealed by traces, then returns deterministic findings that guide coding agents to fix behavior that does not match the requirements.**
 
 <CheckoutVerificationLoop />
 
@@ -32,21 +34,28 @@ The E2E test passes, but the runtime effects show that the customer could be cha
 
 ## From Product Requirements to E2E Tests
 
-Blackbox expresses the product requirement in **Gherkin**, a readable behavior specification. A Blackbox Skill helps the coding agent propose it, but a person reviews and approves it before the agent creates the executable test. [See how Blackbox Skills guide coding agents without deciding the result](/docs/blackbox/guides/agent-skills#know-what-computes-each-result).
+The opening checkout flow compresses one important step. Before the coding agent creates `checkout.e2e.spec.ts`, a Blackbox Skill helps it turn the product requirement into a proposed <TextLink href="https://cucumber.io/docs/gherkin/reference/" target="_blank" rel="noopener noreferrer"><strong>Gherkin</strong></TextLink> `.feature` file. A person reviews and approves that behavior before it guides the executable test.
 
 ```gherkin title="features/checkout.feature"
-Scenario: Do not charge twice
-  When checkout completes
-  Then no more than one charge request is sent
+Feature: Checkout
+  Scenario: Complete checkout
+    When checkout completes
+    Then no more than one charge request is sent
 ```
 
-The approved scenario guides implementation and verification. Runtime behavior cannot rewrite it, and only a person can change what success means.
+<CheckoutGherkinReport />
+
+In the opening example, this approved scenario is why two charge requests fail even when the E2E assertion returns `201 Created`. The finding sends the implementation back for repair without changing the approved behavior.
+
+[See how Blackbox Skills guide coding agents without deciding the result](/docs/blackbox/guides/agent-skills#know-what-computes-each-result).
 
 ## Why Blackbox?
 
 Coding agents can generate implementations and tests faster than people can verify them. When one agent derives both from the same interpretation, the code and test can share the same blind spot. This creates a **verification bottleneck**: pull requests arrive faster than people can assess runtime behavior, while green tests can still hide missing or forbidden work.
 
-Harness engineering addresses this bottleneck by surrounding the agent with guidance and feedback. Blackbox makes the behavioral feedback independent of the agent's judgment. [See how people, coding agents, Skills, and Blackbox share this verification loop](/docs/blackbox/concepts/human-agent-verification-loop).
+Harness engineering addresses this bottleneck by surrounding the agent with guidance and feedback. Blackbox makes the behavioral feedback independent of the agent's judgment.
+
+[See how people, coding agents, Skills, and Blackbox share this verification loop](/docs/blackbox/concepts/human-agent-verification-loop).
 
 ## Who Blackbox is For?
 
@@ -55,7 +64,9 @@ Blackbox is for teams that:
 - Run system and E2E tests across real service boundaries.
 - Use coding agents such as Claude Code and Codex in autonomous or semi-autonomous engineering loops.
 
-Teams can use the same accepted behavior in local repair loops and CI. [See how Blackbox becomes a CI gate](/docs/blackbox/guides/reports-and-ci-gates#add-the-runtime-gate).
+Teams can use the same accepted behavior in local repair loops and CI.
+
+[See how Blackbox becomes a CI gate](/docs/blackbox/guides/reports-and-ci-gates#add-the-runtime-gate).
 
 ## Verify Runtime Effects
 
