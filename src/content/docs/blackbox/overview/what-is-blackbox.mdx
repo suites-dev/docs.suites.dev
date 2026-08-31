@@ -1,41 +1,62 @@
 ---
 title: "What is Blackbox?"
-description: "Blackbox turns product requirements into system and E2E tests, verifies runtime effects revealed by traces, and guides coding agents toward repair."
+description: "Blackbox turns product requirements into system tests, verifies runtime effects revealed by
+traces, and guides coding agents toward repair."
 sidebar_position: 1
 keywords:
   [
     "behavior harness",
     "behavioral verification",
     "coding agent verification",
-    "E2E test generation",
+    "system test generation",
     "runtime evidence",
     "runtime effects",
     "Suites Blackbox",
   ]
 seo:
   primary_keyword: "behavioral verification"
-  secondary_keywords: ["E2E test generation", "runtime effects"]
-  search_intent: "developers evaluating specification-driven E2E tests with runtime behavioral verification"
+  secondary_keywords: ["system test generation", "runtime effects"]
+  search_intent: "developers evaluating specification-driven system tests with runtime behavioral verification"
   snippet_angle: "turn approved product requirements into system tests, verify runtime effects, and guide coding-agent repair"
 ---
 
 import CheckoutVerificationLoop from "@/components/blackbox/CheckoutVerificationLoop.astro";
 import TextLink from "@/components/ui/primitives/TextLink.astro";
 
-**Suites Blackbox provides behavioral verification for software developed with coding agents. It turns human-approved product requirements into system and E2E tests, verifies the running system's effects from OpenTelemetry traces, and returns deterministic findings that guide repair without letting the agent redefine success.**
+**Suites Blackbox provides a verification layer for software developed with coding agents.**
+
+It turns product intent into system tests and captures runtime telemetry as those tests run.
+
+Where a traditional system test checks the visible output, Blackbox turns telemetry from databases, APIs, queues,
+caches, and other system boundaries into evidence of the behavior behind that output. It then produces deterministic
+findings.
+
+Humans approve the intended behavior, while agents use those findings to repeatedly repair the implementation against
+the same accepted target, without changing what success means.
 
 <CheckoutVerificationLoop />
 
 The coding agent loads `@blackbox-gherkin` to propose an executable checkout scenario. A person approves that behavior before the agent creates the test or changes the implementation.
 
-The first E2E run returns `201 Created`, but Blackbox observes two charge requests. The agent uses the deterministic finding to repair the implementation, then runs the same locked behavior again.
+The first system run returns `201 Created`, but Blackbox observes two charge requests. The agent uses the deterministic
+finding to repair the implementation, then runs the same locked behavior again.
 
 - **For people:** The result shows what happened inside the running system, not only what the test returned.
 - **For coding agents:** The finding identifies what to repair while the approved requirement remains fixed.
 
-## From Product Requirements to systen Tests
+## From Product Requirements to System Tests
 
-The `@blackbox-gherkin` Skill turns the product requirement into a proposed <TextLink href="https://cucumber.io/docs/gherkin/reference/" target="_blank" rel="noopener noreferrer"><strong>Gherkin</strong></TextLink> `.feature` file. A person approves the scenario and its effect claim before either can guide implementation.
+The `@blackbox-gherkin` Skill turns the product requirement into a proposed
+
+<TextLink
+  href="https://cucumber.io/docs/gherkin/reference/"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  <strong>Gherkin</strong>
+</TextLink>
+`.feature` file. A person approves the scenario and its effect claim before
+either can guide implementation.
 
 The agent then runs `blackbox test` to execute the flow and seal runtime evidence. When the first run finds two charge requests, `blackbox analyze --run latest` reproduces the finding from that sealed evidence without restarting the application. The implementation changes; the approved feature does not.
 
@@ -53,7 +74,7 @@ Harness engineering addresses this bottleneck by surrounding the agent with guid
 
 Blackbox is for teams that:
 
-- Run system and E2E tests across real service boundaries.
+- Run system tests across real service boundaries.
 - Use coding agents such as Claude Code and Codex in autonomous or semi-autonomous engineering loops.
 
 Teams can use the same accepted behavior in local repair loops and CI.
