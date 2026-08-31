@@ -20,32 +20,24 @@ seo:
 ---
 
 import CheckoutVerificationLoop from "@/components/blackbox/CheckoutVerificationLoop.astro";
-import CheckoutGherkinReport from "@/components/blackbox/CheckoutGherkinReport.astro";
 import TextLink from "@/components/ui/primitives/TextLink.astro";
 
-**Blackbox automatically turns product requirements into system and E2E tests. It verifies not only whether they pass, but also runtime effects revealed by traces, then returns deterministic findings that guide coding agents to fix behavior that does not match the requirements.**
+**Suites Blackbox provides behavioral verification for software developed with coding agents. It turns human-approved product requirements into system and E2E tests, verifies the running system's effects from OpenTelemetry traces, and returns deterministic findings that guide repair without letting the agent redefine success.**
 
 <CheckoutVerificationLoop />
 
-The E2E test passes, but the runtime effects show that the customer could be charged twice.
+The coding agent loads `@blackbox-gherkin` to propose an executable checkout scenario. A person approves that behavior before the agent creates the test or changes the implementation.
+
+The first E2E run returns `201 Created`, but Blackbox observes two charge requests. The agent uses the deterministic finding to repair the implementation, then runs the same locked behavior again.
 
 - **For people:** The result shows what happened inside the running system, not only what the test returned.
 - **For coding agents:** The finding identifies what to repair while the approved requirement remains fixed.
 
-## From Product Requirements to E2E Tests
+## From Product Requirements to systen Tests
 
-The opening checkout flow compresses one important step. Before the coding agent creates `checkout.e2e.spec.ts`, a Blackbox Skill helps it turn the product requirement into a proposed <TextLink href="https://cucumber.io/docs/gherkin/reference/" target="_blank" rel="noopener noreferrer"><strong>Gherkin</strong></TextLink> `.feature` file. A person reviews and approves that behavior before it guides the executable test.
+The `@blackbox-gherkin` Skill turns the product requirement into a proposed <TextLink href="https://cucumber.io/docs/gherkin/reference/" target="_blank" rel="noopener noreferrer"><strong>Gherkin</strong></TextLink> `.feature` file. A person approves the scenario and its effect claim before either can guide implementation.
 
-```gherkin title="features/checkout.feature"
-Feature: Checkout
-  Scenario: Complete checkout
-    When checkout completes
-    Then no more than one charge request is sent
-```
-
-<CheckoutGherkinReport />
-
-In the opening example, this approved scenario is why two charge requests fail even when the E2E assertion returns `201 Created`. The finding sends the implementation back for repair without changing the approved behavior.
+The agent then runs `blackbox test` to execute the flow and seal runtime evidence. When the first run finds two charge requests, `blackbox analyze --run latest` reproduces the finding from that sealed evidence without restarting the application. The implementation changes; the approved feature does not.
 
 [See how Blackbox Skills guide coding agents without deciding the result](/docs/blackbox/guides/agent-skills#know-what-computes-each-result).
 
