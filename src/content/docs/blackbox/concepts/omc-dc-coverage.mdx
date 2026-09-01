@@ -1,23 +1,21 @@
 ---
 title: "Observable Decision Coverage"
-description: "Understand how Observable Decision Coverage compares declared decision outcomes with projected runtime effects."
-sidebar_position: 5
+description: "Understand how optional decision analysis compares executed code outcomes with their runtime effect patterns."
+sidebar_position: 4
 keywords:
   [
     "observable decision coverage",
     "decision effect association",
     "runtime evidence comparison",
-    "Alpha assurance",
+    "OMC/DC",
   ]
 ---
 
-import Aside from "@/components/mdx/Aside.astro";
+import ObservableDecisionCoverageDiagram from "@/components/blackbox/ObservableDecisionCoverageDiagram.astro";
 
-**Observable Decision Coverage (ODC)** combines branch-coverage evidence with runtime effect evidence. Branch coverage shows which decision outcomes executed. Effect evidence shows what each execution did at the system boundary.
+**Observable Decision Coverage (ODC)** combines evidence that code decisions executed with the runtime effects observed for each outcome. It asks whether important outcomes remain distinguishable at system boundaries.
 
-ODC asks whether the exercised outcomes were associated with distinguishable effects.
-
-```ts title="Illustrative pseudocode"
+```ts title="Illustrative decision"
 if (subscriptionRenewal) {
   updateSubscriptionInPostgres();
   refreshSubscriptionInRedis();
@@ -27,89 +25,58 @@ if (subscriptionRenewal) {
 }
 ```
 
-Consider two accepted cases for this decision:
+Two accepted cases exercise the outcomes:
 
-| Case             | Decision outcome | Projected effects                       |
-| ---------------- | ---------------- | --------------------------------------- |
-| Renewal          | `true`           | PostgreSQL update + Redis refresh       |
-| New subscription | `false`          | Stripe charge request + SQS publication |
+| Case             | Decision outcome | Observed effect projection         |
+| ---------------- | ---------------- | ---------------------------------- |
+| Renewal          | `true`           | Postgres update and Redis refresh  |
+| New subscription | `false`          | Stripe request and SQS publication |
 
-Here, `subscriptionRenewal` is the varying dimension. Inputs such as plan and region remain controlled. The branch is the decision scope, and the four listed boundary effects form the effect projection.
+<ObservableDecisionCoverageDiagram />
 
-If both executions are eligible, different effect signatures establish an ODC association. If both outcomes execute but produce the same projected signature, branch coverage may pass while the ODC association is not established.
+## Compare Exact Members
 
-<Aside type="info" title="Alpha Status">
-  **Alpha target:** Observable Decision Coverage is a strong part of the Alpha
-  verification model. **Current implementation:** Node capture remains
-  experimental and production-ineligible, so it does not provide ODC assurance
-  yet.
-</Aside>
+An approved comparison names the exact cases, the dimension that varies, the dimensions held constant, the decision scope, and the effects included in the projection.
 
-<picture>
-  <source
-    media="(max-width: 640px)"
-    srcset="/img/blackbox/odc-comparison-flow-mobile.svg"
-  />
-  <img
-    src="/img/blackbox/odc-comparison-flow.svg"
-    alt="An accepted comparison names exact cases, varying and controlled dimensions, decision scope, and an effect projection. Eligible comparisons establish an association when signatures differ and do not establish one when signatures are identical. Comparisons with missing or invalid prerequisites are unavailable."
-    style="display: block; width: 100%; height: auto;"
-  />
-</picture>
+ODC cannot infer convenient comparison members from test names, traces, workers, timing, execution order, or observed similarity.
 
-## Compare Declared Cases
+## Keep Three Results Separate
 
-A person approves the comparison before execution. It names:
+ODC has its own result vocabulary:
 
-- the exact member cases;
-- the dimension that should vary;
-- the dimensions that must remain controlled;
-- the decision scope;
-- the effects included in the comparison.
+- **Availability:** `not-requested`, `available`, `unavailable`, `unsupported`, or `integrity-failure`.
+- **Classification when available:** `propagating`, `partially-propagating`, `masking-candidate`, `coverage-gap`, `inconsistent`, or `undecidable`.
+- **Ordinary assurance verdict:** The separate effect-claim verdict for each case.
 
-ODC cannot infer convenient members from test titles, flow membership, execution order, retries, or observed similarity.
+A run may omit ODC. Blackbox records `not-requested` instead of treating omission as missing ordinary evidence.
 
-## Missing Evidence Makes ODC Unavailable
+## Preserve Ordinary Findings
 
-Every member needs its own eligible attempt, capture session, decision evidence, and effect evidence. The comparison also needs verified controls and exact source identity.
-
-**Exact source identity** ties decision evidence to the declared decision in the executed artifact, not to a similar title or nearby location. Evidence is **confounded** when required controls differ or remain unknown, so Blackbox cannot attribute an effect difference to the declared varying dimension.
-
-Missing, incomplete, foreign, or confounded evidence cannot become “no difference.” It makes the ODC comparison unavailable.
+ODC runs from sealed offline inputs after ordinary effect analysis. It may append diagnostic insight, but it cannot alter ordinary effects, evidence, findings, verdicts, order, identity, or an otherwise sufficient exit.
 
 ## Association Is Not Causation
 
-ODC asks whether declared decision outcomes were associated with different projected effect signatures. Other behavior in either execution may contribute to that difference.
+ODC reports an association between executed decision outcomes and projected runtime effects. It does not claim causal proof or behavioral correctness.
 
-ODC does not claim behavioral correctness, causal proof, MC/DC, or OMC/DC compliance.
+### Advanced: OMC/DC Lineage
 
-## Effect Findings Stay Unchanged
+ODC takes inspiration from the observability question behind **Observable Modified Condition/Decision Coverage (OMC/DC)**.
 
-Ordinary findings answer whether each case satisfied its own claims. After those findings exist, ODC compares the declared cases as a separate analysis.
+| Criterion       | Question                                                                  |
+| --------------- | ------------------------------------------------------------------------- |
+| Branch coverage | Did each decision outcome execute?                                        |
+| MC/DC           | Did each atomic condition independently affect its decision?              |
+| OMC/DC          | Did that structural obligation remain observable at the monitored oracle? |
+| Blackbox ODC    | Were declared outcomes associated with distinct runtime effect patterns?  |
 
-Whether an association is established, not established, or unavailable, ODC cannot erase, rewrite, or strengthen those findings.
-
-## Advanced: OMC/DC Lineage
-
-Observable Decision Coverage takes inspiration from the observability question behind **Observable Modified Condition/Decision Coverage (OMC/DC)**. OMC/DC strengthens structural coverage by asking whether a tested decision's influence remains visible at a monitored oracle variable.
-
-Blackbox applies that question at the system boundary:
-
-| Criterion           | Question                                                                             |
-| ------------------- | ------------------------------------------------------------------------------------ |
-| **Branch coverage** | Did each decision outcome execute?                                                   |
-| **MC/DC**           | Did each atomic condition independently affect its decision?                         |
-| **OMC/DC**          | Did that structural obligation remain observable at the monitored oracle?            |
-| **Blackbox ODC**    | Were declared decision outcomes associated with different projected runtime effects? |
-
-Blackbox ODC does not implement the formal MC/DC independence obligation or the OMC/DC path obligation. It carries their observability motivation into system and E2E verification.
+Blackbox ODC does not implement formal MC/DC independence or the OMC/DC path obligation.
 
 ### References
 
-- [Modified condition/decision coverage](https://en.wikipedia.org/wiki/Modified_condition/decision_coverage) provides an accessible introduction to the MC/DC independence requirement.
-- Whalen, Gay, You, Heimdahl, and Staats introduced OMC/DC in [Observable Modified Condition/Decision Coverage](https://greg4cr.github.io/pdf/13omcdc.pdf).
-- Meng, Gay, and Whalen generalized the observability idea in [Ensuring the Observability of Structural Test Obligations](https://greg4cr.github.io/pdf/18omcdc.pdf).
+- [Modified condition/decision coverage](https://en.wikipedia.org/wiki/Modified_condition/decision_coverage)
+- [Observable Modified Condition/Decision Coverage](https://greg4cr.github.io/pdf/13omcdc.pdf)
+- [Ensuring the Observability of Structural Test Obligations](https://greg4cr.github.io/pdf/18omcdc.pdf)
 
 ## Next Steps
 
-- **[System and E2E Verification](/docs/blackbox/concepts/testing-layers):** Put the complete verification model together.
+- [System and E2E Verification](/docs/blackbox/concepts/testing-layers)

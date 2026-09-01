@@ -1,6 +1,6 @@
 ---
-title: "Human-Agent Verification Loop"
-description: "See how approved guidance directs a coding agent and how deterministic system findings drive repair."
+title: "Human Authority and the Agent Loop"
+description: "See how approved behavior guides coding agents and deterministic findings route repair without moving the target."
 sidebar_position: 1
 keywords:
   [
@@ -11,41 +11,40 @@ keywords:
   ]
 ---
 
-import Aside from "@/components/mdx/Aside.astro";
+import HumanAgentVerificationLoopDiagram from "@/components/blackbox/HumanAgentVerificationLoopDiagram.astro";
 
-Imagine a system or E2E test that sees one confirmed order and passes. Blackbox checks the approved boundary claim and finds two charge requests where at most one was allowed.
+A product requirement says that reading the same product twice should use the cache after the first read. A coding agent may propose the behavior, build the test, implement the cache, and repair a failure. A person still decides whether that requirement is correct.
 
-Blackbox compares person-approved claims with sealed runtime evidence. Given the same approved inputs and evidence, the Analyzer returns the same finding. This is deterministic analysis, not identical distributed execution.
+## Give Guidance Before the Agent Acts
 
-<Aside type="info" title="Alpha Status">
-  The typed Gherkin-to-Playwright path is an **Alpha target**. Effects are the
-  **committed core**.
-</Aside>
+**Feedforward** is approved guidance supplied before implementation. In Blackbox, it comes from human-approved behavior and effect claims.
 
-## Feedforward and Feedback
+You can express that behavior in either of two ways:
 
-**Feedforward** gives the agent approved guidance before it acts. **Feedback** returns deterministic findings after the system runs.
+- Reviewed Gherkin linked to explicit Blackbox declarations.
+- Direct behavioral declarations without Gherkin.
 
-<picture>
-  <source
-    media="(max-width: 640px)"
-    srcset="/img/blackbox/human-agent-verification-loop-mobile.svg"
-  />
-  <img
-    src="/img/blackbox/human-agent-verification-loop.svg"
-    alt="Person-approved Gherkin, effect claims, and analysis policy guide a coding agent. The agent realizes the behavior in a system or E2E suite. Blackbox captures fresh runtime evidence and returns deterministic findings. Implementation repairs return to the agent, while proposed changes to human intent return to the person."
-    style="display: block; width: 100%; height: auto;"
-  />
-</picture>
+Both modes converge on the same accepted meaning. Runtime effects never become requirements by themselves.
 
-Blackbox applies the feedforward and feedback framing from Birgitta Böckeler's <a href="https://martinfowler.com/articles/harness-engineering.html" target="_blank" rel="noopener noreferrer">Harness engineering for coding agent users</a> to behavioral verification: approved scenarios and claims guide the agent, while Analyzer findings drive repair.
+## Return Evidence After the System Runs
 
-## Route Feedback Without Moving Authority
+**Feedback** is the result returned after the agent acts. Blackbox runs the selected system test, captures eligible OpenTelemetry evidence, and produces deterministic findings.
 
-Findings about the suite or implementation return to the coding agent as a repair problem. The agent reruns the same approved scenario and claims.
+<HumanAgentVerificationLoopDiagram />
 
-A proposed change to Gherkin, effect claims, or analysis policy returns to a person. Feedback can drive repair, but it cannot give the generator permission to redefine success.
+This applies the feedforward and feedback framing from <a href="https://martinfowler.com/articles/harness-engineering.html" target="_blank" rel="noopener noreferrer">Birgitta Böckeler's harness engineering article</a> to system behavior.
+
+## Keep Decisions With Their Owners
+
+| Change                                    | Owner                               | Required next step                                     |
+| ----------------------------------------- | ----------------------------------- | ------------------------------------------------------ |
+| Implementation or test realization        | Coding agent may propose and repair | Rerun from the earliest invalidated deterministic gate |
+| Accepted behavior or claim                | Person                              | Review and approve the changed meaning                 |
+| Runtime fact, effect, finding, or verdict | Deterministic Blackbox producer     | Preserve and route the producer result                 |
+
+The agent cannot approve its own proposed behavior or rewrite a finding. A repair to application or capture behavior requires fresh runtime execution. Report-only reanalysis cannot certify it.
 
 ## Next Steps
 
-- **[Human Intent and Verification Authority](/docs/blackbox/concepts/specifications-flows-and-verdicts):** See what each representation may and may not change.
+- [How Blackbox Works](/docs/blackbox/overview/how-blackbox-works)
+- [Plans, Alignment, and Identity](/docs/blackbox/reference/plans-and-realizations)

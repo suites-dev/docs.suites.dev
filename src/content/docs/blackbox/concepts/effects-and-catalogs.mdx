@@ -1,127 +1,68 @@
 ---
 title: "OpenTelemetry and Effects"
-description: "See how Blackbox turns eligible OpenTelemetry observations into effects and bounded findings."
-sidebar_position: 4
+description: "See how Blackbox turns eligible OpenTelemetry observations into portable effects and deterministic findings."
+sidebar_position: 3
 keywords:
   [
-    "behavioral assurance",
+    "OpenTelemetry effects",
     "effects catalog",
-    "effect contract",
-    "required forbidden effects",
     "runtime evidence",
     "deterministic findings",
   ]
 ---
 
-import Aside from "@/components/mdx/Aside.astro";
+Both product reads return `200`. OpenTelemetry traces reveal that the product service queried Postgres twice, so Blackbox can evaluate the approved limit of one database read.
 
-Checkout shows one successful order and one order ID, so the native assertion passes. A retry produces two eligible charge-request effects, violating the accepted upper bound of one even if unrelated evidence is incomplete.
+## From Observation to Effect
 
-<Aside type="info" title="Alpha Status">
-  Effects are the **committed core**. The integrated path from accepted claims
-  through managed capture and offline findings is an **Alpha target**. Current
-  HTTP and PostgreSQL work is prototype evidence, not a released support claim.
-</Aside>
+An **effect** is a normalized fact about supported behavior at a system boundary during one attempt. Typical effects include an HTTP request, database operation, cache operation, or message publication.
 
-## From Observation to Finding
+OpenTelemetry provides observations. Blackbox admits only observations with the required identity, capability, lifecycle, and evidence joins, then normalizes them into portable effects. A span is evidence input, not automatically an effect.
 
-An **effect** is a normalized fact about supported behavior at a system boundary during one runtime attempt. Depending on the available proof, an effect can show that an operation was observed, succeeded, or committed.
+```text
+OpenTelemetry observation
+        ↓ admit and verify
+normalized effect fact
+        ↓ evaluate approved claim
+finding and verdict
+```
 
-OpenTelemetry provides runtime observations. Blackbox admits only supported, attributable observations and normalizes them into portable effects. A span is evidence input, not automatically an effect.
+The portable signature uses service, boundary, operation, target, and status. Blackbox records multiplicity separately, so two equivalent Postgres reads remain visible as a count of two.
 
-<picture>
-  <source
-    media="(max-width: 640px)"
-    srcset="/img/blackbox/observation-to-finding-mobile.svg"
-  />
-  <img
-    src="/img/blackbox/observation-to-finding.svg"
-    alt="A person-approved effect claim and sealed evidence from a fresh runtime attempt meet at the Analyzer. OpenTelemetry spans pass through effects-catalog admission and normalization before becoming portable effect facts."
-    style="display: block; width: 100%; height: auto;"
-  />
-</picture>
+## Use a Shared Effects Catalog
 
-The accepted claim and runtime evidence remain separate until the Analyzer compares them.
+The **effects catalog** provides reviewed normalization vocabulary. It describes which eligible observations can become a named effect without binding approved behavior to raw span names or trace layout.
 
-## Use the Effects Catalog as Shared Vocabulary
-
-An **effects catalog** is a reviewed collection of portable effect contracts. It connects OpenTelemetry observations to stable effect intent without tying accepted claims to raw span IDs or trace structure.
-
-Each catalog entry defines the intent represented by an effect, when an observation qualifies, and which proof strengths it can support. Accepted claims then reference that shared effect intent.
-
-**Effect intent** names what the normalized fact represents. It is catalog vocabulary, not human intent, accepted meaning, or policy.
-
-Proof strength describes what the admitted evidence can establish:
-
-| Proof strength | What it establishes                                                                               |
-| -------------- | ------------------------------------------------------------------------------------------------- |
-| **Observed**   | A supported, attributable matching operation was recorded.                                        |
-| **Succeeded**  | The admitted operation completed successfully under the capability's completion rules.            |
-| **Committed**  | Separate commit evidence confirms the state change before the accepted observation window closes. |
-
-The public syntax is not frozen. This YAML is an illustrative catalog view, not a supported file format or schema:
+The public catalog syntax is not frozen. This is an illustrative view, not a supported schema:
 
 ```yaml title="Illustrative effects catalog"
 effects:
-  payment-charge-request:
-    intent: Payment service received a charge request
+  product-record-read:
     matches:
-      capability: io.http.client
-      operation: request
-      target: payment-service
-      url: https://payment-service/charges
-    supports: [observed, succeeded]
+      boundary: postgres
+      operation: SELECT
+      target: products
+      serviceId: product-service
 
-  subscription-record-written:
-    intent: A subscription record was inserted
+  product-cache-read:
     matches:
-      capability: datastore.sql.client
-      operation: insert
-      target: subscriptions
-      query: INSERT INTO subscriptions (customer_id, plan_id) VALUES (?, ?)
-    supports: [observed, succeeded, committed]
+      boundary: redis
+      operation: GET
+      target: "product:42"
+      serviceId: product-service
 ```
 
-The SQL match identifies a candidate operation. It does not establish `committed` by itself. That proof strength requires separate commit evidence and settling support.
+The catalog explains how evidence is normalized. It does not declare that a product must use Postgres or Redis. A person approves that behavioral claim separately.
 
-The catalog supplies shared effect intents. The separate claim “at most one charge request per completed order” remains human-approved policy. Runtime observations cannot add catalog entries, redefine effect intent, or turn themselves into policy.
+## Evaluate Explicit Claims
 
-## Express Presence, Absence, and Cardinality
+Blackbox can evaluate presence, absence, cardinality, ordering, and explicit comparison claims. The same sealed evidence and accepted claim produce the same deterministic finding.
 
-- A **presence claim** requires an effect to occur.
-- An **absence claim** forbids an effect from occurring.
-- A **cardinality claim** sets an allowed lower bound, upper bound, or exact count.
-- An effect not referenced by the accepted claim remains recorded evidence, but it does not constrain the implementation.
+Five verdicts keep different failures distinct: `satisfied`, `violated`, `inconclusive`, `unsupported`, and `integrity-failure`. Only `satisfied` passes.
 
-Observed behavior can inform a proposal. It never becomes accepted policy without human approval.
-
-## Positive Facts and Absence Need Different Evidence
-
-| Claim                   | What positive facts can establish   | What needs bounded completeness        |
-| ----------------------- | ----------------------------------- | -------------------------------------- |
-| **At least N**          | Satisfaction after N matching facts | Violation below N                      |
-| **At most N**           | Violation after more than N facts   | Satisfaction at or below N             |
-| **Exactly N**           | Violation after more than N facts   | Satisfaction at N or violation below N |
-| **Forbidden or absent** | Violation after one matching fact   | Satisfaction with zero matches         |
-
-If evidence is incomplete, Blackbox cannot establish a completeness-dependent absence, upper-bound, or exactness result. The finding stays inconclusive instead of turning missing evidence into success.
-
-## Read Findings and Verdicts
-
-A **finding** is the Analyzer's result for one accepted claim. Its **verdict** is the terminal status:
-
-- **Satisfied:** The evidence meets the claim's proof burden.
-- **Violated:** The evidence establishes a counterexample or missed obligation.
-- **Inconclusive:** The available evidence cannot support the required conclusion.
-- **Unsupported:** The declared capability or realization is unavailable.
-- **Integrity failure:** Identities or lifecycle evidence conflict with the claim.
-
-A required claim passes only when its verdict is **satisfied**. Every other verdict fails the selected assurance gate.
-
-Ordinary findings evaluate each case independently. ODC is the next layer because it compares declared cases only after those findings exist.
+[See the complete effect signature, claim kinds, evidence rules, and verdicts](/docs/blackbox/reference/effects-and-claims).
 
 ## Next Steps
 
-- **[Effects Catalog Contract](/docs/blackbox/reference/catalog-schema):** See what is stable and what remains unfrozen in the public contract.
-- **[Effect Claim Evaluation](/docs/blackbox/reference/matchers-and-effect-builders):** Look up proof-strength, cardinality, and completeness rules.
-- **[Observable Decision Coverage](/docs/blackbox/concepts/omc-dc-coverage):** Explore the separate comparison layer.
+- [Observable Decision Coverage](/docs/blackbox/concepts/omc-dc-coverage)
+- [Effects and Claim Evaluation](/docs/blackbox/reference/effects-and-claims)

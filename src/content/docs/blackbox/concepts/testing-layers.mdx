@@ -1,40 +1,44 @@
 ---
 title: "System and E2E Verification"
-description: "See how native assertions and bounded Blackbox findings work together in system and E2E suites."
-sidebar_position: 6
+description: "See how native test results and bounded runtime-effect findings verify different parts of one system execution."
+sidebar_position: 5
 keywords:
   [
     "system verification",
     "E2E verification",
     "runtime effects",
-    "behavioral assurance",
     "Suites Blackbox",
   ]
 ---
 
-import Aside from "@/components/mdx/Aside.astro";
+Imagine a system where two product reads both return `200`, so the E2E test passes. The product service still queries Postgres twice instead of using Redis after the first read.
 
-Imagine a checkout system where the customer sees one successful order and one order ID, but the service sends two charge requests. The system test checks the visible result and passes.
+```text
+Native system-test result       Blackbox effect finding
+─────────────────────────       ─────────────────────────
+2 responses returned 200        Postgres SELECT observed 2 times
+PASS                            upper bound: at most 1
+                                VIOLATED
+```
 
-<img
-  src="/img/blackbox/system-e2e-two-results.svg"
-  alt="The same checkout execution produces two results: the native assertion passes with one confirmation and one order ID, while the Blackbox effect finding is violated because two charge requests were observed and the accepted upper bound is one."
-  style="display: block; width: 100%; height: auto;"
-/>
+The two results answer different questions:
 
-Across the model, human-approved intent defines the claim, the system suite executes it, Runtime seals what happened, and the Analyzer returns the finding.
+- **Native assertions** check the visible result produced by the selected system or E2E test.
+- **Blackbox findings** check approved system-effect claims against eligible runtime evidence from that same attempt.
 
-<Aside type="info" title="Alpha Status">
-  **Effects** are the committed core. The path from accepted Gherkin through a
-  system suite, managed runtime capture, and offline findings is an **Alpha
-  target**. Current implementation work is prototype evidence, not a released
-  support matrix.
-</Aside>
+## Keep Both Results
 
-## Keep Both Results Independent
+Neither result rewrites the other. A failed native assertion does not erase captured runtime facts. A violated effect claim does not change the native test result.
 
-Neither result overrides the other. A failed native assertion does not erase captured effects, and an effect finding does not rewrite the suite result. Incomplete evidence produces an inconclusive finding. An unavailable capture capability or realization produces an unsupported finding. Neither becomes a pass.
+The combined result lets people and coding agents distinguish an output failure from behavior behind a successful output.
+
+## Keep Assurance Bounded
+
+Blackbox evaluates one declared case attempt within its admitted observation capabilities and exact claim scope. It does not claim that every possible transport was observed or that one passing attempt proves all future executions.
+
+Unsupported capability, incomplete evidence, and integrity failure remain explicit outcomes. They never become a pass.
 
 ## Next Steps
 
-- **[Start With Blackbox](/docs/blackbox/quickstart/):** Apply the verification model to a system flow.
+- [Get Started](/docs/blackbox/quickstart/)
+- [Runtime Evidence and Integrity](/docs/blackbox/concepts/runtime-evidence)

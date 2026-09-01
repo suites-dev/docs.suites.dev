@@ -13,7 +13,7 @@
     <desc id="bb-odc-desc">
       A subscription decision splits into a known-user test and an unknown-user
       test. Each test produces canonical captured evidence. Blackbox compares
-      the two arm-bucket signatures. Different signatures produce propagating,
+      the two declared effect projections. Different signatures produce the propagating classification,
       identical signatures produce masking-candidate, and an untested arm
       produces coverage-gap.
     </desc>
@@ -36,7 +36,7 @@
       Both arms ran. Did they leave distinguishable evidence?
     </text>
     <text x="36" y="70" fill="#cbd5e1" font-size="13">
-      Blackbox compares canonical evidence signatures from tests exercising each arm.
+      Blackbox compares decision evidence with normalized effects from exact case members.
     </text>
 
     <rect x="370" y="94" width="220" height="58" rx="8" fill="#1f2937" stroke="#94a3b8"></rect>
@@ -57,7 +57,7 @@
     <path
       d="M550 152 C570 174 656 174 680 198"
       fill="none"
-      stroke="#c084fc"
+      stroke="#e67189"
       stroke-width="2"
       marker-end="url(#bb-odc-arrow)"
     ></path>
@@ -65,7 +65,7 @@
     <text x="347" y="174" text-anchor="middle" fill="#93c5fd" font-size="11" font-weight="700">
       YES
     </text>
-    <text x="613" y="174" text-anchor="middle" fill="#d8b4fe" font-size="11" font-weight="700">
+    <text x="613" y="174" text-anchor="middle" fill="#ef9dab" font-size="11" font-weight="700">
       NO
     </text>
 
@@ -92,12 +92,12 @@
       SQS SEND subscription-orders
     </text>
 
-    <rect x="520" y="196" width="400" height="154" rx="8" fill="#3b1553" stroke="#c084fc"></rect>
-    <text x="542" y="222" fill="#faf5ff" font-size="15" font-weight="800">
+    <rect x="520" y="196" width="400" height="154" rx="8" fill="#421622" stroke="#e67189"></rect>
+    <text x="542" y="222" fill="#fdf3f5" font-size="15" font-weight="800">
       subscribe-unknown-user
     </text>
-    <text x="542" y="242" fill="#e9d5ff" font-size="11">tests the missing-user arm</text>
-    <text x="542" y="270" fill="#d8b4fe" font-size="11" font-weight="700">
+    <text x="542" y="242" fill="#f6c9d1" font-size="11">tests the missing-user arm</text>
+    <text x="542" y="270" fill="#ef9dab" font-size="11" font-weight="700">
       SELECTED CAPTURED EVIDENCE
     </text>
     <rect x="542" y="282" width="218" height="25" rx="6" fill="#0f172a" stroke="#475569"></rect>
@@ -122,14 +122,14 @@
     <path
       d="M720 350 C720 372 635 376 610 390"
       fill="none"
-      stroke="#c084fc"
+      stroke="#e67189"
       stroke-width="2"
       marker-end="url(#bb-odc-arrow)"
     ></path>
 
     <rect x="286" y="388" width="388" height="54" rx="8" fill="#0f172a" stroke="#fbbf24"></rect>
     <text x="480" y="410" text-anchor="middle" fill="#fef3c7" font-size="13" font-weight="800">
-      Compare canonical arm-bucket signatures
+      Compare declared decision and effect projections
     </text>
     <text x="480" y="429" text-anchor="middle" fill="#fde68a" font-size="11">
       these signatures differ
@@ -146,7 +146,7 @@
     ></line>
     <rect x="756" y="388" width="164" height="54" rx="8" fill="#14532d" stroke="#86efac"></rect>
     <text x="838" y="410" text-anchor="middle" fill="#bbf7d0" font-size="11" font-weight="700">
-      VERDICT
+      CLASSIFICATION
     </text>
     <text x="838" y="430" text-anchor="middle" fill="#f0fdf4" font-size="14" font-weight="800">
       propagating
@@ -162,9 +162,8 @@
     </svg>
   </div>
   <figcaption>
-    Blackbox compares the full captured evidence attached to tests in each arm
-    bucket. The result is correlated runtime evidence, not a causal data-flow
-    proof from the decision to a particular effect.
+    Availability and diagnostic classification remain separate from each
+    case's ordinary effect verdict. ODC reports association, not causal proof.
   </figcaption>
 </figure>
 

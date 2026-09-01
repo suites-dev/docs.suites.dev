@@ -1,183 +1,72 @@
 ---
-title: "2. Connect Your Application"
-description: "Tell Blackbox how to start the application, connect Playwright, and attach Node capture without changing application code."
+title: "Connect Your Application With Compose"
+description: "Run one Playwright case against a controlled Docker Compose application and capture fresh runtime evidence."
 sidebar_position: 3
-keywords: ["Blackbox host command", "Playwright configuration", "Node capture"]
+keywords:
+  ["Blackbox Docker Compose", "Playwright system test", "OpenTelemetry capture"]
 ---
 
-The application and services Blackbox runs are the **system under test (SUT)**. This Quickstart starts the compiled SUT with an explicit host command. It keeps the run serial, resets dedicated test data before the selected flow, and uses independent fixture keys for its two attempts.
+Use the current Docker Compose project that already runs your application and its dependencies. For the product-cache case, the topology includes the product service, Postgres, and Redis.
 
-Arrive here with one approved case and its aligned executable realization. It can be a passing test you kept in [Step 1A](/docs/blackbox/quickstart/build-behavioral-harness), or the project-owned suite you implemented in [Step 1B](/docs/blackbox/quickstart/start-without-test).
-
-Every setup needs the Playwright adapter and project fixture in sections 3 and 4. Sections 1 and 2 use a host command. If your application starts from Compose, a Dockerfile, compiled artifacts, an external process, or a custom provisioner, [choose that setup first](/docs/blackbox/guides/set-up-the-testbed), then return at section 3.
-
-## 1. Build Executable JavaScript and Source Maps
-
-Configure TypeScript to emit source maps and build the SUT:
-
-```json title="tsconfig.json"
-{
-  "compilerOptions": {
-    "outDir": "dist",
-    "sourceMap": true
-  }
-}
+```yaml title="compose.yaml, shortened"
+services:
+  product-service:
+    build: ./services/product
+    depends_on: [postgres, redis]
+  postgres:
+    image: postgres
+  redis:
+    image: redis
 ```
+
+## 1. Confirm the Compose Boundary
+
+The Compose project must give Blackbox a deterministic view of:
+
+- Services, networks, and storage owned by the sandbox.
+- Expected participants and service identity.
+- Readiness and teardown behavior.
+- Any connection to resources outside the owned sandbox.
+
+Blackbox generates observation and control configuration for the selected attempt. Internal transport environment variables are not public configuration.
+
+## 2. Admit Required Capabilities
+
+The product-cache upper bound needs eligible Postgres observations and claim-specific completion. Blackbox checks provider capabilities before the runner starts.
+
+An unsupported library, unowned database, missing participant, or ambiguous service mapping stops the assurance path instead of silently weakening it.
+
+## 3. Run One Fresh Attempt
+
+The practical workflow runs the selected Playwright case through Blackbox:
 
 ```bash
-pnpm build
+blackbox test
 ```
 
-Blackbox captures the executed `dist/server.js` bytes and its map. Offline analysis joins those artifacts back to the original TypeScript.
+Each independent attempt receives a fresh sandbox lease, runtime identities, capture, evidence, and teardown. A retry starts again with a new lease and keeps the previous outcome in history.
 
-## 2. Describe the SUT
-
-Create the project-level Blackbox configuration:
-
-```ts title="blackbox.config.ts"
-import { defineBlackboxConfig } from "@suites/blackbox";
-
-export default defineBlackboxConfig({
-  sut: {
-    source: {
-      kind: "command",
-      command: "node",
-      args: ["dist/server.js"],
-      cwd: ".",
-    },
-    services: {
-      api: {
-        endpoint: "http://127.0.0.1:3000",
-        readiness: {
-          kind: "http",
-          url: "http://127.0.0.1:3000/health",
-        },
-        environment: {
-          files: [".env.blackbox"],
-          values: { NODE_ENV: "test" },
-          passthrough: [],
-        },
-        capture: { language: "node" },
-        layout: {
-          artifactRoot: "dist",
-          sourceMaps: "discover",
-        },
-      },
-    },
-  },
-  lifecycle: { ownership: "blackbox" },
-  isolation: { scope: "flow" },
-  runner: {
-    kind: "playwright",
-    config: "playwright.config.ts",
-  },
-  evidence: { dir: ".blackbox/evidence" },
-  analysis: { effects: "check" },
-});
-```
-
-Put a dedicated test database URL in `.env.blackbox`; do not pass through a developer or production `DATABASE_URL`:
-
-```dotenv title=".env.blackbox"
-DATABASE_URL=postgresql://blackbox:blackbox@127.0.0.1:5432/blackbox_quickstart
-```
-
-Environment files load first, selected host variables load next, and explicit `values` win. Blackbox adds run, cell, service, capture, and sidecar identity itself.
-
-## 3. Add Blackbox to Playwright
-
-```ts title="playwright.config.ts"
-import { defineConfig } from "@playwright/test";
-import { blackboxPlaywright } from "@suites/blackbox/playwright";
-
-import blackbox from "./blackbox.config.js";
-
-export default defineConfig({
-  ...blackboxPlaywright(blackbox),
-  testDir: "e2e",
-  fullyParallel: false,
-  workers: 1,
-  retries: 0,
-  use: {
-    baseURL: "http://127.0.0.1:3000",
-  },
-});
-```
-
-Playwright resolves `request.post("/subscriptions")` against `use.baseURL`, which is the same endpoint Blackbox checks for readiness. The fixed port is safe because this tutorial uses one worker and no retries.
-
-The adapter owns attempt identity, correlation headers, cell resolution, setup, teardown, and reporting.
-
-## 4. Create the Project Fixture
-
-```ts title="e2e/fixtures.ts"
-import { createBlackboxTest } from "@suites/blackbox/playwright";
-
-import blackbox from "../blackbox.config.js";
-
-export const { test, expect } = createBlackboxTest(blackbox);
-```
-
-Change the flow to import from the fixture:
-
-```ts
-import { expect, test } from "./fixtures.js";
-```
-
-You do not create a sidecar, build a runner cell, assign service identity, or register Playwright global hooks yourself.
-
-## 5. Prepare the Dedicated Database
-
-Use the clean-state command from your existing system-test setup before Blackbox starts the flow. This Quickstart names that project-owned command `db:test:reset`:
-
-```bash
-pnpm run db:test:reset
-```
-
-The two attempts share one flow-owned SUT process and database. They use different user IDs, run serially, and do not retry, so this tutorial does not rely on one attempt cleaning up after the other.
-
-This one-time reset prepares the tutorial fixture; it is not a per-attempt reset guarantee. If retries are enabled or a test requires a clean database before every independent attempt, run the reset provider before each attempt or recreate the cell.
-
-:::note Expand the Topology Before Enabling Parallelism
-The host command does not allocate a port or database per worker. Before enabling `fullyParallel`, more workers, or retries, follow [Use an Existing Compose Project](/docs/blackbox/guides/use-existing-compose) and [Isolate Tests and Run in Parallel](/docs/blackbox/guides/playwright-isolation-and-parallelism).
-:::
-
-## 6. Complete a Newly Generated Flow
-
-Skip this section if you kept an existing passing test.
-
-If Step 1 generated a test shell, replace its TODOs with the real application request and visible assertion. Use the prepared test data. In this example, `alice` exists and `ghost` does not. Blackbox provides the tagged structure and runtime connection; your project provides these application-specific details.
-
-A coding agent can complete this project-owned gap against the reviewed feature:
+## 4. Read Native and Effect Results
 
 ```text
-$blackbox-runtime
-
-Connect the subscription system test to the configured API. Implement only the
-requests, assertions, fixtures, and dedicated test data needed for the reviewed
-cases. Keep the approved case identities, Gherkin, claims, and expected outcomes
-unchanged. Stop if passing requires changing the accepted behavior or isolation
-setup.
+Native result      2 passed responses
+Runtime evidence   Postgres SELECT products × 2
+Claim              at most 1
+Verdict            violated
 ```
 
-## 7. Confirm the Flow Passes
+The visible result stays passed. The effect claim fails because the eligible observed count already exceeds the approved maximum.
 
-Run the connected flow with Playwright before asking Blackbox to evaluate runtime behavior:
+After the agent repairs cache behavior, run a fresh attempt. One Postgres read can satisfy the upper bound only when evidence is complete for that claim.
 
-```bash
-pnpm exec playwright test e2e/subscribe-user.system.test.ts
-```
+## Summary
 
-Expected result:
+- Compose provides the accepted application setup path.
+- Blackbox admits exact participants and observation capabilities before execution.
+- Each attempt produces separate evidence and a separate outcome.
+- Native assertions and effect findings remain independent.
 
-```text
-2 passed
-```
+## Next Steps
 
-Fix application actions, assertions, fixtures, test data, or readiness until this native result passes. Step 3 keeps that result separate from runtime integrity, effects, and ODC.
-
-## Result
-
-Your Playwright flow now runs through Blackbox at an explicit base URL. The next run captures effects and exact executable artifacts while preserving the test’s native result.
-
-Continue with [Step 3: Run and Inspect Evidence](/docs/blackbox/quickstart/add-runtime-evidence).
+- [Use an Existing Compose Project](/docs/blackbox/guides/use-existing-compose)
+- [Runtime Evidence and Integrity](/docs/blackbox/concepts/runtime-evidence)

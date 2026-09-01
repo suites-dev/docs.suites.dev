@@ -1,65 +1,69 @@
 ---
-title: "1A. Start From an Existing Test"
-description: "Use one existing system test to recover a Gherkin proposal, approve the intent, and align its executable realization."
+title: "Start From an Existing Test"
+description: "Bind approved behavior to one existing Playwright system test without treating current implementation behavior as product truth."
 sidebar_position: 2
-keywords: ["existing system test", "Gherkin proposal", "Playwright alignment"]
+keywords: ["existing system test", "Playwright alignment", "Blackbox SuitePlan"]
 ---
 
-import Aside from "@/components/mdx/Aside.astro";
+Start here when you already have a system or E2E test. The test can realize approved behavior, but it cannot define that behavior by itself.
 
-Start here when you already have a system or E2E test for consequential behavior. The test shows how the system currently runs, but it does not become approved intent automatically.
+```ts title="tests/product-cache.e2e.spec.ts"
+import { expect, test } from "@playwright/test";
 
-If no system test exists, use [Step 1B: Start Without a Test](/docs/blackbox/quickstart/start-without-test).
+test("reuses a cached product", async ({ request }) => {
+  const first = await request.get("/products/42");
+  const second = await request.get("/products/42");
 
-<Aside type="info" title="Alpha Target">
-  The Gherkin-to-suite alignment workflow is accepted for Alpha 3. Public
-  commands, generated filenames, and package APIs are not frozen here.
-</Aside>
-
-## 1. Choose One Consequential Test
-
-Use a case whose hidden behavior matters, such as rejecting an unknown subscriber without charging them.
-
-Confirm that the native test passes before using it as recovery evidence. A green response assertion does not prove that the system avoided forbidden downstream work.
-
-## 2. Recover a Gherkin Proposal
-
-Read the existing test, known product intent, and observed runtime behavior. Draft one readable scenario:
-
-```gherkin
-Scenario: Reject an unknown user without creating downstream work
-  When an unknown user submits a subscription request
-  Then the response status is 404
-  And no payment charge is requested
+  expect([first.status(), second.status()]).toEqual([200, 200]);
+});
 ```
 
-Treat the draft as a proposal. A person reviews the scenario, concrete case identity, effect claims, and success policy before Blackbox compiles them.
+This test establishes the visible result. It does not say whether the implementation may query Postgres twice.
 
-Do not infer accepted meaning only from test titles, source order, or what the current implementation happens to do.
+## 1. Approve the Intended Behavior
 
-## 3. Compile the Approved Intent
+Review the product requirement with a person. Express it as linked Gherkin or direct behavioral declarations.
 
-Blackbox compiles the approved Gherkin into a SuitePlan and projects generated type and runtime binding contracts for the executable suite.
+For this case, approve:
 
-Compilation stops when a scenario, Examples row, instruction, claim, contract, or topology relationship is missing or ambiguous.
+- Both reads return `200`.
+- The case performs at most one Postgres product read.
+- The declared Postgres observation and completion capabilities cover that upper-bound claim.
 
-## 4. Align the Existing Suite
+Do not reverse-generate product meaning from the test, telemetry, or current implementation.
 
-Repair the project-owned test against the generated type contract. Preserve its real actions and native assertions while binding them to the exact accepted case and claims.
+## 2. Validate Accepted Meaning
 
-The suite is ready only when every accepted case has one complete runnable realization. Empty, skipped, stale, redirected, or duplicate bindings block runtime verification.
+For Gherkin-linked authoring, run:
 
-## 5. Read the Alignment Result
+```bash
+blackbox features check
+blackbox scenarios check
+```
 
-Before continuing, confirm that:
+For direct declarations, run `blackbox scenarios check`.
 
-- The approved Gherkin produced one stable concrete case.
-- The generated contract and project-owned test agree.
-- Runner collection finds exactly one declared realization.
-- A RunnerBundle can be lowered and a non-empty RunPlan selected.
+Blackbox refuses missing, ambiguous, stale, duplicate, or redirected semantic relations before runtime allocation.
 
-[Use the full alignment guide](/docs/blackbox/guides/recover-behavior-from-existing-tests) when a check fails.
+## 3. Bind the Existing Test
+
+The generated Playwright directory contains exactly:
+
+```text
+suite.spec.ts
+suite.runtime.ts
+suite.d.ts
+plan.json
+```
+
+Use the generated TypeScript surface to bind the approved case to the existing requests and assertions. Do not add new behavior during runner realization.
+
+```bash
+blackbox suites typecheck
+```
+
+The selected case is ready when Playwright discovery finds exactly one matching test and every required relation resolves exactly once.
 
 ## Result
 
-You have approved Gherkin and one aligned executable realization. Continue with [Step 2: Connect Your Application](/docs/blackbox/quickstart/add-to-existing-test).
+The existing test now realizes approved meaning without becoming its authority. Continue with [Connect Your Application With Compose](/docs/blackbox/quickstart/add-to-existing-test).

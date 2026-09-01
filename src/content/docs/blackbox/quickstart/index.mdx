@@ -1,65 +1,117 @@
 ---
-title: "Blackbox Quickstart"
-description: "Align one readable behavior with a Playwright flow, then verify its runtime effects and observable decisions."
+title: "Get Started"
+description: "Choose an authoring mode, realize one Playwright case, connect a Compose application, and read the resulting effect finding."
 sidebar_position: 1
 keywords:
   [
-    "Blackbox quickstart",
+    "Blackbox get started",
     "Playwright system test",
     "runtime effects",
-    "observable decision coverage",
+    "Gherkin",
   ]
 ---
 
-Complete both Blackbox loops with one subscription behavior. First align readable intent with an executable Playwright flow. Then run that flow against the application, inspect its evidence, and compute separate runtime verdicts.
+import TabItem from "@/components/mdx/TabItem.astro";
+import Tabs from "@/components/mdx/Tabs.astro";
+
+Start with one product-cache requirement: both reads of product `42` succeed, and the second read reuses cached data so the case performs at most one Postgres read.
 
 ```text
-Alignment:     approved Gherkin -> generated contracts -> project suite
-Verification:  project suite -> running system -> evidence -> findings -> repair
+approved behavior → Playwright realization → running Compose system
+                  → fresh evidence → effect finding
 ```
 
-The Alpha workflow uses approved Gherkin to preserve human intent before runtime execution. Gherkin guides the realization; it does not become runtime evidence or change an effect finding.
+## 1. Choose an Authoring Mode
 
-The runtime example uses a compiled Node.js and TypeScript application started with a host command. It runs serially against dedicated test data so the first setup is easy to reason about.
+Both authoring modes produce the same accepted SuitePlan meaning.
 
-## Before You Start
+<Tabs groupId="blackbox-authoring-mode">
+  <TabItem value="gherkin" label="Reviewed Gherkin" default>
 
-You need:
+Use Gherkin when a readable scenario helps people review the behavior.
 
-- A Node.js project using pnpm and Playwright, or a project where you can add Playwright.
-- An application that builds to executable JavaScript with source maps.
-- A test database or equivalent mutable state that is safe to reset.
-- One application behavior worth protecting.
+```gherkin title="features/product-cache.feature"
+Feature: Product cache
+  Scenario: Reuse a cached product
+    When product 42 is read twice
+    Then both reads succeed
+    And at most one Postgres product read occurs
+```
 
-## Choose Your Starting Point
+Validate the authored feature:
 
-| Your situation                                  | Start here                                                                                                                                                      |
-| ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **I already have a passing system or E2E test** | [Step 1A: Start From an Existing Test](/docs/blackbox/quickstart/build-behavioral-harness) keeps it, recovers a Gherkin proposal, and aligns the approved case. |
-| **I do not have a system or E2E test yet**      | [Step 1B: Start Without a Test](/docs/blackbox/quickstart/start-without-test) starts from approved Gherkin and implements its executable realization.           |
+```bash
+blackbox features check
+blackbox scenarios check
+```
 
-Both routes establish the same artifact chain:
+  </TabItem>
+  <TabItem value="direct" label="Direct declarations">
+
+Use direct declarations when the team does not use Gherkin. Approve the same case, visible result, effect claim, completion requirement, capabilities, and topology directly.
+
+```text title="Conceptual declaration, not public syntax"
+case: read product 42 twice
+visible result: both reads return 200
+effect claim: at most one Postgres SELECT on products
+```
+
+Validate the compiled semantic and executable closure:
+
+```bash
+blackbox scenarios check
+```
+
+  </TabItem>
+</Tabs>
+
+A person approves the behavior. Observed effects cannot create or silently change it.
+
+## 2. Realize the Case in Playwright
+
+Blackbox generates the accepted Playwright binding surface:
 
 ```text
-approved Gherkin
-  -> SuitePlan and generated binding contracts
-  -> project-owned Playwright suite
-  -> RunnerBundle and selectable RunPlan
+suite.spec.ts
+suite.runtime.ts
+suite.d.ts
+plan.json
 ```
 
-Before runtime capture, the Playwright flow must pass.
+The project completes the concrete requests, fixtures, and native assertions. Exactly one discovered Playwright test must bind the selected case.
 
-## Follow the Four Steps
+```bash
+blackbox suites typecheck
+```
 
-1. **Align one readable behavior and executable flow.** Start from a passing test in [Step 1A](/docs/blackbox/quickstart/build-behavioral-harness), or from human intent in [Step 1B](/docs/blackbox/quickstart/start-without-test). Review the Gherkin and close every binding gate before runtime.
-2. **[Connect your application](/docs/blackbox/quickstart/add-to-existing-test).** Tell Blackbox how to start the system under test, add the Playwright fixture, and make the native flow pass.
-3. **[Run and inspect evidence](/docs/blackbox/quickstart/add-runtime-evidence).** Run the accepted flow and inspect the effects and decision evidence it produced. Observations are facts, not policy.
-4. **[Approve effect claims and read findings](/docs/blackbox/quickstart/enforce-runtime-effects).** Approve the smallest consequential claims, analyze the sealed evidence, and repair implementation without redefining success.
+Already have a passing test? Follow [Start From an Existing Test](/docs/blackbox/quickstart/build-behavioral-harness) to bind it without treating current behavior as the requirement.
+
+## 3. Connect the Running System
+
+Use [Connect Your Application With Compose](/docs/blackbox/quickstart/add-to-existing-test) to give each attempt a controlled application, network, storage, and lifecycle boundary.
+
+Blackbox runs the selected case only after semantic closure, runner alignment, provider capability admission, and participant readiness succeed.
+
+## 4. Read the Result
+
+The native test and effect claim remain separate:
+
+```text
+Native test       both GET /products/42 responses returned 200   PASS
+Effect claim      Postgres SELECT products observed 2 times      VIOLATED
+Approved limit    at most 1
+```
+
+The coding agent can repair Redis use and rerun the case with fresh evidence. Only a person can approve a different requirement.
 
 ## What Success Looks Like
 
-The walkthrough is complete when the accepted Gherkin and executable suite align, the native test passes, evidence is eligible, and each effect claim has a bounded finding. Optional ODC remains a separate result.
+- Authored behavior and generated realization close exactly.
+- The selected Playwright test produces its native result.
+- Fresh evidence is eligible for the claim scope.
+- Every selected claim receives one of the five deterministic verdicts.
 
-## If Your Application Starts Differently
+## Next Steps
 
-Finish Step 1 first. Then use [Choose How Blackbox Runs Your Application](/docs/blackbox/guides/set-up-the-testbed) to replace only the host-command portion of Step 2 with Compose, a Dockerfile, compiled artifacts, an external process, or a custom provisioner.
+- [How Blackbox Works](/docs/blackbox/overview/how-blackbox-works)
+- [Use Blackbox With Coding Agents](/docs/blackbox/guides/agent-skills)
