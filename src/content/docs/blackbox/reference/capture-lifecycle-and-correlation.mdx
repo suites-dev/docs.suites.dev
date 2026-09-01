@@ -1,99 +1,82 @@
 ---
-title: "Capture Lifecycle and Correlation"
-description: "Look up how Blackbox bounds one attempt, attributes distributed work, establishes completion, and seals evidence."
+title: "Capture Lifecycle and Evidence"
+description: "Reference fresh attempt boundaries, capture phases, evidence assembly, completeness, and retry history."
 sidebar_position: 3
 keywords:
   [
-    "managed capture",
-    "attempt correlation",
-    "evidence lifecycle",
-    "application completion",
-    "sealed evidence",
+    "Blackbox capture lifecycle",
+    "attempt evidence",
+    "evidence completeness",
+    "retry isolation",
   ]
 ---
 
-import Aside from "@/components/mdx/Aside.astro";
+If a product-cache case fails and retries, the retry receives a new sandbox lease, attempt, window, capture sessions, evidence, and teardown. Blackbox never merges the failed attempt into the retry.
 
-A checkout request returns successfully, then a background worker sends the charge request. Blackbox can use that charge as evidence only when it belongs to the checkout attempt and the capture lifecycle includes the delayed work before sealing.
+## Bound Every Physical Attempt
 
-**Managed capture** is the Runtime-owned lifecycle that bounds and attributes evidence, establishes completion, and seals one physical case attempt.
+An independent case attempt owns:
 
-<Aside type="info" title="Alpha Target">
-  This page describes the Alpha 3 target. Its lifecycle responsibilities and
-  fail-closed boundaries are accepted. Physical control-record names, schemas,
-  and public configuration are not committed here.
-</Aside>
+- One fresh sandbox lease.
+- Fresh runtime and capture identities.
+- One evidence boundary.
+- Its own teardown or quarantined lease.
 
-## Follow One Attempt From Open to Seal
+Parallel and serial scheduling cannot make independent attempts share assurance state.
 
-| Phase                     | What Blackbox establishes                                                                 |
-| ------------------------- | ----------------------------------------------------------------------------------------- |
-| **Allocate**              | A fresh attempt, evidence window, and isolation identity exist for the selected case.     |
-| **Admit**                 | Required services and capture capabilities are present before relevant work begins.       |
-| **Open**                  | The attempt can accept evidence inside its declared observation window.                   |
-| **Execute and correlate** | Supported work is attributed to the current attempt across participating services.        |
-| **Complete and settle**   | Required application work completed and admitted in-flight work reached a terminal state. |
-| **Drain and close**       | Ended evidence was exported, receiver intake closed, and loss or rejection was recorded.  |
-| **Seal**                  | The attempt evidence became immutable and ready for offline analysis.                     |
+## Separate Telemetry From Assurance Control
 
-These phases are separate checks. A successful response does not establish application completion. A successful telemetry export does not establish that all required work was observed.
+The **telemetry plane** carries observed OTLP operations. The **assurance control plane** carries identity, participation, capability, completion, loss, cutoff, settlement, and seal facts.
 
-## Keep Every Physical Attempt Separate
+Blackbox needs both. A received span cannot prove lifecycle completeness, and a lifecycle receipt cannot establish that an effect occurred.
 
-Runtime opens fresh managed capture for every case attempt, runner retry, and ordered-sequence member.
+## Capture in a Fixed Order
 
-- A retry receives a new attempt and evidence window.
-- Sequence members may share accepted application state, but each member retains separate capture and evidence.
-- Parallel attempts retain separate identities even when they share a runner process or similar titles.
-- Evidence from separate attempts never merges to complete a claim.
+Before capture starts, Blackbox allocates the sandbox, admits the exact participant census, and confirms capture-protocol readiness for every required participant.
 
-An application-internal retry can remain inside one case attempt. A runner retry is a new physical execution and always receives a fresh boundary.
+The capture lifecycle then preserves this order:
 
-## Correlate Work Without Guessing
+```text
+Capture armed
+→ Window prepared and opened
+→ Required participants enter
+→ Runner starts and reaches a terminal result
+→ Claim-specific completion is established
+→ Capture cutoff and crossing work settle
+→ Capture drains
+→ Participants and receiver seal
+```
 
-Runtime binds observations to the selected case, realization, attempt, evidence window, participating service instance, and executed artifact. It propagates opaque attempt and window correlation through supported service boundaries.
+Readiness, runner completion, application completion, cutoff, settlement, drain, and sealing remain distinct facts.
 
-OpenTelemetry trace context can connect distributed operations, but a trace ID alone does not establish evidence ownership. Test titles, files, workers, timestamps, and flow labels are also insufficient.
+## Assemble Evidence Without Rewriting Producers
 
-Correlation establishes **where evidence belongs**. It does not establish that capture was complete or that the observed behavior satisfied a claim.
+The per-attempt evidence keeps exact references to:
 
-## Bound Asynchronous Work Explicitly
+- Accepted plan and selected realization.
+- Sandbox lease, participants, services, processes, and isolates.
+- Runner and visible assertion facts.
+- Lifecycle, completion, loss, cutoff, settlement, and seal facts.
+- Redacted raw-evidence references and normalized effect facts.
+- Executed artifacts and verified mapping results.
 
-| Observed work                                    | Treatment                                                                 |
-| ------------------------------------------------ | ------------------------------------------------------------------------- |
-| Explicitly correlated and settled before sealing | Eligible for the current attempt when its capture capability is admitted. |
-| Started in the window and ended during settling  | Eligible when Runtime records its terminal state before sealing.          |
-| Detached without an explicit relationship        | Not attributed from timing overlap alone.                                 |
-| Bound to another attempt or sequence member      | Foreign evidence that cannot complete the current claim.                  |
-| Received after immutable sealing                 | Cannot modify the sealed evidence and produces an integrity problem.      |
+The evidence assembler verifies and joins producer facts. It does not impersonate a producer or author a claim verdict.
 
-If delayed work matters to a claim, the accepted behavior needs an application-completion condition that includes it. Waiting for a quiet period is not a substitute for that condition.
+## Derive Completeness Per Claim
 
-## Distinguish Completion, Settling, and Flushing
+Completeness depends on the exact claim direction and scope. Blackbox derives it from authenticated participant, capability, lifecycle, loss, settlement, and seal facts.
 
-- **Application completion** establishes that the product work relevant to the case reached its declared completion condition.
-- **Settling** establishes what happened to admitted operations that were still active at the capture cutoff.
-- **Flushing** moves already ended telemetry through the participating capture pipeline.
-- **Receiver closeout** records whether accepted intake finished without unresolved loss, rejection, or late evidence.
-- **Sealing** fixes the evidence that the Analyzer may evaluate.
+An empty effect list, a successful OTLP request, queue polling, or flush alone cannot establish completeness. [See how incomplete evidence limits claim evaluation](/docs/blackbox/reference/effects-and-claims#evidence-limits-the-conclusion).
 
-None of these facts can substitute for another. In particular, flushing does not complete application work, and sealing does not make incomplete evidence complete.
+## Preserve Ordered State and Retry History
 
-## Let Lifecycle Failures Limit Findings
+Cases share state only inside an explicit ordered group. The group declares member order, shared domains, transfer attestations, stop-on-failure behavior, and final cleanup.
 
-Blackbox can retain eligible observations even when the full lifecycle is incomplete. It cannot use incomplete capture to establish a completeness-dependent success.
+A group retry restarts the full group on a fresh lease. Earlier attempts and outcomes remain visible.
 
-That restriction applies to:
+Comparisons name exact members and an outcome-independent eligible-attempt policy. Blackbox does not aggregate evidence by flow name, worker, trace, file, title, or timing overlap.
 
-- Absence of a forbidden effect.
-- Satisfaction of an upper bound.
-- Satisfaction of an exact count.
-- Other claims whose success depends on seeing the complete declared scope.
+## Next Steps
 
-Depending on the cause, Blackbox reports an unsupported, inconclusive, or integrity finding instead of a pass. The Analyzer owns that determination; Runtime records the lifecycle and evidence facts.
-
-## See Also
-
-- [Runtime Evidence and Integrity](/docs/blackbox/concepts/runtime-evidence): Understand the four conditions that bound an evidence claim.
-- [Plans and Realizations](/docs/blackbox/reference/plans-and-realizations): See how the selected realization enters the evidence identity chain.
-- [OpenTelemetry and Effects](/docs/blackbox/concepts/effects-and-catalogs): Continue from correlated observations to normalized effects and findings.
+- [Runtime Evidence and Integrity](/docs/blackbox/concepts/runtime-evidence)
+- [Test Topologies and Parallelism](/docs/blackbox/guides/playwright-isolation-and-parallelism)

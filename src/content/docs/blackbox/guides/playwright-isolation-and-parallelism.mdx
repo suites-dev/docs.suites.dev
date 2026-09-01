@@ -1,110 +1,59 @@
 ---
-title: "Isolate Tests and Run in Parallel"
-description: "Map Playwright workers, flows, retries, and attempts to clean Blackbox isolation cells."
-sidebar_position: 8
-keywords: ["Blackbox isolation", "Playwright parallelism", "capture cell"]
+title: "Test Topologies and Parallelism"
+description: "Choose independent attempts, ordered groups, comparisons, or typed in-case concurrency without mixing evidence."
+sidebar_position: 3
+keywords:
+  [
+    "Playwright parallelism",
+    "Blackbox test isolation",
+    "ordered test sequence",
+    "case comparison",
+  ]
 ---
 
-Blackbox preserves Playwright’s native scheduling while preventing mutable state and runtime evidence from crossing flow boundaries.
+Choose the topology from the behavior the case requires. Playwright scheduling does not define Blackbox evidence boundaries.
 
-Use this guide after the serial Quickstart works and before enabling multiple Playwright workers or retries. Parallel execution is trustworthy only when each cell owns or resets every mutable dependency used by its attempts.
+## Choose a Topology
 
-## Start With Flow Isolation
+| Need                                     | Topology                                | Evidence rule                                                                       |
+| ---------------------------------------- | --------------------------------------- | ----------------------------------------------------------------------------------- |
+| Cases do not share state                 | Independent attempts                    | Fresh lease, runtime identity, capture, evidence, and teardown per physical attempt |
+| Cases must share declared state in order | Ordered group                           | One fresh group lease, separate member attempts and evidence                        |
+| Two or more cases must be compared       | Explicit comparison                     | Exact named members and controlled dimension, no evidence aggregation               |
+| Operations must overlap                  | Typed parallel branches inside one case | One case owns the synchronization contract                                          |
 
-```ts title="blackbox.config.ts"
-export default defineBlackboxConfig({
-  // ...SUT, runner, evidence, and analysis...
-  isolation: { scope: "flow" },
-});
-```
+## Run Independent Cases
 
-`flow` is the default because it isolates behaviors without paying full topology startup for every assertion.
+Serial and parallel Playwright workers follow the same assurance rule. Independent attempts never share evidence or runtime assurance state.
 
-| Scope    | Created                              | Reused                            | Reset                                     | Destroyed                                   |
-| -------- | ------------------------------------ | --------------------------------- | ----------------------------------------- | ------------------------------------------- |
-| `flow`   | First attempt for a flow in a worker | Attempts for that worker and flow | Before each independent attempt and retry | When the flow completes or the worker exits |
-| `worker` | Worker start                         | All flows assigned to the worker  | Before each independent attempt           | Worker exit                                 |
-| `test`   | Before each attempt                  | Never                             | A new cell provides clean state           | Immediately after the attempt               |
+A teardown failure quarantines that lease. It cannot become the next worker's starting state.
 
-A flow cell includes the SUT, mutable dependencies assigned to it, service identities, capture configuration, and one evidence partition.
+## Declare Ordered State
 
-## Let Playwright Schedule Normally
+Use an ordered group only when later cases depend on state produced earlier. Declare contiguous member order, shared domains, transfer attestations, stop-on-failure behavior, and final cleanup.
 
-```ts title="playwright.config.ts"
-import { defineConfig } from "@playwright/test";
-import { blackboxPlaywright } from "@suites/blackbox/playwright";
+Members remain separately verdictable. If one member fails, later members become `not-executed`.
 
-import blackbox from "./blackbox.config.js";
+## Retry From a Fresh Baseline
 
-export default defineConfig({
-  ...blackboxPlaywright(blackbox),
-  testDir: "e2e",
-  fullyParallel: true,
-  workers: 4,
-});
-```
+Every retry receives fresh runtime and evidence identity. An ordered-group retry restarts the full group on a new sandbox lease, not only the failed member.
 
-Blackbox derives cell identity from the selected scope and Playwright worker identity:
+Blackbox keeps earlier attempts and outcomes. A favorable retry cannot replace or hide them.
 
-- The same flow running in two workers receives two cells.
-- Retries receive new attempt identities and clean state.
-- A restarted worker receives a new worker identity.
-- Serial tests stay on one worker but remain distinct attempts.
-- Evidence joins after execution by run, case, assignment, cell, and attempt identity.
+## Compare Without Aggregating
 
-## Reset Every Mutable Dependency
+A comparison names exact members, a controlled dimension, one SuitePlan revision, and an outcome-independent eligible-attempt policy.
 
-A reset boundary must cover:
-
-- Relational and document databases.
-- Caches.
-- Queues, delayed messages, and background workers.
-- Object stores.
-- Mutable mock servers.
-- Scheduled work from an earlier attempt.
-
-Managed provisioners reset, restore, or replace the resources they own. A custom or external setup supplies its own reset guarantee.
-
-If Blackbox cannot establish the isolation assurance required by policy, it reports an inconclusive integrity result instead of treating absent effects as proof.
-
-## Keep Accepted Cases and Physical Attempts Separate
-
-Each approved case has stable semantic identity and exactly one declared runner binding. The public tag and generated-field syntax for that relationship are not frozen.
-
-Multiple attempts and runner retries can refer to the same accepted case, but each physical execution receives a new attempt and evidence window. Similar titles, file paths, and source order do not establish a binding.
-
-Use separate accepted cases when behavior requires different effect claims or isolation boundaries.
-
-## Understand Partial Attempts
-
-Timed-out, interrupted, and skipped attempts are sealed as partial. They cannot support conclusive negative-effect or ODC verdicts.
-
-An assertion failure may still contain complete runtime evidence when every capture service settled successfully. Blackbox reports the test failure separately from evidence integrity.
-
-## Preserve Correlation
-
-The runner and runtime integrations propagate supported trace context and opaque attempt identity across admitted service boundaries. Trace IDs help connect distributed operations, but they do not replace Blackbox attempt and window identity.
-
-When a custom client, message transport, or background worker crosses a boundary outside that supported path, treat the correlation requirement as unresolved until an admitted integration carries it explicitly. Timing overlap is not enough.
-
-[See the attempt-correlation and asynchronous-work rules](/docs/blackbox/reference/capture-lifecycle-and-correlation#correlate-work-without-guessing).
-
-## Validate Cell Separation
-
-```bash
-pnpm exec blackbox test --flow subscribe-user
-```
-
-Expected result: each assignment and case resolves to the intended cell, resets complete before independent attempts, and the sealed evidence records no missing-isolation finding.
+Do not group evidence by test title, flow label, trace, file, worker, shard, or timing overlap. One member's retry cannot substitute for another member.
 
 ## Summary
 
-- **Use `flow` isolation by default.**
-- **Include all mutable dependencies in the cell or reset contract.**
-- **Enable Playwright parallelism only when ports and mutable dependencies are cell-specific.**
-- **Treat partial attempts and missing isolation as inconclusive evidence.**
+- Use independent attempts by default.
+- Share state only through an explicit ordered group.
+- Put required concurrency inside one typed case.
+- Keep every retry and comparison member's evidence separate.
 
 ## Next Steps
 
-- **[Choose How Blackbox Runs Your Application](/docs/blackbox/guides/set-up-the-testbed)**
-- **[Add Blackbox to CI](/docs/blackbox/guides/reports-and-ci-gates):** Run the verified parallel setup as a gate.
+- [Capture Lifecycle and Evidence](/docs/blackbox/reference/capture-lifecycle-and-correlation)
+- [Observable Decision Coverage](/docs/blackbox/concepts/omc-dc-coverage)

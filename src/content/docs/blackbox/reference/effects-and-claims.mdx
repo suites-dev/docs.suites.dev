@@ -1,0 +1,90 @@
+---
+title: "Effects and Claim Evaluation"
+description: "Reference normalized effects, supported claim kinds, evidence limits, and the five Blackbox verdicts."
+sidebar_position: 4
+keywords:
+  [
+    "Blackbox effects",
+    "effect claims",
+    "evidence completeness",
+    "Blackbox verdicts",
+  ]
+---
+
+A product-cache case reads product `42` twice. Both requests return `200`, but the runtime evidence contains two Postgres reads. Blackbox evaluates the declared upper-bound claim against those observed effects.
+
+## Effect Facts
+
+Blackbox normalizes eligible runtime observations into portable **effect facts**. An effect signature contains:
+
+| Field       | Meaning                                                |
+| ----------- | ------------------------------------------------------ |
+| `serviceId` | Service that performed the work                        |
+| `boundary`  | System boundary, such as HTTP, Postgres, Redis, or SQS |
+| `operation` | Operation performed at that boundary                   |
+| `target`    | Resource that received the operation                   |
+| `status`    | Normalized outcome                                     |
+
+Multiplicity is separate from the signature. Two identical Postgres reads are one signature with an observed count of two.
+
+```yaml title="Illustrative effect projection, not a public schema"
+effect:
+  serviceId: product-service
+  boundary: postgres
+  operation: SELECT
+  target: products
+  status: ok
+observedCount: 2
+```
+
+An effect must remain joined to its eligible evidence. An authored label, span display name, or timestamp cannot create an effect fact by itself.
+
+## Claim Kinds
+
+Blackbox supports explicit claims about:
+
+- **Presence:** An effect was observed.
+- **Absence:** A forbidden effect was not observed.
+- **Cardinality:** An effect occurred exactly, at least, or at most a declared number of times.
+- **Ordering:** Declared effects occurred in the required order inside one evidence window.
+- **Comparison:** Named cases produced the declared relationship.
+
+Each matcher is capability-qualified. Effects cannot invent a missing requirement or expand the approved claim scope.
+
+## Evidence Limits the Conclusion
+
+| Evidence condition                                                     | What Blackbox can conclude          |
+| ---------------------------------------------------------------------- | ----------------------------------- |
+| Enough eligible observations establish a lower bound                   | The lower bound can be satisfied    |
+| One eligible observation contradicts absence                           | The absence claim is violated       |
+| The observed count already exceeds an upper bound or exact count       | The claim is violated               |
+| Evidence is incomplete and the observed count remains within a maximum | The upper bound cannot be satisfied |
+| Evidence is incomplete and no forbidden effect appears                 | Absence cannot be satisfied         |
+
+Incomplete evidence preserves conclusions it can establish. It does not turn uncertainty into success.
+
+## Claim Verdicts
+
+Every selected claim receives exactly one verdict:
+
+| Verdict             | Meaning                                                            |
+| ------------------- | ------------------------------------------------------------------ |
+| `satisfied`         | Eligible evidence establishes the claim within its declared scope  |
+| `violated`          | Eligible evidence contradicts the claim                            |
+| `inconclusive`      | The available evidence cannot establish satisfaction or violation  |
+| `unsupported`       | The selected capability or topology cannot evaluate the claim      |
+| `integrity-failure` | A required identity, lifecycle, evidence, or trust relation failed |
+
+Only `satisfied` passes. `not-executed` describes an attempt state, not a claim verdict.
+
+## Findings and Reports
+
+The analyzer evaluates sealed evidence offline. It does not query or mutate the running system.
+
+A canonical report preserves the exact plan, attempt, evidence, claim, scope, findings, verdict, and producer-owned repair routing. Human and machine renderers may present that truth differently, but they cannot change it.
+
+## See Also
+
+- [OpenTelemetry and Effects](/docs/blackbox/concepts/effects-and-catalogs)
+- [Runtime Evidence and Integrity](/docs/blackbox/concepts/runtime-evidence)
+- [Capture Lifecycle and Evidence](/docs/blackbox/reference/capture-lifecycle-and-correlation)

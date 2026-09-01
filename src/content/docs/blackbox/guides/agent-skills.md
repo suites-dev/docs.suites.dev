@@ -1,96 +1,67 @@
 ---
 title: "Use Blackbox With Coding Agents"
-description: "Install Blackbox Skills, route work through the right verification stage, and keep behavioral authority with people."
-sidebar_position: 12
+description: "Use Blackbox Skills to propose behavior, realize tests, route deterministic findings, and preserve human approval."
+sidebar_position: 4
 keywords: ["Blackbox agent skills", "coding agents", "behavioral verification"]
 ---
 
-Blackbox Skills give coding agents a method for proposing artifacts and repairing implementation. Deterministic CLI and runtime components still compute every gate.
+Blackbox Skills guide coding agents through the verification loop. They can propose and repair work, but deterministic producers and people retain authority over product truth.
 
-Use Skills across the four-step Quickstart when you want agent assistance. Install them before a static guide invokes `$blackbox-requirements` or `$blackbox-gherkin`; use `$blackbox-repair` after Step 4 produces a deterministic finding.
+## Give the Agent Bounded Work
 
-## Install the Skills
+Tell the agent which product requirement, case, files, and verification gates are in scope. Keep the input checkpoint immutable while the agent works.
 
-Review the project-local installation:
+The agent may:
 
-```bash
-pnpm exec blackbox skills install --host codex --json
-```
+- Propose Gherkin or direct behavioral declarations.
+- Complete generated Playwright bindings.
+- Implement or repair application behavior.
+- Run the required validation and execution gates.
+- Present findings and route the next permitted action.
 
-Write it after reviewing the file plan:
+The agent may not approve its own proposed behavior, infer requirements from effects, rewrite producer findings, or choose a weaker rerun gate.
 
-```bash
-pnpm exec blackbox skills install --host codex --write --json
-```
-
-| Host   | Option          | Location                 |
-| ------ | --------------- | ------------------------ |
-| Codex  | `--host codex`  | `.agents/skills/`        |
-| Claude | `--host claude` | `.claude/skills/`        |
-| Both   | `--host all`    | Both supported locations |
-| Auto   | `--host auto`   | Every detected location  |
-
-The installer refuses to overwrite a locally modified Skill.
-
-## Use the Skill for the Current Stage
-
-| Skill                    | Proposes                                         | Human decision                           |
-| ------------------------ | ------------------------------------------------ | ---------------------------------------- |
-| Coordinator              | The correct workflow and next deterministic gate | Accept the selected path                 |
-| `$blackbox-requirements` | Atomic EARS requirements                         | Approve requirement meaning              |
-| `$blackbox-gherkin`      | Scenarios from requirements or executable tests  | Approve scenarios and flow IDs           |
-| `$blackbox-runtime`      | SUT source, capture, and isolation configuration | Accept infrastructure and isolation risk |
-| `$blackbox-effects`      | Required and forbidden effects                   | Accept behavior policy                   |
-| `$blackbox-odc`          | Interpretation of decision propagation           | Set coverage policy                      |
-| `$blackbox-repair`       | Implementation changes against findings          | Accept the final result                  |
-
-## Give the Agent a Bounded Request
+## Preserve the Verification Direction
 
 ```text
-$blackbox-effects
-
-For flow subscribe-user, inspect the latest sealed evidence and the approved
-feature. Propose the smallest required and forbidden effect contract. Do not
-change the native assertions or flow ID. Stop for human review.
+person-approved behavior
+        ↓ feedforward
+coding agent realizes the test and implementation
+        ↓
+Blackbox captures and analyzes one fresh attempt
+        ↓ deterministic feedback
+coding agent repairs, or person reviews a meaning change
 ```
 
-After approval, deterministic analysis evaluates the accepted contract:
+## Run Deterministic Gates
+
+Use the canonical validation sequence where applicable:
 
 ```bash
-pnpm exec blackbox analyze --run latest
+blackbox features check
+blackbox scenarios check
+blackbox suites typecheck
 ```
 
-## Keep Authority With People
+Each producer owns its capability status, finding, verdict, repair owner, permitted actions, and earliest required rerun gate. The Skill preserves and routes those fields.
 
-Skills must not silently redefine:
+## Route Failures Correctly
 
-- Requirement meaning.
-- Accepted Gherkin or stable flow IDs.
-- Native test assertions.
-- Required and forbidden effects.
-- SUT source, capture boundaries, reset assurance, or gate policy.
-- Final interpretation of the result.
+| Failure belongs to            | Agent action                                                                            |
+| ----------------------------- | --------------------------------------------------------------------------------------- |
+| Authored or semantic input    | Propose a correction and return protected meaning to a person when approval is required |
+| Playwright realization        | Repair bindings or test implementation, then rerun the owning validation gate           |
+| Application behavior          | Repair implementation and perform a fresh runtime execution                             |
+| Capture or evidence integrity | Repair the owning runtime boundary and perform a fresh execution                        |
+| Unsupported capability        | Stop and report the exact unsupported cell                                              |
 
-```text
-Skills propose -> CLI and runtime compute -> agent repairs -> human approves
-```
+Report-only reanalysis is valid only when the producer says it is the earliest required gate. It cannot certify an application or capture repair.
 
-## Know What Computes Each Result
+## Keep History
 
-| Work                                | Owner                        |
-| ----------------------------------- | ---------------------------- |
-| Propose requirements and contracts  | Blackbox Skills              |
-| Validate static artifacts and drift | Blackbox CLI                 |
-| Execute native tests and attempts   | Runner adapter               |
-| Observe and seal runtime evidence   | Language capture and sidecar |
-| Check effects and calculate ODC     | Offline analyzers            |
-| Accept behavior, policy, and result | People                       |
-
-An agent can operate across the whole loop, but it does not replace the deterministic components that produce findings or the people who approve the target.
+Preserve rejected proposals, previous findings, earlier attempts, and human decisions. A new passing attempt does not erase the evidence that caused the repair.
 
 ## Next Steps
 
-- **[Add Readable Behavior Specifications](/docs/blackbox/guides/recover-behavior-from-existing-tests)**
-- **[Start Without a Test](/docs/blackbox/quickstart/start-without-test)**
-- **[How Blackbox Works?](/docs/blackbox/overview/how-blackbox-works)**
-- **[Approve Effect Policy and Read ODC](/docs/blackbox/quickstart/enforce-runtime-effects):** Enter the implementation-repair loop at Step 4.
+- [Human Authority and the Agent Loop](/docs/blackbox/concepts/human-agent-verification-loop)
+- [Add Blackbox to CI](/docs/blackbox/guides/reports-and-ci-gates)

@@ -1,63 +1,66 @@
 ---
-title: "Plans and Realizations"
-description: "Distinguish accepted meaning, concrete runner realization, and the realization selected for one Blackbox run."
+title: "Plans, Alignment, and Identity"
+description: "Distinguish accepted meaning, Playwright realization, run selection, and the identities that join them."
 sidebar_position: 2
 keywords:
   [
     "SuitePlan",
     "RunnerBundle",
     "RunPlan",
-    "Blackbox realization",
-    "accepted meaning",
+    "Blackbox identity",
+    "Playwright generation",
   ]
 ---
 
-import Aside from "@/components/mdx/Aside.astro";
+A product-cache case declares that two reads succeed and produce at most one Postgres read. Blackbox keeps that meaning separate from the Playwright code that performs the two requests.
 
-An approved checkout case says one completed order produces at most one charge request. A Playwright test drives that case through the running system.
+## Three Artifacts, Three Responsibilities
 
-Blackbox keeps those two facts separate: the approved case defines success, while the test defines how to exercise it.
+| Artifact         | Owns                                                                                         | Must not own                                                              |
+| ---------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| **SuitePlan**    | Accepted cases, claims, completion requirements, capabilities, topology, and artifact policy | Workers, live endpoints, secrets, runtime identities, or capture outcomes |
+| **RunnerBundle** | Exact discovery and concrete realization of selected cases in a runner                       | New meaning, silent exclusions, or runtime-created facts                  |
+| **RunPlan**      | Selection, execution units, projects, retry policy, placement, and required capabilities     | New relations, physical evidence, or admission outcomes                   |
 
-<Aside type="info" title="Alpha Target">
-  The SuitePlan, RunnerBundle, and RunPlan responsibility split is accepted for
-  Alpha 3. Public schemas, filenames, and command surfaces are not defined by
-  this page.
-</Aside>
+Gherkin-linked authoring and direct behavioral declarations both converge on SuitePlan. Equivalent inputs produce equivalent accepted meaning.
 
-## Follow One Case Through Three Contracts
+## Playwright Realization
 
-| Question                          | Owner            | Product responsibility                                                                 |
-| --------------------------------- | ---------------- | -------------------------------------------------------------------------------------- |
-| **What behavior was accepted?**   | **SuitePlan**    | Owns the accepted meaning compiled from approved Gherkin, claims, and analysis policy. |
-| **How can that behavior be run?** | **RunnerBundle** | Owns the concrete runner realization, including its exact case and oracle bindings.    |
-| **What will this run execute?**   | **RunPlan**      | Selects declared cases and a declared realization for this run.                        |
+For the accepted Playwright target, the generated suite directory contains exactly:
 
-The direction matters. A RunnerBundle can realize SuitePlan meaning, but it cannot add, remove, or weaken that meaning. A RunPlan can select a realization, but it cannot invent one.
+```text
+suite.spec.ts
+suite.runtime.ts
+suite.d.ts
+plan.json
+```
 
-## Keep Meaning Out of the Runner
+RunPlan is an in-memory selection, not a fifth generated file.
 
-The **SuitePlan** is the semantic boundary. It preserves the accepted cases, claims, and prerequisites that determine what Blackbox may evaluate.
+Exactly one discovered Playwright test binds each selected case. Missing, duplicate, ambiguous, stale, or redirected bindings fail before Blackbox allocates the application sandbox.
 
-The **RunnerBundle** connects those cases to concrete executable targets. For a Playwright realization, that includes the exact test and native oracle bindings that implement the approved case. Test titles, file order, workers, and shards do not become accepted meaning.
+## Identity Does Not Come From Labels
 
-This separation lets an agent repair a stale or incorrect system suite without silently changing the target it must satisfy.
+Blackbox uses explicit stable identities for flows, requirements, cases, claims, and execution units. Runtime then creates fresh physical identities for each attempt, capture window, capture session, participant, service instance, process, and isolate.
 
-## Select Only a Declared Realization
+Titles, paths, line numbers, worker IDs, trace IDs, timestamps, and matching text do not replace those identities.
 
-The **RunPlan** chooses from what the SuitePlan and RunnerBundle already declare. It may select which cases and realization run, then carry the execution choices required by the runtime.
+| Identity layer | Example responsibility                           |
+| -------------- | ------------------------------------------------ |
+| Semantic       | Which accepted case and claim this is            |
+| Realization    | Which exact runner relation realizes it          |
+| Selection      | Which declared realization this run selected     |
+| Runtime        | Which physical attempt and participants executed |
+| Evidence       | Which sealed facts belong to that attempt        |
 
-If more than one realization is declared, the selected realization remains explicit. Blackbox does not merge realizations or choose one by title similarity.
+## Keep Authority Directional
 
-If the selected realization is missing, ambiguous, or stale, Blackbox must stop before treating the execution as behavioral proof. It cannot substitute another test and report a meaningful pass.
+Downstream artifacts preserve exact roots and declared relations. Runtime instrumentation observes work but does not evaluate claims. Analysis evaluates sealed evidence but does not connect to or mutate the running system.
 
-## Bind Findings to the Execution That Produced Them
-
-Stable identity connects the accepted case, its selected realization, the physical attempt, and the resulting evidence. The Analyzer can therefore establish which approved execution produced the evidence behind a finding.
-
-This prevents a passing test for one case, runner target, retry, or shard from being used as proof for another.
+Observed effects can test approved meaning. They cannot create it.
 
 ## See Also
 
-- [Human Intent and Verification Authority](/docs/blackbox/concepts/specifications-flows-and-verdicts): See what each stage may own and change.
-- [Case and Execution Identity](/docs/blackbox/reference/scenario-dsl): Look up the identities that connect behavior, execution, and evidence.
-- [Runtime Evidence and Integrity](/docs/blackbox/concepts/runtime-evidence): Continue from the selected realization into fresh attempts and sealed evidence.
+- [Human Authority and the Agent Loop](/docs/blackbox/concepts/human-agent-verification-loop)
+- [Capture Lifecycle and Evidence](/docs/blackbox/reference/capture-lifecycle-and-correlation)
+- [Configure Source Maps and Service Layouts](/docs/blackbox/guides/source-maps-and-service-layouts)

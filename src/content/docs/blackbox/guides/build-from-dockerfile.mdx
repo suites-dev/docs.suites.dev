@@ -1,78 +1,35 @@
 ---
 title: "Build From a Dockerfile"
-description: "Build an ephemeral captured SUT from a Dockerfile without maintaining a separate Blackbox image."
-keywords: ["Blackbox Dockerfile", "container system test", "Node capture"]
+description: "Preview the future Dockerfile setup workflow. This setup input is not supported yet."
+sidebar_position: 1
+keywords:
+  ["Blackbox Dockerfile", "future setup path", "unsupported Blackbox input"]
 ---
 
-Use a Dockerfile source when one service already has a repeatable container build but the project does not need a full Compose topology.
+:::note Unsupported Setup Input
+Dockerfile and build-context input is not supported. Blackbox returns a structured `unsupported` result before runtime assurance begins.
+:::
 
-Complete [Quickstart Step 1A](/docs/blackbox/quickstart/build-behavioral-harness) or [Step 1B](/docs/blackbox/quickstart/start-without-test) first. This setup replaces sections 1 and 2 of Step 2. After configuring the Dockerfile, return to the common Playwright integration in section 3.
+This future path is intended for a service that has a repeatable Dockerfile but no Compose topology.
 
-## Configure the Build
+## Intended Workflow
 
-```ts title="blackbox.config.ts"
-import { defineBlackboxConfig } from "@suites/blackbox";
+When certified, the workflow will:
 
-export default defineBlackboxConfig({
-  sut: {
-    source: {
-      kind: "dockerfile",
-      file: "Dockerfile",
-      context: ".",
-    },
-    services: {
-      api: {
-        containerPort: 3000,
-        readiness: { kind: "http", path: "/health" },
-        environment: {
-          files: [".env.test"],
-          passthrough: [],
-          values: { NODE_ENV: "test" },
-        },
-        capture: { language: "node" },
-        layout: {
-          artifactRoot: "dist",
-          sourceMaps: "discover",
-        },
-      },
-    },
-  },
-  lifecycle: { ownership: "blackbox" },
-  isolation: { scope: "flow" },
-  runner: { kind: "playwright", config: "playwright.config.ts" },
-  evidence: { dir: ".blackbox/evidence" },
-  analysis: { effects: "check" },
-});
-```
+1. Accept an explicit Dockerfile and build context.
+2. Resolve the exact platform artifact produced by the build.
+3. Allocate an owned network, storage, service, and lifecycle boundary.
+4. Inject generated observation and control configuration.
+5. Admit participants and capabilities before starting the selected test.
+6. Bind evidence to the exact built artifact and sandbox lease.
+7. Prove teardown or quarantine the lease.
 
-Blackbox builds the declared target, attaches capture in an ephemeral derived layer, maps the application port, and starts one service instance per cell.
+## What This Page Does Not Promise
 
-## Preserve the Application Image
+This setup is not equivalent to the supported Compose path. Blackbox does not silently translate it into Compose or fall back to weaker capture.
 
-The project Dockerfile remains application-owned. Blackbox does not require production code imports or permanent test instrumentation in the published image.
+Public configuration syntax will be documented only after the exact Dockerfile cell completes certification.
 
-Keep executable JavaScript and its source maps in the image. Offline analysis uses the exact bytes captured from the running service, not a separately rebuilt host copy.
+## Use the Supported Path
 
-## Handle Dependencies
-
-A Dockerfile source isolates the declared service. If the application depends on PostgreSQL, Redis, queues, or workers, either:
-
-- move to a Compose source that includes them;
-- point the cell at independently isolated dependencies; or
-- use a custom provisioner that owns the complete topology.
-
-Do not treat a fresh application container connected to shared mutable state as full flow isolation.
-
-## Validate the Cell
-
-```bash
-pnpm exec blackbox doctor --json
-```
-
-Expected result: Blackbox resolves the Dockerfile, build context, service port, capture capability, and readiness plan without a configuration error.
-
-## Next Steps
-
-- **[Use an Existing Compose Project](/docs/blackbox/guides/use-existing-compose):** Isolate a multi-service topology.
-- **[Configure Source Maps and Service Layouts](/docs/blackbox/guides/source-maps-and-service-layouts):** Verify artifact discovery.
-- **[Add Blackbox to Playwright](/docs/blackbox/quickstart/add-to-existing-test#3-add-blackbox-to-playwright):** Rejoin Step 2 at the shared adapter setup.
+Use [an existing Compose project](/docs/blackbox/guides/use-existing-compose) for the current setup workflow.

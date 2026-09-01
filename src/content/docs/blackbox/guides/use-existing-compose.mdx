@@ -1,98 +1,63 @@
 ---
 title: "Use an Existing Compose Project"
-description: "Give Blackbox your Compose files and let it create isolated projects, discover services, inject capture, and map host ports."
+description: "Prepare an existing Docker Compose topology for isolated Playwright attempts and Blackbox runtime evidence."
+sidebar_position: 2
 keywords:
-  ["Blackbox Docker Compose", "Compose system tests", "isolated services"]
+  ["Blackbox Docker Compose", "existing compose project", "system test sandbox"]
 ---
 
-Use Compose when your SUT and its mutable dependencies already run as one declared topology.
+Use the Compose project your team already runs in development. Blackbox treats one allocated project as the owned sandbox for a physical attempt.
 
-Complete [Quickstart Step 1A](/docs/blackbox/quickstart/build-behavioral-harness) or [Step 1B](/docs/blackbox/quickstart/start-without-test) first. This setup replaces sections 1 and 2 of Step 2. After configuring Compose, return to the common Playwright integration in section 3.
+## 1. Identify the Owned Topology
 
-## Point Blackbox at Your Files
+Start with the services the selected system test can reach:
 
-```ts title="blackbox.config.ts"
-import { defineBlackboxConfig } from "@suites/blackbox";
-
-export default defineBlackboxConfig({
-  sut: {
-    source: {
-      kind: "compose",
-      files: ["compose.yml", "compose.test.yml"],
-    },
-    services: {
-      api: {
-        from: "api",
-        capture: { language: "node" },
-      },
-      worker: {
-        from: "worker",
-        capture: { language: "node" },
-      },
-    },
-  },
-  lifecycle: { ownership: "blackbox" },
-  isolation: { scope: "flow" },
-  runner: { kind: "playwright", config: "playwright.config.ts" },
-  evidence: { dir: ".blackbox/evidence" },
-  analysis: { effects: "check" },
-});
+```yaml title="compose.yaml, shortened"
+services:
+  product-service:
+    build: ./services/product
+    depends_on: [postgres, redis]
+  postgres:
+    image: postgres
+  redis:
+    image: redis
 ```
 
-The `from` value binds a Blackbox service identity to a Compose service. Infrastructure services remain part of the cell even when they do not produce Blackbox evidence.
+Document any database, API, queue, cache, volume, or network outside this project. Blackbox cannot present an unowned resource as isolated.
 
-## Keep the Compose File Production-Shaped
+## 2. Make Participation Deterministic
 
-Your Compose files describe the application, ports, health checks, networks, and dependencies. Blackbox generates a cell-specific override that adds capture, private sidecar connectivity, dynamic host ports, and project identity.
+Blackbox needs an exact expected participant inventory before capture starts. Each required participant must identify itself, advertise admitted capabilities, and confirm capture-protocol readiness.
 
-You do not add Blackbox environment variables, replace the Node binary, expose a debug endpoint, or import a Blackbox OpenTelemetry provider in application code.
+Ambiguous service discovery produces a preflight question or failure. Blackbox never guesses when the guess could change assurance.
 
-## Let Blackbox Discover the Common Case
+## 3. Separate Telemetry and Control
 
-Blackbox derives:
+Allow the sandbox provider to inject generated OTLP observation configuration and separate control authorization. Do not reuse public correlation IDs as credentials or expose internal transport variables as project API.
 
-- Compose project names from run and cell identity.
-- Host ports from the started project.
-- Declared health checks.
-- SUT endpoints from published ports.
-- Service capture and analyzer selection.
-- Executed artifacts and source maps.
+## 4. Prove the Lifecycle
 
-Override only ambiguous endpoints, readiness, capture language, or service layout.
+For each independent attempt, the provider allocates a fresh lease, starts the selected topology, waits for required participants, and tears the topology down afterward.
 
-## Include Every Mutable Dependency
+If teardown cannot be established, Blackbox quarantines the lease. It does not reuse uncertain state.
 
-For a conclusive flow cell, include databases, caches, queues, object stores, workers, and mutable mock servers used by the flow. Blackbox either resets those resources before the next attempt or replaces the cell.
+## 5. Run a Small Case First
 
-Static host ports make parallel cells collide. Allow Blackbox to assign and read back host ports instead.
+Use one case that crosses a small number of supported boundaries, such as the product-cache case with Postgres and Redis. Confirm:
 
-## Run in Parallel
+- The native Playwright result is visible.
+- Required participants and capabilities were admitted.
+- Evidence belongs to one attempt and one capture window.
+- The effect finding states its exact evidence scope.
 
-Set Playwright's worker count in its native configuration:
+## Summary
 
-```ts title="playwright.config.ts"
-import { defineConfig } from "@playwright/test";
-import { blackboxPlaywright } from "@suites/blackbox/playwright";
-
-import blackbox from "./blackbox.config.js";
-
-export default defineConfig({
-  ...blackboxPlaywright(blackbox),
-  fullyParallel: true,
-  workers: 4,
-});
-```
-
-Check the configuration before returning to the Quickstart:
-
-```bash
-pnpm exec blackbox doctor --json
-```
-
-Expected result: Blackbox resolves the Compose files, declared services, capture capabilities, and readiness plan without a configuration error. The first runtime execution remains Quickstart Step 3.
+- Keep the existing Compose topology as the source of the application shape.
+- Make owned and unowned resources explicit.
+- Give each independent attempt a fresh lease and teardown.
+- Expand to parallel workers only after isolation is proven.
 
 ## Next Steps
 
-- **[Isolate Tests and Run in Parallel](/docs/blackbox/guides/playwright-isolation-and-parallelism)**
-- **[Configure Source Maps and Service Layouts](/docs/blackbox/guides/source-maps-and-service-layouts)**
-- **[Add Blackbox to Playwright](/docs/blackbox/quickstart/add-to-existing-test#3-add-blackbox-to-playwright):** Rejoin Step 2 at the shared adapter setup.
+- [Test Topologies and Parallelism](/docs/blackbox/guides/playwright-isolation-and-parallelism)
+- [Security and Data Handling](/docs/blackbox/operations/security-and-data-handling)

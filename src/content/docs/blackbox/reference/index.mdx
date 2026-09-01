@@ -1,34 +1,34 @@
 ---
 title: "Reference"
-description: "Look up Blackbox configuration, commands, packages, files, evidence, effects, reports, and flow identity."
+description: "Look up the accepted Blackbox contracts for plans, evidence, effects, claims, commands, and process behavior."
 sidebar_position: 1
-keywords:
-  ["Suites Blackbox reference", "Blackbox CLI", "Blackbox configuration"]
+keywords: ["Suites Blackbox reference", "Blackbox CLI", "runtime evidence"]
 ---
 
-Use the reference when you need an exact committed contract or the current Alpha boundary around one that is not frozen yet.
+Use this section when you need the exact responsibility of a Blackbox artifact, lifecycle boundary, verdict, or command.
 
-## Configuration and Runtime
+<div class="in-this-section">
 
-- [Configuration](/docs/blackbox/reference/configuration): Project configuration and SUT source strategies.
-- [Testbed API](/docs/blackbox/reference/testbed-api): Isolation cells, provisioning, readiness, reset, and teardown.
-- [Environment Configuration](/docs/blackbox/reference/environment-variables): Dotenv files, passthrough, explicit values, and precedence.
-- [Package Responsibilities](/docs/blackbox/reference/api): Public facade, extension packages, and private runtime boundary.
+### In This Section
 
-## Commands and Automation
+- [**Plans, Alignment, and Identity**](/docs/blackbox/reference/plans-and-realizations) - Follow accepted meaning into one concrete test realization and exact runtime identity.
+- [**Capture Lifecycle and Evidence**](/docs/blackbox/reference/capture-lifecycle-and-correlation) - See how one fresh attempt becomes sealed, claim-relative evidence.
+- [**Effects and Claim Evaluation**](/docs/blackbox/reference/effects-and-claims) - Look up effect signatures, claim kinds, evidence rules, and verdicts.
+- [**CLI and Exit Behavior**](/docs/blackbox/reference/cli) - Use the canonical validation commands and process exits.
 
-- [CLI Reference](/docs/blackbox/reference/cli): Published runtime commands and the current status of the alignment command surface.
-- [Exit Codes](/docs/blackbox/reference/exit-codes): Distinguish behavioral findings from configuration and integrity failures.
-- [Report Contracts](/docs/blackbox/reference/report-formats): Structured test, integrity, effect, and ODC results.
+</div>
 
-## Behavior and Evidence
+## Authority Rule
 
-- [Case and Execution Identity](/docs/blackbox/reference/scenario-dsl): Stable relationships across accepted cases, realizations, attempts, evidence, and findings.
-- [Plans and Realizations](/docs/blackbox/reference/plans-and-realizations): Accepted meaning, concrete runner realization, and selection for one run.
-- [Alignment Checks and Blocking Conditions](/docs/blackbox/reference/alignment-checks): Compilation, type projection, runner binding, and run-selection gates.
-- [Capture Lifecycle and Correlation](/docs/blackbox/reference/capture-lifecycle-and-correlation): Fresh attempts, distributed attribution, application completion, and immutable sealing.
-- [Effects Catalog Contract](/docs/blackbox/reference/catalog-schema): Stable vocabulary and normalization responsibilities while public syntax remains unfrozen.
-- [Effect Claim Evaluation](/docs/blackbox/reference/matchers-and-effect-builders): Proof strength, cardinality, completeness, and verdict rules.
-- [Files and Artifacts](/docs/blackbox/reference/files-and-artifacts): Reviewed source, sealed evidence, and derived analysis.
+Accepted meaning moves in one direction:
 
-Start with the [Blackbox Quickstart](/docs/blackbox/quickstart/) when you have not completed one end-to-end flow yet.
+```text
+authoring → SuitePlan → RunnerBundle → RunPlan → runtime evidence → analysis → report
+```
+
+Each downstream artifact preserves its exact parent identities. It cannot add a claim, reinterpret scope, or turn observed behavior into a new requirement.
+
+## Operational Boundaries
+
+- [Security and Data Handling](/docs/blackbox/operations/security-and-data-handling)
+- [Alpha Status](/docs/blackbox/status/alpha-status)

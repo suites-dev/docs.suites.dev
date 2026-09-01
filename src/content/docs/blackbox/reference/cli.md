@@ -1,66 +1,54 @@
 ---
-title: "CLI Reference"
-description: "Use Blackbox runtime, project, flow, specification, suite, and Skill commands."
-sidebar_position: 1
+title: "CLI and Exit Behavior"
+description: "Reference the canonical Blackbox validation commands, deterministic output rules, and process exits."
+sidebar_position: 5
 keywords:
-  ["blackbox CLI", "blackbox test", "blackbox analyze", "blackbox suites"]
-toc_min_heading_level: 2
+  [
+    "Blackbox CLI",
+    "features check",
+    "scenarios check",
+    "suites typecheck",
+    "Blackbox exit codes",
+  ]
 ---
 
-The `blackbox` CLI is the deterministic facade for running flows, analyzing evidence, and maintaining the behavioral harness.
+Use the primary Blackbox commands to validate authored behavior, compiled closure, and the generated TypeScript surface before runtime allocation.
 
-```bash
-pnpm exec blackbox <command> --help
-```
+## Primary Commands
 
-## Run and Analyze
+| Command                     | Responsibility                                      |
+| --------------------------- | --------------------------------------------------- |
+| `blackbox features check`   | Validate authored Gherkin                           |
+| `blackbox scenarios check`  | Validate compiled semantic and executable closure   |
+| `blackbox suites typecheck` | Type-check the generated TypeScript binding surface |
 
-| Command                               | Purpose                                                                                                     |
-| ------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `blackbox test`                       | Load configuration, run selected tests, own managed SUT lifecycle, seal evidence, and apply analysis policy |
-| `blackbox analyze --run <id\|latest>` | Verify and analyze an existing sealed run without starting the SUT                                          |
+These names are canonical. Compatibility aliases do not replace them, and Blackbox has no EARS command.
 
-```bash
-pnpm exec blackbox test
-pnpm exec blackbox test --flow subscribe-user
-pnpm exec blackbox analyze --run latest
-```
+## Process Exits
 
-Capture is unconditional during `blackbox test`. There is no separate record mode. Accepted policy determines which effect and ODC results gate the command.
+| Exit | Meaning                                                                                             |
+| ---- | --------------------------------------------------------------------------------------------------- |
+| `0`  | Eligible ordinary assurance succeeded                                                               |
+| `1`  | An assurance outcome exists and contains a non-success verdict or finding                           |
+| `2`  | Invocation, configuration, project-root, or unreadable-input failure prevented an assurance outcome |
 
-## Inspect a Project
+Exit `1` includes violated, inconclusive, unsupported, and integrity-failure outcomes. Optional Decision Coverage can be unavailable without changing an otherwise successful ordinary assurance exit.
 
-```bash
-pnpm exec blackbox init --mode auto --json
-pnpm exec blackbox doctor --json
-pnpm exec blackbox status --json
-pnpm exec blackbox explain <finding-code> --json
-```
+## Deterministic Output
 
-Use `doctor` for prerequisites, configuration, lifecycle, capture, and analyzer readiness. Use `explain` for the reason and next action behind a finding code.
+Human and JSON modes agree on the exit. Given unchanged canonical inputs, `--no-color` output remains byte-identical across isolated processes.
 
-## Inspect Flows
+Human findings expose the outcome, case, evidence sufficiency, finding, verdict, repair owner, permitted actions, and earliest required rerun gate. The CLI preserves producer-owned truth. It does not invent missing repair routing.
 
-```bash
-pnpm exec blackbox flows list --json
-pnpm exec blackbox flows show subscribe-user --json
-```
+Handled JSON output contains one deterministic envelope followed by one line feed. It uses `schemaVersion` value `1` and begins with `schemaVersion`, `command`, and `status`. Nested keys are ordered deterministically, while findings preserve producer order.
 
-## Install Agent Skills
+## Output Streams
 
-```bash
-pnpm exec blackbox skills install --host codex --json
-pnpm exec blackbox skills install --host codex --write --json
-```
+- Human exits `0` and `1` write the report to stdout and leave stderr empty.
+- Human exit `2` writes one concise diagnostic to stderr and leaves stdout empty.
+- Handled JSON output writes one envelope to stdout and leaves stderr empty, including exits `1` and `2`.
 
-## Compile and Check Gherkin
+## See Also
 
-The Alpha target compiles approved Gherkin into a SuitePlan, generated binding contracts, and exact runner relationships. Its final public commands are not frozen.
-
-Use [Align Gherkin and the Executable Suite](/docs/blackbox/guides/recover-behavior-from-existing-tests) for the accepted workflow. Do not promote experimental Stage 05 command names into automation.
-
-## JSON and Exit Codes
-
-Use `--json` for machine-readable envelopes. Source-changing commands distinguish an unwritten proposal from a written result awaiting review.
-
-Read [Exit Codes](/docs/blackbox/reference/exit-codes) before adding commands to automation.
+- [Effects and Claim Evaluation](/docs/blackbox/reference/effects-and-claims)
+- [Add Blackbox to CI](/docs/blackbox/guides/reports-and-ci-gates)

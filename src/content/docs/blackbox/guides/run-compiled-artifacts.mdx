@@ -1,84 +1,39 @@
 ---
 title: "Run Compiled Artifacts"
-description: "Give Blackbox prebuilt dist folders and let it assemble ephemeral captured services around them."
-keywords: ["Blackbox dist folder", "compiled artifacts", "source maps"]
+description: "Preview the future compiled-artifact setup workflow. This setup input is not supported yet."
+sidebar_position: 2
+keywords:
+  [
+    "Blackbox compiled artifacts",
+    "future setup path",
+    "unsupported Blackbox input",
+  ]
 ---
 
-Use an artifact source when CI or another build step already produces the executable files Blackbox should test.
+:::note Unsupported Setup Input
+Artifact-directory and start-command input is not supported. Blackbox returns a structured `unsupported` result before runtime assurance begins.
+:::
 
-Complete [Quickstart Step 1A](/docs/blackbox/quickstart/build-behavioral-harness) or [Step 1B](/docs/blackbox/quickstart/start-without-test) first. This setup replaces sections 1 and 2 of Step 2. After configuring the artifacts, return to the common Playwright integration in section 3.
+This future path is intended for projects that already produce a complete runnable artifact directory outside Docker.
 
-## Configure the Artifact Service
+## Intended Workflow
 
-```ts title="blackbox.config.ts"
-import { defineBlackboxConfig } from "@suites/blackbox";
+When certified, the workflow will:
 
-export default defineBlackboxConfig({
-  sut: {
-    source: { kind: "artifacts" },
-    services: {
-      api: {
-        artifactRoot: "dist",
-        runtime: {
-          executable: "node",
-          args: ["server.js"],
-        },
-        containerPort: 3000,
-        readiness: { kind: "http", path: "/health" },
-        environment: {
-          files: [".env.test"],
-          passthrough: [],
-          values: {},
-        },
-        capture: { language: "node" },
-      },
-    },
-  },
-  lifecycle: { ownership: "blackbox" },
-  isolation: { scope: "flow" },
-  runner: { kind: "playwright", config: "playwright.config.ts" },
-  evidence: { dir: ".blackbox/evidence" },
-  analysis: { effects: "check" },
-});
-```
+1. Accept one explicit artifact directory and start command.
+2. Create a canonical manifest for the exact selected files.
+3. Allocate an owned process, network, storage, and lifecycle boundary.
+4. Bind each runtime instance to the selected artifact identity.
+5. Admit observation and completion capabilities before execution.
+6. Capture one fresh attempt and verify which exact bytes ran.
+7. Stop the process and prove cleanup or quarantine the lease.
 
-Blackbox assembles an ephemeral runtime around the supplied files. You do not need to maintain a project Dockerfile solely for Blackbox.
+## What This Page Does Not Promise
 
-## Supply Executed Output, Not Source Alone
+This input is not equivalent to the supported Compose path and does not fall back to it. A process started from an arbitrary directory is not assumed isolated or observable.
 
-For TypeScript, `artifactRoot` points to `dist/` because Node executes JavaScript there. Keep `server.js.map` beside `server.js` or use an inline map.
+Public configuration syntax will be documented only after the exact artifact-directory cell completes certification.
 
-```text
-dist/
-  server.js
-  server.js.map
-```
+## Use the Supported Path
 
-Blackbox captures the executed bytes, V8 ranges, and map. The Node analyzer attributes decisions to TypeScript offline.
-
-Pointing the runtime at `src/` when the process executes `dist/` prevents exact coverage joining.
-
-## Use One Layout Per Service
-
-In a monorepo, declare each service separately so artifact identity and analyzer selection never depend on a global path prefix.
-
-```text
-services/api/dist
-services/worker/dist
-```
-
-Each service receives its own stable ID, artifact namespace, executable, environment, and source-map discovery boundary.
-
-## Validate the Runtime
-
-```bash
-pnpm build
-pnpm exec blackbox doctor --json
-```
-
-Expected result: every declared artifact root, runtime executable, service port, and readiness plan resolves without a configuration error.
-
-## Next Step
-
-- [Configure Source Maps and Service Layouts](/docs/blackbox/guides/source-maps-and-service-layouts)
-- [Add Blackbox to Playwright](/docs/blackbox/quickstart/add-to-existing-test#3-add-blackbox-to-playwright) to rejoin Step 2 at the shared adapter setup.
+Use [an existing Compose project](/docs/blackbox/guides/use-existing-compose) for the current setup workflow.

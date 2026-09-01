@@ -1,89 +1,67 @@
 ---
 title: "Configure Source Maps and Service Layouts"
-description: "Connect executed artifacts to original source without relying on fragile global path prefixes."
-keywords: ["Blackbox source maps", "service layout", "TypeScript coverage"]
+description: "Keep executed artifacts, source maps, authored files, services, processes, and isolates joined exactly."
+sidebar_position: 6
+keywords:
+  [
+    "Blackbox source maps",
+    "Node source maps",
+    "artifact identity",
+    "service layout",
+  ]
 ---
 
-Blackbox identifies executable artifacts by content digest. Runtime paths help discovery, but they are not the final identity used by offline analysis.
+Use source mapping when a finding should point from executed JavaScript back to exact authored source. A matching path is not enough. Blackbox verifies the complete content-addressed mapping chain.
 
-Use this page when Step 3 reports missing or undecidable source attribution, or when a bundle or monorepo needs an explicit layout. Complete the normal Quickstart run first whenever automatic discovery works.
+## Accepted Mapping Cell
 
-## Start From the Executed Artifact
+The accepted mapping cell is:
 
-For TypeScript, Node executes JavaScript rather than the original `.ts` file:
+- Node CommonJS.
+- Regular v3 inline or sidecar source maps.
+- Exact `sourcesContent`.
+- One process and one isolate.
+- Point locations.
+
+ESM, indexed maps, ranges, loaders, `eval`, workers, native DWARF, multi-process, and multi-isolate layouts return `unsupported` unless their exact cell is certified separately.
+
+## Preserve the Mapping Chain
 
 ```text
-src/server.ts
-    | tsc
-    v
-dist/server.js + dist/server.js.map
+exact executed artifact
+→ generated location
+→ content-addressed source map
+→ exact authored source bytes
 ```
 
-Capture begins with `dist/server.js`, its V8 ranges, and its exact source map. The Node analyzer attributes the decision evidence to `src/server.ts` offline.
+The mapping provider joins the exact run, attempt, process, isolate, runtime unit, artifact bytes, map bytes, authored bytes, provider implementation, and support profile.
 
-## Choose Source-Map Discovery
+## Read Mapping Results
 
-```ts
-layout: {
-  artifactRoot: "dist",
-  sourceMaps: "discover",
-}
-```
+| Result                  | Meaning                                                                        |
+| ----------------------- | ------------------------------------------------------------------------------ |
+| `mapped`                | The complete verified chain authorizes an authored location                    |
+| `generated-source-only` | The generated location is valid, but no authored location is established       |
+| `unsupported`           | The selected mapping cell is outside certified support                         |
+| `inconclusive`          | Available facts cannot establish the mapping                                   |
+| `integrity-failure`     | Claimed mapping identity conflicts with verified artifacts or runtime identity |
 
-Use automatic discovery for ordinary inline maps and adjacent `.map` files. Use an explicit manifest when build output stores maps elsewhere. Disable maps only when original-source attribution is not required.
+Only `mapped` authorizes an authored source location. Consumers do not parse maps again or reconstruct their own location.
 
-## Keep One Layout Per Service
+## Model Service Layout Explicitly
 
-Each service owns its executable boundary:
+Keep service, instance, process, and isolate identity separate. Runtime evidence must attest which exact artifact bytes each service instance loaded.
 
-```ts
-services: {
-  api: {
-    layout: { artifactRoot: "services/api/dist", sourceMaps: "discover" },
-  },
-  worker: {
-    layout: { artifactRoot: "services/worker/dist", sourceMaps: "discover" },
-  },
-}
-```
+A foreign runtime unit, process, isolate, provider implementation, or support profile fails integrity. It never silently downgrades to a nearby source location.
 
-This handles monorepos, different runtime binaries, mixed languages, and services built by different tools without global container-root or source-prefix switches.
+## Summary
 
-## Understand the Join Rules
-
-| Build shape                | Blackbox captures                              |
-| -------------------------- | ---------------------------------------------- |
-| TypeScript `dist/`         | Executed JavaScript, V8 ranges, and source map |
-| Bundled JavaScript         | Exact bundle and bundle map                    |
-| Container paths            | Logical runtime path plus content digest       |
-| Inline source map          | Map bytes extracted from executed source       |
-| Sidecar `.map`             | Separate content-addressed artifact            |
-| Runtime-transformed source | Exact executed text from the runtime           |
-| Compiled language          | Native coverage plus debug and source metadata |
-
-Blackbox never silently substitutes an on-disk original when the runtime measured transformed code.
-
-## Diagnose Missing Attribution
-
-Check these conditions when a decision cannot map to source:
-
-- The configured artifact root contains the files the runtime executed.
-- The map belongs to the exact captured JavaScript digest.
-- Bundler source paths resolve inside the captured artifact set.
-- The language capture declared the required coverage capability.
-- The evidence manifest contains no missing-artifact or digest finding.
-
-An unresolved source identity produces an integrity or undecidable result, not zero successful coverage.
-
-## Validate the Captured Layout
-
-```bash
-pnpm exec blackbox analyze --run latest
-```
-
-Expected result: the sealed manifest references the executed artifact digest and its matching source map, and ODC has source-backed decision records instead of a missing-attribution finding. Reconfigure the layout and re-run the flow only when the existing evidence lacks the required artifact.
+- Generate regular v3 maps with exact `sourcesContent` for the accepted cell.
+- Treat artifacts and maps as content-addressed identities, not paths.
+- Keep process and isolate boundaries explicit.
+- Show an authored location only after the complete mapping chain verifies.
 
 ## Next Steps
 
-- **[Run Compiled Artifacts](/docs/blackbox/guides/run-compiled-artifacts)**
-- **[Runtime Evidence](/docs/blackbox/concepts/runtime-evidence):** Understand what the sealed bundle preserves.
+- [Plans, Alignment, and Identity](/docs/blackbox/reference/plans-and-realizations)
+- [Alpha Status](/docs/blackbox/status/alpha-status)

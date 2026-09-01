@@ -1,0 +1,42 @@
+---
+title: "Security and Data Handling"
+description: "Understand Blackbox runtime identity, control authorization, redaction, retention, and sensitive-data boundaries."
+sidebar_position: 1
+keywords:
+  ["Blackbox security", "OpenTelemetry redaction", "runtime evidence privacy"]
+---
+
+Suppose a report links an effect to one attempt and capture window. Those correlators help you join evidence, but they never authorize a control action.
+
+## Separate Correlation From Authorization
+
+Blackbox uses two different kinds of values:
+
+- **Public correlators** are opaque, non-secret identities for attempts, windows, participants, evidence, and findings.
+- **Control credentials** are distinct, short-lived bearer secrets scoped to the exact participant, attempt, and allowed action.
+
+Control credentials do not belong in semantic plans, telemetry baggage, logs, durable evidence, reports, or stable diagnostics. Baggage provides correlation only and must be removed before it crosses a declared untrusted boundary.
+
+## Keep Telemetry and Control Separate
+
+The telemetry plane carries observed OTLP operations. The assurance control plane carries lifecycle facts such as participation, readiness, completion, loss, cutoff, settlement, and sealing.
+
+Neither plane can replace the other. Receiving a trace does not prove that capture completed safely, and a lifecycle receipt does not prove that a system effect occurred.
+
+## Redact Before Durable Storage
+
+Transport-identical OTLP data may exist only in a protected, temporary processing tier. Blackbox admits, verifies, normalizes, and redacts that data before durable storage.
+
+Durable raw evidence means the **redacted, pre-normalization representation**. It remains bound to the exact redaction policy and manifest so it can support later replay without retaining the original sensitive transport by default.
+
+## Sensitive Data Defaults
+
+- Secrets never enter accepted meaning, semantic digests, durable reports, generated build layers, or retained raw evidence.
+- Raw statements and message bodies are opt-in, never defaults.
+- Custom providers and normalizers declare their trust boundary and data access.
+- Retention and verbosity choices cannot change assurance results.
+
+## Next Steps
+
+- [Capture Lifecycle and Evidence](/docs/blackbox/reference/capture-lifecycle-and-correlation)
+- [Alpha Status](/docs/blackbox/status/alpha-status)

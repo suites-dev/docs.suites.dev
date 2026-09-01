@@ -1,0 +1,51 @@
+---
+title: "Alpha Status"
+description: "Understand the accepted Blackbox product target and how individual capabilities become supported."
+sidebar_position: 1
+keywords:
+  ["Blackbox Alpha", "Blackbox support status", "capability certification"]
+---
+
+Blackbox has an accepted product contract for the Alpha target. That contract defines the behavior the product must deliver, but acceptance does not make every implementation path supported automatically.
+
+## How Support Becomes Public
+
+Each capability moves through the same promotion sequence:
+
+1. Experiment.
+2. Accepted fixture or contract.
+3. Falsification.
+4. Package.
+5. Packed external consumer.
+6. Real package-boundary end-to-end verification.
+7. Full regression.
+
+A capability is advertised only after all seven stages pass for its exact tested cell. A nearby runtime, library version, topology, or provider does not inherit support automatically.
+
+## Accepted Product Boundary
+
+| Area              | Accepted Alpha target                                               |
+| ----------------- | ------------------------------------------------------------------- |
+| Runner            | Playwright                                                          |
+| Application setup | Current Docker Compose project                                      |
+| Authoring         | Reviewed Gherkin or direct behavioral declarations                  |
+| Runtime assurance | Fresh attempt-scoped evidence and five deterministic claim verdicts |
+| Effect families   | HTTP, Postgres, Redis, and SQS                                      |
+| Decision insight  | Optional Decision Coverage available as a separate capability       |
+
+The certified language adapter must be named before its support is advertised.
+
+## Unsupported Setup Inputs
+
+Dockerfile build-context input and compiled-artifact directory input return an explicit `unsupported` result until their exact cells complete promotion. Blackbox does not treat them as equivalent to Compose and does not silently fall back to another setup path.
+
+The [Dockerfile](/docs/blackbox/guides/build-from-dockerfile) and [compiled artifact](/docs/blackbox/guides/run-compiled-artifacts) pages describe these future workflows without implying current support.
+
+## Read Main Documentation Claims
+
+The main pages describe the accepted Blackbox behavior. This status page provides the separate support boundary for selecting a runtime, provider, topology, or setup input.
+
+## Next Steps
+
+- [Get Started](/docs/blackbox/quickstart/)
+- [Choose How Blackbox Runs Your Application](/docs/blackbox/guides/set-up-the-testbed)

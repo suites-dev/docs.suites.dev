@@ -1,114 +1,62 @@
 ---
 title: "Add Blackbox to CI"
-description: "Run static and runtime gates, retain sealed evidence, and keep effect and ODC policy explicit."
-sidebar_position: 13
-keywords: ["Blackbox CI", "effect verification", "ODC gate", "GitHub Actions"]
+description: "Run deterministic Blackbox validation and assurance gates in CI while preserving evidence and attempt history."
+sidebar_position: 5
+keywords: ["Blackbox CI", "behavioral verification gate", "Blackbox reports"]
 ---
 
-CI runs the same accepted harness as local development. Add this workflow after Quickstart Step 4, when local effect policy already passes and the team has reviewed whether ODC is diagnostic or gating.
+Add Blackbox after the project can realize one accepted case locally. CI should repeat the same deterministic gates and preserve the result that explains any failure.
 
-## Review Evidence Exposure First
+## 1. Validate Before Runtime Allocation
 
-A sealed run can contain exact executed source, source maps, configuration and policy snapshots, normalized event records, and payload-derived attributes. Treat the bundle as sensitive build output.
-
-Before uploading it:
-
-- Keep secrets and personal data out of test fixtures, logs, telemetry attributes, and captured request payloads.
-- Inspect `config.snapshot.json`, `events.jsonl`, and the content-addressed artifact store for credentials, tokens, proprietary source, and PII.
-- Perform any required redaction before data reaches Blackbox capture; artifact upload does not make unsafe evidence safe.
-- Restrict artifact access to trusted repository readers and avoid exposing evidence from untrusted fork workflows.
-- Choose the shortest retention period that supports failure diagnosis and your compliance obligations.
-
-## Add the Runtime Gate
-
-```yaml title=".github/workflows/blackbox.yml"
-name: Blackbox
-
-on:
-  pull_request:
-  push:
-    branches: [main]
-
-jobs:
-  blackbox:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm build
-      - run: pnpm exec blackbox test
-
-      - name: Retain Blackbox evidence
-        if: failure() || cancelled()
-        uses: actions/upload-artifact@v4
-        with:
-          name: blackbox-evidence-${{ github.run_id }}
-          path: .blackbox/evidence
-          if-no-files-found: error
-          retention-days: 7
-```
-
-`blackbox test` runs selected Playwright flows, owns managed SUT lifecycle, seals evidence, and applies the configured analysis policy. The upload step retains the complete bundle only when the job fails or is cancelled.
-
-## Add Static Gates When You Accept Specifications
-
-Before the runtime gate, require the accepted alignment chain to pass Gherkin compilation, generated-contract typecheck, runner collection, RunnerBundle lowering, and RunPlan selection.
-
-These checks establish structural agreement. Runtime gates establish what the selected system execution did. The final public alignment commands are not frozen, so do not copy experimental Stage 05 command names into CI.
-
-## Choose the ODC Policy Deliberately
-
-Effects are correctness policy. ODC is a separate decision-propagation signal.
-
-Start by retaining ODC reports. Gate only decisions whose boundary behavior the team has explicitly chosen to protect. A masking candidate may indicate a defect, an intentionally equivalent outcome, or insufficient evidence.
-
-## Reanalyze Without Rerunning
+Run the canonical checks first:
 
 ```bash
-pnpm exec blackbox analyze --run latest
+blackbox features check
+blackbox scenarios check
+blackbox suites typecheck
 ```
 
-Offline analysis verifies the bundle and recomputes effects, source-map joining, decisions, ODC, and reports without provisioning the SUT.
+If the project uses direct declarations without Gherkin, omit `blackbox features check`.
 
-Use this when:
+## 2. Run Selected Assurance Cases
 
-- Reviewing a failed CI artifact locally.
-- Changing an accepted analysis policy.
-- Comparing analyzer versions.
-- Producing another report format from the same run.
+A practical CI workflow then runs the selected Blackbox tests:
 
-## Interpret Exit Codes
+```bash
+blackbox test
+```
 
-| Exit | Meaning                                                     |
-| ---- | ----------------------------------------------------------- |
-| `0`  | Runner, integrity, and configured analysis policies passed  |
-| `1`  | Native test or behavioral finding                           |
-| `2`  | Usage or configuration error                                |
-| `3`  | Provisioning, capture, infrastructure, or integrity failure |
+Each physical attempt receives fresh runtime identity, capture, evidence, and teardown. Sharding and worker placement cannot merge evidence between attempts.
 
-Infrastructure uncertainty is not a successful behavioral run.
+## 3. Gate on the Process Exit
 
-## Keep Approval Outside CI
+| Exit | CI action                                                        |
+| ---- | ---------------------------------------------------------------- |
+| `0`  | Continue                                                         |
+| `1`  | Fail the assurance gate and route the producer-owned finding     |
+| `2`  | Fix invocation, configuration, project-root, or unreadable input |
 
-Changes to requirements, scenarios, flow IDs, assertions, effect contracts, isolation assurance, and ODC gates go through ordinary repository review. CI evaluates accepted policy; it does not rewrite policy until a run passes.
+Exit `1` covers every formed non-success assurance outcome, including violated, inconclusive, unsupported, integrity-failure, and unknown finding-code cases.
+
+## 4. Preserve Canonical Results
+
+Store the report and exact evidence references for each attempt. Keep producer order, evidence joins, verdicts, repair routing, and prior retry history unchanged.
+
+Color, verbosity, and retention choices may change presentation or storage, but they cannot change canonical report truth.
+
+## 5. Keep ODC Separate
+
+Optional Decision Coverage may run in CI, but it remains diagnostic. `not-requested`, `unavailable`, or another ODC state cannot rewrite ordinary effect findings or an otherwise successful ordinary assurance exit.
 
 ## Summary
 
-- **Run `blackbox test` as the complete gate.**
-- **Retain sealed evidence even when the job fails.**
-- **Review data exposure, access, and retention before uploading evidence.**
-- **Use `blackbox analyze` for reproducible offline review.**
-- **Keep effect correctness and ODC policy separate.**
-- **Require human review for changes to the behavioral harness.**
+- Fail semantic and realization problems before allocating a sandbox.
+- Use exits `0`, `1`, and `2` consistently.
+- Preserve evidence and prior attempts for repair and audit.
+- Keep optional ODC outside the ordinary effect gate.
 
-## See Also
+## Next Steps
 
-- **[Exit Codes](/docs/blackbox/reference/exit-codes):** Map results to CI behavior.
-- **[Files and Artifacts](/docs/blackbox/reference/files-and-artifacts):** Retain the complete sealed run.
-- **[Report Contracts](/docs/blackbox/reference/report-formats):** Consume structured analyzer results.
+- [CLI and Exit Behavior](/docs/blackbox/reference/cli)
+- [Security and Data Handling](/docs/blackbox/operations/security-and-data-handling)

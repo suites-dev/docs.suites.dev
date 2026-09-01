@@ -1,86 +1,51 @@
 ---
 title: "Choose How Blackbox Runs Your Application"
-description: "Choose an application source strategy while keeping the same isolation, capture, evidence, and analysis lifecycle."
+description: "Choose the certified Compose setup path and understand which future setup inputs remain unsupported."
 sidebar_position: 1
-keywords: ["Blackbox testbed", "SUT setup", "system test provisioning"]
+keywords:
+  [
+    "Blackbox application setup",
+    "Docker Compose system test",
+    "Blackbox sandbox",
+  ]
 ---
 
-Use this guide only when the host-command Quickstart does not match how you run the application. The source strategy changes provisioning; the Playwright integration, capture protocol, evidence format, and analysis remain the same.
+Choose the setup input before Blackbox allocates a runtime attempt. The input determines which services, networks, storage, identities, and lifecycle boundaries the sandbox provider owns.
 
-```text
-Compose ───────┐
-Dockerfile ────┤
-dist folders ──┤
-host command ──┼──> isolation cell -> capture -> sealed evidence -> analysis
-running SUT ───┤
-custom setup ──┘
-```
+## Setup Decision
 
-## Choose From What You Already Have
+| Application input                             | Status         | Use                                         |
+| --------------------------------------------- | -------------- | ------------------------------------------- |
+| Current development Compose project           | Supported path | Use the project's existing Compose topology |
+| Dockerfile and build context                  | Unsupported    | Read the future workflow only               |
+| Compiled artifact directory and start command | Unsupported    | Read the future workflow only               |
 
-| What you already use                | Choose this setup                                                             |
-| ----------------------------------- | ----------------------------------------------------------------------------- |
-| A normal start command              | [Connect Your Application](/docs/blackbox/quickstart/add-to-existing-test)    |
-| One or more Compose files           | [Use an Existing Compose Project](/docs/blackbox/guides/use-existing-compose) |
-| A Dockerfile                        | [Build From a Dockerfile](/docs/blackbox/guides/build-from-dockerfile)        |
-| Compiled `dist/` folders            | [Run Compiled Artifacts](/docs/blackbox/guides/run-compiled-artifacts)        |
-| A process another tool already runs | [Connect an External SUT](/docs/blackbox/guides/connect-external-sut)         |
-| Testcontainers or another platform  | [Use a Custom Provisioner](/docs/blackbox/guides/use-custom-provisioner)      |
+Unsupported inputs fail explicitly before Blackbox claims assurance. They never fall back to Compose or receive an equivalence claim.
 
-Use `command` for the first flow when it represents your application honestly. Choose Compose when correctness depends on databases, caches, queues, or other mutable services that must be isolated together.
+## Use the Compose Path
 
-## One Configuration, Not Separate Modes
+Choose Compose when the project already defines the application and its real dependencies together.
 
-All strategies live in `blackbox.config.ts`:
+The sandbox provider must:
 
-```ts
-import { defineBlackboxConfig } from "@suites/blackbox";
+- Own the selected service, network, storage, and lifecycle boundaries.
+- Produce the expected participant inventory deterministically.
+- Bind service and artifact identity to one sandbox lease.
+- Inject generated observation and control configuration.
+- Disclose access to unowned resources.
+- Prove teardown or quarantine the lease.
 
-export default defineBlackboxConfig({
-  sut: {
-    source: { kind: "command" /* source-specific fields */ },
-    services: {
-      /* endpoints, environment, capture, layout */
-    },
-  },
-  lifecycle: { ownership: "blackbox" },
-  isolation: { scope: "flow" },
-  runner: { kind: "playwright", config: "playwright.config.ts" },
-  evidence: { dir: ".blackbox/evidence" },
-  analysis: { effects: "check" },
-});
-```
+[Use an Existing Compose Project](/docs/blackbox/guides/use-existing-compose) for the detailed workflow.
 
-The configuration separates decisions that often change independently:
+## Future Setup Paths
 
-| Concern        | What it controls                                                                  |
-| -------------- | --------------------------------------------------------------------------------- |
-| `sut.source`   | How Blackbox obtains and starts the system                                        |
-| `sut.services` | Service identity, endpoints, environment, language capture, and executable layout |
-| `lifecycle`    | Whether Blackbox or the user starts and stops the SUT                             |
-| `isolation`    | Whether a cell belongs to a flow, worker, or test                                 |
-| `runner`       | Which native test runner opens and closes attempts                                |
-| `evidence`     | Where sealed runs are retained                                                    |
-| `analysis`     | Which effect and ODC policies gate the run                                        |
+- [Build From a Dockerfile](/docs/blackbox/guides/build-from-dockerfile)
+- [Run Compiled Artifacts](/docs/blackbox/guides/run-compiled-artifacts)
 
-## What Blackbox Infers
+These pages describe the intended user journey. They do not provide configuration syntax or imply current support.
 
-Blackbox assigns run, cell, worker, attempt, retry, service, and instance identities. It also supplies the sidecar connection, injects language capture, discovers source maps, and chooses analyzers from declared capture capabilities.
+## Summary
 
-You supply:
-
-- The command, Compose file, Dockerfile, artifact folder, endpoint, or custom provisioner you already use.
-- The services that belong to the SUT.
-- Readiness only when Blackbox cannot discover it.
-- Selected environment inputs and secrets.
-- Nonstandard artifact boundaries.
-- Reset behavior for mutable state Blackbox cannot reconstruct safely.
-- Effect contracts and analysis policy.
-
-## Isolation Includes Mutable Dependencies
-
-An isolated API process sharing one database with another flow is not an isolated system. Include databases, queues, caches, object stores, background workers, and mutable mock servers inside the cell or reset them before each independent attempt.
-
-Keep the Playwright adapter and project fixture from Quickstart Step 2 for every source strategy. After configuring the selected source, return to [Step 2, section 3: Add Blackbox to Playwright](/docs/blackbox/quickstart/add-to-existing-test#3-add-blackbox-to-playwright). Run the native test there before continuing to Step 3.
-
-After the first serial run works, [isolate tests before enabling parallelism](/docs/blackbox/guides/playwright-isolation-and-parallelism). Use [Source Maps and Service Layouts](/docs/blackbox/guides/source-maps-and-service-layouts) only when automatic artifact discovery cannot attribute decisions to source. [Add Blackbox to CI](/docs/blackbox/guides/reports-and-ci-gates) follows Quickstart Step 4.
+- Use the existing Compose topology for the accepted setup path.
+- Treat every provider and topology combination as its own support cell.
+- Stop on ambiguous ownership or unsupported input instead of weakening assurance.
