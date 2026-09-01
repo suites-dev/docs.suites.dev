@@ -1,0 +1,189 @@
+<figure class="bb-run-report" aria-labelledby="bb-run-report-caption">
+  <div class="bb-run-report__terminal" role="log" aria-label="Illustrative Playwright and Blackbox terminal output">
+    <div class="bb-run-report__command">
+      <span>$</span>
+      <strong>blackbox test</strong>
+    </div>
+
+    <div class="bb-run-report__scope">Running <strong>1 test</strong> using <strong>1 worker</strong></div>
+
+    <div class="bb-run-report__test">
+      <strong>✓</strong>
+      <span>1</span>
+      <span>[chromium] › suite.spec.ts › reuses a cached product</span>
+      <span>(438ms)</span>
+    </div>
+
+    <div class="bb-run-report__passed">1 passed <span>(1.2s)</span></div>
+
+    <div class="bb-run-report__heading">BLACKBOX EFFECTS</div>
+
+    <div class="bb-run-report__finding">
+      <strong>✘</strong>
+      <span>product-cache › Postgres product reads</span>
+    </div>
+    <div class="bb-run-report__detail">
+      <span>Approved:</span>
+      <strong>at most 1</strong>
+    </div>
+    <div class="bb-run-report__detail bb-run-report__detail--observed">
+      <span>Observed:</span>
+      <strong>2</strong>
+    </div>
+
+    <div class="bb-run-report__detail">
+      <span>Evidence:</span>
+      <strong>sufficient</strong>
+    </div>
+
+    <div class="bb-run-report__detail">
+      <span>Repair:</span>
+      <strong>implementation · fresh execution required</strong>
+    </div>
+
+    <div class="bb-run-report__violated">1 effect finding violated</div>
+  </div>
+
+  <figcaption id="bb-run-report-caption">
+    Illustrative combined output, not a public report schema. It shows the native result, evidence sufficiency, claim verdict, and required repair route.
+  </figcaption>
+</figure>
+
+<style>
+  .bb-run-report {
+    width: 100%;
+    min-width: 0;
+    margin: 24px 0 28px;
+  }
+
+  .bb-run-report__terminal {
+    min-width: 0;
+    overflow-x: auto;
+    padding: 18px 20px 20px;
+    border: 1px solid color-mix(in oklab, var(--border) 45%, #000);
+    border-radius: 8px;
+    color: #d8dee9;
+    background: #08090c;
+    box-shadow: 0 12px 28px rgb(0 0 0 / 18%);
+    font-family: var(--font-technical);
+    font-size: 0.76rem;
+    line-height: 1.65;
+  }
+
+  .bb-run-report__command {
+    display: flex;
+    gap: 1ch;
+    margin-bottom: 15px;
+    color: #eef2f8;
+  }
+
+  .bb-run-report__command span {
+    color: color-mix(in oklab, var(--success) 72%, white);
+    font-weight: 800;
+  }
+
+  .bb-run-report__command strong {
+    font-weight: 500;
+  }
+
+  .bb-run-report__scope {
+    margin-bottom: 11px;
+    color: #d8dee9;
+  }
+
+  .bb-run-report__scope strong {
+    color: color-mix(in oklab, var(--info) 67%, white);
+  }
+
+  .bb-run-report__test {
+    display: grid;
+    grid-template-columns: 2ch 2ch minmax(0, 1fr) auto;
+    gap: 1ch;
+    align-items: baseline;
+    min-width: 0;
+  }
+
+  .bb-run-report__test strong {
+    color: color-mix(in oklab, var(--success) 72%, white);
+  }
+
+  .bb-run-report__test > span:nth-child(2),
+  .bb-run-report__test > span:last-child,
+  .bb-run-report__passed span {
+    color: #7f8999;
+  }
+
+  .bb-run-report__test > span:nth-child(3) {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .bb-run-report__passed {
+    margin-top: 10px;
+    color: color-mix(in oklab, var(--success) 72%, white);
+    font-weight: 800;
+  }
+
+  .bb-run-report__heading {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid #242730;
+    color: color-mix(in oklab, var(--brand-mid) 66%, white);
+    font-weight: 800;
+  }
+
+  .bb-run-report__finding {
+    display: flex;
+    gap: 1ch;
+    margin-top: 4px;
+  }
+
+  .bb-run-report__finding strong,
+  .bb-run-report__violated,
+  .bb-run-report__detail--observed strong {
+    color: color-mix(in oklab, var(--error) 80%, white);
+    font-weight: 800;
+  }
+
+  .bb-run-report__detail {
+    display: grid;
+    grid-template-columns: 10ch minmax(0, 1fr);
+    gap: 1ch;
+    padding-left: 4ch;
+  }
+
+  .bb-run-report__detail span {
+    color: #9aa2b1;
+  }
+
+  .bb-run-report__detail strong {
+    color: color-mix(in oklab, var(--brand-mid) 62%, white);
+  }
+
+  .bb-run-report__violated {
+    margin-top: 10px;
+  }
+
+  .bb-run-report figcaption {
+    margin-top: 8px;
+    color: var(--text-soft);
+    font-family: var(--font-interface);
+    font-size: 0.72rem;
+    line-height: 1.45;
+  }
+
+  @media (max-width: 560px) {
+    .bb-run-report__terminal {
+      padding: 15px 14px 17px;
+      font-size: 0.68rem;
+    }
+
+    .bb-run-report__test {
+      grid-template-columns: 2ch 2ch minmax(0, 1fr);
+    }
+
+    .bb-run-report__test > span:last-child {
+      grid-column: 3;
+    }
+  }
+</style>

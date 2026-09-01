@@ -1,6 +1,6 @@
 ---
 title: "How Blackbox Works"
-description: "Follow accepted behavior through its declared system realization, fresh runtime evidence, deterministic findings, and agent repair."
+description: "Follow accepted product intent through one selected system test, fresh OpenTelemetry evidence, deterministic analysis, and repair."
 sidebar_position: 2
 keywords:
   [
@@ -8,116 +8,92 @@ keywords:
     "behavioral verification loop",
     "runtime evidence",
     "deterministic findings",
-    "coding agent harness",
   ]
 seo:
   primary_keyword: "how Blackbox works"
   secondary_keywords: ["behavioral verification loop", "runtime evidence"]
-  search_intent: "developers understanding how Blackbox turns accepted behavior and system execution into deterministic repair findings"
-  snippet_angle: "follow accepted behavior through declared realization, fresh capture, sealed evidence, analysis, and agent repair"
+  search_intent: "developers understanding how Blackbox turns accepted intent and system execution into deterministic findings"
+  snippet_angle: "follow accepted intent through a selected system test, fresh evidence, effects, findings, and repair"
 ---
 
-import Aside from "@/components/mdx/Aside.astro";
 import BlackboxEvidenceChainDiagram from "@/components/blackbox/BlackboxEvidenceChainDiagram.astro";
+import BlackboxPlaywrightTerminal from "@/components/blackbox/BlackboxPlaywrightTerminal.astro";
 
-An accepted checkout scenario says one completed order produces at most one charge request:
-
-```gherkin
-Scenario: Do not charge a completed order twice
-  Given checkout encounters a transient timeout
-  When the order completes after a retry
-  Then one order is confirmed
-  And no more than one charge request is sent
-```
-
-The system suite sees one confirmation and one order ID, but runtime evidence contains two charge requests. The native assertion passes; the Blackbox effect finding fails. The coding agent now has a clear repair problem without gaining permission to redefine success.
-
-<Aside type="info" title="Alpha Status">
-  Gherkin-to-suite alignment is an **Alpha target**. Effects are the **committed
-  core** of behavioral assurance. Observable Decision Coverage is an **Alpha
-  target** and remains separate from effect findings.
-</Aside>
+The overview showed two successful product reads and a violated database-read limit. Blackbox reaches that result through one directional chain from accepted product intent to a fresh runtime finding.
 
 <BlackboxEvidenceChainDiagram />
 
-## One Chain, Two Correction Loops
+Determinism applies to analysis: the same accepted intent, selected realization, analysis rules, and sealed evidence return the same result. It does not mean a distributed application executes identically on every run.
 
-Blackbox uses one accepted behavior across two connected loops:
+## 1. Approve Product Intent
 
-- **Alignment loop:** Keep Gherkin, accepted meaning, and the executable system realization aligned before runtime work begins.
-- **Verification loop:** Execute the declared realization, capture fresh evidence, analyze it, and return findings for repair.
+A coding agent can translate a product requirement into proposed Gherkin, or the team can use direct behavioral declarations. A person approves the concrete case and its claims.
 
-A coding agent can work across both loops. A person approves accepted behavior and any policy that determines success. [See who proposes, computes, repairs, and approves](/docs/blackbox/concepts/human-agent-verification-loop).
+```gherkin title="features/product-cache.feature"
+Feature: Product cache
+  Scenario: Reuse a cached product
+    When product 42 is read twice
+    Then both reads succeed
+    And at most one Postgres product read occurs
+```
 
-[Use the alignment guide](/docs/blackbox/guides/recover-behavior-from-existing-tests) when Gherkin or the executable suite changes. [Look up the blocking checks](/docs/blackbox/reference/alignment-checks) when runtime cannot begin.
+Gherkin is a reviewed projection, not a requirement for effects-only authoring. Both modes converge on the same SuitePlan.
 
-## 1. Accept the Behavior
+## 2. Realize the Selected Test
 
-A person reviews and approves the Gherkin scenario. Blackbox compiles that behavior into a **SuitePlan**, which owns its accepted meaning.
+The coding agent completes the concrete Playwright actions and visible assertions through the generated binding surface.
 
-The agent may propose scenarios or corrections. Neither generated code nor observed runtime behavior can silently rewrite the SuitePlan.
+```ts title="suite.spec.ts"
+import { expect, test } from "@playwright/test";
 
-[See how human intent becomes accepted meaning without moving authority](/docs/blackbox/concepts/specifications-flows-and-verdicts#keep-the-chain-directional).
+test("reuses a cached product", async ({ request }) => {
+  const first = await request.get("/products/42");
+  const second = await request.get("/products/42");
 
-## 2. Declare How the Behavior Runs
+  expect([first.status(), second.status()]).toEqual([200, 200]);
+});
+```
 
-The system suite provides the concrete actions and checks that realize the accepted behavior. A **RunnerBundle** owns that realization.
+Blackbox keeps three responsibilities separate:
 
-A **RunPlan** selects the declared cases and realization for this run. It cannot add, weaken, or reinterpret accepted meaning.
+| Artifact         | Responsibility                                                                   |
+| ---------------- | -------------------------------------------------------------------------------- |
+| **SuitePlan**    | Owns accepted cases, claims, completion requirements, capabilities, and topology |
+| **RunnerBundle** | Owns the exact Playwright realization and discovery relations                    |
+| **RunPlan**      | Selects only declared realizations for this run                                  |
 
-[See how SuitePlan, RunnerBundle, and RunPlan keep meaning, realization, and selection separate](/docs/blackbox/reference/plans-and-realizations).
+RunPlan does not invent meaning. [See the complete alignment and identity rules](/docs/blackbox/reference/plans-and-realizations).
 
-Stable identity binds the accepted case, declared realization, selected run, attempt, evidence, and finding. [See why titles and source order are not enough](/docs/blackbox/concepts/specifications-flows-and-verdicts#preserve-identity-across-representations), or [look up case and execution identity](/docs/blackbox/reference/scenario-dsl).
+## 3. Capture One Fresh Attempt
 
-## 3. Capture a Fresh Attempt
+Blackbox allocates a fresh sandbox lease, attempt, window, capture sessions, and evidence for each physical attempt.
 
-Runtime opens a fresh managed-capture boundary for every case attempt, retry, and sequence member. It owns the attempt identities, capture lifecycle, correlation, and resulting evidence.
+OpenTelemetry traces carry observed operations. A separate assurance control plane carries participant, capability, completion, loss, cutoff, settlement, and seal facts. Blackbox needs both to determine which effects are eligible and what the evidence can establish.
 
-Here, a **retry** is another runner attempt of the case. An application-internal payment retry during the same checkout execution remains inside that attempt. [See how attempts and retries keep separate evidence](/docs/blackbox/concepts/runtime-evidence#bound-one-attempt-at-a-time).
+## 4. Normalize Effects and Analyze Claims
 
-During that attempt, the current Alpha prototype uses OpenTelemetry to observe supported HTTP and database work across service boundaries. OpenTelemetry supplies observations; it does not decide which effects are accepted or forbidden.
+Eligible observations become portable effect facts. The Analyzer compares those facts with the approved claims offline, without querying or changing the running system.
 
-[Look up how Blackbox correlates distributed work, establishes completion, and seals one attempt](/docs/blackbox/reference/capture-lifecycle-and-correlation).
+<BlackboxPlaywrightTerminal />
 
-## 4. Normalize and Seal Observations
-
-In the current Alpha prototype, Blackbox receives OpenTelemetry Protocol (OTLP) trace data, retains the raw capture, and normalizes eligible observations into **effects**. Other spans do not silently become effects or policy. [See how the effects catalog supplies shared vocabulary](/docs/blackbox/concepts/effects-and-catalogs#use-the-effects-catalog-as-shared-vocabulary).
-
-[Look up the stable catalog responsibilities and current public-contract boundary](/docs/blackbox/reference/catalog-schema).
-
-Runtime records capture capability, completion, loss, and integrity facts before sealing the evidence. Sealing fixes one attempt's evidence so later analysis cannot rewrite or combine its inputs. An observation proves what Blackbox saw; it does not by itself prove that nothing else happened. [See the four evidence conditions](/docs/blackbox/concepts/runtime-evidence#establish-four-evidence-conditions).
-
-## 5. Analyze the Sealed Evidence
-
-The Analyzer compares accepted meaning and analysis policy with the sealed evidence. The declared realization identifies which approved execution produced that evidence. With the same SuitePlan, realization, analysis policy, and sealed evidence, the Analyzer returns the same findings. This determinism applies to analysis, not to whether a distributed application behaves identically on every run.
-
-## Read Each Finding Separately
-
-| Result          | Question it answers                                                        |
-| --------------- | -------------------------------------------------------------------------- |
-| **Native test** | Did the system return the expected visible result?                         |
-| **Integrity**   | Is the captured evidence eligible for this conclusion?                     |
-| **Effects**     | Did required work happen, and did forbidden work remain absent?            |
-| **ODC**         | Did exercised decision outcomes produce distinguishable effect signatures? |
-
-These results remain independent. A native pass can coexist with a violated or inconclusive effect finding, and integrity failure never becomes a pass. [See how system assertions and Blackbox findings work together](/docs/blackbox/concepts/testing-layers#keep-both-results-independent).
-
-**Effects are the committed core.** **[Observable Decision Coverage (ODC)](/docs/blackbox/concepts/omc-dc-coverage)** is an Alpha target. It remains separate and cannot change an ordinary effect finding.
-
-[See how to keep ODC report-only or choose a deliberate CI policy](/docs/blackbox/guides/reports-and-ci-gates#choose-the-odc-policy-deliberately).
+The native assertion and effect claim remain independent. Here, Playwright passes while the upper-bound claim is violated.
 
 ## Let Evidence Limit the Claim
 
-Blackbox can report effects it observed even when other evidence is incomplete. It cannot establish a claim that depends on complete visibility when capture or isolation is insufficient, including:
+Incomplete evidence can still establish an observed positive, a forbidden effect that occurred, or a count that already exceeds its maximum. It cannot establish satisfaction of absence, an upper bound, or an exact count.
 
-- The absence of a forbidden effect.
-- Satisfaction of an upper bound.
-- Satisfaction of an exact count.
+Blackbox returns one of five verdicts for every selected claim: `satisfied`, `violated`, `inconclusive`, `unsupported`, or `integrity-failure`. Only `satisfied` passes.
 
-For a completeness-dependent claim, incomplete evidence produces an **inconclusive** finding; an unavailable required capability produces **unsupported**. Neither passes. [See all findings and verdicts](/docs/blackbox/concepts/effects-and-catalogs#read-findings-and-verdicts).
+## 5. Repair and Run Again
 
-## Repair Without Moving the Target
+A finding routes the permitted repair and earliest required rerun gate. An application or capture repair requires a fresh runtime execution.
 
-A failed finding returns to the coding agent for implementation repair and another run. If passing requires changing accepted behavior or analysis policy, control returns to a person.
+The coding agent can fix Redis behavior and rerun the same approved case. If the proposed fix requires changing accepted behavior, control returns to a person.
 
-Continue with the [Blackbox Quickstart](/docs/blackbox/quickstart/) to follow one behavior through the workflow.
+Optional [Observable Decision Coverage](/docs/blackbox/concepts/omc-dc-coverage) runs from sealed offline inputs after ordinary effect analysis. It cannot change ordinary effects or verdicts.
+
+## Next Steps
+
+- [Get Started](/docs/blackbox/quickstart/)
+- [Human Authority and the Agent Loop](/docs/blackbox/concepts/human-agent-verification-loop)
+- [Runtime Evidence and Integrity](/docs/blackbox/concepts/runtime-evidence)

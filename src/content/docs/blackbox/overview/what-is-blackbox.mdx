@@ -1,23 +1,20 @@
 ---
 title: "What is Blackbox?"
-description: "Blackbox turns product requirements into system tests, verifies runtime effects revealed by
-traces, and guides coding agents toward repair."
+description: "Blackbox turns product intent into system tests and verifies their runtime behavior from OpenTelemetry evidence."
 sidebar_position: 1
 keywords:
   [
-    "behavior harness",
     "behavioral verification",
     "coding agent verification",
-    "system test generation",
-    "runtime evidence",
+    "system tests",
     "runtime effects",
     "Suites Blackbox",
   ]
 seo:
   primary_keyword: "behavioral verification"
-  secondary_keywords: ["system test generation", "runtime effects"]
-  search_intent: "developers evaluating specification-driven system tests with runtime behavioral verification"
-  snippet_angle: "turn approved product requirements into system tests, verify runtime effects, and guide coding-agent repair"
+  secondary_keywords: ["system tests", "runtime effects"]
+  search_intent: "developers evaluating system-test verification for software developed with coding agents"
+  snippet_angle: "turn product intent into system tests and verify behavior behind their visible output"
 ---
 
 import CheckoutVerificationLoop from "@/components/blackbox/CheckoutVerificationLoop.astro";
@@ -30,22 +27,18 @@ Where a traditional system test checks the visible output, Blackbox turns teleme
 caches, and other system boundaries into evidence of the behavior behind that output. It then produces deterministic
 findings.
 
-Humans approve the intended behavior, while agents use those findings to repeatedly repair the implementation against
-the same accepted target, without changing what success means.
-
 <CheckoutVerificationLoop />
 
-The coding agent loads `@blackbox-gherkin` to propose an executable checkout scenario. A person approves that behavior before the agent creates the test or changes the implementation.
+Both product requests returned `200`, so the Playwright assertion was correct. Blackbox also found two Postgres reads where the approved behavior allowed at most one. The agent repaired Redis use and verified the same behavior again with fresh evidence.
 
-The first system run returns `201 Created`, but Blackbox observes two charge requests. The agent uses the deterministic
-finding to repair the implementation, then runs the same locked behavior again.
+- **For people:** The result shows whether the running system matched the behavior they approved.
+- **For coding agents:** The finding identifies a bounded repair problem without letting the agent change the target.
 
-- **For people:** The result shows what happened inside the running system, not only what the test returned.
-- **For coding agents:** The finding identifies what to repair while the approved requirement remains fixed.
+[Follow the artifacts and evidence behind this result](/docs/blackbox/overview/how-blackbox-works).
 
-## From Product Requirements to System Tests
+## From Product Intent to a System Test
 
-The `@blackbox-gherkin` Skill turns the product requirement into a proposed
+A coding agent can propose reviewed Gherkin or direct behavioral declarations. A person approves the behavior, then Blackbox maps that accepted intent into a Playwright realization without deriving new requirements from the test or traces.
 
 <TextLink
   href="https://cucumber.io/docs/gherkin/reference/"
@@ -54,46 +47,34 @@ The `@blackbox-gherkin` Skill turns the product requirement into a proposed
 >
   <strong>Gherkin</strong>
 </TextLink>
-`.feature` file. A person approves the scenario and its effect claim before
-either can guide implementation.
+is recommended when a readable scenario helps review. It is optional for teams that prefer direct behavioral declarations. [Compare both authoring modes in Get Started](/docs/blackbox/quickstart/#1-choose-an-authoring-mode).
 
-The agent then runs `blackbox test` to execute the flow and seal runtime evidence. When the first run finds two charge requests, `blackbox analyze --run latest` reproduces the finding from that sealed evidence without restarting the application. The implementation changes; the approved feature does not.
-
-[See how Blackbox Skills guide coding agents without deciding the result](/docs/blackbox/guides/agent-skills#know-what-computes-each-result).
+<img
+  src="/img/blackbox/intent-to-runtime-evidence.svg"
+  alt="Human intent becomes approved behavior expressed as Gherkin or direct declarations, then a system or E2E suite, OpenTelemetry runtime evidence, and a Blackbox finding."
+  style="display: block; width: 100%; height: auto;"
+/>
 
 ## Why Blackbox?
 
-Coding agents can generate implementations and tests faster than people can verify them. When one agent derives both from the same interpretation, the code and test can share the same blind spot. This creates a **verification bottleneck**: pull requests arrive faster than people can assess runtime behavior, while green tests can still hide missing or forbidden work.
+Coding agents can produce implementations and tests faster than people can review runtime behavior. Pull requests accumulate, and a green test can share the same blind spot as the code it checks.
 
-Harness engineering addresses this bottleneck by surrounding the agent with guidance and feedback. Blackbox makes the behavioral feedback independent of the agent's judgment.
+Harness engineering surrounds an agent with guidance before it acts and feedback after it acts. Blackbox supplies deterministic behavioral feedback from the running system, so repair can move quickly while people retain authority over success.
 
-[See how people, coding agents, Skills, and Blackbox share this verification loop](/docs/blackbox/concepts/human-agent-verification-loop).
+## Use Blackbox When
 
-## Who Blackbox is For?
-
-Blackbox is for teams that:
-
-- Run system tests across real service boundaries.
-- Use coding agents such as Claude Code and Codex in autonomous or semi-autonomous engineering loops.
-
-Teams can use the same accepted behavior in local repair loops and CI.
-
-[See how Blackbox becomes a CI gate](/docs/blackbox/guides/reports-and-ci-gates#add-the-runtime-gate).
+- Your team runs system or E2E tests across real service boundaries.
+- Coding agents such as Claude Code or Codex implement and repair product behavior.
+- A passing response can hide important database, HTTP, cache, or messaging work.
 
 ## Verify Runtime Effects
 
-**Effects** are system-visible actions Blackbox derives from supported OpenTelemetry trace evidence, such as outgoing HTTP requests, observed database operations, and published messages. They show what happened during the test, beyond its visible response. [See how observations become effects through the catalog](/docs/blackbox/concepts/effects-and-catalogs#from-observation-to-finding).
+**Effects** are portable facts Blackbox derives from eligible runtime observations. They let a case require, forbid, order, compare, or limit system work beyond its visible result.
 
-**Effects are the committed core of Blackbox behavioral verification.**
+Findings stay bounded by the evidence. Incomplete evidence cannot establish absence, an upper bound, or an exact count. [See how OpenTelemetry observations become effects](/docs/blackbox/concepts/effects-and-catalogs).
 
-Only complete evidence can establish absence, upper bounds, or exact counts. Otherwise, Blackbox reports the finding as inconclusive. [See how evidence limits each claim](/docs/blackbox/overview/how-blackbox-works#let-evidence-limit-the-claim).
-
-## See What Different Outcomes Did
-
-Blackbox can also show which important code decisions the tests exercised and what the system did for each outcome. For example, one subscription branch may insert and charge, while another updates without charging.
-
-**Alpha target:** [Observable Decision Coverage (ODC)](/docs/blackbox/concepts/omc-dc-coverage) compares those observable effect patterns after ordinary effect findings exist. It remains separate and cannot change an effect finding.
+Optional [Observable Decision Coverage](/docs/blackbox/concepts/omc-dc-coverage) can also compare which code outcomes ran with the effect pattern produced by each outcome. It remains separate from ordinary effect findings.
 
 ## Continue
 
-**[How Blackbox Works](/docs/blackbox/overview/how-blackbox-works)** follows one approved behavior through its executable system test, runtime evidence, findings, and repair loop.
+**[How Blackbox Works](/docs/blackbox/overview/how-blackbox-works)** follows accepted intent through test realization, one fresh attempt, evidence, analysis, and repair.
