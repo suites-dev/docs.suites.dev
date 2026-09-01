@@ -27,7 +27,6 @@ export const products: Array<{
     key: "blackbox",
     label: "Blackbox",
     href: "/docs/blackbox/overview/what-is-blackbox",
-    badge: "alpha",
   },
 ];
 
@@ -142,8 +141,7 @@ const sidebar: SidebarConfig = {
     },
   ],
 
-  // Blackbox sidebar shows the guided path. Deep reference, troubleshooting,
-  // and use-case pages stay routable and are linked from the relevant hubs.
+  // Blackbox sidebar is the complete public information architecture.
   blackbox: [
     {
       label: "Overview",
@@ -153,37 +151,25 @@ const sidebar: SidebarConfig = {
           href: "/docs/blackbox/overview/what-is-blackbox",
         },
         {
-          label: "How Blackbox Works?",
+          label: "How Blackbox Works",
           href: "/docs/blackbox/overview/how-blackbox-works",
         },
       ],
     },
     {
-      label: "Quickstart",
+      label: "Get Started",
       items: [
         {
-          label: "Start Here",
+          label: "Get Started",
           href: "/docs/blackbox/quickstart/",
         },
         {
-          label: "1A. Start From an Existing Test",
+          label: "Start From an Existing Test",
           href: "/docs/blackbox/quickstart/build-behavioral-harness",
         },
         {
-          label: "1B. Start Without a Test",
-          href: "/docs/blackbox/quickstart/start-without-test",
-        },
-        {
-          label: "2. Connect Your Application",
+          label: "Connect Your Application With Compose",
           href: "/docs/blackbox/quickstart/add-to-existing-test",
-        },
-        {
-          label: "3. Run and Inspect Evidence",
-          href: "/docs/blackbox/quickstart/add-runtime-evidence",
-        },
-        {
-          label: "4. Approve Effect Claims and Read Findings",
-          href: "/docs/blackbox/quickstart/enforce-runtime-effects",
         },
       ],
     },
@@ -191,12 +177,8 @@ const sidebar: SidebarConfig = {
       label: "Concepts",
       items: [
         {
-          label: "Human-Agent Verification Loop",
+          label: "Human Authority and the Agent Loop",
           href: "/docs/blackbox/concepts/human-agent-verification-loop",
-        },
-        {
-          label: "Human Intent and Verification Authority",
-          href: "/docs/blackbox/concepts/specifications-flows-and-verdicts",
         },
         {
           label: "Runtime Evidence and Integrity",
@@ -224,12 +206,12 @@ const sidebar: SidebarConfig = {
           href: "/docs/blackbox/guides/set-up-the-testbed",
         },
         {
-          label: "Isolate Tests and Run in Parallel",
-          href: "/docs/blackbox/guides/playwright-isolation-and-parallelism",
+          label: "Use an Existing Compose Project",
+          href: "/docs/blackbox/guides/use-existing-compose",
         },
         {
-          label: "Align Gherkin and the Executable Suite",
-          href: "/docs/blackbox/guides/recover-behavior-from-existing-tests",
+          label: "Test Topologies and Parallelism",
+          href: "/docs/blackbox/guides/playwright-isolation-and-parallelism",
         },
         {
           label: "Use Blackbox With Coding Agents",
@@ -239,20 +221,63 @@ const sidebar: SidebarConfig = {
           label: "Add Blackbox to CI",
           href: "/docs/blackbox/guides/reports-and-ci-gates",
         },
+        {
+          label: "Configure Source Maps and Service Layouts",
+          href: "/docs/blackbox/guides/source-maps-and-service-layouts",
+        },
       ],
     },
     {
-      label: "Use Cases",
-      items: [{ label: "Use Cases", href: "/docs/blackbox/use-cases" }],
+      label: "Future Setup Paths",
+      items: [
+        {
+          label: "Build From a Dockerfile",
+          href: "/docs/blackbox/guides/build-from-dockerfile",
+        },
+        {
+          label: "Run Compiled Artifacts",
+          href: "/docs/blackbox/guides/run-compiled-artifacts",
+        },
+      ],
     },
     {
       label: "Reference",
-      items: [{ label: "Reference", href: "/docs/blackbox/reference" }],
+      items: [
+        { label: "Reference", href: "/docs/blackbox/reference" },
+        {
+          label: "Plans, Alignment, and Identity",
+          href: "/docs/blackbox/reference/plans-and-realizations",
+        },
+        {
+          label: "Capture Lifecycle and Evidence",
+          href: "/docs/blackbox/reference/capture-lifecycle-and-correlation",
+        },
+        {
+          label: "Effects and Claim Evaluation",
+          href: "/docs/blackbox/reference/effects-and-claims",
+        },
+        {
+          label: "CLI and Exit Behavior",
+          href: "/docs/blackbox/reference/cli",
+        },
+      ],
     },
     {
-      label: "Troubleshooting",
+      label: "Operations",
       items: [
-        { label: "Troubleshooting", href: "/docs/blackbox/troubleshooting" },
+        {
+          label: "Security and Data Handling",
+          href: "/docs/blackbox/operations/security-and-data-handling",
+        },
+      ],
+    },
+    {
+      label: "Status",
+      items: [
+        {
+          label: "Alpha Status",
+          href: "/docs/blackbox/status/alpha-status",
+        },
       ],
     },
   ],

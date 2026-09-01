@@ -1,4 +1,5 @@
 ---
+draft: true
 title: "Effects Catalog Contract"
 description: "Reference the stable responsibilities of the effects catalog while its public authoring syntax and support matrix remain unfrozen."
 sidebar_position: 5

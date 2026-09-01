@@ -1,4 +1,5 @@
 ---
+draft: true
 title: "Collect Diagnostics"
 description: "Collect the static identity, runtime versions, sealed evidence, and analyzer findings needed to diagnose one Blackbox flow."
 sidebar_position: 5

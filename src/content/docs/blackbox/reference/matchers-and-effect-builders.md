@@ -1,4 +1,5 @@
 ---
+draft: true
 title: "Effect Claim Evaluation"
 description: "Reference how proof strength, cardinality, evidence completeness, and integrity determine an effect finding."
 sidebar_position: 6

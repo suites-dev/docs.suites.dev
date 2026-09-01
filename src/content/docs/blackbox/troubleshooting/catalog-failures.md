@@ -1,4 +1,5 @@
 ---
+draft: true
 title: "Effect Claim Failures"
 description: "Diagnose violated, inconclusive, unsupported, and integrity findings for one accepted effect claim."
 sidebar_position: 3

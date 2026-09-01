@@ -1,4 +1,5 @@
 ---
+draft: true
 title: "Capture Cell and Testbed"
 description: "Diagnose source provisioning, readiness, capture attachment, isolation, reset, and teardown failures."
 sidebar_position: 4

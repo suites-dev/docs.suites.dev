@@ -1,4 +1,5 @@
 ---
+draft: true
 title: "Exit Codes"
 description: "Distinguish successful verification, behavioral findings, invalid configuration, and untrusted runtime evidence."
 sidebar_position: 2

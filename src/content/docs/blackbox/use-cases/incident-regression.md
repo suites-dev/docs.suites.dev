@@ -1,4 +1,5 @@
 ---
+draft: true
 title: "Prevent an Incident Regression"
 description: "Turn the behavioral cause of an incident into approved system effects that fail when it returns."
 sidebar_position: 3

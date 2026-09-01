@@ -23,6 +23,7 @@ const docs = defineCollection({
     /* Ordering + routing */
     sidebar_position: z.number().optional(),
     slug:             z.string().optional(),
+    draft:            z.boolean().optional(), // excluded from static routes and the public docs graph
 
     /* SEO surface */
     keywords:         z.array(z.string()).optional(),

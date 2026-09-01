@@ -1,4 +1,5 @@
 ---
+draft: true
 title: "Environment Configuration"
 description: "Load dotenv files, selected host variables, and explicit service values without exposing Blackbox's internal transport."
 sidebar_position: 6

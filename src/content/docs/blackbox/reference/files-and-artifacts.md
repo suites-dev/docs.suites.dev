@@ -1,4 +1,5 @@
 ---
+draft: true
 title: "Files and Artifacts"
 description: "Distinguish reviewed behavioral source, generated alignment contracts, sealed runtime evidence, and derived findings."
 sidebar_position: 8

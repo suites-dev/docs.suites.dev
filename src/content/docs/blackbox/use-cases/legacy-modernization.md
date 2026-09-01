@@ -1,4 +1,5 @@
 ---
+draft: true
 title: "Modernize a Legacy System"
 description: "Build a reviewed behavior map around a legacy system, then replace components without silently changing critical effects."
 sidebar_position: 2

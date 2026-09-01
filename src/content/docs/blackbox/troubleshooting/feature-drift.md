@@ -1,4 +1,5 @@
 ---
+draft: true
 title: "Gherkin and Suite Alignment Failures"
 description: "Diagnose invalid, stale, missing, duplicate, redirected, or incomplete relationships between approved Gherkin and the executable suite."
 sidebar_position: 2

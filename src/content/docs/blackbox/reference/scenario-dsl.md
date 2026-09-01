@@ -1,4 +1,5 @@
 ---
+draft: true
 title: "Case and Execution Identity"
 description: "Distinguish accepted case identity from runner selection, physical attempts, evidence windows, and findings."
 sidebar_position: 7

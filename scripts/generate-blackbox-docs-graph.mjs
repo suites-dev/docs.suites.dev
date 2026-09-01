@@ -52,6 +52,10 @@ function titleFor(content, filePath) {
   return path.basename(filePath).replace(/\.mdx?$/, "");
 }
 
+function isDraft(content) {
+  return /^draft:\s*true\s*$/m.test(content);
+}
+
 function resolveLocalImport(fromFile, specifier) {
   const base = specifier.startsWith("@/")
     ? path.join(repoRoot, "src", specifier.slice(2))
@@ -201,6 +205,7 @@ function readDocs() {
 
   for (const filePath of walkMarkdownFiles(blackboxRoot).sort()) {
     const content = readFileSync(filePath, "utf8");
+    if (isDraft(content)) continue;
     const route = routeForFile(filePath, content);
     if (docs.has(route)) {
       throw new Error(`Duplicate Blackbox docs route: ${route}`);
@@ -309,10 +314,10 @@ function render({ docs, groups, publicRoutes, offSidebarLinks, brokenLinks }) {
     "- The graph only includes pages that are present in the public Blackbox sidebar.",
   );
   lines.push(
-    "- Overview and Quickstart pages should point readers into concepts, guides, and reference pages when they need depth.",
+    "- Overview and Get Started pages should point readers into concepts, guides, and reference pages when they need depth.",
   );
   lines.push(
-    "- Reference and troubleshooting pages may be sinks, but they should usually offer a recovery or next-step link back to a workflow.",
+    "- Reference pages may be sinks, but they should usually offer a next-step link back to a workflow.",
   );
   lines.push(
     "- Pages with no incoming links are reachable from the sidebar, but not from the reading journey. That is a signal to add contextual links or confirm they are pure lookup pages.",

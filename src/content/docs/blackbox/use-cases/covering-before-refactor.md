@@ -1,4 +1,5 @@
 ---
+draft: true
 title: "Cover Behavior Before a Refactor"
 description: "Review one consequential flow before changing internals, then compare deterministic runtime behavior after the refactor."
 sidebar_position: 1

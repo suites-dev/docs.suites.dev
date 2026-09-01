@@ -1,4 +1,5 @@
 ---
+draft: true
 title: "Report a Bug"
 description: "List the command output, config, environment, artifacts, and reproduction details maintainers need."
 sidebar_position: 5

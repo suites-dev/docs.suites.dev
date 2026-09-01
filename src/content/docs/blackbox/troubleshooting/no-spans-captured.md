@@ -1,4 +1,5 @@
 ---
+draft: true
 title: "Empty or Incomplete Capture"
 description: "Diagnose an attempt that produced no eligible evidence or cannot support a completeness-dependent finding."
 sidebar_position: 1

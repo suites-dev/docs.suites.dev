@@ -1,4 +1,5 @@
 ---
+draft: true
 title: "Package Responsibilities"
 description: "Understand the stable user facade, extension packages, language integrations, and private runtime boundary."
 sidebar_position: 2
