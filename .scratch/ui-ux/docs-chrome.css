@@ -1,0 +1,195 @@
+/* === docs-chrome === */
+/* Audit and fixes for sidebar, TOC, and prev/next pager.
+   Pairs with edits to:
+     src/components/docs/Sidebar.astro   (wraps groups in <nav>, items in <ul>/<li>)
+     src/components/docs/TOC.astro       (adds role="list", aria-current="location")
+     src/components/docs/PrevNext.astro  (drops .btn, adds eyebrow + label spans) */
+
+/* ---------- Sidebar ---------------------------------------------------- */
+
+/* NEW: outer landmark wrapper now rendered by Sidebar.astro.
+   Keep zero chrome so layout stays identical to the old bare-details list. */
+.sidebar-nav {
+  display: block;
+}
+
+/* APPEND-TO: .sidebar a  (components.css L790)
+   Slightly tighter focus offset so the global 2px ring tucks against the link
+   instead of bleeding into the adjacent structure-line. */
+.sidebar a:focus-visible {
+  outline-offset: -2px;
+}
+
+/* REPLACES: components.css L1249-L1258
+   .sidebar-group-items was a <div>; it is now a <ul role="list">. Reset list
+   chrome (padding/margin/list-style) and keep the existing flex layout and
+   structure-line. li children get zero margin so spacing comes from the
+   gap on the flex parent. */
+.sidebar-group-items {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 0 0;
+  margin: 0 0 0 14px;
+  padding-left: 12px;
+  border-left: 1px solid var(--border);
+  animation: sidebar-group-fade-in 180ms ease-out;
+}
+
+/* NEW: li children inside the new <ul> wrapper. */
+.sidebar-group-items > li {
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+/* APPEND-TO: .sidebar a  (components.css L790)
+   Long labels (e.g. "Install Suites for NestJS, Inversify, Jest, Vitest...")
+   must wrap inside the 268px sidebar instead of pushing the column wider. */
+.sidebar a {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- TOC -------------------------------------------------------- */
+
+/* APPEND-TO: .toc-list a.active  (components.css L961)
+   Mirror the .active class style for aria-current="location" so the script's
+   ARIA update alone is enough if the class is ever dropped. */
+.toc-list a[aria-current="location"] {
+  color: var(--primary-light);
+  border-left-color: var(--primary);
+  font-weight: 600;
+}
+
+/* APPEND-TO: .toc-list a:focus-visible  (components.css L971)
+   Pull the global 2px ring inward so it does not visually merge with the
+   2px left-border bar used for the active indicator. */
+.toc-list a:focus-visible {
+  outline-offset: -2px;
+}
+
+/* ---------- Prev / Next pager ----------------------------------------- */
+
+/* REPLACES: components.css L1277-L1285
+   Add min-width:0 propagation so flex children can shrink under long labels
+   without overflowing the article column. */
+.doc-pager {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 16px;
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  min-width: 0;
+}
+
+/* REPLACES: components.css L1287-L1299
+   The pager anchors no longer inherit .btn (pill, 42px min-height). Restate
+   the full box here so the cards keep their card-style border/background and
+   gain min-width:0 + overflow-wrap so long titles wrap to two lines. */
+.doc-pager a {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  background: rgba(255,255,255,.02);
+  text-decoration: none;
+  transition: border-color 200ms ease-out, color 200ms ease-out, background 200ms ease-out;
+}
+
+/* APPEND-TO: .doc-pager a:hover  (components.css L1301) */
+.doc-pager a:hover {
+  border-color: var(--primary-border);
+}
+
+/* REPLACES: components.css L1307-L1313
+   The first child is now .doc-pager-eyebrow (a span containing the arrow
+   plus the word "Previous"/"Next"). Style the eyebrow itself, not whatever
+   span happened to be first. */
+.doc-pager-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+
+/* REPLACES: components.css L1315-L1319
+   The label is now .doc-pager-label. Allow it to wrap to two lines on
+   narrow viewports without forcing a column-stretch. */
+.doc-pager-label {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  /* Clamp very long titles to two lines on desktop. Falls back to natural
+     wrap where line-clamp isn't supported. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* NEW: arrow glyph inside the eyebrow. */
+.doc-pager-arrow {
+  font-size: 14px;
+  line-height: 1;
+  color: var(--text-muted);
+  transition: transform 180ms ease-out, color 180ms ease-out;
+}
+
+.doc-pager a:hover .doc-pager-arrow {
+  color: var(--primary-light);
+}
+
+.doc-pager-prev:hover .doc-pager-arrow { transform: translateX(-2px); }
+.doc-pager-next:hover .doc-pager-arrow { transform: translateX(2px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .doc-pager-arrow { transition: none; }
+  .doc-pager-prev:hover .doc-pager-arrow,
+  .doc-pager-next:hover .doc-pager-arrow { transform: none; }
+}
+
+/* NEW: empty side placeholder keeps the grid balanced when only prev or
+   only next exists. Mirrors a card's outer footprint but stays invisible. */
+.doc-pager-spacer {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* APPEND-TO: .doc-pager-prev / .doc-pager-next  (components.css L1321-L1322)
+   Re-state alignment now that .btn is no longer applied. */
+.doc-pager-prev { text-align: left;  align-items: flex-start; }
+.doc-pager-next { text-align: right; align-items: flex-end; }
+
+/* Focus ring sits inside the rounded border. */
+.doc-pager a:focus-visible {
+  outline-offset: -2px;
+  border-radius: var(--radius-sm);
+}
+
+/* APPEND-TO: @media (max-width: 640px) .doc-pager  (components.css L1324)
+   Touch-target floor: pager cards stack on small screens. Ensure each card
+   clears the 44x44 minimum without inflating desktop padding. */
+@media (max-width: 640px) {
+  .doc-pager a { min-height: 44px; }
+  .doc-pager-label { -webkit-line-clamp: 3; }
+}
+
+/* TOKEN PROPOSALS */
+/* None. All values reuse existing tokens in tokens.css. */

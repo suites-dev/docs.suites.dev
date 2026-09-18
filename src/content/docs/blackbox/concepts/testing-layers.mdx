@@ -11,12 +11,13 @@ keywords:
   ]
 ---
 
-Imagine a system where two product reads both return `200`, so the E2E test passes. The product service still queries Postgres twice instead of using Redis after the first read.
+Imagine checkout returns `201`, so the E2E test passes. The running system still sends two payment requests for the
+same completed order.
 
 ```text
 Native system-test result       Blackbox effect finding
 ─────────────────────────       ─────────────────────────
-2 responses returned 200        Postgres SELECT observed 2 times
+response returned 201           POST /payments/charges observed 2 times
 PASS                            upper bound: at most 1
                                 VIOLATED
 ```
@@ -24,21 +25,23 @@ PASS                            upper bound: at most 1
 The two results answer different questions:
 
 - **Native assertions** check the visible result produced by the selected system or E2E test.
-- **Blackbox findings** check approved system-effect claims against eligible runtime evidence from that same attempt.
+- **Blackbox findings** check the behavioral contract's runtime-effect claims against evidence from that same attempt.
 
-## Keep Both Results
+## The Two Results Protect Different Boundaries
 
 Neither result rewrites the other. A failed native assertion does not erase captured runtime facts. A violated effect claim does not change the native test result.
 
-The combined result lets people and coding agents distinguish an output failure from behavior behind a successful output.
+The combined result lets people and coding agents distinguish an output failure from runtime behavior behind a
+successful output.
 
-## Keep Assurance Bounded
+## One Run Cannot Prove Everything
 
-Blackbox evaluates one declared case attempt within its admitted observation capabilities and exact claim scope. It does not claim that every possible transport was observed or that one passing attempt proves all future executions.
+Blackbox evaluates one declared contract case within the supported observation capabilities and exact claim scope. It
+does not claim that every possible transport was observed or that one passing attempt establishes all future executions.
 
-Unsupported capability, incomplete evidence, and integrity failure remain explicit outcomes. They never become a pass.
+When the evidence cannot support a conclusion, Blackbox preserves that limitation instead of turning uncertainty into a pass.
 
 ## Next Steps
 
-- [Get Started](/docs/blackbox/quickstart/)
-- [Runtime Evidence and Integrity](/docs/blackbox/concepts/runtime-evidence)
+- [How Blackbox Works](/docs/blackbox/overview/how-blackbox-works)
+- [Human-Agent Verification Loop](/docs/blackbox/concepts/human-agent-verification-loop)

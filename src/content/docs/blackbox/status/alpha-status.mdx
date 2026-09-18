@@ -1,12 +1,12 @@
 ---
-title: "Alpha Status"
-description: "Understand the accepted Blackbox product target and how individual capabilities become supported."
+title: "Alpha Support Status"
+description: "Distinguish the Blackbox Alpha target from experimental and planned setup paths."
 sidebar_position: 1
 keywords:
   ["Blackbox Alpha", "Blackbox support status", "capability certification"]
 ---
 
-Blackbox has an accepted product contract for the Alpha target. That contract defines the behavior the product must deliver, but acceptance does not make every implementation path supported automatically.
+Blackbox has an accepted product contract for the Alpha target. That contract defines the behavior the product must deliver, but it does not make every runtime, setup path, or integration publicly supported.
 
 ## How Support Becomes Public
 
@@ -24,22 +24,29 @@ A capability is advertised only after all seven stages pass for its exact tested
 
 ## Accepted Product Boundary
 
-| Area              | Accepted Alpha target                                               |
-| ----------------- | ------------------------------------------------------------------- |
-| Runner            | Playwright                                                          |
-| Application setup | Current Docker Compose project                                      |
-| Authoring         | Reviewed Gherkin or direct behavioral declarations                  |
-| Runtime assurance | Fresh attempt-scoped evidence and five deterministic claim verdicts |
-| Effect families   | HTTP, Postgres, Redis, and SQS                                      |
-| Decision insight  | Optional Decision Coverage available as a separate capability       |
+| Area              | Accepted Alpha target                                                  |
+| ----------------- | ---------------------------------------------------------------------- |
+| Runner            | Playwright                                                             |
+| Application setup | Current Docker Compose project                                         |
+| Authoring         | A human-approved behavioral contract in Gherkin or direct declarations |
+| Runtime assurance | Fresh attempt-scoped evidence and five deterministic claim verdicts    |
+| Effect families   | HTTP, Postgres, Redis, and SQS                                         |
+| Decision insight  | Optional-per-run Observable Decision Coverage                          |
 
 The certified language adapter must be named before its support is advertised.
 
-## Unsupported Setup Inputs
+## Application Setup Status
 
-Dockerfile build-context input and compiled-artifact directory input return an explicit `unsupported` result until their exact cells complete promotion. Blackbox does not treat them as equivalent to Compose and does not silently fall back to another setup path.
+| Setup input                                 | Status           | Boundary                                                                               |
+| ------------------------------------------- | ---------------- | -------------------------------------------------------------------------------------- |
+| Current development Compose project         | **Alpha target** | Uses the project's declared topology.                                                  |
+| Testcontainers topology                     | **Experimental** | The intended lifecycle is documented, but no public integration interface is promised. |
+| Dockerfile and build context                | **Planned**      | Requires certification as its own setup and isolation cell.                            |
+| Distribution artifacts and project launcher | **Planned**      | Requires certification as its own process and artifact cell.                           |
 
-The [Dockerfile](/docs/blackbox/guides/build-from-dockerfile) and [compiled artifact](/docs/blackbox/guides/run-compiled-artifacts) pages describe these future workflows without implying current support.
+Experimental and planned paths are not equivalent to the Alpha Compose path. Blackbox does not silently fall back to another setup or weaken an evidence boundary.
+
+The setup guides may use conceptual pseudocode to show the intended workflow. That pseudocode is not a public API or a support claim.
 
 ## Read Main Documentation Claims
 

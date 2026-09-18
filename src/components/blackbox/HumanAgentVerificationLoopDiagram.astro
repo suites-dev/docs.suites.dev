@@ -1,96 +1,154 @@
 <figure class="bb-human-loop">
-  <div class="bb-human-loop__viewport" tabindex="0" role="region" aria-label="Scrollable Blackbox human and agent loop">
-    <svg viewBox="0 0 1080 430" role="img" aria-labelledby="bb-human-loop-title bb-human-loop-desc">
-      <title id="bb-human-loop-title">Human authority and the Blackbox agent loop</title>
-      <desc id="bb-human-loop-desc">A person approves behavior expressed through Gherkin or direct declarations. That feedforward guides a coding agent. A system test and fresh runtime evidence produce a deterministic finding. Implementation repair returns to the agent while changes to accepted behavior return to a person.</desc>
-      <defs>
-        <marker id="bb-human-loop-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-          <path d="M0 0 10 5 0 10Z" fill="#94a3b8" />
-        </marker>
-        <marker id="bb-human-loop-green-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-          <path d="M0 0 10 5 0 10Z" fill="#4ade80" />
-        </marker>
-        <marker id="bb-human-loop-gold-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-          <path d="M0 0 10 5 0 10Z" fill="#fbbf24" />
-        </marker>
-      </defs>
+  <svg
+    class="bb-human-loop__desktop"
+    viewBox="0 0 1080 372"
+    role="img"
+    aria-labelledby="bb-human-loop-title bb-human-loop-desc"
+  >
+    <title id="bb-human-loop-title">The Blackbox human-agent verification loop</title>
+    <desc id="bb-human-loop-desc">
+      A person approves the behavioral contract, which guides a coding agent before implementation.
+      The agent runs a system test against the running system. Blackbox evaluates runtime effects and
+      returns deterministic findings. Repairs return to the agent, while contract changes return to a person.
+    </desc>
+    <defs>
+      <marker id="bb-human-loop-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M0 0 10 5 0 10Z" fill="#94a3b8" />
+      </marker>
+      <marker id="bb-human-loop-green-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M0 0 10 5 0 10Z" fill="#4ade80" />
+      </marker>
+      <marker id="bb-human-loop-gold-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M0 0 10 5 0 10Z" fill="#fbbf24" />
+      </marker>
+    </defs>
 
-      <rect x="8" y="8" width="1064" height="414" rx="16" fill="#0b1120" stroke="#334155" />
-      <text x="36" y="48" fill="#f8fafc" font-size="22" font-weight="800">People set the target. Evidence guides repair.</text>
+    <rect x="8" y="8" width="1064" height="356" rx="16" fill="#0b1120" stroke="#334155" />
+    <text x="36" y="46" fill="#f8fafc" font-size="22" font-weight="800">People define success. Evidence guides repair.</text>
 
-      <rect x="36" y="104" width="176" height="108" rx="10" fill="#172554" stroke="#60a5fa" />
-      <text x="124" y="133" text-anchor="middle" fill="#93c5fd" font-size="11" font-weight="800">HUMAN AUTHORITY</text>
-      <text x="124" y="160" text-anchor="middle" fill="#eff6ff" font-size="16" font-weight="800">Approved behavior</text>
-      <text x="124" y="185" text-anchor="middle" fill="#bfdbfe" font-size="12">Gherkin or direct</text>
-      <text x="124" y="201" text-anchor="middle" fill="#bfdbfe" font-size="12">declarations</text>
+    <g>
+      <rect x="38" y="96" width="210" height="112" rx="10" fill="#421622" stroke="#db486f" />
+      <text x="143" y="124" text-anchor="middle" fill="#ef9dab" font-size="10" font-weight="800">PERSON</text>
+      <text x="143" y="155" text-anchor="middle" fill="#f8fafc" font-size="15" font-weight="800">Approves the</text>
+      <text x="143" y="176" text-anchor="middle" fill="#f8fafc" font-size="15" font-weight="800">behavioral contract</text>
+      <text x="143" y="197" text-anchor="middle" fill="#f6c9d1" font-size="10">changes the target when needed</text>
+    </g>
 
-      <line x1="212" y1="158" x2="262" y2="158" stroke="#60a5fa" stroke-width="2" marker-end="url(#bb-human-loop-arrow)" />
-      <text x="237" y="139" text-anchor="middle" fill="#93c5fd" font-size="10" font-weight="800">FEEDFORWARD</text>
+    <path class="bb-human-loop__flow" d="M248 152H286" stroke="#60a5fa" marker-end="url(#bb-human-loop-arrow)" />
+    <text x="267" y="134" text-anchor="middle" fill="#93c5fd" font-size="9" font-weight="800">FEEDFORWARD</text>
 
-      <rect x="272" y="104" width="164" height="108" rx="10" fill="#1f2937" stroke="#94a3b8" />
-      <text x="354" y="141" text-anchor="middle" fill="#e2e8f0" font-size="11" font-weight="800">CODING AGENT</text>
-      <text x="354" y="169" text-anchor="middle" fill="#f8fafc" font-size="15" font-weight="800">Build or repair</text>
-      <text x="354" y="193" text-anchor="middle" fill="#cbd5e1" font-size="12">implementation + test</text>
+    <g>
+      <rect x="292" y="96" width="210" height="112" rx="10" fill="#1f2937" stroke="#94a3b8" />
+      <text x="397" y="124" text-anchor="middle" fill="#cbd5e1" font-size="10" font-weight="800">CODING AGENT</text>
+      <text x="397" y="155" text-anchor="middle" fill="#f8fafc" font-size="15" font-weight="800">Implements</text>
+      <text x="397" y="176" text-anchor="middle" fill="#f8fafc" font-size="15" font-weight="800">and repairs</text>
+      <text x="397" y="197" text-anchor="middle" fill="#cbd5e1" font-size="10">implementation + system test</text>
+    </g>
 
-      <line x1="436" y1="158" x2="486" y2="158" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-human-loop-arrow)" />
+    <path class="bb-human-loop__flow" d="M502 152H540" stroke="#94a3b8" marker-end="url(#bb-human-loop-arrow)" />
 
-      <rect x="496" y="104" width="164" height="108" rx="10" fill="#172554" stroke="#60a5fa" />
-      <text x="578" y="141" text-anchor="middle" fill="#93c5fd" font-size="11" font-weight="800">FRESH ATTEMPT</text>
-      <text x="578" y="169" text-anchor="middle" fill="#eff6ff" font-size="15" font-weight="800">Run system test</text>
-      <text x="578" y="193" text-anchor="middle" fill="#bfdbfe" font-size="12">capture runtime evidence</text>
+    <g>
+      <rect x="546" y="96" width="210" height="112" rx="10" fill="#172554" stroke="#60a5fa" />
+      <text x="651" y="124" text-anchor="middle" fill="#93c5fd" font-size="10" font-weight="800">RUNNING SYSTEM</text>
+      <text x="651" y="155" text-anchor="middle" fill="#f8fafc" font-size="15" font-weight="800">Runs one fresh</text>
+      <text x="651" y="176" text-anchor="middle" fill="#f8fafc" font-size="15" font-weight="800">test attempt</text>
+      <text x="651" y="197" text-anchor="middle" fill="#bfdbfe" font-size="10">OpenTelemetry runtime evidence</text>
+    </g>
 
-      <line x1="660" y1="158" x2="710" y2="158" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-human-loop-arrow)" />
+    <path class="bb-human-loop__flow" d="M756 152H794" stroke="#94a3b8" marker-end="url(#bb-human-loop-arrow)" />
 
-      <rect x="720" y="104" width="164" height="108" rx="10" fill="#12302a" stroke="#34d399" />
-      <text x="802" y="141" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="800">BLACKBOX</text>
-      <text x="802" y="169" text-anchor="middle" fill="#ecfdf5" font-size="15" font-weight="800">Finding + verdict</text>
-      <text x="802" y="193" text-anchor="middle" fill="#a7f3d0" font-size="12">from sealed evidence</text>
+    <g>
+      <rect x="800" y="96" width="242" height="112" rx="10" fill="#102a23" stroke="#34d399" />
+      <text x="921" y="124" text-anchor="middle" fill="#6ee7b7" font-size="10" font-weight="800">BLACKBOX</text>
+      <text x="921" y="155" text-anchor="middle" fill="#f8fafc" font-size="15" font-weight="800">Evaluates effects</text>
+      <text x="921" y="176" text-anchor="middle" fill="#f8fafc" font-size="15" font-weight="800">and returns findings</text>
+      <text x="921" y="197" text-anchor="middle" fill="#a7f3d0" font-size="10">deterministic for unchanged inputs</text>
+    </g>
 
-      <line x1="884" y1="158" x2="934" y2="158" stroke="#4ade80" stroke-width="2" marker-end="url(#bb-human-loop-green-arrow)" />
-      <text x="909" y="139" text-anchor="middle" fill="#86efac" font-size="10" font-weight="800">FEEDBACK</text>
+    <path class="bb-human-loop__return" d="M921 208V260H397V218" fill="none" stroke="#4ade80" marker-end="url(#bb-human-loop-green-arrow)" />
+    <text x="659" y="252" text-anchor="middle" fill="#86efac" font-size="11" font-weight="800">FEEDBACK: finding → agent repair → fresh attempt</text>
 
-      <rect x="944" y="104" width="100" height="108" rx="10" fill="#3b2f0b" stroke="#fbbf24" />
-      <text x="994" y="143" text-anchor="middle" fill="#fde68a" font-size="11" font-weight="800">ROUTE</text>
-      <text x="994" y="170" text-anchor="middle" fill="#fef3c7" font-size="14" font-weight="800">repair</text>
-      <text x="994" y="191" text-anchor="middle" fill="#fef3c7" font-size="14" font-weight="800">or review</text>
+    <path class="bb-human-loop__return" d="M397 208V310H143V218" fill="none" stroke="#fbbf24" marker-end="url(#bb-human-loop-gold-arrow)" />
+    <text x="270" y="302" text-anchor="middle" fill="#fde68a" font-size="11" font-weight="800">Different contract needed? Return to a person.</text>
 
-      <path d="M994 212 V286 C994 322 354 322 354 222" fill="none" stroke="#4ade80" stroke-width="2" stroke-dasharray="7 6" marker-end="url(#bb-human-loop-green-arrow)" />
-      <text x="676" y="310" text-anchor="middle" fill="#86efac" font-size="13" font-weight="800">implementation repair → agent → fresh execution</text>
+    <text x="540" y="344" text-anchor="middle" fill="#cbd5e1" font-size="12">The agent can repair the implementation. It cannot approve a different definition of success.</text>
+  </svg>
 
-      <path d="M994 104 V78 H124 V94" fill="none" stroke="#fbbf24" stroke-width="2" stroke-dasharray="6 6" marker-end="url(#bb-human-loop-gold-arrow)" />
-      <text x="560" y="72" text-anchor="middle" fill="#fde68a" font-size="12" font-weight="800">change to accepted behavior → person</text>
+  <svg
+    class="bb-human-loop__mobile"
+    viewBox="0 0 420 650"
+    role="img"
+    aria-labelledby="bb-human-loop-mobile-title bb-human-loop-mobile-desc"
+  >
+    <title id="bb-human-loop-mobile-title">The Blackbox human-agent verification loop</title>
+    <desc id="bb-human-loop-mobile-desc">
+      A person approves a behavioral contract. A coding agent implements it, a fresh test attempt
+      produces runtime evidence, and Blackbox returns findings. Repairs return to the agent and
+      contract changes return to the person.
+    </desc>
+    <defs>
+      <marker id="bb-human-loop-mobile-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M0 0 10 5 0 10Z" fill="#94a3b8" />
+      </marker>
+    </defs>
 
-      <rect x="36" y="354" width="1008" height="42" rx="9" fill="#111827" stroke="#334155" />
-      <text x="540" y="380" text-anchor="middle" fill="#cbd5e1" font-size="13">The agent can repair the realization. It cannot approve a new definition of success.</text>
-    </svg>
-  </div>
-  <figcaption>Feedforward fixes the approved target before implementation. Feedback returns evidence-bound findings after execution.</figcaption>
+    <rect x="8" y="8" width="404" height="634" rx="16" fill="#0b1120" stroke="#334155" />
+    <text x="28" y="42" fill="#f8fafc" font-size="18" font-weight="800">People define success</text>
+    <text x="28" y="64" fill="#cbd5e1" font-size="11">Evidence guides the agent's repair.</text>
+
+    <rect x="28" y="88" width="364" height="82" rx="9" fill="#421622" stroke="#db486f" />
+    <text x="48" y="116" fill="#ef9dab" font-size="10" font-weight="800">PERSON · FEEDFORWARD</text>
+    <text x="48" y="145" fill="#f8fafc" font-size="16" font-weight="800">Approves behavioral contract</text>
+    <path class="bb-human-loop__flow" d="M210 170V190" stroke="#94a3b8" marker-end="url(#bb-human-loop-mobile-arrow)" />
+
+    <rect x="28" y="196" width="364" height="82" rx="9" fill="#1f2937" stroke="#94a3b8" />
+    <text x="48" y="224" fill="#cbd5e1" font-size="10" font-weight="800">CODING AGENT</text>
+    <text x="48" y="253" fill="#f8fafc" font-size="16" font-weight="800">Implements or repairs</text>
+    <path class="bb-human-loop__flow" d="M210 278V298" stroke="#94a3b8" marker-end="url(#bb-human-loop-mobile-arrow)" />
+
+    <rect x="28" y="304" width="364" height="82" rx="9" fill="#172554" stroke="#60a5fa" />
+    <text x="48" y="332" fill="#93c5fd" font-size="10" font-weight="800">RUNNING SYSTEM</text>
+    <text x="48" y="361" fill="#f8fafc" font-size="16" font-weight="800">Fresh system-test attempt</text>
+    <path class="bb-human-loop__flow" d="M210 386V406" stroke="#94a3b8" marker-end="url(#bb-human-loop-mobile-arrow)" />
+
+    <rect x="28" y="412" width="364" height="82" rx="9" fill="#102a23" stroke="#34d399" />
+    <text x="48" y="440" fill="#6ee7b7" font-size="10" font-weight="800">BLACKBOX · FEEDBACK</text>
+    <text x="48" y="469" fill="#f8fafc" font-size="16" font-weight="800">Returns deterministic finding</text>
+
+    <rect x="28" y="516" width="364" height="42" rx="8" fill="#102a23" stroke="#4ade80" />
+    <text x="210" y="542" text-anchor="middle" fill="#bbf7d0" font-size="12" font-weight="800">Repair → agent → fresh attempt</text>
+    <rect x="28" y="572" width="364" height="42" rx="8" fill="#3b2f0b" stroke="#fbbf24" />
+    <text x="210" y="598" text-anchor="middle" fill="#fef3c7" font-size="12" font-weight="800">Contract change → person</text>
+  </svg>
+
+  <figcaption>
+    Feedforward carries the behavioral contract into implementation. Feedback returns findings after execution.
+  </figcaption>
 </figure>
 
 <style>
   .bb-human-loop {
     width: 100%;
+    min-width: 0;
     margin: 24px 0 32px;
-    padding: 14px;
-    box-sizing: border-box;
-    overflow: hidden;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.03);
-  }
-
-  .bb-human-loop__viewport {
-    width: 100%;
-    overflow-x: auto;
-    overscroll-behavior-inline: contain;
   }
 
   .bb-human-loop svg {
     display: block;
     width: 100%;
-    min-width: 780px;
     height: auto;
     font-family: "Hanken Grotesk Local", "Hanken Grotesk", Inter, ui-sans-serif, system-ui, sans-serif;
+  }
+
+  .bb-human-loop__mobile { display: none !important; }
+
+  .bb-human-loop__flow,
+  .bb-human-loop__return {
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-dasharray: 7 6;
+    animation: bb-human-loop-drift 2.3s linear infinite;
   }
 
   .bb-human-loop figcaption {
@@ -101,7 +159,19 @@
     text-align: center;
   }
 
-  @media (max-width: 640px) {
-    .bb-human-loop { padding: 10px; }
+  @keyframes bb-human-loop-drift {
+    to { stroke-dashoffset: -18; }
+  }
+
+  @media (max-width: 680px) {
+    .bb-human-loop__desktop { display: none !important; }
+    .bb-human-loop__mobile { display: block !important; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bb-human-loop * {
+      animation: none !important;
+      transition: none !important;
+    }
   }
 </style>

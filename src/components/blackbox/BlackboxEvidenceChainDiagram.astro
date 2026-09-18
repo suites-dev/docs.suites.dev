@@ -1,221 +1,226 @@
-<figure
-  class="bb-evidence-chain"
-  aria-label="Blackbox verification chain from approved behavior to a deterministic finding"
->
+<figure class="bb-evidence-chain">
   <svg
     class="bb-evidence-chain__desktop"
-    viewBox="0 0 1100 144"
+    viewBox="0 0 1100 340"
     role="img"
     aria-labelledby="bb-chain-title bb-chain-desc"
-    font-family="'Hanken Grotesk Local', 'Hanken Grotesk', Inter, ui-sans-serif, system-ui, sans-serif"
   >
-    <title id="bb-chain-title">One Blackbox verification chain</title>
+    <title id="bb-chain-title">Blackbox verification from behavioral contract to repair</title>
     <desc id="bb-chain-desc">
-      Person-approved behavior expressed through Gherkin or direct declarations
-      guides a selected system or end-to-end test. Each execution gets a fresh
-      capture boundary. OpenTelemetry observations and assurance control facts
-      become eligible evidence. Analysis returns the same finding when its
-      approved inputs and evidence are unchanged.
+      A person approves a behavioral contract. A coding agent realizes it as a system test. One
+      fresh attempt produces OpenTelemetry traces, effects, and a deterministic finding. An
+      implementation repair returns to a fresh attempt. A contract change returns to a person.
     </desc>
     <defs>
-      <marker
-        id="bb-chain-arrow"
-        viewBox="0 0 10 10"
-        refX="8"
-        refY="5"
-        markerWidth="7"
-        markerHeight="7"
-        orient="auto"
-      >
-        <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"></path>
+      <marker id="bb-chain-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M0 0 10 5 0 10Z" fill="#94a3b8" />
+      </marker>
+      <marker id="bb-chain-green-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M0 0 10 5 0 10Z" fill="#4ade80" />
+      </marker>
+      <marker id="bb-chain-gold-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M0 0 10 5 0 10Z" fill="#fbbf24" />
       </marker>
     </defs>
 
-    <g>
-      <rect x="1" y="1" width="200" height="142" rx="10" fill="#421622" stroke="#db486f"></rect>
-      <text x="101" y="29" text-anchor="middle" fill="#ef9dab" font-size="11" font-weight="800">
-        APPROVED INTENT
-      </text>
-      <text x="101" y="63" text-anchor="middle" fill="#f8fafc" font-size="17" font-weight="800">
-        Approved behavior
-      </text>
-      <text x="101" y="91" text-anchor="middle" fill="#f6c9d1" font-size="13" font-weight="700">
-        Gherkin or direct
-      </text>
-      <text x="101" y="117" text-anchor="middle" fill="#cbd5e1" font-size="11">
-        approved by a person
-      </text>
+    <rect x="8" y="8" width="1084" height="324" rx="16" fill="#0b1120" stroke="#334155" />
+    <text x="34" y="44" fill="#f8fafc" font-size="20" font-weight="800">From behavioral contract to runtime finding</text>
+    <text x="34" y="68" fill="#cbd5e1" font-size="12">One contract case. One fresh attempt. One evidence-bound result.</text>
+
+    <g class="bb-chain-node">
+      <rect x="26" y="98" width="156" height="112" rx="10" fill="#421622" stroke="#db486f" />
+      <text x="104" y="124" text-anchor="middle" fill="#ef9dab" font-size="10" font-weight="800">PERSON APPROVES</text>
+      <text x="104" y="154" text-anchor="middle" fill="#f8fafc" font-size="14" font-weight="800">Behavioral</text>
+      <text x="104" y="174" text-anchor="middle" fill="#f8fafc" font-size="14" font-weight="800">contract</text>
+      <text x="104" y="196" text-anchor="middle" fill="#f6c9d1" font-size="10">expected behavior</text>
     </g>
 
-    <line x1="201" y1="72" x2="219" y2="72" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-chain-arrow)"></line>
+    <path class="bb-chain-flow" d="M182 154H202" stroke="#94a3b8" marker-end="url(#bb-chain-arrow)" />
 
-    <g>
-      <rect x="225" y="1" width="200" height="142" rx="10" fill="#172554" stroke="#60a5fa"></rect>
-      <text x="325" y="29" text-anchor="middle" fill="#93c5fd" font-size="11" font-weight="800">
-        EXECUTABLE FLOW
-      </text>
-      <text x="325" y="63" text-anchor="middle" fill="#f8fafc" font-size="16" font-weight="800">
-        System or E2E test
-      </text>
-      <text x="325" y="91" text-anchor="middle" fill="#bfdbfe" font-size="13" font-weight="700">
-        concrete actions
-      </text>
-      <text x="325" y="117" text-anchor="middle" fill="#cbd5e1" font-size="11">
-        declared test is selected
-      </text>
+    <g class="bb-chain-node">
+      <rect x="208" y="98" width="156" height="112" rx="10" fill="#172554" stroke="#60a5fa" />
+      <text x="286" y="124" text-anchor="middle" fill="#93c5fd" font-size="10" font-weight="800">AGENT REALIZES</text>
+      <text x="286" y="154" text-anchor="middle" fill="#f8fafc" font-size="14" font-weight="800">System or</text>
+      <text x="286" y="174" text-anchor="middle" fill="#f8fafc" font-size="14" font-weight="800">E2E test</text>
+      <text x="286" y="196" text-anchor="middle" fill="#bfdbfe" font-size="10">actions + assertions</text>
     </g>
 
-    <line x1="425" y1="72" x2="443" y2="72" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-chain-arrow)"></line>
+    <path class="bb-chain-flow" d="M364 154H384" stroke="#94a3b8" marker-end="url(#bb-chain-arrow)" />
 
-    <g>
-      <rect x="449" y="1" width="200" height="142" rx="10" fill="#102a23" stroke="#34d399"></rect>
-      <text x="549" y="29" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="800">
-        FRESH ATTEMPT
-      </text>
-      <text x="549" y="63" text-anchor="middle" fill="#f8fafc" font-size="16" font-weight="800">
-        Traces + control
-      </text>
-      <text x="549" y="91" text-anchor="middle" fill="#a7f3d0" font-size="13" font-weight="700">
-        observed work + lifecycle
-      </text>
-      <text x="549" y="117" text-anchor="middle" fill="#cbd5e1" font-size="11">
-        one capture boundary
-      </text>
+    <g class="bb-chain-node">
+      <rect x="390" y="98" width="156" height="112" rx="10" fill="#172554" stroke="#60a5fa" />
+      <text x="468" y="124" text-anchor="middle" fill="#93c5fd" font-size="10" font-weight="800">RUNTIME</text>
+      <text x="468" y="154" text-anchor="middle" fill="#f8fafc" font-size="14" font-weight="800">Fresh test</text>
+      <text x="468" y="174" text-anchor="middle" fill="#f8fafc" font-size="14" font-weight="800">attempt</text>
+      <text x="468" y="196" text-anchor="middle" fill="#bfdbfe" font-size="10">new evidence boundary</text>
     </g>
 
-    <line x1="649" y1="72" x2="667" y2="72" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-chain-arrow)"></line>
+    <path class="bb-chain-flow" d="M546 154H566" stroke="#94a3b8" marker-end="url(#bb-chain-arrow)" />
 
-    <g>
-      <rect x="673" y="1" width="200" height="142" rx="10" fill="#12251e" stroke="#4ade80"></rect>
-      <text x="773" y="29" text-anchor="middle" fill="#86efac" font-size="11" font-weight="800">
-        ELIGIBLE EVIDENCE
-      </text>
-      <text x="773" y="63" text-anchor="middle" fill="#f8fafc" font-size="17" font-weight="800">
-        Effects + limits
-      </text>
-      <text x="773" y="91" text-anchor="middle" fill="#bbf7d0" font-size="13" font-weight="700">
-        evidence fixed for analysis
-      </text>
-      <text x="773" y="117" text-anchor="middle" fill="#cbd5e1" font-size="11">
-        limits are recorded
-      </text>
+    <g class="bb-chain-node">
+      <rect x="572" y="98" width="156" height="112" rx="10" fill="#102a23" stroke="#34d399" />
+      <text x="650" y="124" text-anchor="middle" fill="#6ee7b7" font-size="10" font-weight="800">OBSERVATION</text>
+      <text x="650" y="154" text-anchor="middle" fill="#f8fafc" font-size="14" font-weight="800">OpenTelemetry</text>
+      <text x="650" y="174" text-anchor="middle" fill="#f8fafc" font-size="14" font-weight="800">traces</text>
+      <text x="650" y="196" text-anchor="middle" fill="#a7f3d0" font-size="10">supported activity</text>
     </g>
 
-    <line x1="873" y1="72" x2="891" y2="72" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-chain-arrow)"></line>
+    <path class="bb-chain-flow" d="M728 154H748" stroke="#94a3b8" marker-end="url(#bb-chain-arrow)" />
 
-    <g>
-      <rect x="897" y="1" width="202" height="142" rx="10" fill="#3b2f0b" stroke="#fbbf24"></rect>
-      <text x="998" y="29" text-anchor="middle" fill="#fde68a" font-size="11" font-weight="800">
-        ANALYSIS
-      </text>
-      <text x="998" y="63" text-anchor="middle" fill="#f8fafc" font-size="17" font-weight="800">
-        Finding
-      </text>
-      <text x="998" y="91" text-anchor="middle" fill="#fef3c7" font-size="13" font-weight="700">
-        same inputs, same result
-      </text>
-      <text x="998" y="117" text-anchor="middle" fill="#cbd5e1" font-size="11">
-        one of five verdicts
-      </text>
+    <g class="bb-chain-node">
+      <rect x="754" y="98" width="156" height="112" rx="10" fill="#12251e" stroke="#4ade80" />
+      <text x="832" y="124" text-anchor="middle" fill="#86efac" font-size="10" font-weight="800">NORMALIZATION</text>
+      <text x="832" y="164" text-anchor="middle" fill="#f8fafc" font-size="15" font-weight="800">Runtime effects</text>
+      <text x="832" y="196" text-anchor="middle" fill="#bbf7d0" font-size="10">HTTP · DB · queue</text>
     </g>
+
+    <path class="bb-chain-flow" d="M910 154H930" stroke="#94a3b8" marker-end="url(#bb-chain-arrow)" />
+
+    <g class="bb-chain-node">
+      <rect x="936" y="98" width="138" height="112" rx="10" fill="#3b2f0b" stroke="#fbbf24" />
+      <text x="1005" y="124" text-anchor="middle" fill="#fde68a" font-size="10" font-weight="800">ANALYSIS</text>
+      <text x="1005" y="164" text-anchor="middle" fill="#f8fafc" font-size="15" font-weight="800">Finding</text>
+      <text x="1005" y="196" text-anchor="middle" fill="#fef3c7" font-size="10">same inputs, same result</text>
+    </g>
+
+    <path class="bb-chain-return" d="M1005 210V249H600" fill="none" stroke="#4ade80" marker-end="url(#bb-chain-green-arrow)" />
+    <rect x="390" y="228" width="204" height="42" rx="8" fill="#102a23" stroke="#4ade80" />
+    <text x="492" y="254" text-anchor="middle" fill="#bbf7d0" font-size="12" font-weight="800">Agent repairs implementation</text>
+    <path class="bb-chain-return" d="M390 249H350V218H468" fill="none" stroke="#4ade80" marker-end="url(#bb-chain-green-arrow)" />
+
+    <rect x="26" y="284" width="342" height="34" rx="8" fill="#3b2f0b" stroke="#fbbf24" />
+    <text x="197" y="306" text-anchor="middle" fill="#fef3c7" font-size="11" font-weight="800">Contract change? Return to a person for approval.</text>
+    <path class="bb-chain-return" d="M936 201C900 310 480 301 374 301" fill="none" stroke="#fbbf24" marker-end="url(#bb-chain-gold-arrow)" />
   </svg>
 
   <svg
     class="bb-evidence-chain__mobile"
-    viewBox="0 0 420 634"
+    viewBox="0 0 420 852"
     role="img"
     aria-labelledby="bb-chain-mobile-title bb-chain-mobile-desc"
-    font-family="'Hanken Grotesk Local', 'Hanken Grotesk', Inter, ui-sans-serif, system-ui, sans-serif"
   >
-    <title id="bb-chain-mobile-title">One Blackbox verification chain</title>
+    <title id="bb-chain-mobile-title">Blackbox verification from behavioral contract to repair</title>
     <desc id="bb-chain-mobile-desc">
-      Person-approved behavior expressed through Gherkin or direct declarations
-      guides a selected system or end-to-end test. A fresh attempt produces
-      OpenTelemetry observations and assurance control facts. Blackbox records
-      eligible effects and evidence limits, then returns a deterministic finding.
+      A behavioral contract guides a system test. One fresh attempt produces OpenTelemetry traces,
+      runtime effects, and a finding. The agent repairs the implementation and runs a new attempt,
+      while a contract change returns to a person.
     </desc>
     <defs>
-      <marker
-        id="bb-chain-mobile-arrow"
-        viewBox="0 0 10 10"
-        refX="8"
-        refY="5"
-        markerWidth="7"
-        markerHeight="7"
-        orient="auto"
-      >
-        <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"></path>
+      <marker id="bb-chain-mobile-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M0 0 10 5 0 10Z" fill="#94a3b8" />
       </marker>
     </defs>
 
-    <g>
-      <rect x="1" y="1" width="418" height="104" rx="9" fill="#421622" stroke="#db486f"></rect>
-      <text x="20" y="28" fill="#ef9dab" font-size="11" font-weight="800">APPROVED INTENT</text>
-      <text x="20" y="59" fill="#f8fafc" font-size="17" font-weight="800">Approved behavior</text>
-      <text x="20" y="84" fill="#cbd5e1" font-size="12">Gherkin or direct declarations reviewed by a person.</text>
-    </g>
-    <line x1="210" y1="105" x2="210" y2="127" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-chain-mobile-arrow)"></line>
+    <rect x="8" y="8" width="404" height="836" rx="16" fill="#0b1120" stroke="#334155" />
+    <text x="28" y="42" fill="#f8fafc" font-size="18" font-weight="800">Behavioral contract to finding</text>
+    <text x="28" y="65" fill="#cbd5e1" font-size="11">One case. One attempt. One evidence-bound result.</text>
 
-    <g>
-      <rect x="1" y="133" width="418" height="104" rx="9" fill="#172554" stroke="#60a5fa"></rect>
-      <text x="20" y="160" fill="#93c5fd" font-size="11" font-weight="800">EXECUTABLE FLOW</text>
-      <text x="20" y="191" fill="#f8fafc" font-size="16" font-weight="800">Selected system or E2E test</text>
-      <text x="20" y="216" fill="#cbd5e1" font-size="12">Concrete actions against the running system.</text>
+    <g class="bb-chain-mobile-node">
+      <rect x="28" y="88" width="364" height="82" rx="9" fill="#421622" stroke="#db486f" />
+      <text x="48" y="116" fill="#ef9dab" font-size="10" font-weight="800">PERSON APPROVES</text>
+      <text x="48" y="145" fill="#f8fafc" font-size="16" font-weight="800">Behavioral contract</text>
     </g>
-    <line x1="210" y1="237" x2="210" y2="259" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-chain-mobile-arrow)"></line>
+    <path class="bb-chain-flow" d="M210 170V190" stroke="#94a3b8" marker-end="url(#bb-chain-mobile-arrow)" />
 
-    <g>
-      <rect x="1" y="265" width="418" height="104" rx="9" fill="#102a23" stroke="#34d399"></rect>
-      <text x="20" y="292" fill="#6ee7b7" font-size="11" font-weight="800">FRESH ATTEMPT</text>
-      <text x="20" y="323" fill="#f8fafc" font-size="16" font-weight="800">Traces and control facts</text>
-      <text x="20" y="348" fill="#cbd5e1" font-size="12">Observed work and lifecycle in one fresh boundary.</text>
+    <g class="bb-chain-mobile-node">
+      <rect x="28" y="196" width="364" height="82" rx="9" fill="#172554" stroke="#60a5fa" />
+      <text x="48" y="224" fill="#93c5fd" font-size="10" font-weight="800">AGENT REALIZES</text>
+      <text x="48" y="253" fill="#f8fafc" font-size="16" font-weight="800">System or E2E test</text>
     </g>
-    <line x1="210" y1="369" x2="210" y2="391" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-chain-mobile-arrow)"></line>
+    <path class="bb-chain-flow" d="M210 278V298" stroke="#94a3b8" marker-end="url(#bb-chain-mobile-arrow)" />
 
-    <g>
-      <rect x="1" y="397" width="418" height="104" rx="9" fill="#12251e" stroke="#4ade80"></rect>
-      <text x="20" y="424" fill="#86efac" font-size="11" font-weight="800">ELIGIBLE EVIDENCE</text>
-      <text x="20" y="455" fill="#f8fafc" font-size="17" font-weight="800">Effects + limits</text>
-      <text x="20" y="480" fill="#cbd5e1" font-size="12">Evidence is fixed and its limits are recorded.</text>
+    <g class="bb-chain-mobile-node">
+      <rect x="28" y="304" width="364" height="82" rx="9" fill="#172554" stroke="#60a5fa" />
+      <text x="48" y="332" fill="#93c5fd" font-size="10" font-weight="800">RUNTIME</text>
+      <text x="48" y="361" fill="#f8fafc" font-size="16" font-weight="800">Fresh test attempt</text>
     </g>
-    <line x1="210" y1="501" x2="210" y2="523" stroke="#94a3b8" stroke-width="2" marker-end="url(#bb-chain-mobile-arrow)"></line>
+    <path class="bb-chain-flow" d="M210 386V406" stroke="#94a3b8" marker-end="url(#bb-chain-mobile-arrow)" />
 
-    <g>
-      <rect x="1" y="529" width="418" height="104" rx="9" fill="#3b2f0b" stroke="#fbbf24"></rect>
-      <text x="20" y="556" fill="#fde68a" font-size="11" font-weight="800">ANALYSIS</text>
-      <text x="20" y="587" fill="#f8fafc" font-size="17" font-weight="800">Deterministic finding</text>
-      <text x="20" y="612" fill="#cbd5e1" font-size="12">The same approved inputs and evidence return the same result.</text>
+    <g class="bb-chain-mobile-node">
+      <rect x="28" y="412" width="364" height="82" rx="9" fill="#102a23" stroke="#34d399" />
+      <text x="48" y="440" fill="#6ee7b7" font-size="10" font-weight="800">OBSERVATION</text>
+      <text x="48" y="469" fill="#f8fafc" font-size="16" font-weight="800">OpenTelemetry traces</text>
     </g>
+    <path class="bb-chain-flow" d="M210 494V514" stroke="#94a3b8" marker-end="url(#bb-chain-mobile-arrow)" />
+
+    <g class="bb-chain-mobile-node">
+      <rect x="28" y="520" width="364" height="82" rx="9" fill="#12251e" stroke="#4ade80" />
+      <text x="48" y="548" fill="#86efac" font-size="10" font-weight="800">NORMALIZATION</text>
+      <text x="48" y="577" fill="#f8fafc" font-size="16" font-weight="800">Runtime effects</text>
+    </g>
+    <path class="bb-chain-flow" d="M210 602V622" stroke="#94a3b8" marker-end="url(#bb-chain-mobile-arrow)" />
+
+    <g class="bb-chain-mobile-node">
+      <rect x="28" y="628" width="364" height="82" rx="9" fill="#3b2f0b" stroke="#fbbf24" />
+      <text x="48" y="656" fill="#fde68a" font-size="10" font-weight="800">DETERMINISTIC ANALYSIS</text>
+      <text x="48" y="685" fill="#f8fafc" font-size="16" font-weight="800">Finding</text>
+    </g>
+
+    <rect x="28" y="730" width="364" height="42" rx="8" fill="#102a23" stroke="#4ade80" />
+    <text x="210" y="756" text-anchor="middle" fill="#bbf7d0" font-size="12" font-weight="800">Repair implementation, then run fresh evidence</text>
+    <rect x="28" y="786" width="364" height="42" rx="8" fill="#3b2f0b" stroke="#fbbf24" />
+    <text x="210" y="812" text-anchor="middle" fill="#fef3c7" font-size="12" font-weight="800">Change contract? Return to a person.</text>
   </svg>
+
+  <figcaption>
+    Runtime findings can route implementation repair. Only a person can approve a different behavioral contract.
+  </figcaption>
 </figure>
 
 <style>
   .bb-evidence-chain {
     width: 100%;
-    max-width: 100%;
     min-width: 0;
     margin: 24px 0 32px;
   }
 
-  .bb-evidence-chain__desktop {
-    display: block;
+  .bb-evidence-chain svg {
     width: 100%;
     height: auto;
+    font-family: "Hanken Grotesk Local", "Hanken Grotesk", Inter, ui-sans-serif, system-ui, sans-serif;
   }
 
-  .bb-evidence-chain__mobile {
-    display: none;
-    width: 100%;
-    height: auto;
+  .bb-evidence-chain__desktop { display: block; }
+  .bb-evidence-chain__mobile { display: none; }
+
+  .bb-chain-flow,
+  .bb-chain-return {
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .bb-chain-flow {
+    stroke-dasharray: 4 4;
+    animation: bb-chain-drift 1.7s linear infinite;
+  }
+
+  .bb-chain-return {
+    stroke-dasharray: 7 6;
+    animation: bb-chain-drift 2.3s linear infinite;
+  }
+
+  .bb-evidence-chain figcaption {
+    margin-top: 10px;
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.5;
+    text-align: center;
+  }
+
+  @keyframes bb-chain-drift {
+    to { stroke-dashoffset: -16; }
   }
 
   @media (max-width: 680px) {
-    .bb-evidence-chain__desktop {
-      display: none;
-    }
+    .bb-evidence-chain__desktop { display: none; }
+    .bb-evidence-chain__mobile { display: block; }
+  }
 
-    .bb-evidence-chain__mobile {
-      display: block;
+  @media (prefers-reduced-motion: reduce) {
+    .bb-evidence-chain * {
+      animation: none !important;
+      transition: none !important;
     }
   }
 </style>

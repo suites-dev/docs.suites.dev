@@ -1,67 +1,65 @@
 ---
-title: "Use Blackbox With Coding Agents"
-description: "Use Blackbox Skills to propose behavior, realize tests, route deterministic findings, and preserve human approval."
-sidebar_position: 4
+title: "Repair a Blackbox Finding With a Coding Agent"
+description: "Give a coding agent one violated finding and verify the repair without changing the behavioral contract."
+sidebar_position: 6
 keywords: ["Blackbox agent skills", "coding agents", "behavioral verification"]
 ---
 
-Blackbox Skills guide coding agents through the verification loop. They can propose and repair work, but deterministic producers and people retain authority over product truth.
+Use this guide after a person has approved a behavioral contract and the project can run its system or E2E test locally. The coding agent repairs the implementation, while the contract remains under human approval.
 
-## Give the Agent Bounded Work
+For the responsibility split behind this workflow, read [Human-Agent Verification Loop](/docs/blackbox/concepts/human-agent-verification-loop).
 
-Tell the agent which product requirement, case, files, and verification gates are in scope. Keep the input checkpoint immutable while the agent works.
+## 1. Give the Agent One Finding
 
-The agent may:
+Name the contract case, the violated finding, the implementation area, and the verification steps that are in scope.
 
-- Propose Gherkin or direct behavioral declarations.
-- Complete generated Playwright bindings.
-- Implement or repair application behavior.
-- Run the required validation and execution gates.
-- Present findings and route the next permitted action.
+```text title="Example agent task"
+Repair checkout-completion.
 
-The agent may not approve its own proposed behavior, infer requirements from effects, rewrite producer findings, or choose a weaker rerun gate.
+The system test returned 201, but Blackbox observed two POST requests
+to /payments/charges. The behavioral contract allows at most one.
 
-## Preserve the Verification Direction
+Keep the behavioral contract unchanged. Repair the implementation,
+run a fresh attempt, and report both the test result and finding.
+```
+
+If the agent concludes that the behavioral contract must change, stop the repair and return that proposal to a person.
+
+## 2. Validate Before Running
+
+Validate the behavioral contract and its system-test binding before allocating a runtime attempt.
+
+```text title="Conceptual pseudocode"
+<validate behavioral contract>
+<validate system-test binding>
+```
+
+Use the commands published for the installed Blackbox distribution. The placeholders above are not CLI syntax.
+
+## 3. Run the Same Contract Case
+
+Run the selected case through the project's declared Blackbox entrypoint. Keep the native test result and Blackbox finding separate.
 
 ```text
-person-approved behavior
-        ↓ feedforward
-coding agent realizes the test and implementation
-        ↓
-Blackbox captures and analyzes one fresh attempt
-        ↓ deterministic feedback
-coding agent repairs, or person reviews a meaning change
+System test       passed: checkout returned 201
+Blackbox finding  violated: payment charge requests, maximum 1, observed 2
 ```
 
-## Run Deterministic Gates
+## 4. Route the Result
 
-Use the canonical validation sequence where applicable:
+- Let the agent repair implementation or test realization work it owns.
+- Return any proposed behavioral-contract change to a person.
+- Stop on unsupported capabilities instead of weakening the contract.
+- Repair incomplete capture at the boundary that owns it.
 
-```bash
-blackbox features check
-blackbox scenarios check
-blackbox suites typecheck
-```
+## 5. Verify With Fresh Evidence
 
-Each producer owns its capability status, finding, verdict, repair owner, permitted actions, and earliest required rerun gate. The Skill preserves and routes those fields.
+Run a fresh attempt after the repair. Confirm that the behavioral contract did not change, the native test result is present, and every selected effect claim has a finding.
 
-## Route Failures Correctly
-
-| Failure belongs to            | Agent action                                                                            |
-| ----------------------------- | --------------------------------------------------------------------------------------- |
-| Authored or semantic input    | Propose a correction and return protected meaning to a person when approval is required |
-| Playwright realization        | Repair bindings or test implementation, then rerun the owning validation gate           |
-| Application behavior          | Repair implementation and perform a fresh runtime execution                             |
-| Capture or evidence integrity | Repair the owning runtime boundary and perform a fresh execution                        |
-| Unsupported capability        | Stop and report the exact unsupported cell                                              |
-
-Report-only reanalysis is valid only when the producer says it is the earliest required gate. It cannot certify an application or capture repair.
-
-## Keep History
-
-Preserve rejected proposals, previous findings, earlier attempts, and human decisions. A new passing attempt does not erase the evidence that caused the repair.
+The repair is complete when fresh evidence satisfies the same behavioral contract. Keep earlier attempts so the finding that caused the repair remains reviewable.
 
 ## Next Steps
 
-- [Human Authority and the Agent Loop](/docs/blackbox/concepts/human-agent-verification-loop)
+- [Human-Agent Verification Loop](/docs/blackbox/concepts/human-agent-verification-loop)
 - [Add Blackbox to CI](/docs/blackbox/guides/reports-and-ci-gates)
+- [CLI and Exit Behavior](/docs/blackbox/reference/cli)

@@ -29,7 +29,7 @@ export default function MermaidDiagram({ chart, alt, caption }: MermaidDiagramPr
 
         if (!mermaidInitialized) {
           // Dark palette tuned to suites.dev tokens (graphite bg #0F0F12,
-          // brand pink #EF4779, muted #A1A1AA). All foreground colors verified
+          // brand pink #DB486F, muted #A1A1AA). All foreground colors verified
           // >= 4.5:1 against the diagram surface.
           // Reduced-motion users get the linear curve variant so edges don't
           // animate into Bezier shapes. Other rendering settings are identical.
@@ -39,7 +39,7 @@ export default function MermaidDiagram({ chart, alt, caption }: MermaidDiagramPr
             theme: 'base',
             securityLevel: 'strict',
             fontFamily:
-              '"ABC Diatype", "Geist", "Inter", ui-sans-serif, system-ui, sans-serif',
+              '"Hanken Grotesk Local", "Hanken Grotesk", "Geist", "Inter", ui-sans-serif, system-ui, sans-serif',
             flowchart: {
               useMaxWidth: true,
               htmlLabels: true,
@@ -50,13 +50,13 @@ export default function MermaidDiagram({ chart, alt, caption }: MermaidDiagramPr
               background: '#0F0F12',
               primaryColor: '#1A1A20',
               primaryTextColor: '#F4F4F5',
-              primaryBorderColor: '#EF4779',
+              primaryBorderColor: '#DB486F',
               secondaryColor: '#131318',
               tertiaryColor: '#0F0F12',
               lineColor: '#A1A1AA',
               textColor: '#F4F4F5',
               mainBkg: '#1A1A20',
-              nodeBorder: '#EF4779',
+              nodeBorder: '#DB486F',
               clusterBkg: '#131318',
               clusterBorder: 'rgba(255,255,255,0.16)',
               edgeLabelBackground: '#0F0F12',

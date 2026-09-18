@@ -1,0 +1,179 @@
+---
+/**
+ * Semantic link/button control with accessible disabled and loading states.
+ *
+ * Props: `variant`, optional `href`, `disabled`, `loading`, and
+ * `loadingLabel`. All remaining attributes are forwarded. The default slot
+ * supplies the visible label.
+ */
+interface Props {
+  variant?: 'primary' | 'secondary' | 'ghost';
+  href?: string;
+  disabled?: boolean;
+  loading?: boolean;
+  loadingLabel?: string;
+  type?: 'button' | 'submit' | 'reset';
+  class?: string;
+  [key: string]: unknown;
+}
+
+const {
+  variant = 'primary',
+  href,
+  disabled = false,
+  loading = false,
+  loadingLabel = 'Loading',
+  type = 'button',
+  class: className,
+  ...attrs
+} = Astro.props;
+
+const ariaDisabled =
+  attrs['aria-disabled'] === true || attrs['aria-disabled'] === 'true';
+const isExplicitlyDisabled = disabled || ariaDisabled;
+const isInert = isExplicitlyDisabled || loading;
+const classes = ['primitive-button', className];
+---
+
+{href !== undefined ? (
+  <a
+    {...attrs}
+    class:list={classes}
+    data-variant={variant}
+    data-loading={loading ? 'true' : undefined}
+    href={isInert ? undefined : href}
+    role={isInert ? 'link' : undefined}
+    aria-disabled={isInert ? 'true' : undefined}
+    aria-busy={loading ? 'true' : undefined}
+    tabindex={isExplicitlyDisabled ? -1 : loading ? 0 : (attrs.tabindex as number | undefined)}
+  >
+    <span class="primitive-button__label"><slot /></span>
+    {loading && <span class="primitive-button__spinner" aria-hidden="true"></span>}
+    {loading && <span class="primitive-button__sr-only">{loadingLabel}</span>}
+  </a>
+) : (
+  <button
+    {...attrs}
+    class:list={classes}
+    data-variant={variant}
+    data-loading={loading ? 'true' : undefined}
+    type={type}
+    disabled={isInert}
+    aria-busy={loading ? 'true' : undefined}
+  >
+    <span class="primitive-button__label"><slot /></span>
+    {loading && <span class="primitive-button__spinner" aria-hidden="true"></span>}
+    {loading && <span class="primitive-button__sr-only">{loadingLabel}</span>}
+  </button>
+)}
+
+<style>
+  .primitive-button {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    max-width: 100%;
+    padding: 10px 18px;
+    border: 1px solid transparent;
+    border-radius: var(--ui-radius-control);
+    font-family: var(--font-interface);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
+    touch-action: manipulation;
+    cursor: pointer;
+    transition:
+      color var(--ui-transition-duration) var(--ui-transition-ease),
+      background-color var(--ui-transition-duration) var(--ui-transition-ease),
+      border-color var(--ui-transition-duration) var(--ui-transition-ease),
+      transform var(--ui-transition-duration) var(--ui-transition-ease);
+  }
+
+  .primitive-button[data-variant='primary'] {
+    color: var(--ui-on-primary);
+    background: var(--ui-primary);
+    border-color: var(--ui-primary);
+    box-shadow: var(--ui-shadow-brand);
+  }
+
+  .primitive-button[data-variant='secondary'] {
+    color: var(--ui-brand-interactive);
+    background: transparent;
+    border-color: var(--ui-brand-interactive);
+  }
+
+  .primitive-button[data-variant='ghost'] {
+    color: var(--ui-muted-foreground);
+    background: transparent;
+    border-color: transparent;
+  }
+
+  .primitive-button:not(:disabled):not([aria-disabled='true']):hover[data-variant='primary'] {
+    background: var(--ui-brand-mid);
+    border-color: var(--ui-brand-mid);
+  }
+
+  .primitive-button:not(:disabled):not([aria-disabled='true']):hover[data-variant='secondary'] {
+    background: color-mix(in oklab, var(--ui-brand-interactive) 10%, transparent);
+    border-color: var(--ui-brand-interactive);
+  }
+
+  .primitive-button:not(:disabled):not([aria-disabled='true']):hover[data-variant='ghost'] {
+    color: var(--ui-foreground);
+    background: color-mix(in oklab, var(--ui-secondary) 60%, transparent);
+    border-color: var(--ui-border);
+  }
+
+  .primitive-button:not(:disabled):not([aria-disabled='true']):active {
+    transform: scale(0.98);
+  }
+
+  .primitive-button:focus-visible {
+    outline: 2px solid var(--ui-focus-ring);
+    outline-offset: 3px;
+  }
+
+  .primitive-button:disabled,
+  .primitive-button[aria-disabled='true'] {
+    opacity: 0.52;
+    cursor: not-allowed;
+  }
+
+  .primitive-button[aria-disabled='true'] {
+    pointer-events: none;
+  }
+
+  .primitive-button__label {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .primitive-button__spinner {
+    width: 14px;
+    height: 14px;
+    flex: 0 0 auto;
+    border: 1.5px solid currentColor;
+    border-inline-start-color: transparent;
+    border-radius: 50%;
+    animation: primitive-button-spin 800ms linear infinite;
+  }
+
+  .primitive-button__sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  @keyframes primitive-button-spin {
+    to { transform: rotate(1turn); }
+  }
+</style>

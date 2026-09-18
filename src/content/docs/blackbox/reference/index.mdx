@@ -11,16 +11,17 @@ Use this section when you need the exact responsibility of a Blackbox artifact, 
 
 ### In This Section
 
-- [**Plans, Alignment, and Identity**](/docs/blackbox/reference/plans-and-realizations) - Follow accepted meaning into one concrete test realization and exact runtime identity.
-- [**Capture Lifecycle and Evidence**](/docs/blackbox/reference/capture-lifecycle-and-correlation) - See how one fresh attempt becomes sealed, claim-relative evidence.
+- [**Plans, Alignment, and Identity**](/docs/blackbox/reference/plans-and-realizations) - Map the public behavioral contract to accepted meaning, one concrete test realization, and exact runtime identity.
+- [**Capture Lifecycle and Evidence**](/docs/blackbox/reference/capture-lifecycle-and-correlation) - Look up fresh attempt boundaries, execution topologies, capture phases, and claim-relative evidence.
 - [**Effects and Claim Evaluation**](/docs/blackbox/reference/effects-and-claims) - Look up effect signatures, claim kinds, evidence rules, and verdicts.
+- [**Observable Decision Coverage Results**](/docs/blackbox/reference/observable-decision-coverage) - Look up ODC comparison inputs, availability states, and classifications.
 - [**CLI and Exit Behavior**](/docs/blackbox/reference/cli) - Use the canonical validation commands and process exits.
 
 </div>
 
 ## Authority Rule
 
-Accepted meaning moves in one direction:
+The public behavioral contract maps to accepted meaning in SuitePlan. From there, authority moves in one direction:
 
 ```text
 authoring → SuitePlan → RunnerBundle → RunPlan → runtime evidence → analysis → report
@@ -31,4 +32,4 @@ Each downstream artifact preserves its exact parent identities. It cannot add a 
 ## Operational Boundaries
 
 - [Security and Data Handling](/docs/blackbox/operations/security-and-data-handling)
-- [Alpha Status](/docs/blackbox/status/alpha-status)
+- [Alpha Support Status](/docs/blackbox/status/alpha-status)

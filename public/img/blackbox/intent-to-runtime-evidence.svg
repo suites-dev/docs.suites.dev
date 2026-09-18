@@ -4,11 +4,11 @@
   role="img"
   aria-labelledby="intent-finding-title intent-finding-description"
 >
-  <title id="intent-finding-title">From human intent to a Blackbox finding</title>
+  <title id="intent-finding-title">From product requirements to a Blackbox finding</title>
   <desc id="intent-finding-description">
-    Human intent becomes approved behavior expressed as Gherkin or direct
-    declarations. A system or end-to-end suite realizes that behavior,
-    OpenTelemetry supplies runtime evidence, and Blackbox returns a finding.
+    Product requirements become a human-approved behavioral contract expressed
+    as Gherkin or direct declarations. A system or end-to-end test realizes the
+    contract, OpenTelemetry reveals runtime effects, and Blackbox returns a finding.
   </desc>
 
   <defs>
@@ -30,12 +30,12 @@
     text-anchor="middle"
   >
     <rect x="22" y="35" width="196" height="120" rx="10" fill="#3b2f0b" stroke="#fbbf24" stroke-width="2" />
-    <text x="120" y="102" fill="#fef3c7" font-size="19" font-weight="800">Human intent</text>
+    <text x="120" y="102" fill="#fef3c7" font-size="18" font-weight="800">Product requirements</text>
 
     <line x1="218" y1="95" x2="234" y2="95" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#intent-finding-arrow)" />
 
     <rect x="242" y="35" width="196" height="120" rx="10" fill="#421622" stroke="#e67189" stroke-width="2" />
-    <text x="340" y="83" fill="#fdf3f5" font-size="18" font-weight="800">Approved behavior</text>
+    <text x="340" y="83" fill="#fdf3f5" font-size="17" font-weight="800">Behavioral contract</text>
     <text x="340" y="108" fill="#f6c9d1" font-size="13" font-weight="700">Gherkin or direct</text>
     <text x="340" y="127" fill="#f6c9d1" font-size="13" font-weight="700">declarations</text>
 
@@ -43,13 +43,13 @@
 
     <rect x="462" y="35" width="196" height="120" rx="10" fill="#172554" stroke="#60a5fa" stroke-width="2" />
     <text x="560" y="89" fill="#eff6ff" font-size="18" font-weight="800">System or E2E</text>
-    <text x="560" y="115" fill="#bfdbfe" font-size="16" font-weight="700">suite</text>
+    <text x="560" y="115" fill="#bfdbfe" font-size="16" font-weight="700">test</text>
 
     <line x1="658" y1="95" x2="674" y2="95" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#intent-finding-arrow)" />
 
     <rect x="682" y="35" width="196" height="120" rx="10" fill="#12251e" stroke="#4ade80" stroke-width="2" />
     <text x="780" y="89" fill="#f0fdf4" font-size="18" font-weight="800">OpenTelemetry</text>
-    <text x="780" y="115" fill="#bbf7d0" font-size="15" font-weight="700">runtime evidence</text>
+    <text x="780" y="115" fill="#bbf7d0" font-size="15" font-weight="700">runtime effects</text>
 
     <line x1="878" y1="95" x2="894" y2="95" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#intent-finding-arrow)" />
 

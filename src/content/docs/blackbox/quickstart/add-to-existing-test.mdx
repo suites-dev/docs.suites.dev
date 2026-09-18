@@ -1,72 +1,10 @@
 ---
+draft: true
 title: "Connect Your Application With Compose"
-description: "Run one Playwright case against a controlled Docker Compose application and capture fresh runtime evidence."
+description: "This former quickstart step has moved to the canonical existing-Compose guide."
 sidebar_position: 3
 keywords:
   ["Blackbox Docker Compose", "Playwright system test", "OpenTelemetry capture"]
 ---
 
-Use the current Docker Compose project that already runs your application and its dependencies. For the product-cache case, the topology includes the product service, Postgres, and Redis.
-
-```yaml title="compose.yaml, shortened"
-services:
-  product-service:
-    build: ./services/product
-    depends_on: [postgres, redis]
-  postgres:
-    image: postgres
-  redis:
-    image: redis
-```
-
-## 1. Confirm the Compose Boundary
-
-The Compose project must give Blackbox a deterministic view of:
-
-- Services, networks, and storage owned by the sandbox.
-- Expected participants and service identity.
-- Readiness and teardown behavior.
-- Any connection to resources outside the owned sandbox.
-
-Blackbox generates observation and control configuration for the selected attempt. Internal transport environment variables are not public configuration.
-
-## 2. Admit Required Capabilities
-
-The product-cache upper bound needs eligible Postgres observations and claim-specific completion. Blackbox checks provider capabilities before the runner starts.
-
-An unsupported library, unowned database, missing participant, or ambiguous service mapping stops the assurance path instead of silently weakening it.
-
-## 3. Run One Fresh Attempt
-
-The practical workflow runs the selected Playwright case through Blackbox:
-
-```bash
-blackbox test
-```
-
-Each independent attempt receives a fresh sandbox lease, runtime identities, capture, evidence, and teardown. A retry starts again with a new lease and keeps the previous outcome in history.
-
-## 4. Read Native and Effect Results
-
-```text
-Native result      2 passed responses
-Runtime evidence   Postgres SELECT products × 2
-Claim              at most 1
-Verdict            violated
-```
-
-The visible result stays passed. The effect claim fails because the eligible observed count already exceeds the approved maximum.
-
-After the agent repairs cache behavior, run a fresh attempt. One Postgres read can satisfy the upper bound only when evidence is complete for that claim.
-
-## Summary
-
-- Compose provides the accepted application setup path.
-- Blackbox admits exact participants and observation capabilities before execution.
-- Each attempt produces separate evidence and a separate outcome.
-- Native assertions and effect findings remain independent.
-
-## Next Steps
-
-- [Use an Existing Compose Project](/docs/blackbox/guides/use-existing-compose)
-- [Runtime Evidence and Integrity](/docs/blackbox/concepts/runtime-evidence)
+The Compose workflow now lives in [Use an Existing Compose Project](/docs/blackbox/guides/use-existing-compose).

@@ -62,6 +62,20 @@ export default defineConfig({
       destination: "/docs/get-started/quickstart",
     },
 
+    // Blackbox
+    "/docs/blackbox/quickstart/add-to-existing-test": {
+      status: 301,
+      destination: "/docs/blackbox/guides/use-existing-compose",
+    },
+    "/docs/blackbox/guides/build-from-dockerfile": {
+      status: 301,
+      destination: "/docs/blackbox/status/alpha-status",
+    },
+    "/docs/blackbox/guides/run-compiled-artifacts": {
+      status: 301,
+      destination: "/docs/blackbox/status/alpha-status",
+    },
+
     // Installation
     "/docs/overview/installation": {
       status: 301,
@@ -199,12 +213,6 @@ export default defineConfig({
       status: 301,
       destination: "/docs/guides/",
     },
-
-    // ============================================================
-    // DOCS BASE PATH
-    // ============================================================
-
-    "/docs": { status: 301, destination: "/docs/get-started/" },
 
     // ============================================================
     // CATEGORY PAGES

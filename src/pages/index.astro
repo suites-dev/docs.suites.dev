@@ -1,386 +1,957 @@
 ---
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
-import Hero from '@/components/ui/Hero.astro';
-import Eyebrow from '@/components/ui/Eyebrow.astro';
-import Section from '@/components/ui/Section.astro';
-import Grid from '@/components/ui/Grid.astro';
-import Card from '@/components/ui/Card.astro';
-import Btn from '@/components/ui/Btn.astro';
-import Chip from '@/components/ui/Chip.astro';
+import LovableHomepage from '@/components/home/LovableHomepage.astro';
+import LovableTechnicalFigure from '@/components/home/LovableTechnicalFigure.astro';
 import { Code } from 'astro-expressive-code/components';
 
-const withSuitesCode = `import { TestBed, type Mocked } from '@suites/unit';
+const unitCode = `import { TestBed } from '@suites/unit';
+import { OrderService } from './order.service';
+import { PaymentGateway } from './payment.gateway';
 
-describe('User Service', () => {
-  let userService: UserService; // The unit we are testing
-  let userApi: Mocked<UserApi>; // The dependencies we are mocking
-  let database: Mocked<Database>;
-
-  beforeAll(async () => {
-    // Create an isolated test env for the unit
-    const { unit, unitRef } = await TestBed.solitary(UserService).compile();
-
-    userService = unit;
-    // Retrieve the unit's dependency mocks - automatically generated
-    userApi = unitRef.get(UserApi);
-    database = unitRef.get(Database);
-  });
-
-  // ✅ Test test test
-  it('should generate a random user and save to the database', async () => {
-    userApi.getRandom.mockResolvedValue({id: 1, name: 'John'} as User);
-    await userService.generateRandomUser();
-    expect(database.saveUser).toHaveBeenCalledWith(userFixture);
-  });
-});`;
-
-const withoutSuitesCode = `// THE MANUAL WAY
-// (Similar complexity exists in NestJS, InversifyJS, etc.)
-
-import { UserService } from './user-service';
-import { UserApi } from './user-api';
-import { Database } from './database';
-
-describe('User Service', () => {
-  let userService: UserService;
-  let userApi: any; // ❌ Lost type safety!
-  let database: any;
-
-  beforeAll(async () => {
-    // 🔧 Manually create mocks for each dependency
-    userApi = {
-      getRandom: jest.fn(),
-      // Missing methods? Who knows? No compile-time checks!
-    };
-
-    database = {
-      saveUser: jest.fn(),
-      // What other methods exist? ¯\\_(ツ)_/¯
-    };
-
-    // Manual wiring - boilerplate for every test
-    userService = new UserService(userApi, database);
-  });
-
-  it('should generate a random user and save to the database', async () => {
-    userApi.getRandom.mockResolvedValue({id: 1, name: 'John'} as User);
-    await userService.generateRandomUser();
-    expect(database.saveUser).toHaveBeenCalledWith(userFixture);
-  });
-})`;
-
-const standardizedCode = `// Same pattern works everywhere
-// NestJS, InversifyJS, TSyringe...
-
-TestBed.solitary(OrderService).compile();
-
-// Or test with real dependencies
-TestBed.sociable(OrderService)
-  .expose(PaymentProcessor)
-  .compile();`;
-
-const revealIntentCode = `// One line creates the entire test environment
 const { unit, unitRef } = await TestBed
-  .solitary(UserService)
+  .solitary(OrderService)
   .compile();
 
-// Just test the logic
-const userApi = unitRef.get(UserApi);
-userApi.getRandom.mockResolvedValue(user);
-await unit.generateRandomUser();`;
+const payments = unitRef.get(PaymentGateway);
+payments.authorize.mockResolvedValue({ approved: true });
 
-const typeSafeCode = `// No manual mocks needed!
-const { unit, unitRef } = await TestBed
-  .solitary(UserService)
-  .compile();
+await unit.placeOrder(order);
 
-// Fully-typed mocks, automatically generated
-const userApi = unitRef.get(UserApi);
+expect(payments.authorize).toHaveBeenCalled();`;
 
-userApi.get.mockResolvedValue({ name: 'John' });`;
+const unitIntegrations = ['NestJS', 'InversifyJS', 'Jest', 'Vitest', 'Sinon'];
+const blackboxIntegrations = ['Playwright', 'Node.js', 'Docker', 'Postgres', 'HTTP', 'Queues'];
 
-const aiFirstCode = `// Manual: 40+ lines per test in AI context
-// class MockUserApi { getRandom = jest.fn(); ... }
-// class MockDatabase { saveUser = jest.fn(); ... }
-// const userService = new UserService(mockUserApi, mockDb);
-
-// Suites: Single canonical pattern
-const { unit, unitRef } = await TestBed
-  .solitary(UserService)
-  .compile();
-
-// AI agents learn the entire API from one example`;
-
-// Unique IDs for each Tabs block
-const heroTabsId = 'hero-tabs';
+const projectLinks = [
+  {
+    label: 'Source code',
+    description: 'Public Suites repositories.',
+    href: 'https://github.com/suites-dev',
+  },
+  {
+    label: 'Runnable examples',
+    description: 'Working TypeScript projects.',
+    href: 'https://github.com/suites-dev/examples',
+  },
+  {
+    label: 'Unit issues',
+    description: 'Bugs and improvements for Unit.',
+    href: 'https://github.com/suites-dev/suites/issues',
+  },
+  {
+    label: 'Unit discussions',
+    description: 'Questions and design discussions.',
+    href: 'https://github.com/suites-dev/suites/discussions',
+  },
+  {
+    label: 'Contributing to Unit',
+    description: 'Contribution workflow and requirements.',
+    href: 'https://github.com/suites-dev/suites/blob/master/CONTRIBUTING.md',
+  },
+  {
+    label: 'Apache 2.0 license',
+    description: 'The license used by the project.',
+    href: 'https://github.com/suites-dev/suites/blob/master/LICENSE',
+  },
+];
 ---
+
 <MarketingLayout
-  title="Suites | Unit Testing Framework"
-  description="Suites is a unit testing framework for TypeScript backends working with inversion of control and dependency injection"
+  title="Homepage"
+  description="Project Suites is building an open-source verification path for coding agents, from white-box checks close to the code to black-box evidence from running systems."
+  showHeader={false}
 >
-  <div class="shell">
+  <LovableHomepage />
 
-    <!-- HERO -->
-    <Hero>
-      <Eyebrow slot="eyebrow">v3.1.0 is now stable</Eyebrow>
-      <h1>Suites</h1>
-      <p slot="lead">
-        <strong>
-          A unit testing framework for TypeScript backends working with
-          inversion of control and dependency injection
-        </strong>
-      </p>
-    </Hero>
+  <div class="home">
+    <section id="tools" class="verification-register" aria-label="Suites verification tools">
+      <div class="verification-register__labels" aria-hidden="true">
+        <span></span>
+        <span>Tool</span>
+        <span>Boundary</span>
+        <span>Evidence</span>
+        <span></span>
+      </div>
 
-    <!-- CTA buttons -->
-    <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-bottom: 40px;">
-      <Btn
-        variant="primary"
-        href="/docs/get-started/"
-        onclick="window.__suitesTrack && window.__suitesTrack('get_started', 'homepage_hero')"
-      >
-        Get Started
-      </Btn>
-      <Btn
-        href="/docs/get-started/why-suites"
-        onclick="window.__suitesTrack && window.__suitesTrack('why_suites', 'homepage_hero')"
-      >
-        Why Suites?
-      </Btn>
-      <Btn
-        href="/docs/guides/"
-        onclick="window.__suitesTrack && window.__suitesTrack('guides', 'homepage_hero')"
-      >
-        Guides
-      </Btn>
-      <Btn
-        href="https://github.com/suites-dev/suites"
-        onclick="window.__suitesTrack && window.__suitesTrack('github', 'homepage_hero')"
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="flex-shrink:0;">
-          <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2Z" />
-        </svg>
-        GitHub
-      </Btn>
-    </div>
-
-    <!-- Works With -->
-    <Section>
-      <div slot="aside"><Chip>Works with projects using</Chip></div>
-      <div style="display: flex; gap: 24px; flex-wrap: wrap; align-items: center; justify-content: center; padding: 8px 0;">
-        <a href="https://docs.nestjs.com/recipes/suites" target="_blank" rel="noopener noreferrer" style="display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); font-size: 13px;">
-          <img src="/img/nestjs-logo.png" alt="NestJS" style="height: 40px; object-fit: contain;" />
-          <span>NestJS</span>
-          <span class="badge badge-pink">Official</span>
+      <nav class="verification-register__rows" aria-label="Verification available in Suites">
+        <a
+          href="#unit-title"
+          aria-label="Suites Unit, stable. Class and dependencies. Typed doubles and behavior assertions."
+        >
+          <span class="verification-register__index" aria-hidden="true">01</span>
+          <span class="verification-register__package">
+            <code>@suites/unit</code>
+            <small><i aria-hidden="true"></i>stable</small>
+          </span>
+          <span class="verification-register__boundary">Class and dependencies</span>
+          <span class="verification-register__evidence">Typed doubles and behavior assertions</span>
+          <span class="verification-register__arrow" aria-hidden="true">→</span>
         </a>
-        <a href="https://inversify.io/docs/ecosystem/suites/" target="_blank" rel="noopener noreferrer" style="display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); font-size: 13px;">
-          <img src="/img/inversify-logo.png" alt="InversifyJS" style="height: 40px; object-fit: contain;" />
-          <span>InversifyJS</span>
-          <span class="badge badge-pink">Official</span>
+
+        <a
+          href="#blackbox-title"
+          aria-label="Suites Blackbox, alpha. Running system. Required and forbidden runtime effects."
+        >
+          <span class="verification-register__index" aria-hidden="true">02</span>
+          <span class="verification-register__package">
+            <code>@suites/blackbox</code>
+            <small class="is-alpha"><i aria-hidden="true"></i>alpha</small>
+          </span>
+          <span class="verification-register__boundary">Running system</span>
+          <span class="verification-register__evidence">Required and forbidden runtime effects</span>
+          <span class="verification-register__arrow" aria-hidden="true">→</span>
         </a>
-        <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); font-size: 13px;">
-          <img src="/img/vitest-logo.png" alt="Vitest" style="height: 40px; object-fit: contain;" />
-          <span>Vitest</span>
-        </div>
-        <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); font-size: 13px;">
-          <img src="/img/jest-logo.png" alt="Jest" style="height: 40px; object-fit: contain;" />
-          <span>Jest</span>
-        </div>
-        <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); font-size: 13px;">
-          <img src="/img/sinon-logo.png" alt="Sinon" style="height: 40px; object-fit: contain;" />
-          <span>Sinon</span>
-        </div>
-        <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); font-size: 13px;">
-          <div style="height: 40px; width: 40px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: var(--fw-bold); color: var(--text-soft);">+</div>
-          <span>more</span>
-        </div>
-      </div>
-    </Section>
+      </nav>
+    </section>
 
-    <!-- With / Without Suites code comparison -->
-    <Section>
-      <div class="tabs-block" data-tabs-id={heroTabsId}>
-        <div class="tabs" role="tablist">
-          <button class="tab active" role="tab" data-tab-target="with-suites" data-tabs-id={heroTabsId} aria-selected="true">With Suites</button>
-          <button class="tab" role="tab" data-tab-target="without-suites" data-tabs-id={heroTabsId} aria-selected="false">Without Suites</button>
-        </div>
-        <div class="tabs-panels" style="margin-top: 16px;">
-          <div data-tab-panel="with-suites">
-            <Code code={withSuitesCode} lang="typescript" />
+    <LovableTechnicalFigure />
+
+    <section class="tools-section" aria-label="Suites tools">
+      <article class="tool tool--unit" aria-labelledby="unit-title">
+        <div class="tool-copy">
+          <header class="tool-header">
+            <div class="package-line">
+              <code>@suites/unit</code>
+              <span class="status status--stable">stable</span>
+            </div>
+            <h2 id="unit-title">Suites Unit</h2>
+          </header>
+
+          <p>
+            <code>@suites/unit</code> creates <strong>solitary tests</strong>, where all
+            dependencies are mocked, or sociable test environments for supported
+            DI-based TypeScript frameworks. It provides typed doubles for Jest,
+            Vitest, and Sinon.
+          </p>
+
+          <p class="install-line">
+            <span>Install</span>
+            <code>npm install -D @suites/unit</code>
+          </p>
+
+          <div class="compatibility">
+            <span>Integrates with</span>
+            <ul>
+              {unitIntegrations.map((item) => <li>{item}</li>)}
+            </ul>
           </div>
-          <div data-tab-panel="without-suites" hidden>
-            <Code code={withoutSuitesCode} lang="typescript" />
+
+          <nav class="tool-links" aria-label="Suites Unit resources">
+            <a href="/docs/get-started/quickstart">Quickstart <span aria-hidden="true">→</span></a>
+            <a href="/docs/get-started/installation">Installation <span aria-hidden="true">→</span></a>
+            <a href="/docs/api-reference/">API reference <span aria-hidden="true">→</span></a>
+            <a href="https://github.com/suites-dev/examples" target="_blank" rel="noopener noreferrer">
+              Examples <span aria-hidden="true">↗</span>
+            </a>
+          </nav>
+        </div>
+
+        <div class="artifact artifact--code" role="group" aria-labelledby="unit-example-title">
+          <div class="artifact-titlebar">
+            <span id="unit-example-title">order.service.spec.ts</span>
+            <code>@suites/unit</code>
           </div>
+          <Code code={unitCode} lang="ts" />
         </div>
-      </div>
-    </Section>
+      </article>
 
-    <!-- Features grid -->
-    <Section title="Why Suites?">
-      <Grid cols={4}>
-        <Card>
-          <span class="card-icon" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg>
-          </span>
-          <h3>Declarative</h3>
-          <p>Suites' declarative API creates fully-typed, isolated test environments with a single declaration. Suites auto-generates all mocks and wires dependencies automatically.</p>
-        </Card>
-        <Card>
-          <span class="card-icon" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
-          </span>
-          <h3>Type-Safe</h3>
-          <p>Generate type-safe mocks bound to implementations. Eliminate broken tests after refactors, silent runtime failures, and manual type casting.</p>
-        </Card>
-        <Card>
-          <span class="card-icon" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" x2="6" y1="3" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>
-          </span>
-          <h3>Refactoring Confidence</h3>
-          <p>Change constructors, add dependencies, refactor classes - tests adapt automatically. Skip manual mock updates. Catch breaking changes at compile time, not runtime.</p>
-        </Card>
-        <Card>
-          <span class="card-icon" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg>
-          </span>
-          <h3>AI Ready</h3>
-          <p>One canonical pattern teaches AI agents the entire API. Coding agents like Claude Code and Cursor write correct tests in a single pass with 95% less context consumption compared to manual mocking patterns.</p>
-        </Card>
-      </Grid>
-    </Section>
+      <article class="tool tool--blackbox" aria-labelledby="blackbox-title">
+        <div class="tool-copy">
+          <header class="tool-header">
+            <div class="package-line">
+              <code>@suites/blackbox</code>
+              <span class="status status--alpha">alpha</span>
+            </div>
+            <h2 id="blackbox-title">Suites Blackbox</h2>
+          </header>
 
-    <!-- Used by -->
-    <Section>
-      <div slot="aside"><Chip>Used by</Chip></div>
-      <div style="display: flex; gap: 32px; flex-wrap: wrap; align-items: center; justify-content: center; padding: 8px 0;">
-        <img src="/img/monday-logo.svg" alt="Monday.com" style="height: 32px; object-fit: contain; filter: brightness(0.7);" />
-        <img src="/img/lemonade-logo.svg" alt="Lemonade" style="height: 32px; object-fit: contain; filter: brightness(0.7);" />
-        <img src="/img/balance-logo.svg" alt="Balance" style="height: 32px; object-fit: contain; filter: brightness(0.7);" />
-        <img src="/img/harmonya-logo.svg" alt="Harmonya" style="height: 32px; object-fit: contain; filter: brightness(0.7);" />
-        <img src="/img/vetric.svg" alt="Vetric" style="height: 32px; object-fit: contain; filter: brightness(0.7);" />
-      </div>
-      <p style="text-align: center; color: var(--text-muted); font-size: 14px; margin-top: 16px; margin-bottom: 0;">
-        Using Suites?{' '}
-        <a href="https://github.com/suites-dev/suites/discussions/655" target="_blank" rel="noopener noreferrer" style="color: var(--text);">Share your experience</a>
-        {' '}and help us shape the future of Suites
-      </p>
-    </Section>
-
-    <!-- Alternating sections -->
-
-    <!-- Section 1: Standardized Testing -->
-    <Section>
-      <div class="grid cols-2" style="gap: 32px; align-items: center;">
-        <div>
-          <h2 style="margin-top: 0; font-size: clamp(22px, 3vw, 32px); letter-spacing: -0.025em;">Standardized Testing Across Teams</h2>
-          <p style="color: var(--text-muted);">
-            Stop relearning test patterns on every project. Suites provides a
-            consistent, standardized approach that works identically across
-            NestJS, InversifyJS, and any DI framework, giving teams a unified
-            testing experience.
+          <p>
+            <code>@suites/blackbox</code> adds runtime evidence to Playwright system
+            tests. It reports whether required and forbidden effects match the
+            behavior approved for a flow.
           </p>
-          <Btn href="/docs/get-started/why-suites#3-inconsistent-patterns-across-teams">
-            See Framework Support →
-          </Btn>
-        </div>
-        <Code code={standardizedCode} lang="typescript" />
-      </div>
-    </Section>
 
-    <!-- Section 2: Tests That Reveal Intent -->
-    <Section>
-      <div class="grid cols-2" style="gap: 32px; align-items: center;">
-        <div>
-          <h2 style="margin-top: 0; font-size: clamp(22px, 3vw, 32px); letter-spacing: -0.025em;">Tests That Reveal Intent, Not Boilerplate</h2>
-          <p style="color: var(--text-muted);">
-            Suites' declarative API removes 90% of test setup code. No more
-            scrolling through mock wiring, logic is front and center. New team
-            members write tests on day one, not day ten.
+          <p class="install-line">
+            <span>Install</span>
+            <code>pnpm add -D @suites/blackbox @suites/blackbox-cli @playwright/test</code>
           </p>
-          <Btn href="/docs/get-started/quickstart">
-            See Quick Start →
-          </Btn>
-        </div>
-        <Code code={revealIntentCode} lang="typescript" />
-      </div>
-    </Section>
 
-    <!-- Section 3: Type-Safe Mocking -->
-    <Section>
-      <div class="grid cols-2" style="gap: 32px; align-items: center;">
-        <div>
-          <h2 style="margin-top: 0; font-size: clamp(22px, 3vw, 32px); letter-spacing: -0.025em;">Type-Safe, Automatic Mocking</h2>
-          <p style="color: var(--text-muted);">
-            No more debugging broken mocks. Suites automatically generates
-            fully-typed mocks bound to implementation. Catch errors at compile
-            time, not runtime. Refactor with confidence while mocks stay valid
-            when dependencies change.
+          <p class="alpha-note">
+            Blackbox is in alpha. Its public packages and APIs may change before a
+            stable release.
           </p>
-          <Btn href="/docs/guides/test-doubles">
-            Learn about Mocking →
-          </Btn>
-        </div>
-        <Code code={typeSafeCode} lang="typescript" />
-      </div>
-    </Section>
 
-    <!-- Section 4: Built for AI-First -->
-    <Section>
-      <div class="grid cols-2" style="gap: 32px; align-items: center;">
-        <div>
-          <h2 style="margin-top: 0; font-size: clamp(22px, 3vw, 32px); letter-spacing: -0.025em;">Built for AI-First Development</h2>
-          <p style="color: var(--text-muted);">
-            Manual mocking forces AI agents to hold 40+ lines of boilerplate
-            per test in context. Suites provides one canonical pattern that
-            reduces token consumption by 95%. AI coding assistants like Claude
-            Code, Cursor, and GitHub Copilot generate accurate tests in a
-            single pass without burning tokens on repetitive setup code.
-          </p>
-          <Btn href="/docs/get-started/why-suites#2-excessive-boilerplate-obscures-test-intent-and-confuses-llms">
-            Suites and AI →
-          </Btn>
-        </div>
-        <Code code={aiFirstCode} lang="typescript" />
-      </div>
-    </Section>
+          <div class="compatibility">
+            <span>Current scope</span>
+            <ul>
+              {blackboxIntegrations.map((item) => <li>{item}</li>)}
+            </ul>
+          </div>
 
+          <nav class="tool-links" aria-label="Suites Blackbox resources">
+            <a href="/docs/blackbox/overview/what-is-blackbox">Overview <span aria-hidden="true">→</span></a>
+            <a href="/docs/blackbox/quickstart/">Quickstart <span aria-hidden="true">→</span></a>
+            <a href="/docs/blackbox/overview/how-blackbox-works">How it works <span aria-hidden="true">→</span></a>
+            <a href="/docs/blackbox/reference/cli">CLI reference <span aria-hidden="true">→</span></a>
+          </nav>
+        </div>
+
+        <figure class="artifact artifact--finding">
+          <figcaption class="sr-only">Example Suites Blackbox finding</figcaption>
+          <div class="artifact-titlebar">
+            <span>Example output · subscribe-user / attempt 01</span>
+            <code>blackbox test</code>
+          </div>
+          <div class="finding-body">
+            <div class="finding-summary">
+              <div>
+                <span>Tests</span>
+                <strong class="pass">PASS</strong>
+              </div>
+              <div>
+                <span>Integrity</span>
+                <strong class="pass">PASS</strong>
+              </div>
+              <div>
+                <span>Effects</span>
+                <strong class="fail">FAIL</strong>
+              </div>
+            </div>
+
+            <div class="effect-list" aria-label="Effect findings">
+              <div class="effect-row">
+                <span class="effect-mark pass" aria-hidden="true">+</span>
+                <span>
+                  <small>required effect observed</small>
+                  <code>database.users.find(&lbrace; id: "ghost" &rbrace;)</code>
+                </span>
+              </div>
+              <div class="effect-row">
+                <span class="effect-mark fail" aria-hidden="true">!</span>
+                <span>
+                  <small>forbidden effect observed</small>
+                  <code>http.payment-provider.authorize()</code>
+                </span>
+              </div>
+            </div>
+
+            <p class="finding-message">
+              The response assertion passed, but the flow produced an effect it
+              was not allowed to produce.
+            </p>
+          </div>
+        </figure>
+      </article>
+    </section>
+
+    <section class="project-section" aria-labelledby="project-title">
+      <header class="project-intro">
+        <h2 id="project-title">Project</h2>
+        <p>Suites is developed in the open under Apache 2.0.</p>
+      </header>
+
+      <nav class="project-directory" aria-label="Suites project links">
+        {projectLinks.map((link) => (
+          <a href={link.href} target="_blank" rel="noopener noreferrer">
+            <span>
+              <strong>{link.label}</strong>
+              <small>{link.description}</small>
+            </span>
+            <span aria-hidden="true">↗</span>
+          </a>
+        ))}
+      </nav>
+    </section>
   </div>
 </MarketingLayout>
 
-<script>
-  // Tab switching for all tabs-block elements on the page
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll<HTMLButtonElement>('button[data-tab-target]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const tabsId = btn.dataset.tabsId!;
-        const target = btn.dataset.tabTarget!;
-        document.querySelectorAll<HTMLButtonElement>(`button[data-tabs-id="${tabsId}"]`).forEach((b) => {
-          b.classList.remove('active');
-          b.setAttribute('aria-selected', 'false');
-        });
-        btn.classList.add('active');
-        btn.setAttribute('aria-selected', 'true');
-        const block = document.querySelector<HTMLElement>(`.tabs-block[data-tabs-id="${tabsId}"]`);
-        if (!block) return;
-        block.querySelectorAll<HTMLElement>('[data-tab-panel]').forEach((panel) => {
-          panel.hidden = panel.dataset.tabPanel !== target;
-        });
-      });
-    });
-  });
-</script>
-
 <style>
-  .card-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    background: var(--primary-soft);
-    color: var(--primary-light);
-    margin-bottom: 12px;
+  :global(body:has([data-lovable-homepage])) {
+    background: var(--background);
   }
-  .card-icon svg { width: 20px; height: 20px; }
+
+  .home {
+    width: min(100%, 1200px);
+    margin: 0 auto;
+    padding: 0 24px 96px;
+  }
+
+  .verification-register {
+    position: relative;
+    z-index: 1;
+    padding: clamp(80px, 8vw, 112px) 0 96px;
+  }
+
+  .verification-register__labels,
+  .verification-register__rows a {
+    display: grid;
+    grid-template-columns: 32px minmax(210px, 0.72fr) minmax(170px, 0.54fr) minmax(260px, 1fr) 24px;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .verification-register__labels {
+    min-height: 32px;
+    padding-bottom: 10px;
+    color: var(--text-soft);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-code);
+    font-size: 0.58rem;
+    font-weight: var(--fw-semibold);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .verification-register__rows a {
+    min-height: 88px;
+    padding-block: 18px;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+  }
+
+  .verification-register__rows a:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 6px;
+  }
+
+  .verification-register__index,
+  .verification-register__package,
+  .verification-register__package small {
+    font-family: var(--font-code);
+  }
+
+  .verification-register__index {
+    color: var(--text-soft);
+    font-size: 0.67rem;
+  }
+
+  .verification-register__package {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .verification-register__package code {
+    overflow: hidden;
+    color: var(--text);
+    font-size: 0.78rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .verification-register__package small {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 7px;
+    color: var(--text-muted);
+    font-size: 0.59rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .verification-register__package small i {
+    width: 5px;
+    height: 5px;
+    background: var(--success);
+    border-radius: 50%;
+  }
+
+  .verification-register__package small.is-alpha i {
+    background: var(--primary);
+  }
+
+  .verification-register__boundary {
+    color: var(--text);
+    font-size: 0.84rem;
+    line-height: 1.5;
+  }
+
+  .verification-register__evidence {
+    color: var(--text-muted);
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+
+  .verification-register__arrow {
+    color: var(--text-soft);
+    font-size: 1rem;
+    transition:
+      color 180ms ease-out,
+      transform 180ms ease-out;
+  }
+
+  @media (hover: hover) {
+    .verification-register__rows a:hover .verification-register__package code,
+    .verification-register__rows a:hover .verification-register__arrow {
+      color: var(--primary);
+    }
+
+    .verification-register__rows a:hover .verification-register__arrow {
+      transform: translateX(3px);
+    }
+  }
+
+  .tools-section {
+    padding-top: 72px;
+  }
+
+  .project-intro {
+    max-width: 620px;
+    padding-bottom: 42px;
+  }
+
+  .project-intro h2,
+  .tool-header h2 {
+    margin-bottom: 10px;
+    color: var(--text);
+    font-size: clamp(28px, 4vw, 38px);
+    font-weight: var(--fw-semibold);
+    letter-spacing: -0.035em;
+    line-height: 1.12;
+  }
+
+  .project-intro > p:last-child,
+  .tool-copy > p {
+    margin-bottom: 0;
+    color: var(--text-muted);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  .tool {
+    display: grid;
+    gap: clamp(48px, 5vw, 80px);
+    align-items: center;
+    justify-content: space-between;
+    padding: 88px 0;
+  }
+
+  .tool--unit {
+    grid-template-columns: minmax(300px, 620px) minmax(400px, 720px);
+  }
+
+  .tool--blackbox {
+    grid-template-columns: minmax(300px, 620px) minmax(400px, 720px);
+  }
+
+  .tool--blackbox .tool-copy {
+    grid-column: 1;
+  }
+
+  .tool--blackbox .artifact {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .tool + .tool {
+    border-top: 1px solid var(--border);
+  }
+
+  .tool-header {
+    margin-bottom: 20px;
+  }
+
+  .package-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .package-line > code {
+    color: var(--text-muted);
+    font-family: var(--font-code);
+    font-size: 12px;
+  }
+
+  .status {
+    display: inline-flex;
+    min-height: 22px;
+    align-items: center;
+    padding: 2px 8px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-family: var(--font-code);
+    font-size: 9px;
+    font-weight: var(--fw-semibold);
+    letter-spacing: 0.08em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .status--stable {
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.035);
+  }
+
+  .status--alpha {
+    color: var(--primary-light);
+    background: var(--primary-soft);
+    border-color: var(--primary-border);
+  }
+
+  :global(:root[data-theme='light']) .status--stable {
+    background: rgba(15, 15, 18, 0.035);
+  }
+
+  :global(:root[data-theme='light']) .status--alpha {
+    color: var(--primary-dark);
+  }
+
+  .tool-copy > p code {
+    color: var(--code-text);
+    font-family: var(--font-code);
+    font-size: 0.9em;
+  }
+
+  .tool-copy strong {
+    color: var(--text);
+    font-weight: var(--fw-semibold);
+  }
+
+  .install-line {
+    display: grid;
+    gap: 8px;
+    margin-top: 24px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.018);
+  }
+
+  :global(:root[data-theme='light']) .install-line {
+    background: rgba(15, 15, 18, 0.018);
+  }
+
+  .install-line span,
+  .compatibility > span {
+    color: var(--text-soft);
+    font-family: var(--font-code);
+    font-size: 10px;
+    font-weight: var(--fw-semibold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .install-line code {
+    overflow-wrap: anywhere;
+    color: var(--code-text);
+    font-family: var(--font-code);
+    font-size: 12px;
+    line-height: 1.55;
+  }
+
+  .alpha-note {
+    margin-top: 16px;
+    padding-left: 14px;
+    border-left: 2px solid var(--primary-border);
+    font-size: 13px !important;
+  }
+
+  .compatibility {
+    display: grid;
+    gap: 10px;
+    margin-top: 24px;
+  }
+
+  .compatibility ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .compatibility li {
+    color: var(--text-muted);
+    font-family: var(--font-code);
+    font-size: 11px;
+  }
+
+  .tool-links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 32px;
+    border-top: 1px solid var(--border);
+  }
+
+  .tool-links a {
+    display: flex;
+    min-height: 46px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 0;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-code);
+    font-size: 10px;
+    letter-spacing: 0.015em;
+    text-decoration: none;
+    transition: color 180ms ease-out;
+  }
+
+  .tool-links a:nth-child(odd) {
+    padding-right: 18px;
+  }
+
+  .tool-links a:nth-child(even) {
+    padding-left: 18px;
+    border-left: 1px solid var(--border);
+  }
+
+  .tool-links a span {
+    color: var(--text-soft);
+    transition: transform 180ms ease-out;
+  }
+
+  @media (hover: hover) {
+    .tool-links a:hover {
+      color: var(--text);
+    }
+
+    .tool-links a:hover span {
+      transform: translateX(3px);
+    }
+  }
+
+  .artifact {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--border-strong);
+    border-radius: 5px;
+    background: var(--code-bg);
+  }
+
+  .artifact-titlebar {
+    display: flex;
+    min-height: 40px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 0 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-soft);
+    font-family: var(--font-code);
+    font-size: 10px;
+  }
+
+  .artifact-titlebar code {
+    color: var(--text-muted);
+    font-family: inherit;
+  }
+
+  .artifact--code :global(.expressive-code) {
+    margin: 0;
+  }
+
+  .artifact--code :global(.expressive-code figure) {
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .artifact--code :global(.expressive-code .frame) {
+    box-shadow: none;
+  }
+
+  .artifact--code :global(.expressive-code .header) {
+    display: none;
+  }
+
+  .artifact--code :global(.expressive-code pre) {
+    max-height: none;
+    padding-block: 22px;
+    border: 0;
+    border-radius: 0;
+    font-size: 12px;
+  }
+
+  .finding-body {
+    padding: 18px;
+    font-family: var(--font-code);
+  }
+
+  .finding-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin-bottom: 18px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+  }
+
+  .finding-summary > div {
+    display: grid;
+    gap: 7px;
+    padding: 12px;
+  }
+
+  .finding-summary > div + div {
+    border-left: 1px solid var(--border);
+  }
+
+  .finding-summary span,
+  .effect-row small {
+    color: var(--text-soft);
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .finding-summary strong {
+    font-size: 10px;
+    letter-spacing: 0.08em;
+  }
+
+  .pass {
+    color: var(--success);
+  }
+
+  .fail {
+    color: var(--error);
+  }
+
+  .effect-list {
+    display: grid;
+  }
+
+  .effect-row {
+    display: grid;
+    grid-template-columns: 22px minmax(0, 1fr);
+    gap: 10px;
+    padding: 14px 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .effect-row > span:last-child {
+    display: grid;
+    min-width: 0;
+    gap: 6px;
+  }
+
+  .effect-row code {
+    overflow-wrap: anywhere;
+    color: var(--code-text);
+    font-family: inherit;
+    font-size: 11px;
+  }
+
+  .effect-mark {
+    font-size: 13px;
+    font-weight: var(--fw-semibold);
+  }
+
+  .finding-message {
+    margin: 10px 0 0;
+    color: var(--text-muted);
+    font-size: 11px;
+    line-height: 1.6;
+  }
+
+  .project-section {
+    padding: 84px 0 0;
+  }
+
+  .project-directory {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 48px;
+    border-top: 1px solid var(--border);
+  }
+
+  .project-directory a {
+    display: flex;
+    min-height: 84px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+  }
+
+  .project-directory a > span:first-child {
+    display: grid;
+    gap: 8px;
+  }
+
+  .project-directory strong {
+    color: var(--text);
+    font-size: 14px;
+    font-weight: var(--fw-semibold);
+  }
+
+  .project-directory small {
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .project-directory a > span:last-child {
+    color: var(--text-soft);
+    font-size: 12px;
+    transition:
+      color 180ms ease-out,
+      transform 180ms ease-out;
+  }
+
+  @media (hover: hover) {
+    .project-directory a:hover strong,
+    .project-directory a:hover > span:last-child {
+      color: var(--primary);
+    }
+
+    .project-directory a:hover > span:last-child {
+      transform: translate(2px, -2px);
+    }
+  }
+
+  @media (max-width: 1050px) {
+    .tools-section,
+    .project-section {
+      padding-top: 64px;
+    }
+
+    .tool {
+      grid-template-columns: 1fr;
+      gap: 40px;
+      padding: 64px 0;
+    }
+
+    .tool--blackbox .tool-copy,
+    .tool--blackbox .artifact {
+      grid-column: 1;
+    }
+
+    .tool--blackbox .tool-copy {
+      grid-row: 1;
+    }
+
+    .tool--blackbox .artifact {
+      grid-row: 2;
+    }
+
+  }
+
+  @media (max-width: 860px) {
+    .verification-register__labels {
+      display: none;
+    }
+
+    .verification-register__rows {
+      border-top: 1px solid var(--border);
+    }
+
+    .verification-register__rows a {
+      grid-template-columns: 32px minmax(210px, 0.8fr) minmax(0, 1fr) 24px;
+      gap: 12px 20px;
+      padding-block: 20px;
+    }
+
+    .verification-register__evidence {
+      grid-column: 2 / 4;
+      grid-row: 2;
+    }
+
+    .verification-register__arrow {
+      grid-column: 4;
+      grid-row: 1;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .home {
+      padding-bottom: 72px;
+      padding-right: 16px;
+      padding-left: 16px;
+    }
+
+    .verification-register {
+      padding: 56px 0 72px;
+    }
+
+    .verification-register__rows a {
+      min-height: 0;
+      grid-template-columns: minmax(0, 1fr) 20px;
+      gap: 10px 16px;
+      padding-block: 22px;
+    }
+
+    .verification-register__index {
+      display: none;
+    }
+
+    .verification-register__package {
+      grid-column: 1;
+    }
+
+    .verification-register__boundary {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    .verification-register__evidence {
+      grid-column: 1 / -1;
+      grid-row: 3;
+    }
+
+    .verification-register__arrow {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .project-intro {
+      padding-bottom: 32px;
+    }
+
+    .tool {
+      gap: 32px;
+      padding: 52px 0;
+    }
+
+    .tool-links {
+      grid-template-columns: 1fr;
+    }
+
+    .tool-links a:nth-child(odd),
+    .tool-links a:nth-child(even) {
+      padding-right: 0;
+      padding-left: 0;
+      border-left: 0;
+    }
+
+    .artifact-titlebar {
+      align-items: flex-start;
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+
+    .finding-body {
+      padding: 14px;
+    }
+
+    .finding-summary {
+      grid-template-columns: 1fr;
+    }
+
+    .finding-summary > div {
+      grid-template-columns: 1fr auto;
+      align-items: center;
+    }
+
+    .finding-summary > div + div {
+      border-top: 1px solid var(--border);
+      border-left: 0;
+    }
+
+    .project-directory {
+      grid-template-columns: 1fr;
+    }
+  }
 </style>

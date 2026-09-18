@@ -42,6 +42,6 @@ Unit tests still diagnose local logic. The Blackbox result adds system-level evi
 
 ## Next Steps
 
-- [Runtime Evidence](/docs/blackbox/concepts/runtime-evidence)
+- [Runtime Evidence and Integrity](/docs/blackbox/concepts/runtime-evidence)
 - [Effects and Contracts](/docs/blackbox/concepts/effects-and-catalogs)
 - [Add Verification Gates to CI](/docs/blackbox/guides/reports-and-ci-gates)

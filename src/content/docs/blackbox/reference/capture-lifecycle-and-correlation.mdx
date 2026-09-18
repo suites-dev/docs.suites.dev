@@ -68,7 +68,18 @@ Completeness depends on the exact claim direction and scope. Blackbox derives it
 
 An empty effect list, a successful OTLP request, queue polling, or flush alone cannot establish completeness. [See how incomplete evidence limits claim evaluation](/docs/blackbox/reference/effects-and-claims#evidence-limits-the-conclusion).
 
-## Preserve Ordered State and Retry History
+## Execution Topologies
+
+| Declared relationship                   | Topology                                | Evidence boundary                                                                  |
+| --------------------------------------- | --------------------------------------- | ---------------------------------------------------------------------------------- |
+| Cases do not share state                | Independent attempts                    | Fresh sandbox lease, runtime identity, capture, evidence, and teardown per attempt |
+| Cases share declared state in order     | Ordered group                           | One fresh group lease with separate member attempts and evidence                   |
+| Named cases form an approved comparison | Explicit comparison                     | Exact members and controlled dimension without evidence aggregation                |
+| Operations overlap inside one case      | Typed parallel branches inside one case | One case owns the synchronization contract and evidence window                     |
+
+Serial or parallel runner placement does not change the declared topology. Workers, shards, files, titles, traces, and timing do not create evidence relationships.
+
+## Ordered State, Retries, and Comparisons
 
 Cases share state only inside an explicit ordered group. The group declares member order, shared domains, transfer attestations, stop-on-failure behavior, and final cleanup.
 
@@ -78,5 +89,5 @@ Comparisons name exact members and an outcome-independent eligible-attempt polic
 
 ## Next Steps
 
-- [Runtime Evidence and Integrity](/docs/blackbox/concepts/runtime-evidence)
-- [Test Topologies and Parallelism](/docs/blackbox/guides/playwright-isolation-and-parallelism)
+- [Runtime Evidence Boundaries](/docs/blackbox/concepts/runtime-evidence)
+- [Test Topologies and Evidence Boundaries](/docs/blackbox/guides/playwright-isolation-and-parallelism)

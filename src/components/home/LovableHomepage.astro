@@ -1,0 +1,935 @@
+---
+import referenceHtml from '../../../loveable.html?raw';
+import referenceCss from '../../../loveable.css?raw';
+
+const pageStart = referenceHtml.indexOf('<div id="top"');
+const pageEndMarker = '</div><!--/$-->';
+const pageEnd = referenceHtml.lastIndexOf(pageEndMarker);
+
+if (pageStart === -1 || pageEnd === -1) {
+  throw new Error('Could not find the Lovable homepage inside loveable.html');
+}
+
+const assetMap = new Map([
+  [
+    '/__l5e/assets-v1/87ac2c2c-8740-41c3-9533-e52503d479ea/suites-logo.svg',
+    '/img/branding/Suites_LogoMark_FullColor.svg',
+  ],
+  [
+    '/__l5e/assets-v1/4ccb5b2c-cd9a-4cb5-b285-4914c7be07f9/nestjs.png',
+    '/img/lovable/nestjs.png',
+  ],
+  [
+    '/__l5e/assets-v1/cfba7528-07d7-43b3-bb9d-7f263a183b52/inversify.png',
+    '/img/lovable/inversify.png',
+  ],
+  [
+    '/__l5e/assets-v1/018d335e-b2c2-4cc4-a0c4-049cfb56fc8d/vitest.png',
+    '/img/lovable/vitest.png',
+  ],
+  [
+    '/__l5e/assets-v1/2c16c75b-903a-42f1-a3d4-4dc6a134fd71/jest.png',
+    '/img/lovable/jest.png',
+  ],
+  [
+    '/__l5e/assets-v1/c54c315c-92b4-460b-889e-6141f2189b20/sinon.png',
+    '/img/lovable/sinon.png',
+  ],
+  [
+    '/__l5e/assets-v1/aeed902c-f1fe-4a95-b9bb-9af26f1eeceb/monday.png',
+    '/img/lovable/monday.png',
+  ],
+  [
+    '/__l5e/assets-v1/c7a73c03-b232-4274-95e2-78d308900211/lemonade.png',
+    '/img/lovable/lemonade.png',
+  ],
+  [
+    '/__l5e/assets-v1/b045d4a6-0fa9-4401-8035-4c777802d14c/balance.png',
+    '/img/lovable/balance.png',
+  ],
+  [
+    '/__l5e/assets-v1/dd4e01f2-59e4-4945-9027-78b39d07d83b/harmonya.png',
+    '/img/lovable/harmonya.png',
+  ],
+  [
+    '/__l5e/assets-v1/258a194b-0c75-48e5-af31-5a56beb46312/vetric.png',
+    '/img/lovable/vetric.png',
+  ],
+]);
+
+let homepageMarkup = referenceHtml.slice(pageStart, pageEnd + pageEndMarker.indexOf('<!--'));
+
+homepageMarkup = homepageMarkup.replace(
+  'class="relative min-h-screen isolate"',
+  'class="relative isolate"',
+);
+
+for (const [remotePath, localPath] of assetMap) {
+  homepageMarkup = homepageMarkup.replaceAll(remotePath, localPath);
+}
+
+const scrollGlowStart = homepageMarkup.indexOf('<div class="scroll-glow"');
+const scrollGlowEnd = homepageMarkup.indexOf('</div>', scrollGlowStart) + '</div>'.length;
+
+if (scrollGlowStart === -1 || scrollGlowEnd < '</div>'.length) {
+  throw new Error('Could not find the Lovable ambient background glow inside loveable.html');
+}
+
+homepageMarkup = `${homepageMarkup.slice(0, scrollGlowStart)}${homepageMarkup.slice(scrollGlowEnd)}`;
+
+const headerStart = homepageMarkup.indexOf('<header');
+const headerEnd = homepageMarkup.indexOf('</header>', headerStart) + '</header>'.length;
+
+if (headerStart === -1 || headerEnd < '</header>'.length) {
+  throw new Error('Could not find the Lovable homepage header inside loveable.html');
+}
+
+const topHeader = `
+<header class="lovable-site-header" data-context="homepage">
+  <div class="lovable-header-inner">
+    <a class="lovable-header-brand" href="#top" aria-label="Suites — back to top">
+      <img src="/img/branding/Suites_LogoMark_FullColor.svg" alt="" width="25" height="28" />
+    </a>
+
+    <nav class="lovable-desktop-nav" aria-label="Primary navigation">
+      <a href="/docs/">Docs</a>
+      <a href="#unit-title">Unit</a>
+      <a href="#blackbox-title">Blackbox <small class="lovable-nav-alpha">Alpha</small></a>
+      <a href="https://github.com/suites-dev/examples" target="_blank" rel="noopener noreferrer">Examples</a>
+    </nav>
+
+    <div class="lovable-header-actions">
+      <a
+        class="lovable-header-action lovable-github-link"
+        href="https://github.com/suites-dev"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Suites on GitHub (opens in a new tab)"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.55v-2.02c-3.2.7-3.88-1.4-3.88-1.4-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.2 1.77 1.2 1.03 1.78 2.7 1.27 3.36.97.1-.75.4-1.27.73-1.56-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.25 5.69.41.36.78 1.06.78 2.14v3.17c0 .3.2.66.8.55A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"></path>
+        </svg>
+      </a>
+
+      <button class="lovable-header-action lovable-theme-toggle" type="button" data-lovable-theme-toggle aria-label="Switch to light mode" title="Light mode">
+        <svg class="lovable-theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"></circle>
+          <path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4"></path>
+        </svg>
+        <svg class="lovable-theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+
+      <button class="lovable-header-action lovable-mobile-toggle" type="button" data-lovable-mobile-toggle aria-expanded="false" aria-controls="lovable-mobile-nav" aria-label="Open navigation menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M4 7h16M4 12h16M4 17h16"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+</header>`;
+
+homepageMarkup = `${homepageMarkup.slice(0, headerStart)}${topHeader}${homepageMarkup.slice(headerEnd)}`;
+
+const heroStart = homepageMarkup.indexOf('<section');
+const heroEnd = homepageMarkup.indexOf('</section>', heroStart) + '</section>'.length;
+
+if (heroStart === -1 || heroEnd < '</section>'.length) {
+  throw new Error('Could not find the Lovable hero inside loveable.html');
+}
+
+const topHero = `
+<section class="lovable-top-hero relative" aria-labelledby="lovable-home-title">
+  <div class="lovable-hero-grid absolute inset-0 bg-grid" aria-hidden="true">
+    <span class="lovable-grid-signal lovable-grid-signal--horizontal lovable-grid-signal--north" style="--signal-duration: 26s; --signal-delay: -7s;"></span>
+    <span class="lovable-grid-signal lovable-grid-signal--horizontal lovable-grid-signal--south" style="--signal-duration: 35s; --signal-delay: -23s;"></span>
+    <span class="lovable-grid-signal lovable-grid-signal--vertical lovable-grid-signal--west" style="--signal-duration: 31s; --signal-delay: -16s;"></span>
+    <span class="lovable-grid-signal lovable-grid-signal--vertical lovable-grid-signal--east" style="--signal-duration: 23s; --signal-delay: -3s;"></span>
+  </div>
+  <div class="lovable-hero-shell relative mx-auto max-w-6xl px-6">
+    <div class="lovable-hero-layout">
+      <div class="lovable-hero-copy">
+        <h1 id="lovable-home-title" class="lovable-hero-title text-balance leading-[1.08]">
+          <span class="lovable-hero-project">Project Suites.</span> Make verification clear for coding agents, from white-box to black-box.
+        </h1>
+        <p class="lovable-hero-description mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground">
+          An open-source verification project for TypeScript. Today, Suites Unit is stable and Suites Blackbox is in alpha.
+        </p>
+        <nav class="lovable-hero-actions mt-10 flex flex-wrap items-center gap-6" aria-label="Get started with Suites">
+          <a class="lovable-hero-cta rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-brand transition-transform hover:scale-[1.02] active:scale-95" href="/docs/">
+            Read the Docs
+          </a>
+          <a class="lovable-hero-cta lovable-github-cta" href="https://github.com/suites-dev/suites" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" class="size-4 fill-current" aria-hidden="true">
+              <path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.55v-2.02c-3.2.7-3.88-1.4-3.88-1.4-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.2 1.77 1.2 1.03 1.78 2.7 1.27 3.36.97.1-.75.4-1.27.73-1.56-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.25 5.69.41.36.78 1.06.78 2.14v3.17c0 .3.2.66.8.55A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"></path>
+            </svg>
+            <span>GitHub</span>
+          </a>
+        </nav>
+      </div>
+    </div>
+  </div>
+</section>`;
+
+homepageMarkup = `${homepageMarkup.slice(0, heroStart)}${topHero}${homepageMarkup.slice(heroEnd)}`;
+
+const retainedHeroEnd = homepageMarkup.indexOf('</section>', heroStart) + '</section>'.length;
+
+if (retainedHeroEnd < '</section>'.length) {
+  throw new Error('Could not retain the rebuilt hero inside the Lovable homepage');
+}
+
+homepageMarkup = `${homepageMarkup.slice(0, retainedHeroEnd)}\n</div>`;
+
+const localFontFaces = `
+@font-face {
+  font-family: "Hanken Grotesk";
+  src: url('/fonts/hanken-grotesk-latin.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url('/fonts/jetbrains-mono-latin.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+}
+`;
+
+const homepageStyles = `${localFontFaces}${referenceCss
+  .replace(
+    '/__l5e/assets-v1/16a891b8-0750-41ef-a9f6-95a83cb89458/Onest-VariableFont_wght.ttf',
+    '/fonts/onest-variable.ttf',
+  )
+  .replace(
+    '/__l5e/assets-v1/45907748-7e1c-47da-9513-dba7dc3e186a/Syne-VariableFont_wght.ttf',
+    '/fonts/syne-variable.ttf',
+  )}`;
+---
+
+<style is:global set:html={homepageStyles}></style>
+
+<div class="lovable-replica" data-lovable-homepage>
+  <Fragment set:html={homepageMarkup} />
+
+  <nav
+    id="lovable-mobile-nav"
+    class="lovable-mobile-nav"
+    aria-label="Mobile navigation"
+    hidden
+    data-lovable-mobile-nav
+  >
+    <a href="/docs/">Docs</a>
+    <a href="#unit-title">Unit</a>
+    <a href="#blackbox-title">Blackbox <small class="lovable-nav-alpha">Alpha</small></a>
+    <a href="https://github.com/suites-dev/examples" target="_blank" rel="noopener noreferrer">Examples</a>
+  </nav>
+</div>
+
+<style is:global>
+  .lovable-replica {
+    position: relative;
+    isolation: isolate;
+    color: var(--foreground);
+    background: var(--background);
+    font-family: var(--font-body);
+  }
+
+  .lovable-site-header {
+    position: sticky;
+    z-index: 50;
+    top: 0;
+    color: var(--foreground);
+    background: color-mix(in oklab, var(--background) 88%, transparent);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(20px) saturate(130%);
+  }
+
+  .lovable-header-inner {
+    display: flex;
+    width: 100%;
+    max-width: 72rem;
+    height: 64px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .lovable-header-brand {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    place-items: center start;
+    border-radius: 10px;
+  }
+
+  .lovable-header-brand img {
+    display: block;
+    width: 25px;
+    height: 28px;
+  }
+
+  .lovable-desktop-nav {
+    display: flex;
+    align-items: center;
+    gap: clamp(20px, 2.4vw, 32px);
+    margin-left: auto;
+  }
+
+  .lovable-desktop-nav a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    color: color-mix(in oklab, var(--foreground) 78%, transparent);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 160ms ease;
+  }
+
+  .lovable-desktop-nav a:hover,
+  .lovable-desktop-nav a:focus-visible {
+    color: var(--foreground);
+  }
+
+  .lovable-nav-alpha {
+    margin-left: 7px;
+    color: var(--primary);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .lovable-header-actions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .lovable-header-action {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    place-items: center;
+    padding: 0;
+    color: color-mix(in oklab, var(--foreground) 78%, transparent);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    transition:
+      color 160ms ease,
+      background-color 160ms ease,
+      border-color 160ms ease;
+  }
+
+  .lovable-header-action:hover {
+    color: var(--foreground);
+    background: color-mix(in oklab, var(--foreground) 6%, transparent);
+    border-color: var(--border);
+  }
+
+  .lovable-header-action svg {
+    width: 19px;
+    height: 19px;
+    fill: currentColor;
+  }
+
+  .lovable-theme-toggle svg,
+  .lovable-mobile-toggle svg {
+    fill: none;
+  }
+
+  .lovable-theme-moon,
+  .lovable-mobile-toggle {
+    display: none;
+  }
+
+  :root[data-theme='light'] .lovable-theme-sun {
+    display: none;
+  }
+
+  :root[data-theme='light'] .lovable-theme-moon {
+    display: block;
+  }
+
+  .lovable-replica .lovable-top-hero {
+    display: flex;
+    isolation: isolate;
+    min-height: clamp(560px, calc(82svh - 64px), 660px);
+    align-items: center;
+  }
+
+  .lovable-replica .lovable-top-hero::after {
+    position: absolute;
+    z-index: 1;
+    top: 100%;
+    right: 0;
+    left: 0;
+    height: 112px;
+    background: linear-gradient(to bottom, transparent, var(--background));
+    content: '';
+    pointer-events: none;
+  }
+
+  .lovable-replica .lovable-hero-shell {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    padding-block: clamp(84px, 8vw, 108px);
+  }
+
+  .lovable-replica .lovable-hero-layout {
+    display: block;
+  }
+
+  .lovable-replica .lovable-hero-copy {
+    max-width: 760px;
+    min-width: 0;
+  }
+
+  .lovable-replica .lovable-hero-title {
+    max-inline-size: 700px;
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    line-height: 1.12;
+    text-wrap: balance;
+  }
+
+  .lovable-replica .lovable-hero-project {
+    color: var(--primary);
+  }
+
+  .lovable-replica .lovable-hero-grid {
+    z-index: 0;
+    --lovable-grid-line: oklch(100% 0 0 / 2.9%);
+    --lovable-signal-block-inset: 56px;
+    --lovable-signal-inline-inset: 56px;
+    --lovable-signal-travel-x: clamp(320px, 42vw, 640px);
+    --lovable-signal-travel-y: clamp(240px, 34svh, 360px);
+    bottom: -112px;
+    background-image: none;
+    opacity: 1;
+    pointer-events: none;
+    -webkit-mask-image: radial-gradient(
+      ellipse 138% 142% at 100% 0%,
+      #000 0%,
+      #000 44%,
+      rgb(0 0 0 / 88%) 70%,
+      rgb(0 0 0 / 68%) 100%
+    );
+    mask-image: radial-gradient(
+      ellipse 138% 142% at 100% 0%,
+      #000 0%,
+      #000 44%,
+      rgb(0 0 0 / 88%) 70%,
+      rgb(0 0 0 / 68%) 100%
+    );
+  }
+
+  :root.light .lovable-replica .lovable-hero-grid {
+    --lovable-grid-line: oklch(20% 0.01 285 / 4.3%);
+  }
+
+  .lovable-replica .lovable-hero-grid::before {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(90deg, var(--lovable-grid-line) 1px, transparent 1px),
+      linear-gradient(var(--lovable-grid-line) 1px, transparent 1px);
+    content: '';
+    pointer-events: none;
+  }
+
+  .lovable-replica .lovable-hero-grid::before {
+    background-size: 56px 56px;
+  }
+
+  .lovable-replica .lovable-grid-signal {
+    position: absolute;
+    z-index: 1;
+    display: block;
+    opacity: 0;
+    pointer-events: none;
+    will-change: transform, opacity;
+  }
+
+  .lovable-replica .lovable-grid-signal[data-lane-hidden='true'] {
+    display: none;
+  }
+
+  .lovable-replica .lovable-grid-signal--horizontal {
+    width: 72px;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in oklab, var(--primary) 72%, var(--foreground))
+    );
+    animation: lovable-grid-flow-x var(--signal-duration) linear var(--signal-delay)
+      infinite;
+  }
+
+  .lovable-replica .lovable-grid-signal--vertical {
+    width: 1px;
+    height: 72px;
+    background: linear-gradient(
+      180deg,
+      transparent,
+      color-mix(in oklab, var(--primary) 72%, var(--foreground))
+    );
+    animation: lovable-grid-flow-y var(--signal-duration) linear var(--signal-delay)
+      infinite;
+  }
+
+  .lovable-replica .lovable-grid-signal--north {
+    top: var(--lovable-signal-block-inset);
+    left: var(--lovable-signal-inline-inset);
+    --signal-travel: var(--lovable-signal-travel-x);
+  }
+
+  .lovable-replica .lovable-grid-signal--south {
+    left: var(--lovable-signal-inline-inset);
+    bottom: var(--lovable-signal-block-inset);
+    --signal-travel: var(--lovable-signal-travel-x);
+  }
+
+  .lovable-replica .lovable-grid-signal--west {
+    top: var(--lovable-signal-block-inset);
+    left: var(--lovable-signal-inline-inset);
+    --signal-travel: var(--lovable-signal-travel-y);
+  }
+
+  .lovable-replica .lovable-grid-signal--east {
+    right: var(--lovable-signal-inline-inset);
+    top: var(--lovable-signal-block-inset);
+    --signal-travel: var(--lovable-signal-travel-y);
+  }
+
+  .lovable-replica .lovable-grid-signal::after {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: color-mix(in oklab, var(--primary) 82%, var(--foreground));
+    content: '';
+  }
+
+  .lovable-replica .lovable-grid-signal--horizontal::after {
+    right: -1px;
+    bottom: -1px;
+  }
+
+  .lovable-replica .lovable-grid-signal--vertical::after {
+    right: -1px;
+    bottom: -1px;
+  }
+
+  @keyframes lovable-grid-flow-x {
+    0% {
+      opacity: 0;
+      transform: translate3d(0, 0, 0);
+    }
+
+    12%,
+    88% {
+      opacity: var(--signal-opacity, 0.55);
+    }
+
+    100% {
+      opacity: 0;
+      transform: translate3d(var(--signal-travel), 0, 0);
+    }
+  }
+
+  @keyframes lovable-grid-flow-y {
+    0% {
+      opacity: 0;
+      transform: translate3d(0, 0, 0);
+    }
+
+    12%,
+    88% {
+      opacity: var(--signal-opacity, 0.55);
+    }
+
+    100% {
+      opacity: 0;
+      transform: translate3d(0, var(--signal-travel), 0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lovable-replica .lovable-hero-grid {
+      opacity: 1;
+    }
+
+    .lovable-replica .lovable-grid-signal {
+      display: none;
+      animation: none;
+    }
+  }
+
+  .lovable-replica .lovable-hero-description {
+    text-wrap: pretty;
+  }
+
+  .lovable-replica .lovable-hero-actions {
+    position: relative;
+    z-index: 3;
+    pointer-events: auto;
+  }
+
+  .lovable-replica .lovable-hero-actions a {
+    position: relative;
+    z-index: 3;
+    pointer-events: auto;
+    touch-action: manipulation;
+  }
+
+  .lovable-replica .lovable-hero-cta {
+    display: inline-flex;
+    width: 168px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .lovable-replica .lovable-github-cta {
+    gap: 8px;
+    padding: 10px 20px;
+    color: var(--foreground);
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition:
+      color 180ms ease,
+      border-color 180ms ease,
+      transform 180ms ease;
+  }
+
+  .lovable-replica .lovable-github-cta:hover {
+    color: var(--primary);
+    background: transparent;
+    border-color: color-mix(in oklab, var(--primary) 72%, var(--border));
+  }
+
+  .lovable-replica .lovable-github-cta:active {
+    transform: scale(0.97);
+  }
+
+  .lovable-replica .lovable-github-cta:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+  }
+
+  .lovable-replica .lovable-github-cta svg {
+    width: 16px;
+    height: 16px;
+    flex: none;
+  }
+
+  @media (max-width: 767px) {
+    .lovable-header-inner {
+      gap: 12px;
+      padding-inline: 16px;
+    }
+
+    .lovable-desktop-nav {
+      display: none;
+    }
+
+    .lovable-mobile-toggle {
+      display: grid;
+    }
+  }
+
+  @media (max-width: 880px) {
+    .lovable-replica .lovable-top-hero {
+      min-height: auto;
+    }
+
+    .lovable-replica .lovable-hero-shell {
+      padding-block: clamp(72px, 9vw, 92px);
+    }
+
+    .lovable-replica .lovable-grid-signal--north,
+    .lovable-replica .lovable-grid-signal--west {
+      display: none;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .lovable-replica .lovable-top-hero::after {
+      height: 56px;
+    }
+
+    .lovable-replica .lovable-hero-grid {
+      --lovable-signal-block-inset: 40px;
+      --lovable-signal-inline-inset: 24px;
+      bottom: -56px;
+    }
+
+    .lovable-replica .lovable-grid-signal--east {
+      display: none;
+    }
+
+    .lovable-replica .lovable-hero-shell {
+      padding-block: 64px;
+    }
+
+    .lovable-replica .lovable-hero-actions {
+      gap: 12px 20px;
+    }
+  }
+
+  .lovable-mobile-nav {
+    position: fixed;
+    z-index: 49;
+    top: 64px;
+    right: 0;
+    left: 0;
+    display: grid;
+    gap: 2px;
+    padding: 12px 24px 18px;
+    color: var(--foreground);
+    background: color-mix(in oklab, var(--background) 96%, transparent);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow-panel);
+    backdrop-filter: blur(24px);
+  }
+
+  .lovable-mobile-nav[hidden] {
+    display: none;
+  }
+
+  .lovable-mobile-nav a {
+    display: flex;
+    min-height: 44px;
+    align-items: center;
+    padding: 0 12px;
+    color: color-mix(in oklab, var(--foreground) 85%, transparent);
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .lovable-mobile-nav a:hover,
+  .lovable-mobile-nav a:focus-visible {
+    color: var(--primary);
+    background: color-mix(in oklab, var(--primary) 10%, transparent);
+  }
+
+  @media (min-width: 768px) {
+    .lovable-mobile-nav {
+      display: none !important;
+    }
+  }
+</style>
+
+<script>
+  const homepage = document.querySelector<HTMLElement>('[data-lovable-homepage]');
+
+  if (homepage) {
+    const themeToggle = homepage.querySelector<HTMLButtonElement>('[data-lovable-theme-toggle]');
+    const mobileToggle = homepage.querySelector<HTMLButtonElement>('[data-lovable-mobile-toggle]');
+    const mobileNav = homepage.querySelector<HTMLElement>('[data-lovable-mobile-nav]');
+    const heroGrid = homepage.querySelector<HTMLElement>('.lovable-hero-grid');
+    const heroCopy = homepage.querySelector<HTMLElement>('.lovable-hero-copy');
+    const gridSignalProfiles = new Map<HTMLElement, { originSteps: number; travelRatio: number }>();
+
+    if (heroGrid) {
+      const signals = Array.from(heroGrid.querySelectorAll<HTMLElement>('.lovable-grid-signal'));
+      const phaseSlots = [0.06, 0.29, 0.55, 0.81];
+      const durationBands = [22, 27, 32, 37];
+
+      for (let index = phaseSlots.length - 1; index > 0; index -= 1) {
+        const phaseIndex = Math.floor(Math.random() * (index + 1));
+        const durationIndex = Math.floor(Math.random() * (index + 1));
+        [phaseSlots[index], phaseSlots[phaseIndex]] = [phaseSlots[phaseIndex], phaseSlots[index]];
+        [durationBands[index], durationBands[durationIndex]] = [durationBands[durationIndex], durationBands[index]];
+      }
+
+      signals.forEach((signal, index) => {
+        const duration = durationBands[index] + Math.random() * 3;
+        const phase = (phaseSlots[index] + Math.random() * 0.08) % 1;
+        const opacity = 0.44 + Math.random() * 0.12;
+
+        signal.style.setProperty('--signal-duration', `${duration.toFixed(2)}s`);
+        signal.style.setProperty('--signal-delay', `${(-duration * phase).toFixed(2)}s`);
+        signal.style.setProperty('--signal-opacity', opacity.toFixed(2));
+        gridSignalProfiles.set(signal, {
+          originSteps: 1 + Math.floor(Math.random() * 5),
+          travelRatio: 0.38 + Math.random() * 0.24,
+        });
+      });
+    }
+
+    const positionGridSignals = () => {
+      if (!heroGrid || !heroCopy) return;
+
+      const gridSize = 56;
+      const gridRect = heroGrid.getBoundingClientRect();
+      const copyRect = heroCopy.getBoundingClientRect();
+      const copyTop = copyRect.top - gridRect.top;
+      const copyRight = copyRect.right - gridRect.left;
+      const copyBottom = copyRect.bottom - gridRect.top;
+      const copyLeft = copyRect.left - gridRect.left;
+      const clearance = window.innerWidth <= 520 ? 48 : window.innerWidth <= 880 ? 72 : 112;
+      const snapBefore = (value: number) => Math.floor(value / gridSize) * gridSize;
+      const snapAfter = (value: number) => Math.ceil(value / gridSize) * gridSize;
+
+      const placeSignal = (
+        selector: string,
+        lane: number,
+        axis: 'horizontal' | 'vertical',
+        visible: boolean,
+      ) => {
+        const signal = heroGrid.querySelector<HTMLElement>(selector);
+        if (!signal) return;
+
+        signal.dataset.laneHidden = String(!visible);
+        if (!visible) return;
+
+        const profile = gridSignalProfiles.get(signal) ?? { originSteps: 1, travelRatio: 0.48 };
+        const signalLength = 72;
+        const trackLength = axis === 'horizontal' ? gridRect.width : gridRect.height;
+        const minimumTravel = axis === 'horizontal' ? gridSize * 5 : gridSize * 4;
+        const maximumOrigin = snapBefore(
+          Math.max(gridSize, trackLength - signalLength - minimumTravel),
+        );
+        const origin = Math.min(profile.originSteps * gridSize, maximumOrigin);
+        const maximumTravel = Math.max(gridSize, trackLength - origin - signalLength);
+        const preferredTravel = snapBefore(trackLength * profile.travelRatio);
+        const travel = Math.max(
+          gridSize,
+          snapBefore(Math.min(maximumTravel, Math.max(minimumTravel, preferredTravel))),
+        );
+        const x = axis === 'horizontal' ? origin : lane;
+        const y = axis === 'horizontal' ? lane : origin;
+
+        signal.style.top = `${y}px`;
+        signal.style.right = 'auto';
+        signal.style.bottom = 'auto';
+        signal.style.left = `${x}px`;
+        signal.style.setProperty('--signal-travel', `${travel}px`);
+      };
+
+      const northLane = snapBefore(copyTop - clearance);
+      const southLane = snapAfter(copyBottom + clearance);
+      const westLane = snapBefore(copyLeft - clearance);
+      const eastLane = snapAfter(copyRight + clearance);
+
+      placeSignal(
+        '.lovable-grid-signal--north',
+        northLane,
+        'horizontal',
+        northLane >= gridSize,
+      );
+      placeSignal(
+        '.lovable-grid-signal--south',
+        southLane,
+        'horizontal',
+        southLane <= gridRect.height - gridSize,
+      );
+      placeSignal(
+        '.lovable-grid-signal--west',
+        westLane,
+        'vertical',
+        westLane >= gridSize,
+      );
+      placeSignal(
+        '.lovable-grid-signal--east',
+        eastLane,
+        'vertical',
+        eastLane <= gridRect.width - gridSize,
+      );
+    };
+
+    let gridLayoutFrame = 0;
+    const scheduleGridSignalLayout = () => {
+      window.cancelAnimationFrame(gridLayoutFrame);
+      gridLayoutFrame = window.requestAnimationFrame(positionGridSignals);
+    };
+
+    if ('ResizeObserver' in window && heroGrid && heroCopy) {
+      const gridResizeObserver = new ResizeObserver(scheduleGridSignalLayout);
+      gridResizeObserver.observe(heroGrid);
+      gridResizeObserver.observe(heroCopy);
+    } else {
+      window.addEventListener('resize', scheduleGridSignalLayout, { passive: true });
+    }
+
+    scheduleGridSignalLayout();
+
+    const applyReferenceTheme = (theme: 'light' | 'dark') => {
+      document.documentElement.classList.toggle('light', theme === 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+      themeToggle?.setAttribute('aria-label', `Switch to ${theme === 'light' ? 'dark' : 'light'} mode`);
+      themeToggle?.setAttribute('title', theme === 'light' ? 'Dark mode' : 'Light mode');
+    };
+
+    const currentTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+    applyReferenceTheme(currentTheme);
+
+    themeToggle?.addEventListener('click', () => {
+      const nextTheme = document.documentElement.classList.contains('light') ? 'dark' : 'light';
+      applyReferenceTheme(nextTheme);
+      try {
+        localStorage.setItem('suites-theme', nextTheme);
+      } catch {
+        // The selected theme still applies for the current page.
+      }
+    });
+
+    const setMobileMenu = (open: boolean) => {
+      if (!mobileToggle || !mobileNav) return;
+      mobileNav.hidden = !open;
+      mobileToggle.setAttribute('aria-expanded', String(open));
+      mobileToggle.setAttribute('aria-controls', 'lovable-mobile-nav');
+      mobileToggle.setAttribute('aria-label', open ? 'Close navigation menu' : 'Open navigation menu');
+    };
+
+    mobileToggle?.addEventListener('click', () => setMobileMenu(Boolean(mobileNav?.hidden)));
+    mobileNav?.addEventListener('click', () => setMobileMenu(false));
+
+    document.addEventListener('pointerdown', (event) => {
+      if (
+        mobileNav &&
+        !mobileNav.hidden &&
+        event.target instanceof Node &&
+        !mobileNav.contains(event.target) &&
+        !mobileToggle?.contains(event.target)
+      ) {
+        setMobileMenu(false);
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && mobileNav && !mobileNav.hidden) {
+        setMobileMenu(false);
+        mobileToggle?.focus();
+      }
+    });
+
+    window.matchMedia('(min-width: 768px)').addEventListener('change', (event) => {
+      if (event.matches) setMobileMenu(false);
+    });
+
+    setMobileMenu(false);
+  }
+</script>

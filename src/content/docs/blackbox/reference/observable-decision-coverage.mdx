@@ -1,0 +1,72 @@
+---
+title: "Observable Decision Coverage Results"
+description: "Reference ODC comparison inputs, availability states, classifications, and its separation from ordinary effect findings."
+sidebar_position: 5
+keywords:
+  [
+    "observable decision coverage results",
+    "ODC classifications",
+    "decision effect association",
+  ]
+---
+
+:::note Alpha Capability
+Observable Decision Coverage is optional per run. It remains separate from ordinary effect findings and cannot change them.
+:::
+
+Use this page to look up the exact inputs and result vocabulary for Observable Decision Coverage (ODC).
+
+## Comparison Inputs
+
+An approved ODC comparison names:
+
+- The exact member cases.
+- The dimension that varies.
+- The dimensions held constant.
+- The decision scope.
+- The effects included in the projection.
+
+ODC cannot infer comparison members from test names, traces, workers, timing, execution order, or observed similarity.
+
+## Availability
+
+ODC terminal availability is exactly one of:
+
+- `not-requested`
+- `available`
+- `unavailable`
+- `unsupported`
+- `integrity-failure`
+
+A run may omit ODC. `not-requested` does not mean that ordinary runtime evidence is missing.
+
+## Classification
+
+When availability is `available`, diagnostic classification is exactly one of:
+
+- `propagating`
+- `partially-propagating`
+- `masking-candidate`
+- `coverage-gap`
+- `inconsistent`
+- `undecidable`
+
+Availability and diagnostic classification remain separate fields and namespaces. `requested` is a selection and admission fact, not a terminal result.
+
+An unknown diagnostic classification fails closed as ODC `integrity-failure`. `snapshot-failed` maps to `unavailable` with a reason, while `unsupported-topology` maps to `unsupported`.
+
+## Ordinary Findings Remain Separate
+
+Each member case keeps its ordinary effect-claim verdict. ODC runs from sealed offline inputs after ordinary effect analysis and may append diagnostic insight.
+
+ODC cannot alter ordinary effects, evidence, findings, verdicts, order, identity, or an otherwise sufficient exit.
+
+## Interpretation Boundary
+
+ODC reports an association between executed decision outcomes and projected runtime effects. It does not claim causal proof or behavioral correctness.
+
+## See Also
+
+- [Observable Decision Coverage](/docs/blackbox/concepts/omc-dc-coverage)
+- [Effects and Claim Evaluation](/docs/blackbox/reference/effects-and-claims)
+- [Capture Lifecycle and Evidence](/docs/blackbox/reference/capture-lifecycle-and-correlation)

@@ -1,6 +1,6 @@
 ---
-title: "Runtime Evidence and Integrity"
-description: "See how fresh scope, identity, capability, lifecycle, and completeness bound each Blackbox finding."
+title: "Runtime Evidence Boundaries"
+description: "See how fresh attempts, capture scope, and completeness limit what each Blackbox finding can establish."
 sidebar_position: 2
 keywords:
   [
@@ -11,11 +11,13 @@ keywords:
   ]
 ---
 
-Suppose the product-cache case fails and retries. The retry receives a fresh attempt and fresh evidence. Evidence from the first run cannot complete a claim for the second.
+Suppose the checkout case observes two payment requests and retries after repair. The retry receives a fresh attempt and
+fresh evidence. Evidence from the first run cannot complete a claim for the second.
 
-**Runtime evidence** is the sealed, identity-bound record Blackbox may analyze for one physical attempt. It includes observed work and the control facts that establish what those observations can prove.
+**Runtime evidence** is the observed effects and capture information Blackbox records for one test attempt. Blackbox
+fixes that record before analysis so a finding does not depend on changing runtime state.
 
-## Bound One Attempt at a Time
+## Fresh Scope Prevents Evidence Leakage
 
 <img
   src="/img/blackbox/attempt-evidence-boundary.svg"
@@ -23,29 +25,28 @@ Suppose the product-cache case fails and retries. The retry receives a fresh att
   style="display: block; width: 100%; height: auto;"
 />
 
-Every independent attempt owns a fresh sandbox lease, runtime identities, capture, evidence, and teardown. Every retry and ordered-sequence member also receives fresh attempt and evidence identities.
+Every independent attempt owns a fresh runtime and evidence boundary. Every retry and ordered-sequence member also
+receives fresh attempt and evidence identities.
 
 An explicit ordered group may share only its declared application state. Its members remain separately verdictable and keep separate evidence.
 
-## Combine Two Evidence Planes
+## Observations Need a Capture Boundary
 
-| Plane                 | Carries                                                                         |
-| --------------------- | ------------------------------------------------------------------------------- |
-| **Telemetry**         | Eligible OTLP operations observed during the attempt                            |
-| **Assurance control** | Participation, capability, completion, loss, cutoff, settlement, and seal facts |
+OpenTelemetry traces reveal supported runtime activity. Capture records establish which observations belong to the
+attempt and which conclusions the evidence can support.
 
-Neither plane can replace the other. Traces show supported runtime work. Control facts establish whether Blackbox observed enough of the declared scope to evaluate a claim.
+Neither side can replace the other. A trace can show that a payment request occurred, but it cannot by itself establish
+that capture covered the complete claim scope. Capture records can establish a sound boundary, but they cannot invent an
+effect that was not observed.
 
-## Establish Eligibility Before a Verdict
+## Incomplete Evidence Limits the Result
 
-| Condition        | Question                                                                                     | Result when unmet                                         |
-| ---------------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| **Fresh scope**  | Did this physical attempt receive its own lease, window, and capture?                        | Integrity failure                                         |
-| **Identity**     | Do the plan, case, realization, attempt, participants, artifacts, and evidence join exactly? | Integrity failure                                         |
-| **Capability**   | Can the admitted providers observe the declared claim scope?                                 | Unsupported                                               |
-| **Completeness** | Did the required lifecycle close without relevant loss or unresolved work?                   | Inconclusive where the conclusion depends on completeness |
+Suppose the behavioral contract allows at most one payment request and Blackbox observes two. Those observations already
+establish a violation. If capture is incomplete and only one request appears, the evidence cannot establish that no
+second request occurred.
 
-Blackbox preserves conclusive directions. Incomplete evidence can still establish a positive lower bound or a violation already visible in eligible observations. It cannot establish absence, upper-bound satisfaction, or exactness satisfaction from an empty or low count.
+This asymmetry prevents missing evidence from becoming a pass. [Look up the exact evidence conditions and claim
+outcomes](/docs/blackbox/reference/effects-and-claims#evidence-limits-the-conclusion).
 
 ## Keep Capture and Analysis Separate
 
@@ -54,4 +55,5 @@ Runtime owns attempts, lifecycle, identities, and evidence. The Analyzer evaluat
 ## Next Steps
 
 - [Capture Lifecycle and Evidence](/docs/blackbox/reference/capture-lifecycle-and-correlation)
-- [OpenTelemetry and Effects](/docs/blackbox/concepts/effects-and-catalogs)
+- [Security and Data Handling](/docs/blackbox/operations/security-and-data-handling)
+- [Observable Decision Coverage](/docs/blackbox/concepts/omc-dc-coverage)

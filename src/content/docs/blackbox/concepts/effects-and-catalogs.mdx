@@ -11,13 +11,16 @@ keywords:
   ]
 ---
 
-Both product reads return `200`. OpenTelemetry traces reveal that the product service queried Postgres twice, so Blackbox can evaluate the approved limit of one database read.
+Checkout returns `201`. OpenTelemetry traces reveal two requests to the payment service, so Blackbox can evaluate the
+behavioral contract's limit of one charge request.
 
 ## From Observation to Effect
 
-An **effect** is a normalized fact about supported behavior at a system boundary during one attempt. Typical effects include an HTTP request, database operation, cache operation, or message publication.
+An **effect** is a normalized fact about an observed operation at a supported system boundary during one attempt.
+Typical effects include an HTTP request, database operation, cache operation, or message publication.
 
-OpenTelemetry provides observations. Blackbox admits only observations with the required identity, capability, lifecycle, and evidence joins, then normalizes them into portable effects. A span is evidence input, not automatically an effect.
+OpenTelemetry provides observations. Blackbox uses only observations it can reliably connect to the current attempt,
+then normalizes them into effects. A raw span is evidence input, not automatically an effect.
 
 ```text
 OpenTelemetry observation
@@ -27,42 +30,48 @@ normalized effect fact
 finding and verdict
 ```
 
-The portable signature uses service, boundary, operation, target, and status. Blackbox records multiplicity separately, so two equivalent Postgres reads remain visible as a count of two.
+Normalization lets Blackbox compare the behavioral contract with runtime work without making the contract depend on
+raw span names or trace layout. Repeated equivalent operations remain visible, so the two payment requests in this
+example do not collapse into one event.
 
 ## Use a Shared Effects Catalog
 
-The **effects catalog** provides reviewed normalization vocabulary. It describes which eligible observations can become a named effect without binding approved behavior to raw span names or trace layout.
+The **effects catalog** names runtime operations Blackbox recognizes and describes how supported trace observations map
+to those names. It describes observation, not product policy.
 
 The public catalog syntax is not frozen. This is an illustrative view, not a supported schema:
 
 ```yaml title="Illustrative effects catalog"
 effects:
-  product-record-read:
+  payment-charge-request:
+    matches:
+      boundary: http
+      operation: POST
+      target: /payments/charges
+      serviceId: payment-service
+
+  order-record-written:
     matches:
       boundary: postgres
-      operation: SELECT
-      target: products
-      serviceId: product-service
-
-  product-cache-read:
-    matches:
-      boundary: redis
-      operation: GET
-      target: "product:42"
-      serviceId: product-service
+      operation: INSERT
+      target: orders
+      serviceId: checkout-service
 ```
 
-The catalog explains how evidence is normalized. It does not declare that a product must use Postgres or Redis. A person approves that behavioral claim separately.
+The catalog explains how evidence is normalized. It does not declare that checkout must send a payment request or write
+an order. A person approves those claims as part of the behavioral contract.
 
-## Evaluate Explicit Claims
+## The Behavioral Contract Gives Effects Meaning
 
-Blackbox can evaluate presence, absence, cardinality, ordering, and explicit comparison claims. The same sealed evidence and accepted claim produce the same deterministic finding.
+An effect records what Blackbox observed. A claim states what the behavioral contract requires for one case. The catalog
+cannot promote an observed payment request into a requirement, and a trace cannot silently change the approved limit.
 
-Five verdicts keep different failures distinct: `satisfied`, `violated`, `inconclusive`, `unsupported`, and `integrity-failure`. Only `satisfied` passes.
+Blackbox evaluates the claim against sealed evidence. The same behavioral contract, analysis rules, and evidence produce
+the same deterministic finding.
 
 [See the complete effect signature, claim kinds, evidence rules, and verdicts](/docs/blackbox/reference/effects-and-claims).
 
 ## Next Steps
 
-- [Observable Decision Coverage](/docs/blackbox/concepts/omc-dc-coverage)
+- [Runtime Evidence Boundaries](/docs/blackbox/concepts/runtime-evidence)
 - [Effects and Claim Evaluation](/docs/blackbox/reference/effects-and-claims)

@@ -1,6 +1,6 @@
 ---
-title: "Test Topologies and Parallelism"
-description: "Choose independent attempts, ordered groups, comparisons, or typed in-case concurrency without mixing evidence."
+title: "Test Topologies and Evidence Boundaries"
+description: "Understand why independent cases, ordered groups, comparisons, and in-case concurrency need different evidence boundaries."
 sidebar_position: 3
 keywords:
   [
@@ -11,47 +11,35 @@ keywords:
   ]
 ---
 
-Choose the topology from the behavior the case requires. Playwright scheduling does not define Blackbox evidence boundaries.
+Two tests can run next to each other in Playwright while representing very different behavioral relationships. They may be independent, share declared state, form a comparison, or express concurrent work inside one case.
 
-## Choose a Topology
+Blackbox uses the declared **test topology** to preserve those relationships without mixing evidence. Playwright scheduling alone cannot provide that meaning.
 
-| Need                                     | Topology                                | Evidence rule                                                                       |
-| ---------------------------------------- | --------------------------------------- | ----------------------------------------------------------------------------------- |
-| Cases do not share state                 | Independent attempts                    | Fresh lease, runtime identity, capture, evidence, and teardown per physical attempt |
-| Cases must share declared state in order | Ordered group                           | One fresh group lease, separate member attempts and evidence                        |
-| Two or more cases must be compared       | Explicit comparison                     | Exact named members and controlled dimension, no evidence aggregation               |
-| Operations must overlap                  | Typed parallel branches inside one case | One case owns the synchronization contract                                          |
+## Topology Expresses a Behavioral Relationship
 
-## Run Independent Cases
+Independent cases have no declared relationship, so each attempt needs its own runtime and evidence boundary. An ordered group declares that later members depend on state created earlier, while still keeping each member separately verdictable.
 
-Serial and parallel Playwright workers follow the same assurance rule. Independent attempts never share evidence or runtime assurance state.
+An explicit comparison connects named cases around one controlled difference. Concurrent operations inside one case belong to that case's synchronization contract rather than to the runner's worker placement.
 
-A teardown failure quarantines that lease. It cannot become the next worker's starting state.
+## Scheduling Is Not Topology
 
-## Declare Ordered State
+Serial execution does not establish that two cases share state. Parallel execution does not make them independent. Workers, shards, files, titles, traces, and timing describe physical execution, not relationships in the behavioral contract.
 
-Use an ordered group only when later cases depend on state produced earlier. Declare contiguous member order, shared domains, transfer attestations, stop-on-failure behavior, and final cleanup.
+This distinction lets Blackbox change physical placement without changing what the cases mean or which evidence belongs to them.
 
-Members remain separately verdictable. If one member fails, later members become `not-executed`.
+## Retries Must Not Rewrite History
 
-## Retry From a Fresh Baseline
+A retry is a new physical attempt. It receives fresh runtime and evidence identity, while the earlier outcome remains part of the history.
 
-Every retry receives fresh runtime and evidence identity. An ordered-group retry restarts the full group on a new sandbox lease, not only the failed member.
+For an ordered group, retrying only the failed member could reuse uncertain state from the earlier execution. Restarting the declared group preserves the relationship that made the sequence meaningful.
 
-Blackbox keeps earlier attempts and outcomes. A favorable retry cannot replace or hide them.
+## Comparisons Need Declared Members
 
-## Compare Without Aggregating
+ODC and other comparisons depend on knowing exactly which cases belong together and what dimension differs. Inferring members from nearby execution or similar output could create a relationship that no person approved.
 
-A comparison names exact members, a controlled dimension, one SuitePlan revision, and an outcome-independent eligible-attempt policy.
+Blackbox therefore preserves comparisons as declared relationships rather than aggregating evidence after the run.
 
-Do not group evidence by test title, flow label, trace, file, worker, shard, or timing overlap. One member's retry cannot substitute for another member.
-
-## Summary
-
-- Use independent attempts by default.
-- Share state only through an explicit ordered group.
-- Put required concurrency inside one typed case.
-- Keep every retry and comparison member's evidence separate.
+The [Capture Lifecycle and Evidence reference](/docs/blackbox/reference/capture-lifecycle-and-correlation#execution-topologies) lists the exact topology and retry rules.
 
 ## Next Steps
 

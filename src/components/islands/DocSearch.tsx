@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { DocSearch } from '@docsearch/react';
 import '@docsearch/css';
 import {
@@ -63,7 +63,7 @@ export default function DocSearchIsland() {
   }, []);
 
   return (
-    <div className="suites-docsearch" data-theme="dark">
+    <div className="suites-docsearch" data-docsearch-root>
       <DocSearch
         appId={ALGOLIA_APP_ID}
         apiKey={ALGOLIA_API_KEY}

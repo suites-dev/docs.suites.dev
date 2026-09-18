@@ -1,0 +1,1261 @@
+/* === site-chrome === */
+/* Site chrome polish: focus rings, hover transitions, mobile touch targets,
+   footer link affordances. All changes reuse existing tokens. */
+
+/* APPEND-TO: .brand  (components.css L96) */
+/* Add an explicit focus-visible radius so the global 2px outline wraps
+   cleanly around the inline-flex brand bounding box instead of clipping
+   into the mark and product slug. */
+.brand {
+  border-radius: 10px;
+}
+
+/* NEW */
+/* Match the focus ring radius to the brand's own corner so the ring
+   visually hugs the element on keyboard focus. */
+.brand:focus-visible {
+  outline-offset: 4px;
+}
+
+/* REPLACES: components.css L1123-L1131 */
+/* Icon-only header action (GitHub). Adds smooth hover transition for
+   color and background per ui-ux-pro-max duration-timing rule (200ms).
+   Global @media (prefers-reduced-motion: reduce) zeroes this transition. */
+.icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: var(--text-muted);
+  border-radius: 8px;
+  transition: color 200ms ease, background-color 200ms ease;
+}
+
+/* APPEND-TO: .nav-action  (components.css L1148) */
+/* Smooth hover transition for the Examples / Sponsor text actions. */
+.nav-action {
+  border-radius: 6px;
+  transition: color 200ms ease;
+}
+
+/* APPEND-TO: .nav-tabs a  (components.css L57) */
+/* Smooth color + underline transition when switching active product tab. */
+.nav-tabs a {
+  transition: color 200ms ease, border-bottom-color 200ms ease;
+}
+
+/* APPEND-TO: .navlinks a  (implicit, components.css L131) */
+/* Smooth fade between muted and primary text colors on navlink hover. */
+.navlinks a {
+  transition: color 200ms ease;
+}
+
+/* NEW */
+/* Mobile touch target floor for header text actions and product tabs.
+   ui-ux-pro-max touch-target-size requires minimum 44x44px. The existing
+   767px breakpoint at the bottom of components.css already handles
+   .btn-sm, .tab, and .icon-link. Extending coverage to .nav-action and
+   .nav-tabs a so every header touch target meets the floor. */
+@media (max-width: 767px) {
+  .nav-action {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 10px;
+  }
+  .nav-tabs a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 0;
+  }
+}
+
+/* NEW */
+/* Footer link affordance. The Footer template renders
+   <a class="site-footer-link"> for the author name; without an explicit
+   rule it inherits the global link color (primary) and has no hover or
+   focus feedback. Mirror the navlinks pattern: muted at rest, full text
+   on hover, smooth color transition, rounded focus ring. */
+.site-footer-link {
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-color: var(--border-strong);
+  text-underline-offset: 3px;
+  border-radius: 4px;
+  transition: color 200ms ease, text-decoration-color 200ms ease;
+}
+.site-footer-link:hover {
+  color: var(--primary-light);
+  text-decoration-color: var(--primary-border);
+}
+
+/* NEW */
+/* The Footer icon-link sits in a flex row alongside two <p> tags. The
+   site-footer-inner uses space-between, so the GitHub anchor naturally
+   anchors left. On focus, give it a slightly larger offset so the ring
+   does not collide with the surrounding text baseline. */
+.site-footer .icon-link:focus-visible {
+  outline-offset: 3px;
+}
+
+
+/* === docs-chrome === */
+/* Audit and fixes for sidebar, TOC, and prev/next pager.
+   Pairs with edits to:
+     src/components/docs/Sidebar.astro   (wraps groups in <nav>, items in <ul>/<li>)
+     src/components/docs/TOC.astro       (adds role="list", aria-current="location")
+     src/components/docs/PrevNext.astro  (drops .btn, adds eyebrow + label spans) */
+
+/* ---------- Sidebar ---------------------------------------------------- */
+
+/* NEW: outer landmark wrapper now rendered by Sidebar.astro.
+   Keep zero chrome so layout stays identical to the old bare-details list. */
+.sidebar-nav {
+  display: block;
+}
+
+/* APPEND-TO: .sidebar a  (components.css L790)
+   Slightly tighter focus offset so the global 2px ring tucks against the link
+   instead of bleeding into the adjacent structure-line. */
+.sidebar a:focus-visible {
+  outline-offset: -2px;
+}
+
+/* REPLACES: components.css L1249-L1258
+   .sidebar-group-items was a <div>; it is now a <ul role="list">. Reset list
+   chrome (padding/margin/list-style) and keep the existing flex layout and
+   structure-line. li children get zero margin so spacing comes from the
+   gap on the flex parent. */
+.sidebar-group-items {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 0 0;
+  margin: 0 0 0 14px;
+  padding-left: 12px;
+  border-left: 1px solid var(--border);
+  animation: sidebar-group-fade-in 180ms ease-out;
+}
+
+/* NEW: li children inside the new <ul> wrapper. */
+.sidebar-group-items > li {
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+/* APPEND-TO: .sidebar a  (components.css L790)
+   Long labels (e.g. "Install Suites for NestJS, Inversify, Jest, Vitest...")
+   must wrap inside the 268px sidebar instead of pushing the column wider. */
+.sidebar a {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- TOC -------------------------------------------------------- */
+
+/* APPEND-TO: .toc-list a.active  (components.css L961)
+   Mirror the .active class style for aria-current="location" so the script's
+   ARIA update alone is enough if the class is ever dropped. */
+.toc-list a[aria-current="location"] {
+  color: var(--primary-light);
+  border-left-color: var(--primary);
+  font-weight: 600;
+}
+
+/* APPEND-TO: .toc-list a:focus-visible  (components.css L971)
+   Pull the global 2px ring inward so it does not visually merge with the
+   2px left-border bar used for the active indicator. */
+.toc-list a:focus-visible {
+  outline-offset: -2px;
+}
+
+/* ---------- Prev / Next pager ----------------------------------------- */
+
+/* REPLACES: components.css L1277-L1285
+   Add min-width:0 propagation so flex children can shrink under long labels
+   without overflowing the article column. */
+.doc-pager {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 16px;
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  min-width: 0;
+}
+
+/* REPLACES: components.css L1287-L1299
+   The pager anchors no longer inherit .btn (pill, 42px min-height). Restate
+   the full box here so the cards keep their card-style border/background and
+   gain min-width:0 + overflow-wrap so long titles wrap to two lines. */
+.doc-pager a {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  background: rgba(255,255,255,.02);
+  text-decoration: none;
+  transition: border-color 200ms ease-out, color 200ms ease-out, background 200ms ease-out;
+}
+
+/* APPEND-TO: .doc-pager a:hover  (components.css L1301) */
+.doc-pager a:hover {
+  border-color: var(--primary-border);
+}
+
+/* REPLACES: components.css L1307-L1313
+   The first child is now .doc-pager-eyebrow (a span containing the arrow
+   plus the word "Previous"/"Next"). Style the eyebrow itself, not whatever
+   span happened to be first. */
+.doc-pager-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+
+/* REPLACES: components.css L1315-L1319
+   The label is now .doc-pager-label. Allow it to wrap to two lines on
+   narrow viewports without forcing a column-stretch. */
+.doc-pager-label {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  /* Clamp very long titles to two lines on desktop. Falls back to natural
+     wrap where line-clamp isn't supported. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* NEW: arrow glyph inside the eyebrow. */
+.doc-pager-arrow {
+  font-size: 14px;
+  line-height: 1;
+  color: var(--text-muted);
+  transition: transform 180ms ease-out, color 180ms ease-out;
+}
+
+.doc-pager a:hover .doc-pager-arrow {
+  color: var(--primary-light);
+}
+
+.doc-pager-prev:hover .doc-pager-arrow { transform: translateX(-2px); }
+.doc-pager-next:hover .doc-pager-arrow { transform: translateX(2px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .doc-pager-arrow { transition: none; }
+  .doc-pager-prev:hover .doc-pager-arrow,
+  .doc-pager-next:hover .doc-pager-arrow { transform: none; }
+}
+
+/* NEW: empty side placeholder keeps the grid balanced when only prev or
+   only next exists. Mirrors a card's outer footprint but stays invisible. */
+.doc-pager-spacer {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* APPEND-TO: .doc-pager-prev / .doc-pager-next  (components.css L1321-L1322)
+   Re-state alignment now that .btn is no longer applied. */
+.doc-pager-prev { text-align: left;  align-items: flex-start; }
+.doc-pager-next { text-align: right; align-items: flex-end; }
+
+/* Focus ring sits inside the rounded border. */
+.doc-pager a:focus-visible {
+  outline-offset: -2px;
+  border-radius: var(--radius-sm);
+}
+
+/* APPEND-TO: @media (max-width: 640px) .doc-pager  (components.css L1324)
+   Touch-target floor: pager cards stack on small screens. Ensure each card
+   clears the 44x44 minimum without inflating desktop padding. */
+@media (max-width: 640px) {
+  .doc-pager a { min-height: 44px; }
+  .doc-pager-label { -webkit-line-clamp: 3; }
+}
+
+/* TOKEN PROPOSALS */
+/* None. All values reuse existing tokens in tokens.css. */
+
+
+/* === ui-primitives === */
+/* Surgical UX hardening for buttons, cards, alerts, badges, chips, grids.
+   No new variants. Preserves component APIs. Respects prefers-reduced-motion.
+   References:
+     - WCAG 2.1 AA contrast, focus-visible
+     - ui-ux-pro-max: focus-states, disabled-states, loading-states,
+       hover-states, cursor-pointer, reduced-motion, touch-target-size,
+       content-jumping (no transform/scale hover that shifts layout) */
+
+/* ---------------------------------------------------------------------------
+   BUTTONS
+   --------------------------------------------------------------------------- */
+
+/* REPLACES: components.css L372-385
+   - Adds a smooth color/border/shadow transition so hover does not snap.
+   - Adds default `vertical-align: middle` so inline btns sit cleanly next to text.
+   - Adds `user-select: none` and `text-decoration: none` (anchors). */
+.btn {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: rgba(255, 255, 255, .04);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  user-select: none;
+  vertical-align: middle;
+  transition: background-color 160ms ease-out, border-color 160ms ease-out,
+              color 160ms ease-out, box-shadow 160ms ease-out;
+}
+
+/* NEW
+   Generic hover for secondary/ghost/danger. Primary keeps its own rule below.
+   Uses color/border only (no transform) so layout never shifts. */
+.btn:hover {
+  background: rgba(255, 255, 255, .07);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+/* NEW
+   Distinct focus-visible ring tuned for pink-on-dark.
+   Globals apply a 2px var(--primary) outline; on .btn-primary that ring would
+   blend into the pink fill. Use a layered ring: 2px dark gap + 2px pink halo. */
+.btn:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--bg),
+    0 0 0 4px var(--primary-light);
+}
+
+/* NEW
+   Pressed-state feedback. Color shift only, no scale (avoids content jump). */
+.btn:active:not(:disabled):not([aria-disabled="true"]) {
+  background: rgba(255, 255, 255, .09);
+}
+
+/* REPLACES: components.css L387-394
+   - Keeps the pink fill and shadow.
+   - Tightens hover: brighten + slightly stronger shadow.
+   - Removes default text-shadow inheritance from page. */
+.btn-primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #0F0F12;
+  box-shadow: 0 14px 38px rgba(239, 71, 121, .26);
+}
+.btn-primary:hover {
+  background: var(--primary-light);
+  border-color: var(--primary-light);
+  color: #0F0F12;
+  box-shadow: 0 14px 38px rgba(239, 71, 121, .34);
+}
+.btn-primary:active:not(:disabled):not([aria-disabled="true"]) {
+  background: var(--primary);
+  border-color: var(--primary);
+  box-shadow: 0 10px 28px rgba(239, 71, 121, .28);
+}
+
+/* APPEND-TO: .btn-secondary  (components.css L396-398)
+   Hover surfaces lift to --surface-hover so the affordance is unambiguous. */
+.btn-secondary:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+
+/* APPEND-TO: .btn-ghost  (components.css L400-402)
+   Ghost needs a visible hover or it looks dead. */
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, .05);
+}
+
+/* APPEND-TO: .btn-danger  (components.css L404-408) */
+.btn-danger:hover {
+  background: rgba(255, 107, 107, .16);
+  border-color: rgba(255, 107, 107, .42);
+  color: #FFD4D4;
+}
+
+/* REPLACES: components.css L1120
+   Disabled visual state for both <button disabled> and <a aria-disabled="true">.
+   Loses pointer affordance, dims, and kills hover/shadow transitions. */
+.btn:disabled,
+.btn[aria-disabled="true"],
+.tab:disabled,
+.tab[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.55;
+  box-shadow: none;
+  pointer-events: none;
+}
+
+/* NEW
+   Loading-state convention. Replace label with an inline spinner without
+   resizing the button. The button keeps its width via `position: relative`
+   on the host and an absolutely-positioned spinner. We hide the slot text
+   visually (kept in DOM for SR + aria-busy announces in-flight state). */
+.btn-loading {
+  position: relative;
+  cursor: progress;
+  pointer-events: none;
+  color: transparent !important;
+}
+.btn-loading::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  color: var(--text);
+  animation: btn-spin 720ms linear infinite;
+}
+.btn-primary.btn-loading::after { color: #0F0F12; }
+.btn-danger.btn-loading::after  { color: #FFB4B4; }
+
+@keyframes btn-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn { transition: none; }
+  .btn-loading::after { animation-duration: 1800ms; }
+}
+
+/* ---------------------------------------------------------------------------
+   CARDS
+   --------------------------------------------------------------------------- */
+
+/* APPEND-TO: .card  (components.css L232-238)
+   Adds default color + transition so an interactive card can animate cleanly
+   without changing static-card visuals. */
+.card {
+  color: inherit;
+  transition: background-color 180ms ease-out, border-color 180ms ease-out,
+              box-shadow 180ms ease-out;
+}
+
+/* NEW
+   Interactive card variant (used when Card is rendered as <a> or with
+   `interactive` prop. Provides cursor, hover, and focus affordance without
+   layout shift (color/border/shadow only, no scale). */
+.card-interactive {
+  cursor: pointer;
+  text-decoration: none;
+}
+.card-interactive:hover {
+  background: rgba(255, 255, 255, .055);
+  border-color: var(--border-strong);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .28);
+}
+.card-interactive:focus-visible {
+  outline: none;
+  border-color: var(--primary-border);
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--primary-light);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card { transition: none; }
+}
+
+/* ---------------------------------------------------------------------------
+   ALERTS
+   --------------------------------------------------------------------------- */
+
+/* APPEND-TO: .alert  (components.css L464-472)
+   Alert link focus alignment. The body anchor uses a border-bottom underline;
+   on focus-visible promote the underline to the brand color so keyboard users
+   see exactly which inline link is active without the global pink outline
+   clashing with the surrounding card. */
+.alert-body a:focus-visible {
+  outline: none;
+  border-bottom-color: var(--primary);
+  background: var(--primary-soft);
+  border-radius: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+   BADGES & CHIPS
+   --------------------------------------------------------------------------- */
+
+/* REPLACES: components.css L417-428
+   - Default badge text was `var(--text-muted)` (#A1A1AA) on a near-bg surface.
+     Bumps to a slightly stronger value to clear 4.5:1 against the dark canvas
+     even when stacked on the section gradient.
+   - Adds line-height + padding-y to give breathing room for taller glyphs. */
+.badge {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, .045);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 720;
+  line-height: 1.4;
+  color: var(--text);
+  letter-spacing: 0.01em;
+}
+
+/* APPEND-TO: .chip  (components.css L207-220)
+   Small line-height + vertical padding tweak so chips sit centered alongside
+   buttons in a btn-row without visual drift. */
+.chip {
+  line-height: 1.4;
+  padding-block: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+   GRID
+   --------------------------------------------------------------------------- */
+
+/* APPEND-TO: .grid  (components.css L222-225)
+   Hard `repeat(N, 1fr)` breaks below ~640px (text gets squeezed below 16px).
+   Collapse 3/4/5 columns to 2 at <=768px and to 1 at <=520px. Keeps cols-2
+   at >=520px. Logical (not transform) layout, no content jump on resize. */
+@media (max-width: 768px) {
+  .grid.cols-3,
+  .grid.cols-4,
+  .grid.cols-5 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 520px) {
+  .grid.cols-2,
+  .grid.cols-3,
+  .grid.cols-4,
+  .grid.cols-5 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   SECTION + HERO
+   --------------------------------------------------------------------------- */
+
+/* APPEND-TO: .section  (components.css L172-181)
+   Reduce horizontal padding on small screens so sections do not bleed past
+   container gutters. No vertical-rhythm change. */
+@media (max-width: 640px) {
+  .section {
+    padding: 24px 18px;
+    border-radius: var(--radius-lg);
+  }
+}
+
+/* APPEND-TO: .hero  (components.css L133-138)
+   Hero top padding is large for desktop. Tighten on small screens so the
+   first interactive control stays near the fold. */
+@media (max-width: 640px) {
+  .hero {
+    padding: 56px 0 36px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   FORMS (.field)
+   --------------------------------------------------------------------------- */
+
+/* APPEND-TO: input/select/textarea focus  (components.css L459-462)
+   The custom inset focus halo already provides a strong indicator; ensure the
+   default browser outline stays suppressed on focus-visible too (globals.css
+   already does this, but reinforce locally so future global resets do not
+   double-ring the field). */
+.field :is(input, select, textarea):focus-visible {
+  outline: none;
+}
+
+/* ===========================================================================
+   TOKEN PROPOSALS  (do not apply, for review against tokens.css upstream)
+   ===========================================================================
+   1. --focus-ring-offset-color: var(--bg)
+      Used by the layered focus ring (gap-then-halo). Today inlined as var(--bg)
+      in .btn:focus-visible and .card-interactive:focus-visible.
+   2. --transition-fast: 160ms ease-out
+      Used by .btn, .card transitions. A token would let us tune system-wide
+      motion without searching files.
+   3. --shadow-btn-primary: 0 14px 38px rgba(239,71,121,.26)
+      Currently inlined in .btn-primary; a token would harmonize with the
+      pricing-card featured glow which uses a similar pink shadow.
+   =========================================================================== */
+
+
+/* === mdx === */
+/* Surgical deltas for src/components/mdx/* (Aside, Tabs, TabItem, MermaidDiagram).
+   All selectors here are inside the documented scope: .aside*, .tabs, .tab,
+   .tab.active. Mermaid additions use a fresh .mermaid-* namespace introduced
+   by the component itself. */
+
+
+/* ---------- Aside ---------------------------------------------------------- */
+
+/* APPEND-TO: .aside  (components.css L541-L549)
+   Tighten left-rule paint when role="note" is announced (no change in look)
+   and add a subtle variant tint so the four severity colors are visually
+   distinct on the body, not only on the icon tile. Tint alphas chosen so
+   --text-muted (#A1A1AA, 8.4:1 on #0F0F12) keeps >= 4.5:1 contrast on top. */
+.aside { isolation: isolate; }
+
+/* APPEND-TO: .aside-info / .aside-success / .aside-warning / .aside-error
+   (components.css L616-L619)
+   Add a faint tinted wash to the card surface. The left-border accent and
+   icon tile colors are already set; this only changes the background. */
+.aside-info    { background: linear-gradient(to right, rgba(147,197,253,.045), rgba(255,255,255,.03) 40%); }
+.aside-success { background: linear-gradient(to right, rgba(99,230,190,.045),  rgba(255,255,255,.03) 40%); }
+.aside-warning { background: linear-gradient(to right, rgba(255,209,102,.045), rgba(255,255,255,.03) 40%); }
+.aside-error   { background: linear-gradient(to right, rgba(255,107,107,.05),  rgba(255,255,255,.03) 40%); }
+
+/* APPEND-TO: .aside-title  (components.css L572-L580)
+   <strong> is bold by default; reset and rely on the token weight. Keep the
+   element semantically a strong-emphasis label rather than a heading so the
+   article outline is not polluted by every Aside title. */
+.aside-title { font-style: normal; font-weight: 720; }
+
+
+/* ---------- Tabs ----------------------------------------------------------- */
+
+/* REPLACES: components.css L655-L662  (.tabs)
+   Add flex-wrap so the rail doesn't horizontally overflow the 72ch article
+   column on narrow viewports, and a row-gap so wrapped pills line up cleanly. */
+.tabs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  row-gap: 3px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255,255,255,.03);
+  gap: 3px;
+  max-width: 100%;
+}
+
+/* REPLACES: components.css L664-L670  (.tab)
+   Add background:transparent (so inactive tabs paint over the rail), color
+   transition for smooth selection, and an explicit border:0 reset since
+   buttons inherit UA borders. Cursor and disabled state are inherited from
+   the existing .btn, .tab, [role="button"] block at L1119-L1120. */
+.tab {
+  border: 0;
+  background: transparent;
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 13px;
+  transition: color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+}
+
+/* NEW: hover affordance for inactive tabs.
+   Active state already paints color + soft pink; this is just a hint that
+   the inactive label is interactive. */
+.tab:hover:not(.active) {
+  color: var(--text);
+  background: rgba(255,255,255,.04);
+}
+
+/* NEW: visible keyboard focus ring on the tab itself.
+   Global :focus-visible at components.css L1110-L1116 already paints an
+   outline on every focusable element, but tabs sit on a tinted background
+   so we bump contrast with an inset ring that respects the brand color. */
+.tab:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* NEW: focus ring on the tabpanel so screen-reader/keyboard users see where
+   focus has landed after activating a tab. The panel is tabindex=0 so it can
+   receive focus and be scrolled by the user with arrow keys. */
+.tabs-block [role="tabpanel"]:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 4px;
+  border-radius: var(--radius-xs, 10px);
+}
+
+/* NEW: respect reduced motion for the tab transition. */
+@media (prefers-reduced-motion: reduce) {
+  .tab { transition: none; }
+}
+
+
+/* ---------- Mermaid -------------------------------------------------------- */
+/* NEW: .mermaid-* namespace introduced by MermaidDiagram.tsx. Article column
+   is 72ch (~720px) so we let the diagram fill width and scroll horizontally
+   only when its intrinsic width truly exceeds the column. */
+.mermaid-figure {
+  margin: 24px 0;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md, 20px);
+  background: rgba(255,255,255,.03);
+  overflow-x: auto;
+}
+
+.mermaid-diagram {
+  display: flex;
+  justify-content: center;
+}
+
+.mermaid-diagram > svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.mermaid-caption {
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.mermaid-loading {
+  position: relative;
+  width: 100%;
+  color: var(--text-soft);
+  font-size: 13px;
+}
+.mermaid-loading::after {
+  content: "Loading diagram\2026";
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mermaid-loading::after { content: "Loading diagram"; }
+}
+
+
+/* TOKEN PROPOSALS */
+/* (none). The existing --primary, --primary-soft, --primary-border,
+   --info, --success, --warning, --error, --text-muted, --border, --radius-*
+   tokens cover every selector above. If we later want named aside tints,
+   propose:
+     --aside-tint-info:    rgba(147,197,253,.045);
+     --aside-tint-success: rgba(99,230,190,.045);
+     --aside-tint-warning: rgba(255,209,102,.045);
+     --aside-tint-error:   rgba(255,107,107,.05);
+*/
+
+
+/* === islands === */
+/*
+ * Scope: Algolia DocSearch (.DocSearch-*) and AskAI menu (.ask-ai*).
+ *
+ * Notes:
+ * - components.css currently has NO rules in either namespace, so every block
+ *   below is NEW. No REPLACES/APPEND-TO entries.
+ * - We scope DocSearch overrides under .suites-docsearch where possible so
+ *   they cannot leak. The full-screen modal (.DocSearch-Container) is portaled
+ *   to <body>, so its theming uses --docsearch-* CSS vars set at :root level
+ *   (Algolia's documented theming API; works regardless of portal target).
+ * - Brand pink #EF4779 surfaces on hit highlights, primary action, kbd hints.
+ * - Respects prefers-reduced-motion: all transitions disabled.
+ */
+
+
+/* ============================================================
+ * DocSearch theme variables (Algolia's documented API)
+ * Setting these on :root themes the portaled modal too.
+ * ============================================================ */
+
+/* NEW */
+:root {
+  /* Type */
+  --docsearch-primary-color: var(--primary, #EF4779);
+  --docsearch-text-color: var(--text, #F4F4F5);
+  --docsearch-muted-color: var(--text-muted, #A1A1AA);
+
+  /* Surfaces */
+  --docsearch-container-background: rgba(8, 8, 11, 0.78);
+  --docsearch-modal-background: var(--surface, #17171C);
+  --docsearch-searchbox-background: var(--bg-subtle, #131318);
+  --docsearch-searchbox-focus-background: var(--bg, #0F0F12);
+  --docsearch-hit-background: var(--surface-raised, #202027);
+  --docsearch-hit-color: var(--text, #F4F4F5);
+  --docsearch-hit-active-color: #ffffff;
+  --docsearch-hit-shadow: none;
+  --docsearch-footer-background: var(--bg-subtle, #131318);
+  --docsearch-footer-shadow: inset 0 1px 0 0 var(--border, rgba(255, 255, 255, 0.09));
+
+  /* Key hints (cmd/ctrl/k chips) */
+  --docsearch-key-gradient: linear-gradient(180deg, #2a2a33 0%, #1c1c22 100%);
+  --docsearch-key-shadow:
+    inset 0 -2px 0 0 rgba(0, 0, 0, 0.4),
+    inset 0 0 1px 1px rgba(255, 255, 255, 0.06),
+    0 1px 2px rgba(0, 0, 0, 0.3);
+  --docsearch-key-pressed-shadow:
+    inset 0 -1px 0 0 rgba(0, 0, 0, 0.5),
+    inset 0 0 1px 1px rgba(255, 255, 255, 0.04),
+    0 1px 1px rgba(0, 0, 0, 0.3);
+
+  /* Modal sizing + radius */
+  --docsearch-modal-shadow: var(--shadow, 0 24px 90px rgba(0, 0, 0, 0.45));
+  --docsearch-spacing: 12px;
+  --docsearch-icon-stroke-width: 1.6;
+  --docsearch-highlight-color: var(--primary, #EF4779);
+  --docsearch-logo-color: var(--text-muted, #A1A1AA);
+}
+
+
+/* ============================================================
+ * DocSearch trigger button (the "/Search documentation" chip in the header)
+ *
+ * We do NOT style the wrapper .nav-search; that belongs to site-chrome.
+ * Below we only refine the internal DocSearch button so brand colors apply
+ * to the icon + kbd hints.
+ * ============================================================ */
+
+/* NEW */
+.suites-docsearch .DocSearch-Button {
+  background: var(--bg-subtle, #131318);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.09));
+  color: var(--text-muted, #A1A1AA);
+  border-radius: var(--radius-sm, 14px);
+  padding: 0 10px;
+  height: 36px;
+  transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease;
+}
+
+/* NEW */
+.suites-docsearch .DocSearch-Button:hover {
+  background: var(--surface, #17171C);
+  border-color: var(--border-strong, rgba(255, 255, 255, 0.16));
+  color: var(--text, #F4F4F5);
+  box-shadow: none;
+}
+
+/* NEW */
+.suites-docsearch .DocSearch-Button:focus-visible {
+  outline: 2px solid var(--primary, #EF4779);
+  outline-offset: 2px;
+  border-color: var(--primary, #EF4779);
+}
+
+/* NEW */
+.suites-docsearch .DocSearch-Button-Placeholder {
+  font-size: 14px;
+  font-family: var(--font-body);
+  padding: 0 8px 0 4px;
+}
+
+/* NEW */
+.suites-docsearch .DocSearch-Search-Icon {
+  width: 16px;
+  height: 16px;
+  color: var(--text-soft, #8B8B94);
+}
+
+/* NEW */
+.suites-docsearch .DocSearch-Button-Keys {
+  min-width: auto;
+  gap: 2px;
+}
+
+/* NEW */
+.suites-docsearch .DocSearch-Button-Key {
+  background: var(--surface-raised, #202027);
+  box-shadow: var(--docsearch-key-shadow);
+  color: var(--text, #F4F4F5);
+  font-family: var(--font-code);
+  font-size: 11px;
+  padding: 0 5px;
+  height: 20px;
+  min-width: 20px;
+  border-radius: 6px;
+}
+
+
+/* ============================================================
+ * DocSearch modal (portaled to <body>, so styled at top level)
+ * ============================================================ */
+
+/* NEW */
+.DocSearch-Container {
+  /* Slightly stronger backdrop blur for legibility on busy docs pages */
+  backdrop-filter: blur(8px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  z-index: var(--z-modal, 50);
+}
+
+/* NEW */
+.DocSearch-Modal {
+  background: var(--surface, #17171C);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.09));
+  border-radius: var(--radius-md, 20px);
+  box-shadow: var(--shadow, 0 24px 90px rgba(0, 0, 0, 0.45));
+  font-family: var(--font-body);
+}
+
+/* NEW */
+.DocSearch-SearchBar {
+  padding: 12px 14px 0;
+}
+
+/* NEW */
+.DocSearch-Form {
+  background: var(--bg-subtle, #131318);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.09));
+  border-radius: var(--radius-sm, 14px);
+  box-shadow: none;
+  height: 48px;
+}
+
+/* NEW */
+.DocSearch-Form:focus-within {
+  border-color: var(--primary, #EF4779);
+  box-shadow: 0 0 0 3px rgba(239, 71, 121, 0.18);
+}
+
+/* NEW */
+.DocSearch-Input {
+  color: var(--text, #F4F4F5);
+  font-size: 15px;
+  font-family: var(--font-body);
+}
+
+/* NEW */
+.DocSearch-Input::placeholder {
+  color: var(--text-soft, #8B8B94);
+  opacity: 1;
+}
+
+/* NEW */
+.DocSearch-Input:focus {
+  outline: none;
+}
+
+/* NEW */
+.DocSearch-MagnifierLabel,
+.DocSearch-Reset {
+  color: var(--text-soft, #8B8B94);
+}
+
+/* NEW */
+.DocSearch-Cancel {
+  color: var(--primary, #EF4779);
+  font-weight: 500;
+}
+
+/* NEW: keyboard focus on the close button */
+.DocSearch-Cancel:focus-visible {
+  outline: 2px solid var(--primary, #EF4779);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+
+/* ============================================================
+ * Hits list
+ * ============================================================ */
+
+/* NEW */
+.DocSearch-Hits {
+  padding: 4px 14px 14px;
+}
+
+/* NEW */
+.DocSearch-Hit-source {
+  color: var(--text-muted, #A1A1AA);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: transparent;
+  margin: 12px 0 6px;
+}
+
+/* NEW */
+.DocSearch-Hit {
+  padding-bottom: 4px;
+}
+
+/* NEW */
+.DocSearch-Hit a {
+  background: var(--surface-raised, #202027);
+  border: 1px solid transparent;
+  border-radius: var(--radius-xs, 10px);
+  padding: 10px 12px;
+  transition: background-color 180ms ease, border-color 180ms ease, transform 180ms ease;
+  box-shadow: none;
+}
+
+/* NEW: active (hover/keyboard-selected) hit */
+.DocSearch-Hit[aria-selected="true"] a,
+.DocSearch-Hit a:hover {
+  background: var(--primary, #EF4779);
+  border-color: var(--primary, #EF4779);
+  color: #ffffff;
+}
+
+/* NEW: ensure all text inside an active hit goes white (Algolia paints */
+/* secondary text muted by default) */
+.DocSearch-Hit[aria-selected="true"] a *,
+.DocSearch-Hit a:hover * {
+  color: #ffffff !important;
+}
+
+/* NEW: highlighted matched substring inside a hit title */
+.DocSearch-Hit mark,
+.DocSearch-Hit-Tree {
+  background: transparent;
+  color: var(--primary-light, #FF9EBB);
+  font-weight: 600;
+}
+
+/* NEW: matched substring inside an active hit (selected/hover) */
+.DocSearch-Hit[aria-selected="true"] mark,
+.DocSearch-Hit a:hover mark {
+  color: #ffffff;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* NEW */
+.DocSearch-Hit-icon,
+.DocSearch-Hit-action {
+  color: var(--text-soft, #8B8B94);
+}
+
+/* NEW */
+.DocSearch-Hit[aria-selected="true"] .DocSearch-Hit-icon,
+.DocSearch-Hit[aria-selected="true"] .DocSearch-Hit-action {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+
+/* ============================================================
+ * Start screen (recent + favorites)
+ * ============================================================ */
+
+/* NEW */
+.DocSearch-StartScreen,
+.DocSearch-NoResults {
+  padding: 18px 14px 8px;
+}
+
+/* NEW */
+.DocSearch-Help {
+  color: var(--text-muted, #A1A1AA);
+  font-size: 13px;
+}
+
+/* NEW */
+.DocSearch-Title {
+  color: var(--text, #F4F4F5);
+  font-family: var(--font-title);
+}
+
+/* NEW */
+.DocSearch-NoResults-Prefill-List {
+  padding-top: 6px;
+}
+
+
+/* ============================================================
+ * Footer (keyboard hint row)
+ * ============================================================ */
+
+/* NEW */
+.DocSearch-Footer {
+  border-radius: 0 0 var(--radius-md, 20px) var(--radius-md, 20px);
+  padding: 8px 14px;
+}
+
+/* NEW */
+.DocSearch-Commands-Key {
+  background: var(--surface-raised, #202027);
+  box-shadow: var(--docsearch-key-shadow);
+  color: var(--text-muted, #A1A1AA);
+  border-radius: 6px;
+}
+
+/* NEW */
+.DocSearch-Label {
+  color: var(--text-soft, #8B8B94);
+  font-size: 11px;
+}
+
+/* NEW */
+.DocSearch-Logo a {
+  color: var(--text-soft, #8B8B94);
+  opacity: 0.7;
+  transition: opacity 180ms ease;
+}
+
+/* NEW */
+.DocSearch-Logo a:hover {
+  opacity: 1;
+}
+
+
+/* ============================================================
+ * Reduced motion: kill all transitions inside the modal + trigger
+ * ============================================================ */
+
+/* NEW */
+@media (prefers-reduced-motion: reduce) {
+  .suites-docsearch .DocSearch-Button,
+  .DocSearch-Hit a,
+  .DocSearch-Form,
+  .DocSearch-Logo a {
+    transition: none !important;
+  }
+}
+
+
+/* ============================================================
+ * AskAI menu (.ask-ai*) - popover with two provider choices
+ * ============================================================ */
+
+/* NEW */
+.ask-ai-root {
+  position: relative;
+  display: inline-flex;
+}
+
+/* NEW: the menu container */
+.ask-ai-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 180px;
+  background: var(--surface, #17171C);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.09));
+  border-radius: var(--radius-sm, 14px);
+  box-shadow: var(--shadow, 0 24px 90px rgba(0, 0, 0, 0.45));
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: var(--z-overlay, 40);
+  animation: ask-ai-menu-in 140ms ease-out;
+  transform-origin: top right;
+}
+
+/* NEW: floating variant pins to the screen-anchored trigger */
+.ask-ai-menu[data-variant="floating"] {
+  right: 0;
+}
+
+/* NEW */
+@keyframes ask-ai-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* NEW: individual menu item */
+.ask-ai-menu-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text, #F4F4F5);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  min-height: 36px;
+  transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
+/* NEW: icons inside menu items inherit a softer tint by default */
+.ask-ai-menu-item > svg {
+  color: var(--text-muted, #A1A1AA);
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  transition: color 160ms ease;
+}
+
+/* NEW: hover + keyboard-focus state - brand pink wash */
+.ask-ai-menu-item:hover,
+.ask-ai-menu-item:focus-visible {
+  background: var(--primary-soft, rgba(239, 71, 121, 0.12));
+  color: var(--text, #F4F4F5);
+  outline: none;
+  border-color: var(--primary-border, rgba(239, 71, 121, 0.32));
+}
+
+/* NEW: focus-visible also gets a clear ring for keyboard users */
+.ask-ai-menu-item:focus-visible {
+  box-shadow: 0 0 0 2px rgba(239, 71, 121, 0.35);
+}
+
+/* NEW: focused/hover icon picks up brand pink */
+.ask-ai-menu-item:hover > svg,
+.ask-ai-menu-item:focus-visible > svg {
+  color: var(--primary, #EF4779);
+}
+
+/* NEW: keep touch targets >= 44px on coarse pointers */
+@media (pointer: coarse) {
+  .ask-ai-menu-item {
+    min-height: 44px;
+    padding: 10px 12px;
+  }
+}
+
+/* NEW */
+@media (prefers-reduced-motion: reduce) {
+  .ask-ai-menu {
+    animation: none;
+  }
+  .ask-ai-menu-item,
+  .ask-ai-menu-item > svg {
+    transition: none;
+  }
+}
+
+
+/* ============================================================
+ * TOKEN PROPOSALS (informational; not applied here)
+ * ============================================================
+ *
+ * If tokens.css gains the following, the rules above would simplify:
+ *
+ *   --backdrop:        rgba(8, 8, 11, 0.78);     // matches docsearch container
+ *   --ring-primary:    0 0 0 3px rgba(239, 71, 121, 0.18);
+ *   --kbd-bg:          linear-gradient(180deg, #2a2a33 0%, #1c1c22 100%);
+ *   --kbd-shadow:      inset 0 -2px 0 0 rgba(0,0,0,.4),
+ *                      inset 0 0 1px 1px rgba(255,255,255,.06),
+ *                      0 1px 2px rgba(0,0,0,.3);
+ *
+ * No changes were made to tokens.css per scope constraints.
+ */

@@ -160,16 +160,12 @@ const sidebar: SidebarConfig = {
       label: "Get Started",
       items: [
         {
+          label: "Installation",
+          href: "/docs/blackbox/quickstart/installation",
+        },
+        {
           label: "Get Started",
           href: "/docs/blackbox/quickstart/",
-        },
-        {
-          label: "Start From an Existing Test",
-          href: "/docs/blackbox/quickstart/build-behavioral-harness",
-        },
-        {
-          label: "Connect Your Application With Compose",
-          href: "/docs/blackbox/quickstart/add-to-existing-test",
         },
       ],
     },
@@ -177,30 +173,38 @@ const sidebar: SidebarConfig = {
       label: "Concepts",
       items: [
         {
-          label: "Human Authority and the Agent Loop",
-          href: "/docs/blackbox/concepts/human-agent-verification-loop",
+          label: "System and E2E Verification",
+          href: "/docs/blackbox/concepts/testing-layers",
         },
         {
-          label: "Runtime Evidence and Integrity",
-          href: "/docs/blackbox/concepts/runtime-evidence",
+          label: "Human-Agent Verification Loop",
+          href: "/docs/blackbox/concepts/human-agent-verification-loop",
         },
         {
           label: "OpenTelemetry and Effects",
           href: "/docs/blackbox/concepts/effects-and-catalogs",
         },
         {
-          label: "Observable Decision Coverage",
-          href: "/docs/blackbox/concepts/omc-dc-coverage",
+          label: "Runtime Evidence Boundaries",
+          href: "/docs/blackbox/concepts/runtime-evidence",
         },
         {
-          label: "System and E2E Verification",
-          href: "/docs/blackbox/concepts/testing-layers",
+          label: "Test Topologies and Evidence Boundaries",
+          href: "/docs/blackbox/guides/playwright-isolation-and-parallelism",
+        },
+        {
+          label: "Observable Decision Coverage",
+          href: "/docs/blackbox/concepts/omc-dc-coverage",
         },
       ],
     },
     {
       label: "Guides",
       items: [
+        {
+          label: "Start From an Existing System or E2E Test",
+          href: "/docs/blackbox/quickstart/build-behavioral-harness",
+        },
         {
           label: "Choose How Blackbox Runs Your Application",
           href: "/docs/blackbox/guides/set-up-the-testbed",
@@ -210,33 +214,24 @@ const sidebar: SidebarConfig = {
           href: "/docs/blackbox/guides/use-existing-compose",
         },
         {
-          label: "Test Topologies and Parallelism",
-          href: "/docs/blackbox/guides/playwright-isolation-and-parallelism",
+          label: "Use Testcontainers",
+          href: "/docs/blackbox/guides/use-custom-provisioner",
         },
-        {
-          label: "Use Blackbox With Coding Agents",
-          href: "/docs/blackbox/guides/agent-skills",
-        },
-        {
-          label: "Add Blackbox to CI",
-          href: "/docs/blackbox/guides/reports-and-ci-gates",
-        },
-        {
-          label: "Configure Source Maps and Service Layouts",
-          href: "/docs/blackbox/guides/source-maps-and-service-layouts",
-        },
-      ],
-    },
-    {
-      label: "Future Setup Paths",
-      items: [
         {
           label: "Build From a Dockerfile",
           href: "/docs/blackbox/guides/build-from-dockerfile",
         },
         {
-          label: "Run Compiled Artifacts",
+          label: "Run Distribution Artifacts",
           href: "/docs/blackbox/guides/run-compiled-artifacts",
+        },
+        {
+          label: "Repair a Blackbox Finding With a Coding Agent",
+          href: "/docs/blackbox/guides/agent-skills",
+        },
+        {
+          label: "Add Blackbox to CI",
+          href: "/docs/blackbox/guides/reports-and-ci-gates",
         },
       ],
     },
@@ -257,14 +252,17 @@ const sidebar: SidebarConfig = {
           href: "/docs/blackbox/reference/effects-and-claims",
         },
         {
+          label: "Observable Decision Coverage Results",
+          href: "/docs/blackbox/reference/observable-decision-coverage",
+        },
+        {
           label: "CLI and Exit Behavior",
           href: "/docs/blackbox/reference/cli",
         },
-      ],
-    },
-    {
-      label: "Operations",
-      items: [
+        {
+          label: "Source Maps and Service Layouts",
+          href: "/docs/blackbox/guides/source-maps-and-service-layouts",
+        },
         {
           label: "Security and Data Handling",
           href: "/docs/blackbox/operations/security-and-data-handling",
@@ -275,7 +273,7 @@ const sidebar: SidebarConfig = {
       label: "Status",
       items: [
         {
-          label: "Alpha Status",
+          label: "Alpha Support Status",
           href: "/docs/blackbox/status/alpha-status",
         },
       ],

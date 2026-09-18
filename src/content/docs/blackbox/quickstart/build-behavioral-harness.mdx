@@ -1,69 +1,73 @@
 ---
-title: "Start From an Existing Test"
-description: "Bind approved behavior to one existing Playwright system test without treating current implementation behavior as product truth."
+title: "Start From an Existing System or E2E Test"
+description: "Connect a human-approved behavioral contract to an existing Playwright test without treating current implementation behavior as product truth."
 sidebar_position: 2
-keywords: ["existing system test", "Playwright alignment", "Blackbox SuitePlan"]
+keywords:
+  [
+    "existing system test",
+    "existing E2E test",
+    "Playwright",
+    "behavioral contract",
+  ]
 ---
 
-Start here when you already have a system or E2E test. The test can realize approved behavior, but it cannot define that behavior by itself.
+Use this guide when a Playwright system or E2E test already exercises the flow you want Blackbox to verify.
 
-```ts title="tests/product-cache.e2e.spec.ts"
+## Before You Begin
+
+You need:
+
+- One existing Playwright test.
+- One product requirement a person can review.
+- OpenTelemetry coverage for the runtime effects that matter to the requirement.
+
+## 1. Start With the Visible Result
+
+```ts title="tests/checkout.e2e.spec.ts"
 import { expect, test } from "@playwright/test";
 
-test("reuses a cached product", async ({ request }) => {
-  const first = await request.get("/products/42");
-  const second = await request.get("/products/42");
+test("completes checkout", async ({ request }) => {
+  const response = await request.post("/checkout", {
+    data: { cartId: "cart-42" },
+  });
 
-  expect([first.status(), second.status()]).toEqual([200, 200]);
+  expect(response.status()).toBe(201);
 });
 ```
 
-This test establishes the visible result. It does not say whether the implementation may query Postgres twice.
+This test establishes the visible result. It does not tell you whether the running system requested payment twice.
 
-## 1. Approve the Intended Behavior
+## 2. Approve the Behavioral Contract
 
-Review the product requirement with a person. Express it as linked Gherkin or direct behavioral declarations.
+A person reviews the product requirement and approves the expected behavior for this flow:
 
-For this case, approve:
+- Checkout returns `201`.
+- A completed checkout sends at most one payment charge request.
 
-- Both reads return `200`.
-- The case performs at most one Postgres product read.
-- The declared Postgres observation and completion capabilities cover that upper-bound claim.
+Gherkin is the primary authoring example, but it is optional. A project may use direct behavioral declarations instead.
 
-Do not reverse-generate product meaning from the test, telemetry, or current implementation.
+## 3. Validate the Contract
 
-## 2. Validate Accepted Meaning
+Validate the behavioral contract before connecting it to the existing test.
 
-For Gherkin-linked authoring, run:
-
-```bash
-blackbox features check
-blackbox scenarios check
+```text title="Conceptual pseudocode"
+<validate behavioral contract>
 ```
 
-For direct declarations, run `blackbox scenarios check`.
+Use the command published for the installed Blackbox distribution. The placeholder above is not CLI syntax.
 
-Blackbox refuses missing, ambiguous, stale, duplicate, or redirected semantic relations before runtime allocation.
+## 4. Connect the Test
 
-## 3. Bind the Existing Test
+Use the generated typed binding surface to connect the approved contract case to the Playwright actions and native assertion. The existing test realizes the contract but does not become its authority.
 
-The generated Playwright directory contains exactly:
-
-```text
-suite.spec.ts
-suite.runtime.ts
-suite.d.ts
-plan.json
+```text title="Conceptual pseudocode"
+behavioral contract
+  -> generated typed binding
+  -> existing Playwright test
 ```
 
-Use the generated TypeScript surface to bind the approved case to the existing requests and assertions. Do not add new behavior during runner realization.
+Validate that the selected contract case resolves to exactly one runnable test.
 
-```bash
-blackbox suites typecheck
-```
+## 5. Run With Blackbox
 
-The selected case is ready when Playwright discovery finds exactly one matching test and every required relation resolves exactly once.
-
-## Result
-
-The existing test now realizes approved meaning without becoming its authority. Continue with [Connect Your Application With Compose](/docs/blackbox/quickstart/add-to-existing-test).
+Continue with [Choose How Blackbox Runs Your Application](/docs/blackbox/guides/set-up-the-testbed). Blackbox will run the selected test, capture fresh runtime evidence, and evaluate its effect claims.

@@ -24,7 +24,7 @@
 
   <rect x="6" y="6" width="1188" height="328" rx="16" fill="url(#authority-background)" stroke="#334155" />
 
-  <g font-family="Inter, ui-sans-serif, system-ui, sans-serif">
+  <g font-family="'Hanken Grotesk Local', 'Hanken Grotesk', Inter, ui-sans-serif, system-ui, sans-serif">
     <text x="34" y="43" fill="#f8fafc" font-size="24" font-weight="800">Authority moves in one direction</text>
     <text x="34" y="68" fill="#cbd5e1" font-size="15">Each stage acts within the authority established before it.</text>
 
@@ -38,10 +38,10 @@
       <text x="309.5" y="166" fill="#fff7ed" font-size="17" font-weight="800">Accepted</text>
       <text x="309.5" y="190" fill="#fff7ed" font-size="17" font-weight="800">meaning</text>
 
-      <rect x="420" y="104" width="165" height="126" rx="11" fill="#2e1065" stroke="#a78bfa" stroke-width="2" />
-      <text x="502.5" y="135" fill="#c4b5fd" font-size="14" font-weight="800">3</text>
-      <text x="502.5" y="168" fill="#f5f3ff" font-size="18" font-weight="800">Concrete</text>
-      <text x="502.5" y="192" fill="#f5f3ff" font-size="18" font-weight="800">realization</text>
+      <rect x="420" y="104" width="165" height="126" rx="11" fill="#421622" stroke="#db486f" stroke-width="2" />
+      <text x="502.5" y="135" fill="#ef9dab" font-size="14" font-weight="800">3</text>
+      <text x="502.5" y="168" fill="#fdf3f5" font-size="18" font-weight="800">Concrete</text>
+      <text x="502.5" y="192" fill="#fdf3f5" font-size="18" font-weight="800">realization</text>
 
       <rect x="613" y="104" width="165" height="126" rx="11" fill="#172554" stroke="#60a5fa" stroke-width="2" />
       <text x="695.5" y="135" fill="#93c5fd" font-size="14" font-weight="800">4</text>
@@ -53,10 +53,10 @@
       <text x="888.5" y="168" fill="#ecfdf5" font-size="18" font-weight="800">Runtime</text>
       <text x="888.5" y="192" fill="#ecfdf5" font-size="18" font-weight="800">evidence</text>
 
-      <rect x="999" y="104" width="165" height="126" rx="11" fill="#3b164f" stroke="#c084fc" stroke-width="2" />
-      <text x="1081.5" y="135" fill="#d8b4fe" font-size="14" font-weight="800">6</text>
-      <text x="1081.5" y="168" fill="#faf5ff" font-size="18" font-weight="800">Findings</text>
-      <text x="1081.5" y="192" fill="#faf5ff" font-size="18" font-weight="800">and verdicts</text>
+      <rect x="999" y="104" width="165" height="126" rx="11" fill="#421622" stroke="#e67189" stroke-width="2" />
+      <text x="1081.5" y="135" fill="#ef9dab" font-size="14" font-weight="800">6</text>
+      <text x="1081.5" y="168" fill="#fdf3f5" font-size="18" font-weight="800">Findings</text>
+      <text x="1081.5" y="192" fill="#fdf3f5" font-size="18" font-weight="800">and verdicts</text>
     </g>
 
     <line x1="199" y1="167" x2="217" y2="167" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#authority-arrow)" />

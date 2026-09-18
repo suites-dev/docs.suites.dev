@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 245 245" fill="none">
+  <title>Suites</title>
+  <g transform="translate(25 0)">
+    <path d="M2.5 3H95A98 74 0 0 1 193 77H31A28.5 28.5 0 0 1 2.5 48.5V3Z" fill="#EF9DAB"/>
+    <path d="M29 87H193V134A29 27 0 0 1 164 161H2V115A27 28 0 0 1 29 87Z" fill="#E67189"/>
+    <path d="M3 170H163A31 27 0 0 1 194 197V244H99A96 74 0 0 1 3 170Z" fill="#DB486F"/>
+  </g>
+</svg>

@@ -55,5 +55,5 @@ Collect:
 ## See Also
 
 - [Capture Lifecycle and Correlation](/docs/blackbox/reference/capture-lifecycle-and-correlation)
-- [Runtime Evidence and Integrity](/docs/blackbox/concepts/runtime-evidence)
+- [Runtime Evidence Boundaries](/docs/blackbox/concepts/runtime-evidence)
 - [Effect Claim Evaluation](/docs/blackbox/reference/matchers-and-effect-builders)

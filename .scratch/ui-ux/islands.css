@@ -1,0 +1,495 @@
+/* === islands === */
+/*
+ * Scope: Algolia DocSearch (.DocSearch-*) and AskAI menu (.ask-ai*).
+ *
+ * Notes:
+ * - components.css currently has NO rules in either namespace, so every block
+ *   below is NEW. No REPLACES/APPEND-TO entries.
+ * - We scope DocSearch overrides under .suites-docsearch where possible so
+ *   they cannot leak. The full-screen modal (.DocSearch-Container) is portaled
+ *   to <body>, so its theming uses --docsearch-* CSS vars set at :root level
+ *   (Algolia's documented theming API; works regardless of portal target).
+ * - Brand pink #EF4779 surfaces on hit highlights, primary action, kbd hints.
+ * - Respects prefers-reduced-motion: all transitions disabled.
+ */
+
+
+/* ============================================================
+ * DocSearch theme variables (Algolia's documented API)
+ * Setting these on :root themes the portaled modal too.
+ * ============================================================ */
+
+/* NEW */
+:root {
+  /* Type */
+  --docsearch-primary-color: var(--primary, #EF4779);
+  --docsearch-text-color: var(--text, #F4F4F5);
+  --docsearch-muted-color: var(--text-muted, #A1A1AA);
+
+  /* Surfaces */
+  --docsearch-container-background: rgba(8, 8, 11, 0.78);
+  --docsearch-modal-background: var(--surface, #17171C);
+  --docsearch-searchbox-background: var(--bg-subtle, #131318);
+  --docsearch-searchbox-focus-background: var(--bg, #0F0F12);
+  --docsearch-hit-background: var(--surface-raised, #202027);
+  --docsearch-hit-color: var(--text, #F4F4F5);
+  --docsearch-hit-active-color: #ffffff;
+  --docsearch-hit-shadow: none;
+  --docsearch-footer-background: var(--bg-subtle, #131318);
+  --docsearch-footer-shadow: inset 0 1px 0 0 var(--border, rgba(255, 255, 255, 0.09));
+
+  /* Key hints (cmd/ctrl/k chips) */
+  --docsearch-key-gradient: linear-gradient(180deg, #2a2a33 0%, #1c1c22 100%);
+  --docsearch-key-shadow:
+    inset 0 -2px 0 0 rgba(0, 0, 0, 0.4),
+    inset 0 0 1px 1px rgba(255, 255, 255, 0.06),
+    0 1px 2px rgba(0, 0, 0, 0.3);
+  --docsearch-key-pressed-shadow:
+    inset 0 -1px 0 0 rgba(0, 0, 0, 0.5),
+    inset 0 0 1px 1px rgba(255, 255, 255, 0.04),
+    0 1px 1px rgba(0, 0, 0, 0.3);
+
+  /* Modal sizing + radius */
+  --docsearch-modal-shadow: var(--shadow, 0 24px 90px rgba(0, 0, 0, 0.45));
+  --docsearch-spacing: 12px;
+  --docsearch-icon-stroke-width: 1.6;
+  --docsearch-highlight-color: var(--primary, #EF4779);
+  --docsearch-logo-color: var(--text-muted, #A1A1AA);
+}
+
+
+/* ============================================================
+ * DocSearch trigger button (the "/Search documentation" chip in the header)
+ *
+ * We do NOT style the wrapper .nav-search; that belongs to site-chrome.
+ * Below we only refine the internal DocSearch button so brand colors apply
+ * to the icon + kbd hints.
+ * ============================================================ */
+
+/* NEW */
+.suites-docsearch .DocSearch-Button {
+  background: var(--bg-subtle, #131318);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.09));
+  color: var(--text-muted, #A1A1AA);
+  border-radius: var(--radius-sm, 14px);
+  padding: 0 10px;
+  height: 36px;
+  transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease;
+}
+
+/* NEW */
+.suites-docsearch .DocSearch-Button:hover {
+  background: var(--surface, #17171C);
+  border-color: var(--border-strong, rgba(255, 255, 255, 0.16));
+  color: var(--text, #F4F4F5);
+  box-shadow: none;
+}
+
+/* NEW */
+.suites-docsearch .DocSearch-Button:focus-visible {
+  outline: 2px solid var(--primary, #EF4779);
+  outline-offset: 2px;
+  border-color: var(--primary, #EF4779);
+}
+
+/* NEW */
+.suites-docsearch .DocSearch-Button-Placeholder {
+  font-size: 14px;
+  font-family: var(--font-body);
+  padding: 0 8px 0 4px;
+}
+
+/* NEW */
+.suites-docsearch .DocSearch-Search-Icon {
+  width: 16px;
+  height: 16px;
+  color: var(--text-soft, #8B8B94);
+}
+
+/* NEW */
+.suites-docsearch .DocSearch-Button-Keys {
+  min-width: auto;
+  gap: 2px;
+}
+
+/* NEW */
+.suites-docsearch .DocSearch-Button-Key {
+  background: var(--surface-raised, #202027);
+  box-shadow: var(--docsearch-key-shadow);
+  color: var(--text, #F4F4F5);
+  font-family: var(--font-code);
+  font-size: 11px;
+  padding: 0 5px;
+  height: 20px;
+  min-width: 20px;
+  border-radius: 6px;
+}
+
+
+/* ============================================================
+ * DocSearch modal (portaled to <body>, so styled at top level)
+ * ============================================================ */
+
+/* NEW */
+.DocSearch-Container {
+  /* Slightly stronger backdrop blur for legibility on busy docs pages */
+  backdrop-filter: blur(8px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  z-index: var(--z-modal, 50);
+}
+
+/* NEW */
+.DocSearch-Modal {
+  background: var(--surface, #17171C);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.09));
+  border-radius: var(--radius-md, 20px);
+  box-shadow: var(--shadow, 0 24px 90px rgba(0, 0, 0, 0.45));
+  font-family: var(--font-body);
+}
+
+/* NEW */
+.DocSearch-SearchBar {
+  padding: 12px 14px 0;
+}
+
+/* NEW */
+.DocSearch-Form {
+  background: var(--bg-subtle, #131318);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.09));
+  border-radius: var(--radius-sm, 14px);
+  box-shadow: none;
+  height: 48px;
+}
+
+/* NEW */
+.DocSearch-Form:focus-within {
+  border-color: var(--primary, #EF4779);
+  box-shadow: 0 0 0 3px rgba(239, 71, 121, 0.18);
+}
+
+/* NEW */
+.DocSearch-Input {
+  color: var(--text, #F4F4F5);
+  font-size: 15px;
+  font-family: var(--font-body);
+}
+
+/* NEW */
+.DocSearch-Input::placeholder {
+  color: var(--text-soft, #8B8B94);
+  opacity: 1;
+}
+
+/* NEW */
+.DocSearch-Input:focus {
+  outline: none;
+}
+
+/* NEW */
+.DocSearch-MagnifierLabel,
+.DocSearch-Reset {
+  color: var(--text-soft, #8B8B94);
+}
+
+/* NEW */
+.DocSearch-Cancel {
+  color: var(--primary, #EF4779);
+  font-weight: 500;
+}
+
+/* NEW: keyboard focus on the close button */
+.DocSearch-Cancel:focus-visible {
+  outline: 2px solid var(--primary, #EF4779);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+
+/* ============================================================
+ * Hits list
+ * ============================================================ */
+
+/* NEW */
+.DocSearch-Hits {
+  padding: 4px 14px 14px;
+}
+
+/* NEW */
+.DocSearch-Hit-source {
+  color: var(--text-muted, #A1A1AA);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: transparent;
+  margin: 12px 0 6px;
+}
+
+/* NEW */
+.DocSearch-Hit {
+  padding-bottom: 4px;
+}
+
+/* NEW */
+.DocSearch-Hit a {
+  background: var(--surface-raised, #202027);
+  border: 1px solid transparent;
+  border-radius: var(--radius-xs, 10px);
+  padding: 10px 12px;
+  transition: background-color 180ms ease, border-color 180ms ease, transform 180ms ease;
+  box-shadow: none;
+}
+
+/* NEW: active (hover/keyboard-selected) hit */
+.DocSearch-Hit[aria-selected="true"] a,
+.DocSearch-Hit a:hover {
+  background: var(--primary, #EF4779);
+  border-color: var(--primary, #EF4779);
+  color: #ffffff;
+}
+
+/* NEW: ensure all text inside an active hit goes white (Algolia paints */
+/* secondary text muted by default) */
+.DocSearch-Hit[aria-selected="true"] a *,
+.DocSearch-Hit a:hover * {
+  color: #ffffff !important;
+}
+
+/* NEW: highlighted matched substring inside a hit title */
+.DocSearch-Hit mark,
+.DocSearch-Hit-Tree {
+  background: transparent;
+  color: var(--primary-light, #FF9EBB);
+  font-weight: 600;
+}
+
+/* NEW: matched substring inside an active hit (selected/hover) */
+.DocSearch-Hit[aria-selected="true"] mark,
+.DocSearch-Hit a:hover mark {
+  color: #ffffff;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* NEW */
+.DocSearch-Hit-icon,
+.DocSearch-Hit-action {
+  color: var(--text-soft, #8B8B94);
+}
+
+/* NEW */
+.DocSearch-Hit[aria-selected="true"] .DocSearch-Hit-icon,
+.DocSearch-Hit[aria-selected="true"] .DocSearch-Hit-action {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+
+/* ============================================================
+ * Start screen (recent + favorites)
+ * ============================================================ */
+
+/* NEW */
+.DocSearch-StartScreen,
+.DocSearch-NoResults {
+  padding: 18px 14px 8px;
+}
+
+/* NEW */
+.DocSearch-Help {
+  color: var(--text-muted, #A1A1AA);
+  font-size: 13px;
+}
+
+/* NEW */
+.DocSearch-Title {
+  color: var(--text, #F4F4F5);
+  font-family: var(--font-title);
+}
+
+/* NEW */
+.DocSearch-NoResults-Prefill-List {
+  padding-top: 6px;
+}
+
+
+/* ============================================================
+ * Footer (keyboard hint row)
+ * ============================================================ */
+
+/* NEW */
+.DocSearch-Footer {
+  border-radius: 0 0 var(--radius-md, 20px) var(--radius-md, 20px);
+  padding: 8px 14px;
+}
+
+/* NEW */
+.DocSearch-Commands-Key {
+  background: var(--surface-raised, #202027);
+  box-shadow: var(--docsearch-key-shadow);
+  color: var(--text-muted, #A1A1AA);
+  border-radius: 6px;
+}
+
+/* NEW */
+.DocSearch-Label {
+  color: var(--text-soft, #8B8B94);
+  font-size: 11px;
+}
+
+/* NEW */
+.DocSearch-Logo a {
+  color: var(--text-soft, #8B8B94);
+  opacity: 0.7;
+  transition: opacity 180ms ease;
+}
+
+/* NEW */
+.DocSearch-Logo a:hover {
+  opacity: 1;
+}
+
+
+/* ============================================================
+ * Reduced motion: kill all transitions inside the modal + trigger
+ * ============================================================ */
+
+/* NEW */
+@media (prefers-reduced-motion: reduce) {
+  .suites-docsearch .DocSearch-Button,
+  .DocSearch-Hit a,
+  .DocSearch-Form,
+  .DocSearch-Logo a {
+    transition: none !important;
+  }
+}
+
+
+/* ============================================================
+ * AskAI menu (.ask-ai*) - popover with two provider choices
+ * ============================================================ */
+
+/* NEW */
+.ask-ai-root {
+  position: relative;
+  display: inline-flex;
+}
+
+/* NEW: the menu container */
+.ask-ai-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 180px;
+  background: var(--surface, #17171C);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.09));
+  border-radius: var(--radius-sm, 14px);
+  box-shadow: var(--shadow, 0 24px 90px rgba(0, 0, 0, 0.45));
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: var(--z-overlay, 40);
+  animation: ask-ai-menu-in 140ms ease-out;
+  transform-origin: top right;
+}
+
+/* NEW: floating variant pins to the screen-anchored trigger */
+.ask-ai-menu[data-variant="floating"] {
+  right: 0;
+}
+
+/* NEW */
+@keyframes ask-ai-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* NEW: individual menu item */
+.ask-ai-menu-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text, #F4F4F5);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  min-height: 36px;
+  transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
+/* NEW: icons inside menu items inherit a softer tint by default */
+.ask-ai-menu-item > svg {
+  color: var(--text-muted, #A1A1AA);
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  transition: color 160ms ease;
+}
+
+/* NEW: hover + keyboard-focus state - brand pink wash */
+.ask-ai-menu-item:hover,
+.ask-ai-menu-item:focus-visible {
+  background: var(--primary-soft, rgba(239, 71, 121, 0.12));
+  color: var(--text, #F4F4F5);
+  outline: none;
+  border-color: var(--primary-border, rgba(239, 71, 121, 0.32));
+}
+
+/* NEW: focus-visible also gets a clear ring for keyboard users */
+.ask-ai-menu-item:focus-visible {
+  box-shadow: 0 0 0 2px rgba(239, 71, 121, 0.35);
+}
+
+/* NEW: focused/hover icon picks up brand pink */
+.ask-ai-menu-item:hover > svg,
+.ask-ai-menu-item:focus-visible > svg {
+  color: var(--primary, #EF4779);
+}
+
+/* NEW: keep touch targets >= 44px on coarse pointers */
+@media (pointer: coarse) {
+  .ask-ai-menu-item {
+    min-height: 44px;
+    padding: 10px 12px;
+  }
+}
+
+/* NEW */
+@media (prefers-reduced-motion: reduce) {
+  .ask-ai-menu {
+    animation: none;
+  }
+  .ask-ai-menu-item,
+  .ask-ai-menu-item > svg {
+    transition: none;
+  }
+}
+
+
+/* ============================================================
+ * TOKEN PROPOSALS (informational; not applied here)
+ * ============================================================
+ *
+ * If tokens.css gains the following, the rules above would simplify:
+ *
+ *   --backdrop:        rgba(8, 8, 11, 0.78);     // matches docsearch container
+ *   --ring-primary:    0 0 0 3px rgba(239, 71, 121, 0.18);
+ *   --kbd-bg:          linear-gradient(180deg, #2a2a33 0%, #1c1c22 100%);
+ *   --kbd-shadow:      inset 0 -2px 0 0 rgba(0,0,0,.4),
+ *                      inset 0 0 1px 1px rgba(255,255,255,.06),
+ *                      0 1px 2px rgba(0,0,0,.3);
+ *
+ * No changes were made to tokens.css per scope constraints.
+ */

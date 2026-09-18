@@ -1,0 +1,309 @@
+/* === ui-primitives === */
+/* Surgical UX hardening for buttons, cards, alerts, badges, chips, grids.
+   No new variants. Preserves component APIs. Respects prefers-reduced-motion.
+   References:
+     - WCAG 2.1 AA contrast, focus-visible
+     - ui-ux-pro-max: focus-states, disabled-states, loading-states,
+       hover-states, cursor-pointer, reduced-motion, touch-target-size,
+       content-jumping (no transform/scale hover that shifts layout) */
+
+/* ---------------------------------------------------------------------------
+   BUTTONS
+   --------------------------------------------------------------------------- */
+
+/* REPLACES: components.css L372-385
+   - Adds a smooth color/border/shadow transition so hover does not snap.
+   - Adds default `vertical-align: middle` so inline btns sit cleanly next to text.
+   - Adds `user-select: none` and `text-decoration: none` (anchors). */
+.btn {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: rgba(255, 255, 255, .04);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  user-select: none;
+  vertical-align: middle;
+  transition: background-color 160ms ease-out, border-color 160ms ease-out,
+              color 160ms ease-out, box-shadow 160ms ease-out;
+}
+
+/* NEW
+   Generic hover for secondary/ghost/danger. Primary keeps its own rule below.
+   Uses color/border only (no transform) so layout never shifts. */
+.btn:hover {
+  background: rgba(255, 255, 255, .07);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+/* NEW
+   Distinct focus-visible ring tuned for pink-on-dark.
+   Globals apply a 2px var(--primary) outline; on .btn-primary that ring would
+   blend into the pink fill. Use a layered ring: 2px dark gap + 2px pink halo. */
+.btn:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--bg),
+    0 0 0 4px var(--primary-light);
+}
+
+/* NEW
+   Pressed-state feedback. Color shift only, no scale (avoids content jump). */
+.btn:active:not(:disabled):not([aria-disabled="true"]) {
+  background: rgba(255, 255, 255, .09);
+}
+
+/* REPLACES: components.css L387-394
+   - Keeps the pink fill and shadow.
+   - Tightens hover: brighten + slightly stronger shadow.
+   - Removes default text-shadow inheritance from page. */
+.btn-primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #0F0F12;
+  box-shadow: 0 14px 38px rgba(239, 71, 121, .26);
+}
+.btn-primary:hover {
+  background: var(--primary-light);
+  border-color: var(--primary-light);
+  color: #0F0F12;
+  box-shadow: 0 14px 38px rgba(239, 71, 121, .34);
+}
+.btn-primary:active:not(:disabled):not([aria-disabled="true"]) {
+  background: var(--primary);
+  border-color: var(--primary);
+  box-shadow: 0 10px 28px rgba(239, 71, 121, .28);
+}
+
+/* APPEND-TO: .btn-secondary  (components.css L396-398)
+   Hover surfaces lift to --surface-hover so the affordance is unambiguous. */
+.btn-secondary:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+
+/* APPEND-TO: .btn-ghost  (components.css L400-402)
+   Ghost needs a visible hover or it looks dead. */
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, .05);
+}
+
+/* APPEND-TO: .btn-danger  (components.css L404-408) */
+.btn-danger:hover {
+  background: rgba(255, 107, 107, .16);
+  border-color: rgba(255, 107, 107, .42);
+  color: #FFD4D4;
+}
+
+/* REPLACES: components.css L1120
+   Disabled visual state for both <button disabled> and <a aria-disabled="true">.
+   Loses pointer affordance, dims, and kills hover/shadow transitions. */
+.btn:disabled,
+.btn[aria-disabled="true"],
+.tab:disabled,
+.tab[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.55;
+  box-shadow: none;
+  pointer-events: none;
+}
+
+/* NEW
+   Loading-state convention. Replace label with an inline spinner without
+   resizing the button. The button keeps its width via `position: relative`
+   on the host and an absolutely-positioned spinner. We hide the slot text
+   visually (kept in DOM for SR + aria-busy announces in-flight state). */
+.btn-loading {
+  position: relative;
+  cursor: progress;
+  pointer-events: none;
+  color: transparent !important;
+}
+.btn-loading::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  color: var(--text);
+  animation: btn-spin 720ms linear infinite;
+}
+.btn-primary.btn-loading::after { color: #0F0F12; }
+.btn-danger.btn-loading::after  { color: #FFB4B4; }
+
+@keyframes btn-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn { transition: none; }
+  .btn-loading::after { animation-duration: 1800ms; }
+}
+
+/* ---------------------------------------------------------------------------
+   CARDS
+   --------------------------------------------------------------------------- */
+
+/* APPEND-TO: .card  (components.css L232-238)
+   Adds default color + transition so an interactive card can animate cleanly
+   without changing static-card visuals. */
+.card {
+  color: inherit;
+  transition: background-color 180ms ease-out, border-color 180ms ease-out,
+              box-shadow 180ms ease-out;
+}
+
+/* NEW
+   Interactive card variant (used when Card is rendered as <a> or with
+   `interactive` prop. Provides cursor, hover, and focus affordance without
+   layout shift (color/border/shadow only, no scale). */
+.card-interactive {
+  cursor: pointer;
+  text-decoration: none;
+}
+.card-interactive:hover {
+  background: rgba(255, 255, 255, .055);
+  border-color: var(--border-strong);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .28);
+}
+.card-interactive:focus-visible {
+  outline: none;
+  border-color: var(--primary-border);
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--primary-light);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card { transition: none; }
+}
+
+/* ---------------------------------------------------------------------------
+   ALERTS
+   --------------------------------------------------------------------------- */
+
+/* APPEND-TO: .alert  (components.css L464-472)
+   Alert link focus alignment. The body anchor uses a border-bottom underline;
+   on focus-visible promote the underline to the brand color so keyboard users
+   see exactly which inline link is active without the global pink outline
+   clashing with the surrounding card. */
+.alert-body a:focus-visible {
+  outline: none;
+  border-bottom-color: var(--primary);
+  background: var(--primary-soft);
+  border-radius: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+   BADGES & CHIPS
+   --------------------------------------------------------------------------- */
+
+/* REPLACES: components.css L417-428
+   - Default badge text was `var(--text-muted)` (#A1A1AA) on a near-bg surface.
+     Bumps to a slightly stronger value to clear 4.5:1 against the dark canvas
+     even when stacked on the section gradient.
+   - Adds line-height + padding-y to give breathing room for taller glyphs. */
+.badge {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, .045);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 720;
+  line-height: 1.4;
+  color: var(--text);
+  letter-spacing: 0.01em;
+}
+
+/* APPEND-TO: .chip  (components.css L207-220)
+   Small line-height + vertical padding tweak so chips sit centered alongside
+   buttons in a btn-row without visual drift. */
+.chip {
+  line-height: 1.4;
+  padding-block: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+   GRID
+   --------------------------------------------------------------------------- */
+
+/* APPEND-TO: .grid  (components.css L222-225)
+   Hard `repeat(N, 1fr)` breaks below ~640px (text gets squeezed below 16px).
+   Collapse 3/4/5 columns to 2 at <=768px and to 1 at <=520px. Keeps cols-2
+   at >=520px. Logical (not transform) layout, no content jump on resize. */
+@media (max-width: 768px) {
+  .grid.cols-3,
+  .grid.cols-4,
+  .grid.cols-5 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 520px) {
+  .grid.cols-2,
+  .grid.cols-3,
+  .grid.cols-4,
+  .grid.cols-5 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   SECTION + HERO
+   --------------------------------------------------------------------------- */
+
+/* APPEND-TO: .section  (components.css L172-181)
+   Reduce horizontal padding on small screens so sections do not bleed past
+   container gutters. No vertical-rhythm change. */
+@media (max-width: 640px) {
+  .section {
+    padding: 24px 18px;
+    border-radius: var(--radius-lg);
+  }
+}
+
+/* APPEND-TO: .hero  (components.css L133-138)
+   Hero top padding is large for desktop. Tighten on small screens so the
+   first interactive control stays near the fold. */
+@media (max-width: 640px) {
+  .hero {
+    padding: 56px 0 36px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   FORMS (.field)
+   --------------------------------------------------------------------------- */
+
+/* APPEND-TO: input/select/textarea focus  (components.css L459-462)
+   The custom inset focus halo already provides a strong indicator; ensure the
+   default browser outline stays suppressed on focus-visible too (globals.css
+   already does this, but reinforce locally so future global resets do not
+   double-ring the field). */
+.field :is(input, select, textarea):focus-visible {
+  outline: none;
+}
+
+/* ===========================================================================
+   TOKEN PROPOSALS  (do not apply, for review against tokens.css upstream)
+   ===========================================================================
+   1. --focus-ring-offset-color: var(--bg)
+      Used by the layered focus ring (gap-then-halo). Today inlined as var(--bg)
+      in .btn:focus-visible and .card-interactive:focus-visible.
+   2. --transition-fast: 160ms ease-out
+      Used by .btn, .card transitions. A token would let us tune system-wide
+      motion without searching files.
+   3. --shadow-btn-primary: 0 14px 38px rgba(239,71,121,.26)
+      Currently inlined in .btn-primary; a token would harmonize with the
+      pricing-card featured glow which uses a similar pink shadow.
+   =========================================================================== */

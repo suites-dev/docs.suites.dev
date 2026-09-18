@@ -63,6 +63,8 @@
       var current = document.documentElement.getAttribute('data-theme') || 'dark';
       var next = current === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', next);
+      var themeColor = document.querySelector('meta[name="theme-color"]');
+      if (themeColor) themeColor.setAttribute('content', next === 'light' ? '#FFFFFF' : '#0F0F12');
       try { localStorage.setItem('suites-theme', next); } catch (e) {}
     });
   })();

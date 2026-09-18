@@ -59,4 +59,4 @@ The CLI and public facade configure the runtime. Runner adapters, provisioners, 
 ## See Also
 
 - [Configuration](/docs/blackbox/reference/configuration)
-- [Runtime Evidence and Integrity](/docs/blackbox/concepts/runtime-evidence)
+- [Runtime Evidence Boundaries](/docs/blackbox/concepts/runtime-evidence)

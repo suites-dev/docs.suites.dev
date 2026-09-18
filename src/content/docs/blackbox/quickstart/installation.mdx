@@ -1,0 +1,34 @@
+---
+title: "Installation"
+description: "Prepare a system or E2E test project for the Blackbox Alpha distribution and choose an application setup path."
+sidebar_position: 1
+keywords:
+  [
+    "install Suites Blackbox",
+    "Blackbox Alpha installation",
+    "Blackbox prerequisites",
+  ]
+---
+
+Blackbox does not yet have a certified public package or installation command. The package names and commands used by prototypes are not public API.
+
+:::note Alpha Installation Boundary
+Installation instructions will be published with the certified Alpha distribution. Until then, do not copy package names or setup commands from experiments and internal builds.
+:::
+
+## Prepare Your Project
+
+Prepare:
+
+- A Playwright system or E2E test project.
+- A product requirement that a person can approve as a behavioral contract.
+- OpenTelemetry instrumentation for the runtime boundaries covered by that contract.
+- A way to start and stop the application and its dependencies.
+
+The current Alpha setup path uses an existing Docker Compose topology. Testcontainers is experimental. Dockerfile and distribution-artifact paths are planned.
+
+Use [Choose How Blackbox Runs Your Application](/docs/blackbox/guides/set-up-the-testbed) to compare the four paths, then check [Alpha Support Status](/docs/blackbox/status/alpha-status) for the exact boundary.
+
+## Continue After Installation
+
+When the certified Alpha distribution is available, install it using its published release instructions. Then continue to [Get Started](/docs/blackbox/quickstart/) to verify one behavioral contract with fresh runtime evidence.

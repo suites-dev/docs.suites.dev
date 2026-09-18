@@ -77,5 +77,5 @@ Only **satisfied** passes a required claim gate. Native test results, other effe
 ## See Also
 
 - [Effects Catalog Contract](/docs/blackbox/reference/catalog-schema): See what catalog vocabulary and normalization must preserve.
-- [Runtime Evidence and Integrity](/docs/blackbox/concepts/runtime-evidence): Understand the evidence conditions behind completeness.
+- [Runtime Evidence Boundaries](/docs/blackbox/concepts/runtime-evidence): Understand the evidence conditions behind completeness.
 - [OpenTelemetry and Effects](/docs/blackbox/concepts/effects-and-catalogs): Return to the complete observation-to-finding explanation.

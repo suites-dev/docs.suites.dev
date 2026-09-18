@@ -1,6 +1,6 @@
 ---
 title: "Plans, Alignment, and Identity"
-description: "Distinguish accepted meaning, Playwright realization, run selection, and the identities that join them."
+description: "Map the public behavioral contract to accepted meaning, Playwright realization, run selection, runtime evidence, and analysis."
 sidebar_position: 2
 keywords:
   [
@@ -12,17 +12,27 @@ keywords:
   ]
 ---
 
-A product-cache case declares that two reads succeed and produce at most one Postgres read. Blackbox keeps that meaning separate from the Playwright code that performs the two requests.
+A checkout behavioral contract allows at most one payment request. Blackbox keeps that accepted meaning separate from
+the Playwright code that performs checkout and from the runtime evidence produced by one attempt.
 
-## Three Artifacts, Three Responsibilities
+## Map the Behavioral Contract to Accepted Meaning
 
-| Artifact         | Owns                                                                                         | Must not own                                                              |
-| ---------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| **SuitePlan**    | Accepted cases, claims, completion requirements, capabilities, topology, and artifact policy | Workers, live endpoints, secrets, runtime identities, or capture outcomes |
-| **RunnerBundle** | Exact discovery and concrete realization of selected cases in a runner                       | New meaning, silent exclusions, or runtime-created facts                  |
-| **RunPlan**      | Selection, execution units, projects, retry policy, placement, and required capabilities     | New relations, physical evidence, or admission outcomes                   |
+Public pages use **behavioral contract** for the expected behavior a person approved for selected system flows. In the
+exact authority model, **SuitePlan** owns the accepted meaning compiled from the approved scenarios, claims, analysis
+policy, and other accepted inputs. Behavioral contract is a product-facing term, not another generated artifact.
 
-Gherkin-linked authoring and direct behavioral declarations both converge on SuitePlan. Equivalent inputs produce equivalent accepted meaning.
+## Five Owners, One Directional Chain
+
+| Artifact or stage | Owns                                                                                         | Must not own                                                              |
+| ----------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| **SuitePlan**     | Accepted cases, claims, completion requirements, capabilities, topology, and artifact policy | Workers, live endpoints, secrets, runtime identities, or capture outcomes |
+| **RunnerBundle**  | Exact discovery and concrete realization of selected cases in a runner                       | New meaning, silent exclusions, or runtime-created facts                  |
+| **RunPlan**       | Selection, execution units, projects, retry policy, placement, and required capabilities     | New relations, physical evidence, or admission outcomes                   |
+| **Runtime**       | Attempts, capture lifecycle, physical identities, and sealed evidence                        | Decide whether observed behavior is acceptable                            |
+| **Analyzer**      | Findings and verdicts from accepted inputs, analysis policy, and sealed evidence             | Change accepted meaning, realization, selection, or evidence              |
+
+Gherkin-linked authoring and direct behavioral declarations both converge on SuitePlan. Equivalent inputs produce
+equivalent accepted meaning.
 
 ## Playwright Realization
 
@@ -61,6 +71,6 @@ Observed effects can test approved meaning. They cannot create it.
 
 ## See Also
 
-- [Human Authority and the Agent Loop](/docs/blackbox/concepts/human-agent-verification-loop)
+- [Human-Agent Verification Loop](/docs/blackbox/concepts/human-agent-verification-loop)
 - [Capture Lifecycle and Evidence](/docs/blackbox/reference/capture-lifecycle-and-correlation)
 - [Configure Source Maps and Service Layouts](/docs/blackbox/guides/source-maps-and-service-layouts)

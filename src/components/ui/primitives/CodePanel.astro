@@ -1,0 +1,183 @@
+---
+/**
+ * Technical code surface with optional chrome and an overflow-safe body.
+ *
+ * Props: `title` or `filename`, optional `meta`, and `ariaLabel`. Slots:
+ * `title`, `meta`, default code content, and `footer`. When the default slot
+ * contains an `.expressive-code` frame, the outer chrome collapses so the
+ * integration does not render a frame inside another frame.
+ */
+interface Props {
+  title?: string;
+  filename?: string;
+  meta?: string;
+  ariaLabel?: string;
+  class?: string;
+  [key: string]: unknown;
+}
+
+const {
+  title,
+  filename,
+  meta,
+  ariaLabel,
+  class: className,
+  ...attrs
+} = Astro.props;
+const displayTitle = title ?? filename;
+const hasHeader =
+  Boolean(displayTitle) || Astro.slots.has('title') || Boolean(meta) || Astro.slots.has('meta');
+const hasFooter = Astro.slots.has('footer');
+const Tag = displayTitle || ariaLabel || Astro.slots.has('title') ? 'section' : 'div';
+---
+
+<Tag
+  {...attrs}
+  class:list={['primitive-code-panel', className]}
+  aria-label={ariaLabel ?? displayTitle}
+>
+  {hasHeader && (
+    <div class="primitive-code-panel__header">
+      <div class="primitive-code-panel__title">
+        {Astro.slots.has('title') ? <slot name="title" /> : displayTitle}
+      </div>
+      {(meta || Astro.slots.has('meta')) && (
+        <div class="primitive-code-panel__meta">
+          {Astro.slots.has('meta') ? <slot name="meta" /> : meta}
+        </div>
+      )}
+    </div>
+  )}
+
+  <div
+    class="primitive-code-panel__body"
+    role="region"
+    aria-label="Scrollable code content"
+    tabindex="0"
+  >
+    <slot />
+  </div>
+
+  {hasFooter && (
+    <div class="primitive-code-panel__footer">
+      <slot name="footer" />
+    </div>
+  )}
+</Tag>
+
+<style>
+  .primitive-code-panel {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    color: var(--ui-foreground);
+    background: var(--ui-code-bg);
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius-code);
+    box-shadow: var(--ui-shadow-panel);
+    font-family: var(--font-technical);
+  }
+
+  .primitive-code-panel__header,
+  .primitive-code-panel__footer {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 20px;
+    color: var(--ui-muted-foreground);
+    background: color-mix(in oklab, var(--ui-foreground) 2%, transparent);
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  .primitive-code-panel__header {
+    border-bottom: 1px solid var(--ui-border);
+  }
+
+  .primitive-code-panel__footer {
+    border-top: 1px solid var(--ui-border);
+    font-size: 10.5px;
+  }
+
+  .primitive-code-panel__title,
+  .primitive-code-panel__meta {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .primitive-code-panel__meta {
+    flex: 0 1 auto;
+    text-align: end;
+  }
+
+  .primitive-code-panel__body {
+    min-width: 0;
+    max-width: 100%;
+    padding: 20px 16px;
+    overflow: auto;
+    font-size: 12.5px;
+    line-height: 1.75;
+    overscroll-behavior-inline: contain;
+    scrollbar-color: var(--border-strong) transparent;
+  }
+
+  .primitive-code-panel__body:focus-visible {
+    outline: 2px solid var(--ui-focus-ring);
+    outline-offset: -3px;
+  }
+
+  .primitive-code-panel__body :global(pre) {
+    width: max-content;
+    min-width: 100%;
+    margin: 0;
+    color: inherit;
+    background: transparent;
+    font: inherit;
+    white-space: pre;
+  }
+
+  .primitive-code-panel__body :global(code) {
+    color: inherit;
+    font: inherit;
+  }
+
+  .primitive-code-panel__body :global(.expressive-code) {
+    margin: 0;
+  }
+
+  /* Expressive Code already owns its frame, title bar, and scrolling. */
+  :global(.primitive-code-panel:has(.expressive-code)) {
+    overflow: visible;
+    background: transparent;
+    border: 0;
+  }
+
+  :global(.primitive-code-panel:has(.expressive-code) > .primitive-code-panel__header),
+  :global(.primitive-code-panel:has(.expressive-code) > .primitive-code-panel__footer) {
+    display: none;
+  }
+
+  :global(.primitive-code-panel:has(.expressive-code) > .primitive-code-panel__body) {
+    padding: 0;
+    overflow: visible;
+  }
+
+  @media (max-width: 480px) {
+    .primitive-code-panel__header,
+    .primitive-code-panel__footer {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .primitive-code-panel__meta {
+      text-align: start;
+    }
+
+    .primitive-code-panel__body {
+      padding: 20px 8px;
+    }
+  }
+</style>

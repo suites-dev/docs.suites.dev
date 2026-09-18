@@ -1,39 +1,43 @@
 ---
-title: "Run Compiled Artifacts"
-description: "Preview the future compiled-artifact setup workflow. This setup input is not supported yet."
-sidebar_position: 2
+title: "Run Distribution Artifacts"
+description: "Understand the planned setup path for running built distribution artifacts under Blackbox verification."
+sidebar_position: 5
 keywords:
   [
-    "Blackbox compiled artifacts",
-    "future setup path",
-    "unsupported Blackbox input",
+    "Blackbox distribution artifacts",
+    "planned setup path",
+    "system test process",
   ]
 ---
 
-:::note Unsupported Setup Input
-Artifact-directory and start-command input is not supported. Blackbox returns a structured `unsupported` result before runtime assurance begins.
+Use this planned path when the project already produces a complete runnable artifact outside containers.
+
+:::note Planned Setup Path
+Distribution-artifact input is **planned**, not supported in the current Alpha path. Blackbox must return an explicit unsupported result instead of assuming that an arbitrary process is isolated or observable.
 :::
 
-This future path is intended for projects that already produce a complete runnable artifact directory outside Docker.
+## Intended Input
+
+```text title="Conceptual pseudocode"
+distribution
+  artifacts: <built output>
+  start: <project-owned launcher>
+  ready when: <declared readiness condition>
+```
+
+This pseudocode communicates intent only. It is not a public configuration schema or command.
 
 ## Intended Workflow
 
-When certified, the workflow will:
+When this path is certified, Blackbox will:
 
-1. Accept one explicit artifact directory and start command.
-2. Create a canonical manifest for the exact selected files.
-3. Allocate an owned process, network, storage, and lifecycle boundary.
-4. Bind each runtime instance to the selected artifact identity.
-5. Admit observation and completion capabilities before execution.
-6. Capture one fresh attempt and verify which exact bytes ran.
-7. Stop the process and prove cleanup or quarantine the lease.
+1. Identify the exact selected artifacts.
+2. Allocate the process, network, storage, and lifecycle boundary.
+3. Bind each runtime participant to the selected artifact identity.
+4. Admit the observation capabilities required by the behavioral contract.
+5. Run one system or E2E test attempt with fresh evidence.
+6. Stop the process and prove cleanup or quarantine uncertain resources.
 
-## What This Page Does Not Promise
+## Use the Current Path
 
-This input is not equivalent to the supported Compose path and does not fall back to it. A process started from an arbitrary directory is not assumed isolated or observable.
-
-Public configuration syntax will be documented only after the exact artifact-directory cell completes certification.
-
-## Use the Supported Path
-
-Use [an existing Compose project](/docs/blackbox/guides/use-existing-compose) for the current setup workflow.
+Use [an existing Compose project](/docs/blackbox/guides/use-existing-compose) for the current Alpha workflow. Check [Alpha Support Status](/docs/blackbox/status/alpha-status#application-setup-status) before adopting distribution-artifact input.

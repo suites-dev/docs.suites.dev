@@ -15,15 +15,15 @@ html {
   font-family: var(--font-body);
   line-height: 1.5;
   scroll-behavior: smooth;
-  scroll-padding-top: calc(var(--header-h) + var(--header-tabs-h) + 16px);
+  scroll-padding-top: calc(var(--header-h) + 16px);
 }
 
 body {
   margin: 0;
   min-height: 100vh;
   background:
-    radial-gradient(circle at 16% -8%, rgba(239,71,121,.24), transparent 38rem),
-    radial-gradient(circle at 90% 10%, rgba(255,158,187,.13), transparent 34rem),
+    radial-gradient(circle at 16% -8%, rgba(219,72,111,.24), transparent 38rem),
+    radial-gradient(circle at 90% 10%, rgba(239,157,171,.13), transparent 34rem),
     linear-gradient(180deg, #0F0F12 0%, #111115 44%, #0F0F12 100%);
 }
 
@@ -31,15 +31,21 @@ body {
    the brand identity carries without the inky base layer. */
 :root[data-theme="light"] body {
   background:
-    radial-gradient(circle at 16% -8%, rgba(239,71,121,.10), transparent 38rem),
-    radial-gradient(circle at 90% 10%, rgba(239,71,121,.06), transparent 34rem),
+    radial-gradient(circle at 16% -8%, rgba(219,72,111,.10), transparent 38rem),
+    radial-gradient(circle at 90% 10%, rgba(230,113,137,.06), transparent 34rem),
     var(--bg);
 }
 
-/* Docs pages drop the marketing gradient and pink glow for a cleaner reading
-   surface. The marketing surfaces (homepage, 404) keep the gradient. */
-body:has(.shell--docs) {
+/* Docs use the supplied brand type system while keeping a clean reading
+   surface. Local faces avoid a network dependency and reduce visual drift. */
+body.docs-page {
+  --font-title: var(--font-reference-heading);
+  --font-body:
+    "Inter", "Geist", ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-code: var(--font-technical);
   background: var(--bg);
+  font-family: var(--font-body);
 }
 
 a { color: inherit; text-decoration: none; }

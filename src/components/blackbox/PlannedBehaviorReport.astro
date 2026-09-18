@@ -14,10 +14,10 @@
 <span class="dim">│</span>            3  <span class="gherkin">Given</span> checkout encounters a transient timeout
 <span class="dim">│</span>            4  <span class="gherkin">When</span> the order completes after a retry
 <span class="dim">│</span>            5  <span class="gherkin">Then</span> one order is confirmed
-<span class="dim">│</span>            6  <span class="gherkin">And</span> one charge request is sent
+<span class="dim">│</span>            6  <span class="gherkin">And</span> no more than one charge request is sent
 <span class="dim">│</span>
 <span class="dim">├─ SUITE</span>    line 5  →  <span class="pass">PASS</span>  one confirmation + one order ID
-<span class="dim">├─ EFFECTS</span>  line 6  →  <span class="fail">FAIL</span>  expected 1 charge, observed 2
+<span class="dim">├─ EFFECTS</span>  line 6  →  <span class="fail">FAIL</span>  allowed at most 1 charge, observed 2
 <span class="dim">├─ ODC</span>      <span class="report">ALPHA TARGET</span>  separate finding
 <span class="dim">└─ EFFECT FINDING</span>  <span class="fail verdict">FAIL</span>  duplicate charge requests occurred
 
@@ -64,7 +64,7 @@
   }
 
   .bb-terminal-report header strong {
-    color: #d8b4fe;
+    color: #ef9dab;
     font-size: 0.75rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -117,7 +117,7 @@
   }
 
   .bb-terminal-report .gherkin {
-    color: #d8b4fe;
+    color: #ef9dab;
     font-weight: 700;
   }
 

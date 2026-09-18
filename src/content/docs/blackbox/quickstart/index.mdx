@@ -1,117 +1,113 @@
 ---
 title: "Get Started"
-description: "Choose an authoring mode, realize one Playwright case, connect a Compose application, and read the resulting effect finding."
+description: "Verify one checkout behavioral contract through Playwright, Docker Compose, runtime effects, and a deterministic Blackbox finding."
 sidebar_position: 1
 keywords:
   [
     "Blackbox get started",
     "Playwright system test",
+    "behavioral contract",
     "runtime effects",
-    "Gherkin",
   ]
 ---
 
-import TabItem from "@/components/mdx/TabItem.astro";
-import Tabs from "@/components/mdx/Tabs.astro";
+In this tutorial, you will connect one checkout behavioral contract to a Playwright test, run it against a Compose system, and read the native result beside its Blackbox finding.
 
-Start with one product-cache requirement: both reads of product `42` succeed, and the second read reuses cached data so the case performs at most one Postgres read.
+## Before You Begin
 
-```text
-approved behavior → Playwright realization → running Compose system
-                  → fresh evidence → effect finding
-```
+Complete [Installation](/docs/blackbox/quickstart/installation). Use a project that runs system or E2E tests with Playwright and starts the application with Docker Compose.
+
+The example requirement is simple: a completed checkout charges the customer once.
 
 ## 1. Choose an Authoring Mode
 
-Both authoring modes produce the same accepted SuitePlan meaning.
+Blackbox accepts a behavioral contract through reviewed Gherkin or direct behavioral declarations. These docs show Gherkin as the primary path:
 
-<Tabs groupId="blackbox-authoring-mode">
-  <TabItem value="gherkin" label="Reviewed Gherkin" default>
-
-Use Gherkin when a readable scenario helps people review the behavior.
-
-```gherkin title="features/product-cache.feature"
-Feature: Product cache
-  Scenario: Reuse a cached product
-    When product 42 is read twice
-    Then both reads succeed
-    And at most one Postgres product read occurs
+```gherkin title="features/checkout.feature"
+Feature: Checkout completion
+  Scenario: Charge a completed checkout once
+    When checkout completes
+    Then the response status is 201
+    And no more than one charge request is sent
 ```
 
-Validate the authored feature:
+A coding agent can propose this contract from the product requirement. A person reviews and approves it before implementation continues.
 
-```bash
-blackbox features check
-blackbox scenarios check
+## 2. Validate the Behavioral Contract
+
+```text title="Conceptual pseudocode"
+<validate the behavioral contract>
 ```
 
-  </TabItem>
-  <TabItem value="direct" label="Direct declarations">
+Use the command published for the installed Blackbox distribution. The placeholder above is not CLI syntax.
 
-Use direct declarations when the team does not use Gherkin. Approve the same case, visible result, effect claim, completion requirement, capabilities, and topology directly.
+## 3. Complete the System Test
 
-```text title="Conceptual declaration, not public syntax"
-case: read product 42 twice
-visible result: both reads return 200
-effect claim: at most one Postgres SELECT on products
+Use the generated typed binding to complete the Playwright actions and visible assertion:
+
+```ts title="checkout.e2e.spec.ts"
+import { expect, test } from "@playwright/test";
+
+test("completes checkout", async ({ request }) => {
+  const response = await request.post("/checkout", {
+    data: { cartId: "cart-42" },
+  });
+
+  expect(response.status()).toBe(201);
+});
 ```
 
-Validate the compiled semantic and executable closure:
+The Playwright assertion verifies the visible response. The behavioral contract also limits the payment effect that the running system may produce.
 
-```bash
-blackbox scenarios check
+## 4. Connect the Compose System
+
+```yaml title="compose.yaml, shortened"
+services:
+  checkout-service:
+    build: ./services/checkout
+    depends_on: [payment-service, postgres]
+  payment-service:
+    build: ./services/payment
+  postgres:
+    image: postgres
 ```
 
-  </TabItem>
-</Tabs>
+Make every service and dependency the test can reach explicit. Continue with [Use an Existing Compose Project](/docs/blackbox/guides/use-existing-compose) for the full boundary checklist.
 
-A person approves the behavior. Observed effects cannot create or silently change it.
+## 5. Run the Contract Case
 
-## 2. Realize the Case in Playwright
+```text title="Conceptual pseudocode"
+<run checkout-completion with Blackbox>
+```
 
-Blackbox generates the accepted Playwright binding surface:
+The system test and Blackbox return separate results from the same attempt:
 
 ```text
-suite.spec.ts
-suite.runtime.ts
-suite.d.ts
-plan.json
+System test       passed: checkout returned 201
+Blackbox finding  violated: POST /payments/charges, maximum 1, observed 2
 ```
 
-The project completes the concrete requests, fixtures, and native assertions. Exactly one discovered Playwright test must bind the selected case.
+The visible assertion passed, but the runtime effects did not satisfy the behavioral contract.
 
-```bash
-blackbox suites typecheck
-```
+## 6. Repair and Verify Again
 
-Already have a passing test? Follow [Start From an Existing Test](/docs/blackbox/quickstart/build-behavioral-harness) to bind it without treating current behavior as the requirement.
-
-## 3. Connect the Running System
-
-Use [Connect Your Application With Compose](/docs/blackbox/quickstart/add-to-existing-test) to give each attempt a controlled application, network, storage, and lifecycle boundary.
-
-Blackbox runs the selected case only after semantic closure, runner alignment, provider capability admission, and participant readiness succeed.
-
-## 4. Read the Result
-
-The native test and effect claim remain separate:
+Ask the coding agent to remove the duplicate payment request without changing the behavioral contract. Then run a fresh attempt.
 
 ```text
-Native test       both GET /products/42 responses returned 200   PASS
-Effect claim      Postgres SELECT products observed 2 times      VIOLATED
-Approved limit    at most 1
+System test       passed: checkout returned 201
+Blackbox finding  satisfied: POST /payments/charges, maximum 1, observed 1
 ```
 
-The coding agent can repair Redis use and rerun the case with fresh evidence. Only a person can approve a different requirement.
+## What You Completed
 
-## What Success Looks Like
-
-- Authored behavior and generated realization close exactly.
-- The selected Playwright test produces its native result.
-- Fresh evidence is eligible for the claim scope.
-- Every selected claim receives one of the five deterministic verdicts.
+- Approved one behavioral contract.
+- Realized it as a Playwright system test.
+- Ran it against a Compose topology.
+- Read the native assertion and runtime-effect finding separately.
+- Verified a repair with fresh evidence.
 
 ## Next Steps
 
+- [Start From an Existing System or E2E Test](/docs/blackbox/quickstart/build-behavioral-harness)
+- [Choose How Blackbox Runs Your Application](/docs/blackbox/guides/set-up-the-testbed)
 - [How Blackbox Works](/docs/blackbox/overview/how-blackbox-works)
-- [Use Blackbox With Coding Agents](/docs/blackbox/guides/agent-skills)

@@ -1,0 +1,228 @@
+<figure class="bb-finding-example" aria-labelledby="bb-finding-example-title">
+  <header class="bb-finding-example__header">
+    <span>Conceptual result</span>
+    <h3 id="bb-finding-example-title">
+      The visible response passed. The behavior failed.
+    </h3>
+  </header>
+
+  <div class="bb-finding-example__comparison">
+    <section aria-labelledby="bb-finding-accepted-title">
+      <h4 id="bb-finding-accepted-title">Accepted behavior</h4>
+      <dl>
+        <div>
+          <dt>Response</dt>
+          <dd><code>404</code></dd>
+        </div>
+        <div>
+          <dt>User lookup</dt>
+          <dd>Required</dd>
+        </div>
+        <div>
+          <dt>Payment call</dt>
+          <dd>Forbidden</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section aria-labelledby="bb-finding-observed-title">
+      <h4 id="bb-finding-observed-title">Observed run</h4>
+      <dl>
+        <div>
+          <dt>Response</dt>
+          <dd><code>404</code></dd>
+          <span class="bb-finding-example__status" data-status="pass"
+            >Pass</span
+          >
+        </div>
+        <div>
+          <dt>User lookup</dt>
+          <dd>Observed</dd>
+          <span class="bb-finding-example__status" data-status="pass"
+            >Pass</span
+          >
+        </div>
+        <div>
+          <dt>Payment call</dt>
+          <dd>Observed</dd>
+          <span class="bb-finding-example__status" data-status="fail"
+            >Fail</span
+          >
+        </div>
+      </dl>
+    </section>
+  </div>
+
+  <div class="bb-finding-example__verdict">
+    <span>Deterministic finding</span>
+    <strong>Forbidden effect occurred: payment call</strong>
+  </div>
+
+  <figcaption>
+    Conceptual result only. This is not a Blackbox report format or schema.
+  </figcaption>
+</figure>
+
+<style>
+  .bb-finding-example {
+    margin: 24px 0 32px;
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface-raised);
+  }
+
+  .bb-finding-example__header {
+    margin-bottom: 14px;
+  }
+
+  .bb-finding-example__header > span,
+  .bb-finding-example__verdict > span {
+    display: block;
+    color: var(--text-muted);
+    font-family: var(--font-technical);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .bb-finding-example h3 {
+    margin: 5px 0 0;
+    color: var(--text);
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+
+  .bb-finding-example__comparison {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .bb-finding-example section {
+    min-width: 0;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--surface);
+  }
+
+  .bb-finding-example section:first-child {
+    border-top: 3px solid var(--primary-light);
+  }
+
+  .bb-finding-example section:last-child {
+    border-top: 3px solid var(--warning);
+  }
+
+  .bb-finding-example h4 {
+    margin: 0 0 10px;
+    color: var(--text);
+    font-size: 0.8125rem;
+    line-height: 1.4;
+  }
+
+  .bb-finding-example dl {
+    margin: 0;
+  }
+
+  .bb-finding-example dl > div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 10px;
+    min-height: 34px;
+    border-top: 1px solid var(--border);
+  }
+
+  .bb-finding-example dt,
+  .bb-finding-example dd {
+    margin: 0;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+  }
+
+  .bb-finding-example dt {
+    color: var(--text-muted);
+  }
+
+  .bb-finding-example dd {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .bb-finding-example__status {
+    display: inline-flex;
+    min-width: 44px;
+    min-height: 22px;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 7px;
+    border: 1px solid;
+    border-radius: 999px;
+    font-family: var(--font-technical);
+    font-size: 0.6875rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .bb-finding-example__status[data-status="pass"] {
+    color: var(--success);
+    border-color: color-mix(in srgb, var(--success) 35%, transparent);
+    background: color-mix(in srgb, var(--success) 10%, transparent);
+  }
+
+  .bb-finding-example__status[data-status="fail"] {
+    color: var(--error);
+    border-color: color-mix(in srgb, var(--error) 40%, transparent);
+    background: color-mix(in srgb, var(--error) 10%, transparent);
+  }
+
+  .bb-finding-example__verdict {
+    margin-top: 12px;
+    padding: 13px 14px;
+    border: 1px solid color-mix(in srgb, var(--error) 40%, transparent);
+    border-left: 4px solid var(--error);
+    border-radius: 7px;
+    background: color-mix(in srgb, var(--error) 8%, transparent);
+  }
+
+  .bb-finding-example__verdict strong {
+    display: block;
+    margin-top: 5px;
+    color: var(--error);
+    font-size: 0.875rem;
+    line-height: 1.45;
+  }
+
+  .bb-finding-example figcaption {
+    margin-top: 10px;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    text-align: center;
+  }
+
+  :global(:root[data-theme="light"])
+    .bb-finding-example__status[data-status="pass"] {
+    color: color-mix(in srgb, var(--success) 45%, var(--text));
+  }
+
+  :global(:root[data-theme="light"])
+    .bb-finding-example__status[data-status="fail"],
+  :global(:root[data-theme="light"]) .bb-finding-example__verdict strong {
+    color: color-mix(in srgb, var(--error) 55%, var(--text));
+  }
+
+  @media (max-width: 640px) {
+    .bb-finding-example {
+      padding: 12px;
+    }
+
+    .bb-finding-example__comparison {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

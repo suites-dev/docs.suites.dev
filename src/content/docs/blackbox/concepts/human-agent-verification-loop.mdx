@@ -1,6 +1,6 @@
 ---
-title: "Human Authority and the Agent Loop"
-description: "See how approved behavior guides coding agents and deterministic findings route repair without moving the target."
+title: "Human-Agent Verification Loop"
+description: "See how a human-approved behavioral contract guides coding agents and deterministic runtime findings guide repair."
 sidebar_position: 1
 keywords:
   [
@@ -13,38 +13,43 @@ keywords:
 
 import HumanAgentVerificationLoopDiagram from "@/components/blackbox/HumanAgentVerificationLoopDiagram.astro";
 
-A product requirement says that reading the same product twice should use the cache after the first read. A coding agent may propose the behavior, build the test, implement the cache, and repair a failure. A person still decides whether that requirement is correct.
+A product requirement says that a completed checkout must not be charged twice. A coding agent can propose the
+behavioral contract, complete the system test, implement the behavior, and repair a violation. A person still decides
+what the contract requires.
 
-## Give Guidance Before the Agent Acts
+The loop has three clear responsibilities:
 
-**Feedforward** is approved guidance supplied before implementation. In Blackbox, it comes from human-approved behavior and effect claims.
+- **A person** approves the behavioral contract.
+- **A coding agent** implements and repairs the application and system test.
+- **Blackbox** evaluates runtime effects and returns deterministic findings.
 
-You can express that behavior in either of two ways:
+## The Contract Guides the Agent Before It Acts
 
-- Reviewed Gherkin linked to explicit Blackbox declarations.
-- Direct behavioral declarations without Gherkin.
+The approved behavioral contract guides implementation before the agent acts. Harness engineering calls this
+**feedforward**.
 
-Both modes converge on the same accepted meaning. Runtime effects never become requirements by themselves.
+The contract may come through reviewed Gherkin or direct behavioral declarations. Runtime effects can verify that
+contract, but they cannot become requirements by themselves.
 
-## Return Evidence After the System Runs
+## Findings Guide Repair After the System Runs
 
-**Feedback** is the result returned after the agent acts. Blackbox runs the selected system test, captures eligible OpenTelemetry evidence, and produces deterministic findings.
+Blackbox runs the selected system test, evaluates runtime effects from OpenTelemetry evidence, and returns a finding.
+Harness engineering calls this **feedback**.
 
 <HumanAgentVerificationLoopDiagram />
 
 This applies the feedforward and feedback framing from <a href="https://martinfowler.com/articles/harness-engineering.html" target="_blank" rel="noopener noreferrer">Birgitta Böckeler's harness engineering article</a> to system behavior.
 
-## Keep Decisions With Their Owners
+## Repair or Change the Contract
 
-| Change                                    | Owner                               | Required next step                                     |
-| ----------------------------------------- | ----------------------------------- | ------------------------------------------------------ |
-| Implementation or test realization        | Coding agent may propose and repair | Rerun from the earliest invalidated deterministic gate |
-| Accepted behavior or claim                | Person                              | Review and approve the changed meaning                 |
-| Runtime fact, effect, finding, or verdict | Deterministic Blackbox producer     | Preserve and route the producer result                 |
+A violated finding returns to the coding agent as an implementation repair. A proposed change to the behavioral
+contract returns to a person as a product decision.
 
-The agent cannot approve its own proposed behavior or rewrite a finding. A repair to application or capture behavior requires fresh runtime execution. Report-only reanalysis cannot certify it.
+Blackbox keeps those paths separate so repair can move quickly without allowing the agent to redefine success. Every
+implementation or capture repair requires a fresh test attempt and fresh evidence.
 
 ## Next Steps
 
-- [How Blackbox Works](/docs/blackbox/overview/how-blackbox-works)
+- [OpenTelemetry and Effects](/docs/blackbox/concepts/effects-and-catalogs)
+- [Repair a Blackbox Finding With a Coding Agent](/docs/blackbox/guides/agent-skills)
 - [Plans, Alignment, and Identity](/docs/blackbox/reference/plans-and-realizations)

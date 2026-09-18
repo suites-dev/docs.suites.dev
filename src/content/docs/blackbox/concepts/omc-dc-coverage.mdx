@@ -13,6 +13,10 @@ keywords:
 
 import ObservableDecisionCoverageDiagram from "@/components/blackbox/ObservableDecisionCoverageDiagram.astro";
 
+:::note Alpha Capability
+Observable Decision Coverage is optional per run. It remains separate from ordinary effect findings and cannot change them.
+:::
+
 **Observable Decision Coverage (ODC)** combines evidence that code decisions executed with the runtime effects observed for each outcome. It asks whether important outcomes remain distinguishable at system boundaries.
 
 ```ts title="Illustrative decision"
@@ -25,7 +29,7 @@ if (subscriptionRenewal) {
 }
 ```
 
-Two accepted cases exercise the outcomes:
+Two declared contract cases exercise the outcomes:
 
 | Case             | Decision outcome | Observed effect projection         |
 | ---------------- | ---------------- | ---------------------------------- |
@@ -34,25 +38,17 @@ Two accepted cases exercise the outcomes:
 
 <ObservableDecisionCoverageDiagram />
 
-## Compare Exact Members
+## Compare Outcomes With Their Visible Consequences
 
-An approved comparison names the exact cases, the dimension that varies, the dimensions held constant, the decision scope, and the effects included in the projection.
+Branch coverage can show that both sides of the decision executed. ODC adds a different question: did each outcome produce a distinguishable pattern at the system boundaries the comparison observes?
 
-ODC cannot infer convenient comparison members from test names, traces, workers, timing, execution order, or observed similarity.
+The comparison must still come from declared cases. Blackbox does not assemble a convenient comparison from test names, timing, or observed similarity.
 
-## Keep Three Results Separate
+## ODC Adds Diagnosis, Not a Verdict
 
-ODC has its own result vocabulary:
+ODC runs after ordinary effect analysis and adds diagnostic insight about the relationship between decisions and effects. A case keeps its ordinary effect finding regardless of whether ODC runs or what ODC reports.
 
-- **Availability:** `not-requested`, `available`, `unavailable`, `unsupported`, or `integrity-failure`.
-- **Classification when available:** `propagating`, `partially-propagating`, `masking-candidate`, `coverage-gap`, `inconsistent`, or `undecidable`.
-- **Ordinary assurance verdict:** The separate effect-claim verdict for each case.
-
-A run may omit ODC. Blackbox records `not-requested` instead of treating omission as missing ordinary evidence.
-
-## Preserve Ordinary Findings
-
-ODC runs from sealed offline inputs after ordinary effect analysis. It may append diagnostic insight, but it cannot alter ordinary effects, evidence, findings, verdicts, order, identity, or an otherwise sufficient exit.
+[Look up the exact ODC inputs, availability states, and classifications](/docs/blackbox/reference/observable-decision-coverage).
 
 ## Association Is Not Causation
 
@@ -79,4 +75,5 @@ Blackbox ODC does not implement formal MC/DC independence or the OMC/DC path obl
 
 ## Next Steps
 
-- [System and E2E Verification](/docs/blackbox/concepts/testing-layers)
+- [Observable Decision Coverage Results](/docs/blackbox/reference/observable-decision-coverage)
+- [Effects and Claim Evaluation](/docs/blackbox/reference/effects-and-claims)

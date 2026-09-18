@@ -134,7 +134,7 @@ const { autoplay = true, loop = false } = Astro.props;
     --opc-warn: #f59e0b;
     --opc-warn-bg: rgba(245, 158, 11, 0.14);
     --opc-blue: #60a5fa;
-    --opc-purple: #c084fc;
+    --opc-brand-mid: #e67189;
     --opc-amber: #fbbf24;
     --opc-new-bg: rgba(34, 197, 94, 0.08);
     margin: 24px 0;
@@ -146,7 +146,7 @@ const { autoplay = true, loop = false } = Astro.props;
     border: 1px solid var(--opc-line);
     border-radius: 10px;
     overflow: hidden;
-    font-family: ui-sans-serif, system-ui, -apple-system, 'Inter', sans-serif;
+    font-family: var(--font-body);
     color: var(--opc-fg);
   }
 
@@ -160,7 +160,7 @@ const { autoplay = true, loop = false } = Astro.props;
     font-size: 11px;
   }
   .opc-file {
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-family: var(--font-code);
     color: var(--opc-fg);
     font-weight: 600;
   }
@@ -200,14 +200,14 @@ const { autoplay = true, loop = false } = Astro.props;
   .opc-card:not([data-scene="0"]) .opc-row-new { opacity: 1; max-height: 80px; }
 
   .opc-code {
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-family: var(--font-code);
     font-size: 12.5px;
     line-height: 1.45;
     color: var(--opc-fg);
     white-space: pre;
     overflow-x: auto;
   }
-  .opc-fn { color: var(--opc-purple); }
+  .opc-fn { color: var(--opc-brand-mid); }
   .opc-kw { color: var(--opc-blue); }
   .opc-num { color: var(--opc-ok); }
   .opc-mark { color: var(--opc-ok); font-weight: 800; }
@@ -228,7 +228,7 @@ const { autoplay = true, loop = false } = Astro.props;
   }
   .opc-mini {
     color: var(--opc-fg);
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-family: var(--font-code);
     font-weight: 700;
   }
   .opc-sep { opacity: 0.5; padding: 0 2px; }
@@ -239,7 +239,7 @@ const { autoplay = true, loop = false } = Astro.props;
     gap: 4px;
     padding: 2px 8px;
     border-radius: 999px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-family: var(--font-code);
     font-size: 11px;
     font-weight: 700;
     background: var(--opc-ok-bg);
@@ -253,7 +253,7 @@ const { autoplay = true, loop = false } = Astro.props;
     gap: 5px;
     padding: 2px 7px;
     border-radius: 999px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-family: var(--font-code);
     font-size: 10.5px;
     font-weight: 700;
     background: rgba(148, 163, 184, 0.08);
@@ -335,7 +335,7 @@ const { autoplay = true, loop = false } = Astro.props;
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-family: var(--font-code);
     font-size: 11px;
     font-weight: 700;
     color: var(--opc-mute);
@@ -360,7 +360,7 @@ const { autoplay = true, loop = false } = Astro.props;
     color: var(--opc-mute);
     border: 0;
     font-size: 10.5px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-family: var(--font-code);
     text-transform: uppercase;
     letter-spacing: 0.08em;
     font-weight: 700;

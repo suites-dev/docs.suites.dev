@@ -1,35 +1,37 @@
 ---
 title: "Build From a Dockerfile"
-description: "Preview the future Dockerfile setup workflow. This setup input is not supported yet."
-sidebar_position: 1
-keywords:
-  ["Blackbox Dockerfile", "future setup path", "unsupported Blackbox input"]
+description: "Understand the planned Dockerfile setup path without treating its conceptual workflow as supported configuration."
+sidebar_position: 4
+keywords: ["Blackbox Dockerfile", "planned setup path", "system test image"]
 ---
 
-:::note Unsupported Setup Input
-Dockerfile and build-context input is not supported. Blackbox returns a structured `unsupported` result before runtime assurance begins.
+Use this planned path when the application has a repeatable Dockerfile but no Compose topology.
+
+:::note Planned Setup Path
+Dockerfile input is **planned**, not supported in the current Alpha path. Blackbox must return an explicit unsupported result instead of falling back to another setup.
 :::
 
-This future path is intended for a service that has a repeatable Dockerfile but no Compose topology.
+## Intended Input
+
+```text title="Conceptual pseudocode"
+application build
+  dockerfile: <path>
+  context: <path>
+  ready when: <declared readiness condition>
+```
+
+This pseudocode communicates intent only. It is not a public configuration schema.
 
 ## Intended Workflow
 
-When certified, the workflow will:
+When this path is certified, Blackbox will:
 
-1. Accept an explicit Dockerfile and build context.
-2. Resolve the exact platform artifact produced by the build.
-3. Allocate an owned network, storage, service, and lifecycle boundary.
-4. Inject generated observation and control configuration.
-5. Admit participants and capabilities before starting the selected test.
-6. Bind evidence to the exact built artifact and sandbox lease.
-7. Prove teardown or quarantine the lease.
+1. Build the selected Dockerfile and bind the exact image to the attempt.
+2. Allocate the network, storage, service, and lifecycle boundary.
+3. Admit the participants and observation capabilities required by the behavioral contract.
+4. Run the selected system or E2E test with fresh evidence.
+5. Stop the environment and prove cleanup or quarantine uncertain resources.
 
-## What This Page Does Not Promise
+## Use the Current Path
 
-This setup is not equivalent to the supported Compose path. Blackbox does not silently translate it into Compose or fall back to weaker capture.
-
-Public configuration syntax will be documented only after the exact Dockerfile cell completes certification.
-
-## Use the Supported Path
-
-Use [an existing Compose project](/docs/blackbox/guides/use-existing-compose) for the current setup workflow.
+Use [an existing Compose project](/docs/blackbox/guides/use-existing-compose) for the current Alpha workflow. Check [Alpha Support Status](/docs/blackbox/status/alpha-status#application-setup-status) before adopting Dockerfile input.

@@ -1,0 +1,101 @@
+/* === site-chrome === */
+/* Site chrome polish: focus rings, hover transitions, mobile touch targets,
+   footer link affordances. All changes reuse existing tokens. */
+
+/* APPEND-TO: .brand  (components.css L96) */
+/* Add an explicit focus-visible radius so the global 2px outline wraps
+   cleanly around the inline-flex brand bounding box instead of clipping
+   into the mark and product slug. */
+.brand {
+  border-radius: 10px;
+}
+
+/* NEW */
+/* Match the focus ring radius to the brand's own corner so the ring
+   visually hugs the element on keyboard focus. */
+.brand:focus-visible {
+  outline-offset: 4px;
+}
+
+/* REPLACES: components.css L1123-L1131 */
+/* Icon-only header action (GitHub). Adds smooth hover transition for
+   color and background per ui-ux-pro-max duration-timing rule (200ms).
+   Global @media (prefers-reduced-motion: reduce) zeroes this transition. */
+.icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: var(--text-muted);
+  border-radius: 8px;
+  transition: color 200ms ease, background-color 200ms ease;
+}
+
+/* APPEND-TO: .nav-action  (components.css L1148) */
+/* Smooth hover transition for the Examples / Sponsor text actions. */
+.nav-action {
+  border-radius: 6px;
+  transition: color 200ms ease;
+}
+
+/* APPEND-TO: .nav-tabs a  (components.css L57) */
+/* Smooth color + underline transition when switching active product tab. */
+.nav-tabs a {
+  transition: color 200ms ease, border-bottom-color 200ms ease;
+}
+
+/* APPEND-TO: .navlinks a  (implicit, components.css L131) */
+/* Smooth fade between muted and primary text colors on navlink hover. */
+.navlinks a {
+  transition: color 200ms ease;
+}
+
+/* NEW */
+/* Mobile touch target floor for header text actions and product tabs.
+   ui-ux-pro-max touch-target-size requires minimum 44x44px. The existing
+   767px breakpoint at the bottom of components.css already handles
+   .btn-sm, .tab, and .icon-link. Extending coverage to .nav-action and
+   .nav-tabs a so every header touch target meets the floor. */
+@media (max-width: 767px) {
+  .nav-action {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 10px;
+  }
+  .nav-tabs a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 0;
+  }
+}
+
+/* NEW */
+/* Footer link affordance. The Footer template renders
+   <a class="site-footer-link"> for the author name; without an explicit
+   rule it inherits the global link color (primary) and has no hover or
+   focus feedback. Mirror the navlinks pattern: muted at rest, full text
+   on hover, smooth color transition, rounded focus ring. */
+.site-footer-link {
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-color: var(--border-strong);
+  text-underline-offset: 3px;
+  border-radius: 4px;
+  transition: color 200ms ease, text-decoration-color 200ms ease;
+}
+.site-footer-link:hover {
+  color: var(--primary-light);
+  text-decoration-color: var(--primary-border);
+}
+
+/* NEW */
+/* The Footer icon-link sits in a flex row alongside two <p> tags. The
+   site-footer-inner uses space-between, so the GitHub anchor naturally
+   anchors left. On focus, give it a slightly larger offset so the ring
+   does not collide with the surrounding text baseline. */
+.site-footer .icon-link:focus-visible {
+  outline-offset: 3px;
+}

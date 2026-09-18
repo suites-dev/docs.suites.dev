@@ -1,6 +1,6 @@
 ---
 title: "How Blackbox Works"
-description: "Follow accepted product intent through one selected system test, fresh OpenTelemetry evidence, deterministic analysis, and repair."
+description: "Follow a human-approved behavioral contract through one system test, fresh runtime evidence, deterministic analysis, and repair."
 sidebar_position: 2
 keywords:
   [
@@ -12,88 +12,93 @@ keywords:
 seo:
   primary_keyword: "how Blackbox works"
   secondary_keywords: ["behavioral verification loop", "runtime evidence"]
-  search_intent: "developers understanding how Blackbox turns accepted intent and system execution into deterministic findings"
-  snippet_angle: "follow accepted intent through a selected system test, fresh evidence, effects, findings, and repair"
+  search_intent: "developers understanding how Blackbox connects a behavioral contract to system execution and deterministic findings"
+  snippet_angle: "follow a behavioral contract through a selected system test, fresh evidence, runtime effects, findings, and repair"
 ---
 
 import BlackboxEvidenceChainDiagram from "@/components/blackbox/BlackboxEvidenceChainDiagram.astro";
 import BlackboxPlaywrightTerminal from "@/components/blackbox/BlackboxPlaywrightTerminal.astro";
 
-The overview showed two successful product reads and a violated database-read limit. Blackbox reaches that result through one directional chain from accepted product intent to a fresh runtime finding.
+The overview showed a checkout request return `201` while the running system sent two payment requests. Blackbox reaches
+that finding through one directional chain from a human-approved behavioral contract to fresh runtime evidence.
 
 <BlackboxEvidenceChainDiagram />
 
-Determinism applies to analysis: the same accepted intent, selected realization, analysis rules, and sealed evidence return the same result. It does not mean a distributed application executes identically on every run.
+Blackbox analysis is deterministic: an unchanged behavioral contract, test selection, analysis rules, and evidence
+produce the same finding. The application itself may behave differently on another run.
 
-## 1. Approve Product Intent
+## People Approve the Behavioral Contract
 
-A coding agent can translate a product requirement into proposed Gherkin, or the team can use direct behavioral declarations. A person approves the concrete case and its claims.
+A coding agent translates a product requirement into a proposed behavioral contract. A person reviews and approves the
+concrete case and its runtime-effect claims before implementation continues.
 
-```gherkin title="features/product-cache.feature"
-Feature: Product cache
-  Scenario: Reuse a cached product
-    When product 42 is read twice
-    Then both reads succeed
-    And at most one Postgres product read occurs
+```gherkin title="features/checkout.feature"
+Feature: Checkout completion
+  Scenario: Charge a completed checkout once
+    When checkout completes
+    Then the response status is 201
+    And no more than one charge request is sent
 ```
 
-Gherkin is a reviewed projection, not a requirement for effects-only authoring. Both modes converge on the same SuitePlan.
+This example uses reviewed Gherkin. Direct behavioral declarations can enter the same verification chain. In either
+mode, the behavioral contract stays upstream: the test and traces can verify it, but they cannot redefine it.
 
-## 2. Realize the Selected Test
+## The System Test Runs One Contract Case
 
-The coding agent completes the concrete Playwright actions and visible assertions through the generated binding surface.
+The coding agent completes the Playwright actions and visible assertions for the approved contract case.
 
 ```ts title="suite.spec.ts"
 import { expect, test } from "@playwright/test";
 
-test("reuses a cached product", async ({ request }) => {
-  const first = await request.get("/products/42");
-  const second = await request.get("/products/42");
+test("completes checkout", async ({ request }) => {
+  const response = await request.post("/checkout");
 
-  expect([first.status(), second.status()]).toEqual([200, 200]);
+  expect(response.status()).toBe(201);
 });
 ```
 
-Blackbox keeps three responsibilities separate:
+The test performs the case, but it does not become the behavioral contract. Blackbox keeps the approved contract, the
+Playwright realization, and run selection separate so downstream artifacts cannot invent new behavior. [Look up the
+exact plan and identity responsibilities](/docs/blackbox/reference/plans-and-realizations).
 
-| Artifact         | Responsibility                                                                   |
-| ---------------- | -------------------------------------------------------------------------------- |
-| **SuitePlan**    | Owns accepted cases, claims, completion requirements, capabilities, and topology |
-| **RunnerBundle** | Owns the exact Playwright realization and discovery relations                    |
-| **RunPlan**      | Selects only declared realizations for this run                                  |
+## Every Attempt Gets Fresh Evidence
 
-RunPlan does not invent meaning. [See the complete alignment and identity rules](/docs/blackbox/reference/plans-and-realizations).
+Each physical attempt receives a fresh runtime and evidence boundary. A retry or sequence member starts with a new
+identity instead of inheriting observations from another attempt.
 
-## 3. Capture One Fresh Attempt
+OpenTelemetry traces reveal supported runtime activity. Capture records establish which observations belong to the
+attempt and which conclusions the evidence can support. [Look up the exact capture lifecycle](/docs/blackbox/reference/capture-lifecycle-and-correlation).
 
-Blackbox allocates a fresh sandbox lease, attempt, window, capture sessions, and evidence for each physical attempt.
+## Traces Become Effects
 
-OpenTelemetry traces carry observed operations. A separate assurance control plane carries participant, capability, completion, loss, cutoff, settlement, and seal facts. Blackbox needs both to determine which effects are eligible and what the evidence can establish.
-
-## 4. Normalize Effects and Analyze Claims
-
-Eligible observations become portable effect facts. The Analyzer compares those facts with the approved claims offline, without querying or changing the running system.
+Blackbox normalizes supported observations into effects such as HTTP calls, database operations, cache operations, and
+published messages. It compares those effects with the claims in the behavioral contract without querying or changing
+the running system during analysis.
 
 <BlackboxPlaywrightTerminal />
 
-The native assertion and effect claim remain independent. Here, Playwright passes while the upper-bound claim is violated.
+The native assertion and the effect claim remain independent. Here, Playwright passes while the payment-request limit is
+violated.
 
-## Let Evidence Limit the Claim
+## Evidence Limits the Finding
 
-Incomplete evidence can still establish an observed positive, a forbidden effect that occurred, or a count that already exceeds its maximum. It cannot establish satisfaction of absence, an upper bound, or an exact count.
+Evidence can establish only the part of a claim it supports. Observing a second payment request is enough to violate a
+maximum of one, even if capture later becomes incomplete. Observing only one request with incomplete evidence cannot
+establish that no second request occurred.
 
-Blackbox returns one of five verdicts for every selected claim: `satisfied`, `violated`, `inconclusive`, `unsupported`, or `integrity-failure`. Only `satisfied` passes.
+[Look up effect signatures, claim kinds, evidence rules, and verdicts](/docs/blackbox/reference/effects-and-claims).
 
-## 5. Repair and Run Again
+## Findings Guide Repair
 
-A finding routes the permitted repair and earliest required rerun gate. An application or capture repair requires a fresh runtime execution.
+A finding returns the mismatch to the coding agent as a bounded repair problem. The agent can remove the duplicate
+charge and run the same behavioral contract again with fresh evidence.
 
-The coding agent can fix Redis behavior and rerun the same approved case. If the proposed fix requires changing accepted behavior, control returns to a person.
-
-Optional [Observable Decision Coverage](/docs/blackbox/concepts/omc-dc-coverage) runs from sealed offline inputs after ordinary effect analysis. It cannot change ordinary effects or verdicts.
+If the repair requires a different behavioral contract, control returns to a person for approval. Runtime observations
+never authorize that change.
 
 ## Next Steps
 
-- [Get Started](/docs/blackbox/quickstart/)
-- [Human Authority and the Agent Loop](/docs/blackbox/concepts/human-agent-verification-loop)
-- [Runtime Evidence and Integrity](/docs/blackbox/concepts/runtime-evidence)
+- [System and E2E Verification](/docs/blackbox/concepts/testing-layers)
+- [Human-Agent Verification Loop](/docs/blackbox/concepts/human-agent-verification-loop)
+- [Runtime Evidence Boundaries](/docs/blackbox/concepts/runtime-evidence)
+- [Observable Decision Coverage](/docs/blackbox/concepts/omc-dc-coverage)

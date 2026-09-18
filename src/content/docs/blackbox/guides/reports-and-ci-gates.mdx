@@ -1,60 +1,55 @@
 ---
 title: "Add Blackbox to CI"
-description: "Run deterministic Blackbox validation and assurance gates in CI while preserving evidence and attempt history."
-sidebar_position: 5
+description: "Run Blackbox validation and behavioral verification in CI while preserving findings and attempt history."
+sidebar_position: 7
 keywords: ["Blackbox CI", "behavioral verification gate", "Blackbox reports"]
 ---
 
-Add Blackbox after the project can realize one accepted case locally. CI should repeat the same deterministic gates and preserve the result that explains any failure.
+Add Blackbox to CI after one behavioral contract runs locally. CI should repeat the same validation and execution path, then preserve the result that explains any failure.
 
-## 1. Validate Before Runtime Allocation
+## 1. Validate Before Runtime Work
 
-Run the canonical checks first:
-
-```bash
-blackbox features check
-blackbox scenarios check
-blackbox suites typecheck
+```text title="Conceptual pseudocode"
+<validate behavioral contract>
+<validate system-test binding>
 ```
 
-If the project uses direct declarations without Gherkin, omit `blackbox features check`.
+Use the commands published for the installed Blackbox distribution. A direct declaration does not need Gherkin validation.
 
-## 2. Run Selected Assurance Cases
+## 2. Run the Selected Contract Cases
 
-A practical CI workflow then runs the selected Blackbox tests:
-
-```bash
-blackbox test
+```text title="Conceptual pseudocode"
+<run selected contract cases with Blackbox>
 ```
 
-Each physical attempt receives fresh runtime identity, capture, evidence, and teardown. Sharding and worker placement cannot merge evidence between attempts.
+Each physical attempt receives fresh runtime identity, capture, evidence, and teardown. Shards and workers cannot merge evidence between attempts.
 
 ## 3. Gate on the Process Exit
 
-| Exit | CI action                                                        |
-| ---- | ---------------------------------------------------------------- |
-| `0`  | Continue                                                         |
-| `1`  | Fail the assurance gate and route the producer-owned finding     |
-| `2`  | Fix invocation, configuration, project-root, or unreadable input |
+| Exit | CI action                                                             |
+| ---- | --------------------------------------------------------------------- |
+| `0`  | Continue.                                                             |
+| `1`  | Fail the verification gate and route the finding.                     |
+| `2`  | Fix the invocation, configuration, project root, or unreadable input. |
 
-Exit `1` covers every formed non-success assurance outcome, including violated, inconclusive, unsupported, integrity-failure, and unknown finding-code cases.
+Exit `1` covers formed non-success outcomes, including violated, inconclusive, unsupported, integrity-failure, and unknown finding-code cases.
 
-## 4. Preserve Canonical Results
+## 4. Preserve the Result
 
-Store the report and exact evidence references for each attempt. Keep producer order, evidence joins, verdicts, repair routing, and prior retry history unchanged.
+Store the report and exact evidence references for each attempt. Preserve verdicts, repair routing, and prior retry history.
 
-Color, verbosity, and retention choices may change presentation or storage, but they cannot change canonical report truth.
+Presentation and retention choices can change how a result is displayed or stored. They cannot change the canonical result.
 
-## 5. Keep ODC Separate
+## 5. Keep Observable Decision Coverage Separate
 
-Optional Decision Coverage may run in CI, but it remains diagnostic. `not-requested`, `unavailable`, or another ODC state cannot rewrite ordinary effect findings or an otherwise successful ordinary assurance exit.
+Observable Decision Coverage is optional per run and diagnostic. Its availability or classification cannot change an ordinary effect finding or the ordinary verification exit.
 
 ## Summary
 
-- Fail semantic and realization problems before allocating a sandbox.
-- Use exits `0`, `1`, and `2` consistently.
-- Preserve evidence and prior attempts for repair and audit.
-- Keep optional ODC outside the ordinary effect gate.
+- Validate the behavioral contract and system-test binding first.
+- Give each physical attempt fresh evidence.
+- Preserve the finding that explains a failed gate.
+- Keep optional decision analysis outside the ordinary effect gate.
 
 ## Next Steps
 

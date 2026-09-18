@@ -1,51 +1,40 @@
 ---
 title: "Choose How Blackbox Runs Your Application"
-description: "Choose the certified Compose setup path and understand which future setup inputs remain unsupported."
+description: "Choose a Compose, Testcontainers, Dockerfile, or distribution-artifact setup path without confusing planned workflows with current Alpha support."
 sidebar_position: 1
 keywords:
   [
     "Blackbox application setup",
     "Docker Compose system test",
+    "Testcontainers system test",
     "Blackbox sandbox",
   ]
 ---
 
-Choose the setup input before Blackbox allocates a runtime attempt. The input determines which services, networks, storage, identities, and lifecycle boundaries the sandbox provider owns.
+Choose the setup path that matches how your project already starts the running system. The path defines the application and dependencies that Blackbox must isolate, observe, and stop for each test attempt.
 
-## Setup Decision
+## Choose a Path
 
-| Application input                             | Status         | Use                                         |
-| --------------------------------------------- | -------------- | ------------------------------------------- |
-| Current development Compose project           | Supported path | Use the project's existing Compose topology |
-| Dockerfile and build context                  | Unsupported    | Read the future workflow only               |
-| Compiled artifact directory and start command | Unsupported    | Read the future workflow only               |
+| Setup path                                                                 | Use it when                                                                   | Current status   |
+| -------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ---------------- |
+| [**Docker Compose**](/docs/blackbox/guides/use-existing-compose)           | The project already declares the application and its dependencies in Compose. | **Alpha target** |
+| [**Testcontainers**](/docs/blackbox/guides/use-custom-provisioner)         | Project code already constructs the test environment with Testcontainers.     | **Experimental** |
+| [**Dockerfile**](/docs/blackbox/guides/build-from-dockerfile)              | The project has a repeatable image build but no Compose topology.             | **Planned**      |
+| [**Distribution artifacts**](/docs/blackbox/guides/run-compiled-artifacts) | The project tests already-built runnable artifacts outside containers.        | **Planned**      |
 
-Unsupported inputs fail explicitly before Blackbox claims assurance. They never fall back to Compose or receive an equivalence claim.
+Check [Alpha Support Status](/docs/blackbox/status/alpha-status#application-setup-status) before adopting a path. Publishing a conceptual workflow does not mean that its public configuration or support boundary is final.
 
-## Use the Compose Path
+## Keep the Boundary Explicit
 
-Choose Compose when the project already defines the application and its real dependencies together.
+Whichever path you choose, identify:
 
-The sandbox provider must:
+- The services and dependencies the test can reach.
+- The resources Blackbox owns and cleans up.
+- The participants that must emit OpenTelemetry data.
+- The condition that makes one attempt complete.
 
-- Own the selected service, network, storage, and lifecycle boundaries.
-- Produce the expected participant inventory deterministically.
-- Bind service and artifact identity to one sandbox lease.
-- Inject generated observation and control configuration.
-- Disclose access to unowned resources.
-- Prove teardown or quarantine the lease.
+Blackbox must stop when it cannot establish the isolation or evidence boundary required by the behavioral contract. It does not silently fall back to a weaker setup.
 
-[Use an Existing Compose Project](/docs/blackbox/guides/use-existing-compose) for the detailed workflow.
+## Next Step
 
-## Future Setup Paths
-
-- [Build From a Dockerfile](/docs/blackbox/guides/build-from-dockerfile)
-- [Run Compiled Artifacts](/docs/blackbox/guides/run-compiled-artifacts)
-
-These pages describe the intended user journey. They do not provide configuration syntax or imply current support.
-
-## Summary
-
-- Use the existing Compose topology for the accepted setup path.
-- Treat every provider and topology combination as its own support cell.
-- Stop on ambiguous ownership or unsupported input instead of weakening assurance.
+Start with [Docker Compose](/docs/blackbox/guides/use-existing-compose) for the current Alpha path. Use the other pages to evaluate their intended workflows and explicit status boundaries.

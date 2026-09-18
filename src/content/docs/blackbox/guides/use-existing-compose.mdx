@@ -1,12 +1,22 @@
 ---
 title: "Use an Existing Compose Project"
-description: "Prepare an existing Docker Compose topology for isolated Playwright attempts and Blackbox runtime evidence."
+description: "Run a human-approved behavioral contract against an existing Docker Compose topology and verify its fresh runtime evidence."
 sidebar_position: 2
 keywords:
   ["Blackbox Docker Compose", "existing compose project", "system test sandbox"]
 ---
 
-Use the Compose project your team already runs in development. Blackbox treats one allocated project as the owned sandbox for a physical attempt.
+Use this guide when your team already runs the application and its dependencies with Docker Compose.
+
+## Before You Begin
+
+You need:
+
+- A human-approved behavioral contract with one Playwright realization.
+- A Compose project that includes the application and dependencies the test reaches.
+- Declared observation and completion capabilities for the selected effect claims.
+
+Complete [Get Started](/docs/blackbox/quickstart/) or [Start From an Existing System or E2E Test](/docs/blackbox/quickstart/build-behavioral-harness) first.
 
 ## 1. Identify the Owned Topology
 
@@ -23,41 +33,52 @@ services:
     image: redis
 ```
 
-Document any database, API, queue, cache, volume, or network outside this project. Blackbox cannot present an unowned resource as isolated.
+Document every database, API, queue, cache, volume, or network outside this project. Blackbox cannot present an unowned resource as isolated.
 
 ## 2. Make Participation Deterministic
 
-Blackbox needs an exact expected participant inventory before capture starts. Each required participant must identify itself, advertise admitted capabilities, and confirm capture-protocol readiness.
+Provide an exact expected participant inventory before capture starts. Each required participant must identify itself, advertise its admitted capabilities, and confirm capture-protocol readiness.
 
-Ambiguous service discovery produces a preflight question or failure. Blackbox never guesses when the guess could change assurance.
+Resolve ambiguous service discovery before you run the test.
 
-## 3. Separate Telemetry and Control
+## 3. Keep Telemetry and Control Separate
 
 Allow the sandbox provider to inject generated OTLP observation configuration and separate control authorization. Do not reuse public correlation IDs as credentials or expose internal transport variables as project API.
 
-## 4. Prove the Lifecycle
+## 4. Run One Fresh Attempt
 
-For each independent attempt, the provider allocates a fresh lease, starts the selected topology, waits for required participants, and tears the topology down afterward.
+Run the selected Playwright case through the project's declared Blackbox execution entrypoint.
 
-If teardown cannot be established, Blackbox quarantines the lease. It does not reuse uncertain state.
+Blackbox allocates a fresh lease, starts the selected topology, waits for required participants, captures the attempt, and tears the topology down afterward. If teardown cannot be established, Blackbox quarantines the lease instead of reusing uncertain state.
 
-## 5. Run a Small Case First
+## 5. Verify the Result
 
-Use one case that crosses a small number of supported boundaries, such as the product-cache case with Postgres and Redis. Confirm:
+For the checkout example, read the native result and effect finding separately:
+
+```text
+Native result      checkout returned 201
+Runtime evidence   POST /payments/charges × 2
+Behavioral claim   at most 1 charge request
+Finding            violated
+```
+
+Confirm that:
 
 - The native Playwright result is visible.
 - Required participants and capabilities were admitted.
 - Evidence belongs to one attempt and one capture window.
-- The effect finding states its exact evidence scope.
+- The finding states its exact evidence scope.
+
+After the implementation is repaired, use the same declared execution entrypoint again. The rerun receives fresh evidence and preserves the earlier attempt in history.
 
 ## Summary
 
 - Keep the existing Compose topology as the source of the application shape.
 - Make owned and unowned resources explicit.
-- Give each independent attempt a fresh lease and teardown.
-- Expand to parallel workers only after isolation is proven.
+- Run each independent attempt with fresh evidence and teardown.
+- Read native assertions and effect findings as separate results.
 
 ## Next Steps
 
-- [Test Topologies and Parallelism](/docs/blackbox/guides/playwright-isolation-and-parallelism)
-- [Security and Data Handling](/docs/blackbox/operations/security-and-data-handling)
+- [Test Topologies and Evidence Boundaries](/docs/blackbox/guides/playwright-isolation-and-parallelism)
+- [Runtime Evidence Boundaries](/docs/blackbox/concepts/runtime-evidence)

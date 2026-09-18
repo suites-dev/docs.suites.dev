@@ -1,270 +1,65 @@
 <svg
   xmlns="http://www.w3.org/2000/svg"
-  width="920"
-  height="240"
-  viewBox="0 0 920 240"
+  viewBox="0 0 920 250"
   role="img"
-  aria-labelledby="title desc"
+  aria-labelledby="verification-loop-title verification-loop-description"
 >
-  <title id="title">
-    Intent to deterministic findings and implementation repair
-  </title>
-  <desc id="desc">
-    Intent becomes accepted behavior, which guides implementation. The
-    implementation runs as a system, produces evidence, and receives findings.
-    Those findings send the agent back to repair the implementation without
-    changing accepted behavior.
+  <title id="verification-loop-title">Behavioral verification and repair loop</title>
+  <desc id="verification-loop-description">
+    Human intent becomes approved Gherkin that guides agent work and a system or
+    end-to-end suite. OpenTelemetry supplies runtime evidence, Blackbox returns a
+    finding, and the agent repairs its work without changing the approved behavioral contract.
   </desc>
+
   <defs>
-    <marker
-      id="arrow"
-      viewBox="0 0 10 10"
-      refX="8"
-      refY="5"
-      markerWidth="7"
-      markerHeight="7"
-      orient="auto"
-    >
+    <marker id="loop-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
       <path d="M0 0 10 5 0 10Z" fill="#94a3b8" />
     </marker>
-    <marker
-      id="repair-arrow"
-      viewBox="0 0 10 10"
-      refX="8"
-      refY="5"
-      markerWidth="7"
-      markerHeight="7"
-      orient="auto"
-    >
+    <marker id="loop-repair-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
       <path d="M0 0 10 5 0 10Z" fill="#4ade80" />
     </marker>
   </defs>
 
-  <rect
-    x="8"
-    y="8"
-    width="904"
-    height="224"
-    rx="10"
-    fill="#0b1120"
-    stroke="#334155"
-  />
+  <rect x="8" y="8" width="904" height="234" rx="10" fill="#0b1120" stroke="#334155" />
 
-  <g font-family="Inter, ui-sans-serif, system-ui, sans-serif">
-    <text x="32" y="39" fill="#f8fafc" font-size="16" font-weight="800">
-      Behavioral verification loop
-    </text>
-    <text x="32" y="60" fill="#cbd5e1" font-size="11">
-      Accepted intent guides implementation. Runtime findings guide repair.
-    </text>
+  <g font-family="'Hanken Grotesk Local', 'Hanken Grotesk', Inter, ui-sans-serif, system-ui, sans-serif">
+    <text x="28" y="38" fill="#f8fafc" font-size="16" font-weight="800">Behavioral verification loop</text>
+    <text x="28" y="59" fill="#cbd5e1" font-size="11">The behavioral contract guides agent work. Blackbox findings guide repair.</text>
 
-    <rect
-      x="32"
-      y="86"
-      width="104"
-      height="58"
-      rx="7"
-      fill="#3b2f0b"
-      stroke="#fbbf24"
-    />
-    <text
-      x="84"
-      y="120"
-      text-anchor="middle"
-      fill="#fef3c7"
-      font-size="12"
-      font-weight="800"
-    >
-      Intent
-    </text>
+    <rect x="28" y="82" width="112" height="62" rx="7" fill="#3b2f0b" stroke="#fbbf24" />
+    <text x="84" y="117" text-anchor="middle" fill="#fef3c7" font-size="11" font-weight="800">Human intent</text>
 
-    <line
-      x1="136"
-      y1="115"
-      x2="158"
-      y2="115"
-      stroke="#94a3b8"
-      stroke-width="2"
-      marker-end="url(#arrow)"
-    />
+    <line x1="140" y1="113" x2="152" y2="113" stroke="#94a3b8" stroke-width="2" marker-end="url(#loop-arrow)" />
 
-    <rect
-      x="168"
-      y="86"
-      width="142"
-      height="58"
-      rx="7"
-      fill="#172554"
-      stroke="#60a5fa"
-    />
-    <text
-      x="239"
-      y="113"
-      text-anchor="middle"
-      fill="#eff6ff"
-      font-size="11"
-      font-weight="800"
-    >
-      Accepted
-    </text>
-    <text
-      x="239"
-      y="129"
-      text-anchor="middle"
-      fill="#bfdbfe"
-      font-size="11"
-      font-weight="800"
-    >
-      behavior
-    </text>
+    <rect x="160" y="82" width="128" height="62" rx="7" fill="#421622" stroke="#e67189" />
+    <text x="224" y="109" text-anchor="middle" fill="#fdf3f5" font-size="11" font-weight="800">Behavioral</text>
+    <text x="224" y="126" text-anchor="middle" fill="#f6c9d1" font-size="11" font-weight="800">contract</text>
 
-    <line
-      x1="310"
-      y1="115"
-      x2="332"
-      y2="115"
-      stroke="#94a3b8"
-      stroke-width="2"
-      marker-end="url(#arrow)"
-    />
+    <line x1="288" y1="113" x2="300" y2="113" stroke="#94a3b8" stroke-width="2" marker-end="url(#loop-arrow)" />
 
-    <rect
-      x="342"
-      y="86"
-      width="126"
-      height="58"
-      rx="7"
-      fill="#1f2937"
-      stroke="#94a3b8"
-    />
-    <text
-      x="405"
-      y="120"
-      text-anchor="middle"
-      fill="#f8fafc"
-      font-size="11"
-      font-weight="800"
-    >
-      Implementation
-    </text>
+    <rect x="308" y="82" width="120" height="62" rx="7" fill="#1f2937" stroke="#94a3b8" />
+    <text x="368" y="109" text-anchor="middle" fill="#f8fafc" font-size="11" font-weight="800">Agent</text>
+    <text x="368" y="126" text-anchor="middle" fill="#cbd5e1" font-size="11" font-weight="800">work</text>
 
-    <line
-      x1="468"
-      y1="115"
-      x2="490"
-      y2="115"
-      stroke="#94a3b8"
-      stroke-width="2"
-      marker-end="url(#arrow)"
-    />
+    <line x1="428" y1="113" x2="440" y2="113" stroke="#94a3b8" stroke-width="2" marker-end="url(#loop-arrow)" />
 
-    <rect
-      x="500"
-      y="86"
-      width="126"
-      height="58"
-      rx="7"
-      fill="#111827"
-      stroke="#64748b"
-    />
-    <text
-      x="563"
-      y="113"
-      text-anchor="middle"
-      fill="#f8fafc"
-      font-size="11"
-      font-weight="800"
-    >
-      Running
-    </text>
-    <text
-      x="563"
-      y="129"
-      text-anchor="middle"
-      fill="#cbd5e1"
-      font-size="11"
-      font-weight="800"
-    >
-      system
-    </text>
+    <rect x="448" y="82" width="128" height="62" rx="7" fill="#172554" stroke="#60a5fa" />
+    <text x="512" y="109" text-anchor="middle" fill="#eff6ff" font-size="11" font-weight="800">System or E2E</text>
+    <text x="512" y="126" text-anchor="middle" fill="#bfdbfe" font-size="11" font-weight="800">suite</text>
 
-    <line
-      x1="626"
-      y1="115"
-      x2="648"
-      y2="115"
-      stroke="#94a3b8"
-      stroke-width="2"
-      marker-end="url(#arrow)"
-    />
+    <line x1="576" y1="113" x2="588" y2="113" stroke="#94a3b8" stroke-width="2" marker-end="url(#loop-arrow)" />
 
-    <rect
-      x="658"
-      y="86"
-      width="104"
-      height="58"
-      rx="7"
-      fill="#12251e"
-      stroke="#4ade80"
-    />
-    <text
-      x="710"
-      y="120"
-      text-anchor="middle"
-      fill="#f0fdf4"
-      font-size="11"
-      font-weight="800"
-    >
-      Evidence
-    </text>
+    <rect x="596" y="82" width="126" height="62" rx="7" fill="#12251e" stroke="#4ade80" />
+    <text x="659" y="109" text-anchor="middle" fill="#f0fdf4" font-size="10.5" font-weight="800">OpenTelemetry</text>
+    <text x="659" y="126" text-anchor="middle" fill="#bbf7d0" font-size="10.5" font-weight="800">evidence</text>
 
-    <line
-      x1="762"
-      y1="115"
-      x2="784"
-      y2="115"
-      stroke="#94a3b8"
-      stroke-width="2"
-      marker-end="url(#arrow)"
-    />
+    <line x1="722" y1="113" x2="734" y2="113" stroke="#94a3b8" stroke-width="2" marker-end="url(#loop-arrow)" />
 
-    <rect
-      x="794"
-      y="86"
-      width="94"
-      height="58"
-      rx="7"
-      fill="#3b2f0b"
-      stroke="#fbbf24"
-    />
-    <text
-      x="841"
-      y="120"
-      text-anchor="middle"
-      fill="#fef3c7"
-      font-size="11"
-      font-weight="800"
-    >
-      Findings
-    </text>
+    <rect x="742" y="82" width="146" height="62" rx="7" fill="#2e1065" stroke="#a78bfa" />
+    <text x="815" y="109" text-anchor="middle" fill="#f5f3ff" font-size="11" font-weight="800">Blackbox</text>
+    <text x="815" y="126" text-anchor="middle" fill="#ddd6fe" font-size="11" font-weight="800">finding</text>
 
-    <path
-      d="M841 144V194H405V154"
-      fill="none"
-      stroke="#4ade80"
-      stroke-width="2"
-      stroke-dasharray="7 5"
-      marker-end="url(#repair-arrow)"
-    />
-    <text
-      x="623"
-      y="215"
-      text-anchor="middle"
-      fill="#bbf7d0"
-      font-size="11"
-      font-weight="700"
-    >
-      agent repairs the implementation
-    </text>
+    <path d="M815 144V194H368V154" fill="none" stroke="#4ade80" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#loop-repair-arrow)" />
+    <text x="592" y="220" text-anchor="middle" fill="#bbf7d0" font-size="11" font-weight="700">agent repairs its work</text>
   </g>
 </svg>

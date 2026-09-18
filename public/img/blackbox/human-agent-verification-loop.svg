@@ -30,7 +30,7 @@
 
   <rect x="6" y="6" width="1188" height="488" rx="16" fill="url(#loop-background)" stroke="#334155" />
 
-  <g font-family="Inter, ui-sans-serif, system-ui, sans-serif">
+  <g font-family="'Hanken Grotesk Local', 'Hanken Grotesk', Inter, ui-sans-serif, system-ui, sans-serif">
     <text x="34" y="44" fill="#f8fafc" font-size="24" font-weight="800">
       Guidance before action, findings after execution
     </text>
@@ -45,10 +45,10 @@
       <text x="149" y="211" fill="#fde68a" font-size="15">Gherkin + effect claims</text>
       <text x="149" y="233" fill="#fde68a" font-size="15">+ analysis policy</text>
 
-      <rect x="316" y="118" width="220" height="150" rx="11" fill="#2e1065" stroke="#a78bfa" stroke-width="2" />
-      <text x="426" y="147" fill="#c4b5fd" font-size="14" font-weight="800">GENERATOR</text>
-      <text x="426" y="188" fill="#f5f3ff" font-size="21" font-weight="800">Coding agent</text>
-      <text x="426" y="222" fill="#ddd6fe" font-size="15">realizes or repairs</text>
+      <rect x="316" y="118" width="220" height="150" rx="11" fill="#421622" stroke="#db486f" stroke-width="2" />
+      <text x="426" y="147" fill="#ef9dab" font-size="14" font-weight="800">GENERATOR</text>
+      <text x="426" y="188" fill="#fdf3f5" font-size="21" font-weight="800">Coding agent</text>
+      <text x="426" y="222" fill="#f6c9d1" font-size="15">realizes or repairs</text>
 
       <rect x="588" y="118" width="244" height="150" rx="11" fill="#172554" stroke="#60a5fa" stroke-width="2" />
       <text x="710" y="147" fill="#93c5fd" font-size="14" font-weight="800">EXECUTION</text>
