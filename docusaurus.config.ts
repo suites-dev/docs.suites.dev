@@ -19,6 +19,7 @@ const config: Config = {
   organizationName: "suites-dev",
   url: "https://suites.dev",
   baseUrl: "/",
+  trailingSlash: true,
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "throw",
   favicon: "img/favicon.png",
@@ -65,6 +66,12 @@ const config: Config = {
               },
             }
           : {}),
+        sitemap: {
+          changefreq: "weekly",
+          priority: 0.5,
+          filename: "sitemap.xml",
+          ignorePatterns: ["/404", "/404/", "/search", "/search/"],
+        },
       },
     ],
   ],

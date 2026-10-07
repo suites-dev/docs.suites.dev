@@ -15,58 +15,66 @@
 command = "yarn run build && yarn algolia:reindex"
 publish = "build"
 
+# Pinned rather than left to the dashboard toggle, because file configuration
+# overrides UI configuration. Pretty URLs serves the slash-terminated form,
+# which is what `trailingSlash: true` in docusaurus.config.ts declares as
+# canonical. The two settings must agree or every page redirects away from
+# its own canonical URL.
+[build.processing.html]
+pretty_urls = true
+
 # ===========================================
 # CRITICAL REDIRECTS (High Traffic Pages)
 # ===========================================
 
 [[redirects]]
 from = "/docs/overview/quickstart"
-to = "/docs/get-started/quickstart"
+to = "/docs/get-started/quickstart/"
 status = 301
 
 [[redirects]]
 from = "/docs/learn/get-started/quickstart"
-to = "/docs/get-started/quickstart"
+to = "/docs/get-started/quickstart/"
 status = 301
 
 [[redirects]]
 from = "/docs/overview/installation"
-to = "/docs/get-started/installation"
+to = "/docs/get-started/installation/"
 status = 301
 
 [[redirects]]
 from = "/docs/learn/get-started/installation"
-to = "/docs/get-started/installation"
+to = "/docs/get-started/installation/"
 status = 301
 
 [[redirects]]
 from = "/docs/learn/unit-tests/suites-api"
-to = "/docs/api-reference"
+to = "/docs/api-reference/"
 status = 301
 
 [[redirects]]
 from = "/docs/api-reference/testbed-api"
-to = "/docs/api-reference"
+to = "/docs/api-reference/"
 status = 301
 
 [[redirects]]
 from = "/docs/learn/unit-tests/solitary"
-to = "/docs/guides/solitary"
+to = "/docs/guides/solitary/"
 status = 301
 
 [[redirects]]
 from = "/docs/learn/unit-tests/sociable"
-to = "/docs/guides/sociable"
+to = "/docs/guides/sociable/"
 status = 301
 
 [[redirects]]
 from = "/docs/learn/unit-tests/test-doubles"
-to = "/docs/guides/test-doubles"
+to = "/docs/guides/test-doubles/"
 status = 301
 
 [[redirects]]
 from = "/docs/learn/unit-tests/fundamentals"
-to = "/docs/guides/fundamentals"
+to = "/docs/guides/fundamentals/"
 status = 301
 
 # ===========================================
@@ -75,22 +83,22 @@ status = 301
 
 [[redirects]]
 from = "/docs/migrating-from-automock"
-to = "/docs/migration-guides/from-automock"
+to = "/docs/migration-guides/from-automock/"
 status = 301
 
 [[redirects]]
 from = "/docs/resources/migrating-from-automock"
-to = "/docs/migration-guides/from-automock"
+to = "/docs/migration-guides/from-automock/"
 status = 301
 
 [[redirects]]
 from = "/docs/overview/migrating-from-automock"
-to = "/docs/migration-guides/from-automock"
+to = "/docs/migration-guides/from-automock/"
 status = 301
 
 [[redirects]]
 from = "/docs/getting-started/change-log"
-to = "/docs/migration-guides/from-automock"
+to = "/docs/migration-guides/from-automock/"
 status = 301
 
 # ===========================================
@@ -99,43 +107,43 @@ status = 301
 
 [[redirects]]
 from = "/docs/overview"
-to = "/docs/get-started"
+to = "/docs/get-started/"
 status = 301
 
 
 [[redirects]]
 from = "/docs/overview/what-is-suites"
-to = "/docs/get-started"
+to = "/docs/get-started/"
 status = 301
 
 [[redirects]]
 from = "/docs/overview/problems-solved"
-to = "/docs/get-started/why-suites"
+to = "/docs/get-started/why-suites/"
 status = 301
 
 [[redirects]]
 from = "/docs/resources/problems-solved"
-to = "/docs/get-started/why-suites"
+to = "/docs/get-started/why-suites/"
 status = 301
 
 [[redirects]]
 from = "/docs/overview/comparisons"
-to = "/docs/get-started/why-suites"
+to = "/docs/get-started/why-suites/"
 status = 301
 
 [[redirects]]
 from = "/docs/overview/motivation"
-to = "/docs/get-started/why-suites"
+to = "/docs/get-started/why-suites/"
 status = 301
 
 [[redirects]]
 from = "/docs/overview/depdency-injection-and-automock"
-to = "/docs/get-started/why-suites"
+to = "/docs/get-started/why-suites/"
 status = 301
 
 [[redirects]]
 from = "/docs/overview/dependency-injection-and-automock"
-to = "/docs/get-started/why-suites"
+to = "/docs/get-started/why-suites/"
 status = 301
 
 # ===========================================
@@ -144,32 +152,32 @@ status = 301
 
 [[redirects]]
 from = "/docs/developer-guide/unit-tests/suites-api*"
-to = "/docs/api-reference"
+to = "/docs/api-reference/"
 status = 301
 
 [[redirects]]
 from = "/docs/developer-guide/unit-tests/solitary*"
-to = "/docs/guides/solitary"
+to = "/docs/guides/solitary/"
 status = 301
 
 [[redirects]]
 from = "/docs/developer-guide/unit-tests/sociable*"
-to = "/docs/guides/sociable"
+to = "/docs/guides/sociable/"
 status = 301
 
 [[redirects]]
 from = "/docs/developer-guide/unit-tests/test-doubles*"
-to = "/docs/guides/test-doubles"
+to = "/docs/guides/test-doubles/"
 status = 301
 
 [[redirects]]
 from = "/docs/developer-guide/unit-tests/fundamentals*"
-to = "/docs/guides/fundamentals"
+to = "/docs/guides/fundamentals/"
 status = 301
 
 [[redirects]]
 from = "/docs/developer-guide/*"
-to = "/docs/guides"
+to = "/docs/guides/"
 status = 301
 
 # ===========================================
@@ -197,7 +205,7 @@ status = 200
 
 [[redirects]]
 from = "/docs/category/getting-started*"
-to = "/docs/get-started"
+to = "/docs/get-started/"
 status = 301
 
 # ===========================================
@@ -206,55 +214,55 @@ status = 301
 
 [[redirects]]
 from = "/api-reference"
-to = "/docs/api-reference"
+to = "/docs/api-reference/"
 status = 301
 
 [[redirects]]
 from = "/docs"
-to = "/docs/get-started"
+to = "/docs/get-started/"
 status = 301
 
 
 [[redirects]]
 from = "/docs/introduction/quick-example"
-to = "/docs/get-started/quickstart"
+to = "/docs/get-started/quickstart/"
 status = 301
 
 [[redirects]]
 from = "/docs/core-concepts/dependency-injection"
-to = "/docs/get-started/why-suites"
+to = "/docs/get-started/why-suites/"
 status = 301
 
 [[redirects]]
 from = "/docs/api-reference/fail-fast"
-to = "/docs/api-reference"
+to = "/docs/api-reference/"
 status = 301
 
 [[redirects]]
 from = "/docs/extras/identical-injections"
-to = "/docs/guides"
+to = "/docs/guides/"
 status = 301
 
 
 [[redirects]]
 from = "/docs/category/extras"
-to = "/docs/guides"
+to = "/docs/guides/"
 status = 301
 
 [[redirects]]
 from = "/docs/category/di-framework-adapters"
-to = "/docs/get-started"
+to = "/docs/get-started/"
 status = 301
 
 
 [[redirects]]
 from = "/docs/adapters/*"
-to = "/docs/get-started"
+to = "/docs/get-started/"
 status = 301
 
 [[redirects]]
 from = "/docs/guides/adapters/inversifyjs"
-to = "/docs/get-started"
+to = "/docs/get-started/"
 status = 301
 
 # ===========================================
@@ -263,25 +271,25 @@ status = 301
 
 [[redirects]]
 from = "/docs/getting-started/examples"
-to = "/docs/get-started"
+to = "/docs/get-started/"
 status = 301
 
 [[redirects]]
 from = "/docs/overview/examples"
-to = "/docs/get-started"
+to = "/docs/get-started/"
 status = 301
 
 [[redirects]]
 from = "/docs/category/adapters"
-to = "/docs/get-started"
+to = "/docs/get-started/"
 status = 301
 
 [[redirects]]
 from = "/docs/category/core-concepts"
-to = "/docs/guides"
+to = "/docs/guides/"
 status = 301
 
 [[redirects]]
 from = "/docs/category/api-reference"
-to = "/docs/api-reference"
+to = "/docs/api-reference/"
 status = 301
