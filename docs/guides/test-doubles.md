@@ -211,8 +211,8 @@ See [Sociable Unit Tests](/docs/guides/sociable) for more information.
 
 Learn more about using test doubles in practice:
 
-- **[Solitary Unit Tests](./solitary)**: Test components in complete isolation using automatic mocking
-- **[Sociable Unit Tests](./sociable)**: Test multiple components together with real implementations
+- **[Solitary Unit Tests](/docs/guides/solitary/)**: Test components in complete isolation using automatic mocking
+- **[Sociable Unit Tests](/docs/guides/sociable/)**: Test multiple components together with real implementations
 
 ## Additional Resources
 

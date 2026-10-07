@@ -651,3 +651,11 @@
         font-size: 2.2rem;
     }
 }
+/* Entry point for readers arriving from the deprecated @automock/* packages.
+   Deliberately understated: it targets a specific audience without competing
+   with the primary calls to action above it. */
+.automockNote {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
