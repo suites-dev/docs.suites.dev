@@ -41,12 +41,12 @@ status = 301
 
 [[redirects]]
 from = "/docs/learn/unit-tests/suites-api"
-to = "/docs/api-reference/"
+to = "/docs/api-reference"
 status = 301
 
 [[redirects]]
 from = "/docs/api-reference/testbed-api"
-to = "/docs/api-reference/"
+to = "/docs/api-reference"
 status = 301
 
 [[redirects]]
@@ -99,17 +99,13 @@ status = 301
 
 [[redirects]]
 from = "/docs/overview"
-to = "/docs/get-started/"
+to = "/docs/get-started"
 status = 301
 
-[[redirects]]
-from = "/docs/overview/"
-to = "/docs/get-started/"
-status = 301
 
 [[redirects]]
 from = "/docs/overview/what-is-suites"
-to = "/docs/get-started/"
+to = "/docs/get-started"
 status = 301
 
 [[redirects]]
@@ -148,7 +144,7 @@ status = 301
 
 [[redirects]]
 from = "/docs/developer-guide/unit-tests/suites-api*"
-to = "/docs/api-reference/"
+to = "/docs/api-reference"
 status = 301
 
 [[redirects]]
@@ -173,7 +169,7 @@ status = 301
 
 [[redirects]]
 from = "/docs/developer-guide/*"
-to = "/docs/guides/"
+to = "/docs/guides"
 status = 301
 
 # ===========================================
@@ -201,7 +197,7 @@ status = 200
 
 [[redirects]]
 from = "/docs/category/getting-started*"
-to = "/docs/get-started/"
+to = "/docs/get-started"
 status = 301
 
 # ===========================================
@@ -210,18 +206,14 @@ status = 301
 
 [[redirects]]
 from = "/api-reference"
-to = "/docs/api-reference/"
+to = "/docs/api-reference"
 status = 301
 
 [[redirects]]
 from = "/docs"
-to = "/docs/get-started/"
+to = "/docs/get-started"
 status = 301
 
-[[redirects]]
-from = "/docs/"
-to = "/docs/get-started/"
-status = 301
 
 [[redirects]]
 from = "/docs/introduction/quick-example"
@@ -235,40 +227,61 @@ status = 301
 
 [[redirects]]
 from = "/docs/api-reference/fail-fast"
-to = "/docs/api-reference/"
+to = "/docs/api-reference"
 status = 301
 
 [[redirects]]
 from = "/docs/extras/identical-injections"
-to = "/docs/guides/"
+to = "/docs/guides"
 status = 301
 
-[[redirects]]
-from = "/docs/extras/identical-injections/"
-to = "/docs/guides/"
-status = 301
 
 [[redirects]]
 from = "/docs/category/extras"
-to = "/docs/guides/"
+to = "/docs/guides"
 status = 301
 
 [[redirects]]
 from = "/docs/category/di-framework-adapters"
-to = "/docs/get-started/"
+to = "/docs/get-started"
 status = 301
 
-[[redirects]]
-from = "/docs/category/di-framework-adapters/"
-to = "/docs/get-started/"
-status = 301
 
 [[redirects]]
 from = "/docs/adapters/*"
-to = "/docs/get-started/"
+to = "/docs/get-started"
 status = 301
 
 [[redirects]]
 from = "/docs/guides/adapters/inversifyjs"
-to = "/docs/get-started/"
+to = "/docs/get-started"
+status = 301
+
+# ===========================================
+# LEGACY PATHS OBSERVED 404ing AT THE EDGE
+# ===========================================
+
+[[redirects]]
+from = "/docs/getting-started/examples"
+to = "/docs/get-started"
+status = 301
+
+[[redirects]]
+from = "/docs/overview/examples"
+to = "/docs/get-started"
+status = 301
+
+[[redirects]]
+from = "/docs/category/adapters"
+to = "/docs/get-started"
+status = 301
+
+[[redirects]]
+from = "/docs/category/core-concepts"
+to = "/docs/guides"
+status = 301
+
+[[redirects]]
+from = "/docs/category/api-reference"
+to = "/docs/api-reference"
 status = 301

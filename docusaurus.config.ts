@@ -68,12 +68,6 @@ const config: Config = {
       },
     ],
   ],
-  plugins: [
-    [
-      "@docusaurus/plugin-client-redirects",
-      require("./config/redirects.config.js"),
-    ],
-  ],
   themeConfig: {
     metadata: [
       {
