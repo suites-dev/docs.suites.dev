@@ -20,6 +20,12 @@ Get Suites up and running in your project.
 TypeScript classes (manually)
 - A testing library ([Jest](https://jestjs.io/), [Vitest](https://vitest.dev/), or [Sinon](https://sinonjs.org/))
 
+:::tip Coming from Automock?
+`@automock/jest` and `@automock/sinon` are deprecated and replaced by Suites. The
+[migration guide](/docs/migration-guides/from-automock/) covers the rename and the
+API differences; most projects are a dependency swap and a find-and-replace.
+:::
+
 ## Installation
 
 Install the core package:
@@ -30,49 +36,133 @@ npm install -D @suites/unit
 
 Install the adapters for your framework and testing library:
 
-<Tabs groupId="package-manager">
-  <TabItem value="npm" label="npm" default>
-    ```bash
-    # Install NestJS dependencies
-    npm install @nestjs/common @nestjs/core reflect-metadata
+<Tabs groupId="test-runner">
+  <TabItem value="jest" label="Jest" default>
+    <Tabs groupId="package-manager">
+      <TabItem value="npm" label="npm" default>
+        ```bash
+        # Install NestJS dependencies
+        npm install @nestjs/common @nestjs/core reflect-metadata
 
-    # Install Suites core and adapters
-    npm install --save-dev @suites/unit @suites/di.nestjs @suites/doubles.jest
+        # Install Suites core and adapters
+        npm install --save-dev @suites/unit @suites/di.nestjs @suites/doubles.jest
 
-    # Install TypeScript and Jest
-    npm install --save-dev ts-jest @types/jest jest typescript
-    ```
+        # Install TypeScript and Jest
+        npm install --save-dev ts-jest @types/jest jest typescript
+        ```
+      </TabItem>
+      <TabItem value="pnpm" label="pnpm">
+        ```bash
+        # Install NestJS dependencies
+        pnpm add @nestjs/common @nestjs/core reflect-metadata
+
+        # Install Suites core and adapters
+        pnpm add -D @suites/unit @suites/di.nestjs @suites/doubles.jest
+
+        # Install TypeScript and Jest
+        pnpm add -D ts-jest @types/jest jest typescript
+        ```
+      </TabItem>
+      <TabItem value="yarn" label="yarn">
+        ```bash
+        # Install NestJS dependencies
+        yarn add @nestjs/common @nestjs/core reflect-metadata
+
+        # Install Suites core and adapters
+        yarn add -D @suites/unit @suites/di.nestjs @suites/doubles.jest
+
+        # Install TypeScript and Jest
+        yarn add -D ts-jest @types/jest jest typescript
+        ```
+      </TabItem>
+    </Tabs>
   </TabItem>
-  <TabItem value="pnpm" label="pnpm">
-    ```bash
-    # Install NestJS dependencies
-    pnpm add @nestjs/common @nestjs/core reflect-metadata
+  <TabItem value="vitest" label="Vitest">
+    <Tabs groupId="package-manager">
+      <TabItem value="npm" label="npm" default>
+        ```bash
+        # Install NestJS dependencies
+        npm install @nestjs/common @nestjs/core reflect-metadata
 
-    # Install Suites core and adapters
-    pnpm add -D @suites/unit @suites/di.nestjs @suites/doubles.jest
+        # Install Suites core and adapters
+        npm install --save-dev @suites/unit @suites/di.nestjs @suites/doubles.vitest
 
-    # Install TypeScript and Jest
-    pnpm add -D ts-jest @types/jest jest typescript
-    ```
+        # Install TypeScript and Vitest
+        npm install --save-dev vitest unplugin-swc @swc/core typescript
+        ```
+      </TabItem>
+      <TabItem value="pnpm" label="pnpm">
+        ```bash
+        # Install NestJS dependencies
+        pnpm add @nestjs/common @nestjs/core reflect-metadata
+
+        # Install Suites core and adapters
+        pnpm add -D @suites/unit @suites/di.nestjs @suites/doubles.vitest
+
+        # Install TypeScript and Vitest
+        pnpm add -D vitest unplugin-swc @swc/core typescript
+        ```
+      </TabItem>
+      <TabItem value="yarn" label="yarn">
+        ```bash
+        # Install NestJS dependencies
+        yarn add @nestjs/common @nestjs/core reflect-metadata
+
+        # Install Suites core and adapters
+        yarn add -D @suites/unit @suites/di.nestjs @suites/doubles.vitest
+
+        # Install TypeScript and Vitest
+        yarn add -D vitest unplugin-swc @swc/core typescript
+        ```
+      </TabItem>
+    </Tabs>
   </TabItem>
-  <TabItem value="yarn" label="yarn">
-    ```bash
-    # Install NestJS dependencies
-    yarn add @nestjs/common @nestjs/core reflect-metadata
+  <TabItem value="sinon" label="Sinon">
+    <Tabs groupId="package-manager">
+      <TabItem value="npm" label="npm" default>
+        ```bash
+        # Install NestJS dependencies
+        npm install @nestjs/common @nestjs/core reflect-metadata
 
-    # Install Suites core and adapters
-    yarn add -D @suites/unit @suites/di.nestjs @suites/doubles.jest
+        # Install Suites core and adapters
+        npm install --save-dev @suites/unit @suites/di.nestjs @suites/doubles.sinon
 
-    # Install TypeScript and Jest
-    yarn add -D ts-jest @types/jest jest typescript
-    ```
+        # Install TypeScript and Sinon
+        npm install --save-dev sinon @types/sinon typescript
+        ```
+      </TabItem>
+      <TabItem value="pnpm" label="pnpm">
+        ```bash
+        # Install NestJS dependencies
+        pnpm add @nestjs/common @nestjs/core reflect-metadata
+
+        # Install Suites core and adapters
+        pnpm add -D @suites/unit @suites/di.nestjs @suites/doubles.sinon
+
+        # Install TypeScript and Sinon
+        pnpm add -D sinon @types/sinon typescript
+        ```
+      </TabItem>
+      <TabItem value="yarn" label="yarn">
+        ```bash
+        # Install NestJS dependencies
+        yarn add @nestjs/common @nestjs/core reflect-metadata
+
+        # Install Suites core and adapters
+        yarn add -D @suites/unit @suites/di.nestjs @suites/doubles.sinon
+
+        # Install TypeScript and Sinon
+        yarn add -D sinon @types/sinon typescript
+        ```
+      </TabItem>
+    </Tabs>
   </TabItem>
 </Tabs>
 
 This installs three packages:
 - `@suites/unit` - Core TestBed API
 - `@suites/di.nestjs` - NestJS adapter for reading DI metadata
-- `@suites/doubles.jest` - Jest integration for creating type-safe mocks
+- `@suites/doubles.<runner>` - the adapter for the test runner selected above, which creates type-safe mocks
 
 **Suites will automatically detect the installed adapters and configure itself accordingly.**
 
@@ -165,7 +255,7 @@ Some package managers may have limitations with dependency hoisting that can aff
 across workspaces. Refer to the package manager's documentation for specific guidance on dependency hoisting.
 :::
 
-## For Vitest Users
+## Vitest: decorator metadata setup
 
 When integrating Suites with Vitest, additional configuration is required. Vitest typically uses [`esbuild`](https://esbuild.github.io/) for
 TypeScript interpretation, which does not support `emitDecoratorMetadata` - a feature extensively used by Suites for
