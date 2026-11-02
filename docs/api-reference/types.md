@@ -86,6 +86,6 @@ describe('UserService', () => {
 
 ## See Also
 
-- [UnitReference](/docs/api-reference/unit-reference) - Using the UnitReference interface
-- [Mock Configuration](/docs/api-reference/mock-configuration) - Configuring mocks with proper types
-- [TypeScript Configuration](/docs/get-started/installation#typescript-configuration) - Setting up TypeScript for Suites
+- [UnitReference](/docs/api-reference/unit-reference/) - Using the UnitReference interface
+- [Mock Configuration](/docs/api-reference/mock-configuration/) - Configuring mocks with proper types
+- [TypeScript Configuration](/docs/get-started/installation/#setting-up-tsconfigjson) - Setting up TypeScript for Suites

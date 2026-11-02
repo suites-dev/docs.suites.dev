@@ -31,11 +31,11 @@ Returns a `SolitaryTestBedBuilder<TClass>` instance with methods for configuring
 
 `TestBed.solitary()` creates a test environment where all of the class's dependencies are mocked by default. This is ideal for testing the internal logic of a class in complete isolation.
 
-Suites automatically identifies and mocks all constructor dependencies, which can then be accessed via `unitRef.get()`. Learn more in the [Virtual Test Container](/docs/guides/virtual-test-container) guide.
+Suites automatically identifies and mocks all constructor dependencies, which can then be accessed via `unitRef.get()`. Learn more in the [Virtual Test Container](/docs/guides/virtual-test-container/) guide.
 
 ## Configuring Mocks
 
-See [Mock Configuration](/docs/api-reference/mock-configuration) for details on `.mock().final()` and `.mock().impl()`.
+See [Mock Configuration](/docs/api-reference/mock-configuration/) for details on `.mock().final()` and `.mock().impl()`.
 
 ## Examples
 
@@ -85,7 +85,7 @@ repository.invalidMethod.mockReturnValue(123);
 
 ## See Also
 
-- [Solitary Tests Guide](/docs/guides/fundamentals#solitary-tests) - Conceptual guide
-- [TestBed.sociable()](/docs/api-reference/testbed-sociable) - Test with real dependencies
-- [UnitReference](/docs/api-reference/types#unitreference) - Accessing mocked dependencies with `unitRef.get()`
-- [Virtual Test Container](/docs/guides/virtual-test-container) - How Suites auto-mocks dependencies
+- [Solitary Tests Guide](/docs/guides/solitary/) - Conceptual guide
+- [TestBed.sociable()](/docs/api-reference/testbed-sociable/) - Test with real dependencies
+- [UnitReference](/docs/api-reference/unit-reference/) - Accessing mocked dependencies with `unitRef.get()`
+- [Virtual Test Container](/docs/guides/virtual-test-container/) - How Suites auto-mocks dependencies

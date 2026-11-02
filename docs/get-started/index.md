@@ -10,9 +10,9 @@ Learn how to install Suites, configure the testing environment, and write the fi
 <div class="in-this-section">
 
 ### In This Section
-- [**Why Suites?**](/docs/get-started/why-suites) - Compare with manual mocking and explore what Suites provides
-- [**Installation**](/docs/get-started/installation) - Install and configure Suites
-- [**Quick Start**](/docs/get-started/quickstart) - Write the first test in 5 minutes
+- [**Why Suites?**](/docs/get-started/why-suites/) - Compare with manual mocking and explore what Suites provides
+- [**Installation**](/docs/get-started/installation/) - Install and configure Suites
+- [**Quick Start**](/docs/get-started/quickstart/) - Write the first test in 5 minutes
 </div>
 
 ## Prerequisites
@@ -33,9 +33,9 @@ Currently: dependency injection frameworks (NestJS, InversifyJS) via TestBed, or
 
 For those new to Suites:
 
-1. **[Why Suites?](/docs/get-started/why-suites)** - Explore what Suites provides
-2. **[Installation](/docs/get-started/installation)** - Set up the environment
-3. **[Quick Start](/docs/get-started/quickstart)** - Write the first test
+1. **[Why Suites?](/docs/get-started/why-suites/)** - Explore what Suites provides
+2. **[Installation](/docs/get-started/installation/)** - Set up the environment
+3. **[Quick Start](/docs/get-started/quickstart/)** - Write the first test
 4. **[Guides](/docs/guides/)** - Learn testing patterns
 
 ## Resources

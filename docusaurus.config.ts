@@ -122,7 +122,12 @@ const config: Config = {
       disableSwitch: true,
       defaultMode: "dark",
     },
-    algolia: algoliaConfig,
+    // The crawler only matches /docs/**, so no record carries the
+    // docusaurus_tag:default value that contextual search sends from the
+    // homepage and other src/pages routes, and search there returns nothing.
+    // One docs version and one language means contextual filtering buys us
+    // nothing, so every route queries the same index.
+    algolia: { ...algoliaConfig, contextualSearch: false },
     navbar: {
       title: "Suites",
       logo: {

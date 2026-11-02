@@ -8,7 +8,7 @@ description: How Suites creates lightweight test environments following inversio
 
 > **What this covers:** How Suites creates lightweight test environments without full framework initialization \
 > **Time to read:** ~10 minutes \
-> **Prerequisites:** [Unit Testing Fundamentals](/docs/guides/fundamentals) \
+> **Prerequisites:** [Unit Testing Fundamentals](/docs/guides/fundamentals/) \
 > **Best for:** Understanding how Suites achieves speed and type safety under the hood
 
 The Virtual Test Container is the engine that drives Suites' testing capabilities. It analyzes classes to understand
@@ -206,5 +206,5 @@ This separation happens automatically. The Virtual Test Container uses token inj
 
 Explore how to use the Virtual Test Container in different testing scenarios:
 
-- **[Solitary Unit Tests](/docs/guides/solitary)**: Use the virtual container for complete isolation with automatic mocking
-- **[Sociable Unit Tests](/docs/guides/sociable)**: Use `.expose()` for controlled collaboration
+- **[Solitary Unit Tests](/docs/guides/solitary/)**: Use the virtual container for complete isolation with automatic mocking
+- **[Sociable Unit Tests](/docs/guides/sociable/)**: Use `.expose()` for controlled collaboration

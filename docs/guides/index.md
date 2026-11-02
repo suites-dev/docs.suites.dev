@@ -14,16 +14,16 @@ Practical guides for writing solitary and sociable unit tests with Suites. Learn
 
 ### In This Section
 
-- [**Fundamentals of Unit Testing**](/docs/guides/fundamentals) - Core principles and best practices
-- [**Solitary Unit Tests**](/docs/guides/solitary) - Testing components in complete isolation
-- [**Sociable Unit Tests**](/docs/guides/sociable) - Testing with real dependencies
-- [**Test Doubles**](/docs/guides/test-doubles) - Mocks, stubs, and spies
-- [**Virtual Test Container**](/docs/guides/virtual-test-container) - How Suites creates test environments
+- [**Fundamentals of Unit Testing**](/docs/guides/fundamentals/) - Core principles and best practices
+- [**Solitary Unit Tests**](/docs/guides/solitary/) - Testing components in complete isolation
+- [**Sociable Unit Tests**](/docs/guides/sociable/) - Testing with real dependencies
+- [**Test Doubles**](/docs/guides/test-doubles/) - Mocks, stubs, and spies
+- [**Virtual Test Container**](/docs/guides/virtual-test-container/) - How Suites creates test environments
 
 </div>
 
 :::tip
-Start with [Fundamentals](/docs/guides/fundamentals), then [Solitary](/docs/guides/solitary) and [Sociable](/docs/guides/sociable) testing.
+Start with [Fundamentals](/docs/guides/fundamentals/), then [Solitary](/docs/guides/solitary/) and [Sociable](/docs/guides/sociable/) testing.
 :::
 
 :::tip Working Examples

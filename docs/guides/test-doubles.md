@@ -11,7 +11,7 @@ keywords: [test doubles, mocks, stubs, spies, fakes, mocks vs stubs, typescript 
 > automatically for TypeScript backends. \
 > **Time to read:** ~10 minutes \
 > **Prerequisites:** Familiarity with unit testing concepts. New to Suites? Start with
-> the [Quickstart](/docs/get-started/quickstart). \
+> the [Quickstart](/docs/get-started/quickstart/). \
 > **Best for:** Understanding the theory behind test doubles after hands-on experience with solitary testing
 
 A **test double** is a stand-in object you use in a unit test in place of a real dependency (a database, an HTTP client,
@@ -58,7 +58,7 @@ That's it - `UserRepository` was generated as a mock with every method pre-stubb
 factory.
 
 > **Try it:** Set up Suites and write your first test in under five minutes. See
-> the [Quickstart](/docs/get-started/quickstart).
+> the [Quickstart](/docs/get-started/quickstart/).
 
 The rest of this guide explains how Suites uses the terms _mock_ and _stub_, which dependencies it can and can't
 replace, and how to choose between state and behaviour verification in practice.
@@ -165,9 +165,9 @@ repo.findById.mockResolvedValue(testUser);
 
 For more details on configuration options, see:
 
-- [Mock Configuration](/docs/api-reference/mock-configuration) - Using `.mock().final()` and `.mock().impl()`
-- [Types](/docs/api-reference/types) - Details about the `Mocked<T>` type
-- [mock() function](/docs/api-reference/mock) - Creating mocks manually
+- [Mock Configuration](/docs/api-reference/mock-configuration/) - Using `.mock().final()` and `.mock().impl()`
+- [Types](/docs/api-reference/types/) - Details about the `Mocked<T>` type
+- [mock() function](/docs/api-reference/mock/) - Creating mocks manually
 
 ## Testing with Real Implementations
 
@@ -184,7 +184,7 @@ const result = await unit.createUser(userData);
 expect(result.id).toBeDefined();  // Real database logic executed
 ```
 
-See [Sociable Unit Tests](/docs/guides/sociable) for more information.
+See [Sociable Unit Tests](/docs/guides/sociable/) for more information.
 
 ## Summary
 

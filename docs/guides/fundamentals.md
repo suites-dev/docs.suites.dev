@@ -158,11 +158,11 @@ Suites supports two approaches based
 on [Martin Fowler's distinction between solitary and sociable unit tests](https://martinfowler.com/bliki/UnitTest.html):
 
 * **Solitary Unit Tests** - Test one class in complete isolation. All collaborators are replaced with test doubles to ensure a fault in a dependency does not cause the primary class's tests to fail. \
-See [Solitary Unit Tests](/docs/guides/solitary) for examples and usage.
+See [Solitary Unit Tests](/docs/guides/solitary/) for examples and usage.
 
 * **Sociable Unit Tests** - Test multiple component classes together with their real collaborators. External I/O 
   (databases, APIs, file systems) is replaced with test doubles (mocks and stubs) to keep tests fast and deterministic. \
-See [Sociable Unit Tests](/docs/guides/sociable) for examples and usage.
+See [Sociable Unit Tests](/docs/guides/sociable/) for examples and usage.
 
 Suites follows Fowler's pragmatic approach: use test doubles when collaboration is awkward (external services, I/O), but allow real collaborators when interactions are fast and stable.
 
@@ -179,17 +179,17 @@ Suites follows Fowler's pragmatic approach: use test doubles when collaboration 
 |---------------------|--------------------------------------------------------------------------------------|-------------------------------------------|
 | Unit Test           | Verifies individual components in isolation                                          | [See above](#what-is-unit-testing)        |
 | Integration Test    | Tests how multiple components work together with real external systems including I/O | N/A - Suites focuses on unit testing      |
-| Solitary Test       | Unit test with all dependencies mocked                                               | [Solitary Guide](/docs/guides/solitary)   |
-| Sociable Test       | Unit test with selected real dependencies, external I/O mocked                       | [Sociable Guide](/docs/guides/sociable)   |
+| Solitary Test       | Unit test with all dependencies mocked                                               | [Solitary Guide](/docs/guides/solitary/)   |
+| Sociable Test       | Unit test with selected real dependencies, external I/O mocked                       | [Sociable Guide](/docs/guides/sociable/)   |
 | Dependency          | A collaborator object that a component needs to function                             | Soon                                      |
 
 ## Next Steps
 
 Now that you understand the fundamentals of unit testing with Suites, explore specific testing approaches:
 
-- **[Solitary Unit Testing](/docs/guides/solitary)**: Write tests with complete isolation using automatic mocking
-- **[Sociable Unit Testing](/docs/guides/sociable)**: Test multiple classes together with controlled collaboration
-- **[Test Doubles in Suites](/docs/guides/test-doubles)**: Learn about mocks, stubs, spies, and when to use each
+- **[Solitary Unit Testing](/docs/guides/solitary/)**: Write tests with complete isolation using automatic mocking
+- **[Sociable Unit Testing](/docs/guides/sociable/)**: Test multiple classes together with controlled collaboration
+- **[Test Doubles in Suites](/docs/guides/test-doubles/)**: Learn about mocks, stubs, spies, and when to use each
 
 ## Additional Resources
 

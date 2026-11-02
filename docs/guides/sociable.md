@@ -11,7 +11,7 @@ import TabItem from '@theme/TabItem';
 
 > **What this covers:** Testing real component (class) interactions while controlling external dependencies \
 > **Time to read:** ~15 minutes \
-> **Prerequisites:** [Unit Testing Fundamentals](/docs/guides/fundamentals), [Solitary Unit Tests](/docs/guides/solitary/), [Test Doubles](/docs/guides/test-doubles/) \
+> **Prerequisites:** [Unit Testing Fundamentals](/docs/guides/fundamentals/), [Solitary Unit Tests](/docs/guides/solitary/), [Test Doubles](/docs/guides/test-doubles/) \
 > **Best for:** Verifying components (classes) work together correctly, catching integration bugs while maintaining test speed
 
 Sociable unit tests verify how components interact with their real dependencies while keeping external I/O operations under control. This approach identifies bugs in how business logic components work together - bugs that solitary tests miss.
@@ -19,7 +19,7 @@ Sociable unit tests verify how components interact with their real dependencies 
 ## Sociable Tests Are Unit Tests
 
 Sociable tests are **unit tests**, not integration tests. They keep external I/O (databases, APIs, file systems) mocked to stay fast and side-effect-free. The integration bugs they catch are issues in how business logic components work with each other - not issues with real external systems. \
-For the distinction, see [Unit Testing Fundamentals: Quick Reference](/docs/guides/fundamentals#quick-reference).
+For the distinction, see [Unit Testing Fundamentals: Quick Reference](/docs/guides/fundamentals/#quick-reference).
 
 ## Overview
 
@@ -217,7 +217,7 @@ describe('OrderService', () => {
 ```
 
 :::tip Understanding the Control Boundary
-Suites can only control **explicit dependencies** (passed through constructors). It cannot control implicit dependencies (direct imports). For more, see [Test Doubles](/docs/guides/test-doubles).
+Suites can only control **explicit dependencies** (passed through constructors). It cannot control implicit dependencies (direct imports). For more, see [Test Doubles](/docs/guides/test-doubles/).
 :::
 
 ## Step 4: Choose When to Configure Mocks
