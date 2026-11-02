@@ -2,12 +2,24 @@ import algoliaConfig from "./config/algolia-config";
 import type { Config } from "@docusaurus/types";
 import { draculaThemeConfig } from "./config/prisma-theme.config";
 
+// Netlify sets CONTEXT to "production" | "deploy-preview" | "branch-deploy".
+// It is unset locally and in CI, so analytics never fires outside a real
+// production deploy. SUITES_FORCE_GTAG is an escape hatch for reproducing a
+// tagging bug locally without editing this file.
+const isProductionDeploy =
+  process.env.CONTEXT === "production" || process.env.SUITES_FORCE_GTAG === "1";
+
+console.log(
+  `[docusaurus] CONTEXT=${process.env.CONTEXT ?? "(unset)"} gtag=${isProductionDeploy ? "enabled" : "disabled"}`,
+);
+
 const config: Config = {
   title: "Suites Documentation",
   tagline: "A unit testing framework for TypeScript backends working with inversion of control and dependency injection",
   organizationName: "suites-dev",
   url: "https://suites.dev",
   baseUrl: "/",
+  trailingSlash: true,
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "throw",
   favicon: "img/favicon.png",
@@ -46,17 +58,21 @@ const config: Config = {
           customCss: require.resolve("./src/css/custom.css"),
         },
         blog: false,
-        gtag: {
-          trackingID: "G-G7FJBNFPJJ",
-          anonymizeIP: true,
+        ...(isProductionDeploy
+          ? {
+              gtag: {
+                trackingID: "G-G7FJBNFPJJ",
+                anonymizeIP: true,
+              },
+            }
+          : {}),
+        sitemap: {
+          changefreq: "weekly",
+          priority: 0.5,
+          filename: "sitemap.xml",
+          ignorePatterns: ["/404", "/404/", "/search", "/search/"],
         },
       },
-    ],
-  ],
-  plugins: [
-    [
-      "@docusaurus/plugin-client-redirects",
-      require("./config/redirects.config.js"),
     ],
   ],
   themeConfig: {

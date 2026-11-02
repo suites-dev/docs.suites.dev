@@ -224,6 +224,11 @@ and let teams change constructors or add dependencies without breaking tests.
 
 Suites works seamlessly with frameworks implementing IoC using the same clean API.
 
+The same applies to test runners. Jest, Vitest and Sinon each have an adapter, and
+the `TestBed` API is identical across all three, so the examples below and
+everywhere else in these docs work whichever runner a project uses. Switching
+runners means changing one dependency, not rewriting tests.
+
 <Tabs>
 <TabItem value="nestjs" label="NestJS" default>
 

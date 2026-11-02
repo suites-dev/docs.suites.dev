@@ -11,7 +11,7 @@ import TabItem from '@theme/TabItem';
 
 > **What this covers:** Testing real component (class) interactions while controlling external dependencies \
 > **Time to read:** ~15 minutes \
-> **Prerequisites:** [Unit Testing Fundamentals](/docs/guides/fundamentals), [Solitary Unit Tests](./solitary), [Test Doubles](./test-doubles) \
+> **Prerequisites:** [Unit Testing Fundamentals](/docs/guides/fundamentals), [Solitary Unit Tests](/docs/guides/solitary/), [Test Doubles](/docs/guides/test-doubles/) \
 > **Best for:** Verifying components (classes) work together correctly, catching integration bugs while maintaining test speed
 
 Sociable unit tests verify how components interact with their real dependencies while keeping external I/O operations under control. This approach identifies bugs in how business logic components work together - bugs that solitary tests miss.
@@ -325,5 +325,5 @@ Sociable tests work alongside solitary tests to provide comprehensive coverage:
 
 After understanding sociable testing, explore these resources:
 
-- **[Test Doubles](./test-doubles)**: Core concepts of mocking and stubbing
+- **[Test Doubles](/docs/guides/test-doubles/)**: Core concepts of mocking and stubbing
 - **[Suites Examples Repository](https://github.com/suites-dev/examples)**: Working examples of sociable testing patterns

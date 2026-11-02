@@ -55,7 +55,7 @@ export default function Header(): JSX.Element {
           <nav>
             <ul className={styles.navWrapper}>
               <li className={styles.hidden_xs}>
-                <Link href="/docs" title="Documentation | Suites">Documentation</Link>
+                <Link href="/docs/get-started/" title="Documentation | Suites">Documentation</Link>
               </li>
               <li>
                 <Link href="https://github.com/suites-dev/suites" target="_blank" className="icon m-l-30">
@@ -73,7 +73,7 @@ export default function Header(): JSX.Element {
               <h1>Suites <span>(formerly Automock)</span></h1>
               <h4>A progressive testing meta-framework</h4>
               <div className={styles.buttonsWrapper}>
-                <a href="/docs" className={`${styles.btn} ${styles.documentationBtn}`}>Documentation</a>
+                <a href="/docs/get-started/" className={`${styles.btn} ${styles.documentationBtn}`}>Documentation</a>
                 <a href="https://github.com/suites-dev/suites" className={`${styles.btn} ${styles.sourceBtn}`}>
                   <FaGithub/>
                   <span>Source Code</span>
