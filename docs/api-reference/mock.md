@@ -286,6 +286,6 @@ obj.method2.mockReturnValue(100);
 
 ## See Also
 
-- [Types](/docs/api-reference/types#mocked) - `Mocked<T>` type definition
+- [Types](/docs/api-reference/types/#mockedt) - `Mocked<T>` type definition
 - [TestBed.solitary()](/docs/api-reference/testbed-solitary) - Automatic dependency mocking
-- [TestBed Configuration](/docs/api-reference/testbed-solitary#pre-compile-mock-configuration) - Using `.mock().impl()` with `stub()`
+- [TestBed Configuration](/docs/api-reference/testbed-solitary/#configuring-mocks) - Using `.mock().impl()` with `stub()`

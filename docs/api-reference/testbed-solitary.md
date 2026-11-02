@@ -85,7 +85,7 @@ repository.invalidMethod.mockReturnValue(123);
 
 ## See Also
 
-- [Solitary Tests Guide](/docs/guides/fundamentals#solitary-tests) - Conceptual guide
+- [Solitary Tests Guide](/docs/guides/solitary/) - Conceptual guide
 - [TestBed.sociable()](/docs/api-reference/testbed-sociable) - Test with real dependencies
-- [UnitReference](/docs/api-reference/types#unitreference) - Accessing mocked dependencies with `unitRef.get()`
+- [UnitReference](/docs/api-reference/unit-reference/) - Accessing mocked dependencies with `unitRef.get()`
 - [Virtual Test Container](/docs/guides/virtual-test-container) - How Suites auto-mocks dependencies
