@@ -8,15 +8,14 @@ keywords: [ automock, migrate from automock, automock to suites, "@automock/jest
 # Migrating from Automock to Suites
 
 :::danger Automock Deprecation Notice
-**Automock will be fully deprecated on June 30, 2026.** Until then, it receives critical fixes only. All new features
-and improvements are released exclusively under Suites 3.x. Please migrate before the deprecation date.
+**Automock is no longer maintained.** Support ended on **June 30, 2026**, including critical fixes.
+Migrate to `@suites/unit` using this guide. All new features and improvements are released under Suites.
 :::
 
 ## Introduction
 
-Suites succeeds Automock as the actively developed testing framework. Automock stopped at version `2.1.0` and receives
-critical fixes only until **June 30, 2026**, after which it will no longer be maintained. All new development continues
-in Suites, starting from version `3.0.0`.
+Suites succeeds Automock as the actively developed testing framework. Support for Automock 2.x ended on
+**June 30, 2026**. All new development continues in Suites, starting from version `3.0.0`.
 
 This guide covers the migration process from Automock to Suites, including dependency updates, API changes, and new
 features.
@@ -27,8 +26,7 @@ For detailed setup instructions, see the [Installation Guide](/docs/get-started/
 
 Version `3.0.0` of Suites was the first release after Automock's `v2.1.2` completion, with subsequent improvements in
 `3.0.1` and beyond. Each new version comes with more features
-and better support. Automock will continue to receive critical fixes for `v2.1.x`, but all new development will focus on
-Suites.
+and better support. Automock `v2.1.x` no longer receives fixes. All new development focuses on Suites.
 
 ## Migration Guide
 
@@ -147,7 +145,7 @@ await TestBed.solitary(UserService)
 
 ### Versioning
 
-- Automock stopped at version `2.1.2`, and will receive critical bug fixes only.
+- Automock stopped at version `2.1.2` and is no longer maintained.
 - Suites started at version `3.0.0` and is currently at `3.0.1+`, continuing active development.
 
 ### Breaking Changes
@@ -249,7 +247,7 @@ either expose what you need or suggest an alternative.
 
 ## Historical Releases and NPM Packages
 
-The release history and NPM packages under the `@automock` scope will be preserved for historical reference. However,
-all new features and improvements will be released under the `@suites` scope.
+The release history and NPM packages under the `@automock` scope remain available for historical reference and
+existing projects. All new features and improvements are released under the `@suites` scope.
 
 For more information, see the [Suites release notes](https://github.com/suites-dev/suites/releases).
