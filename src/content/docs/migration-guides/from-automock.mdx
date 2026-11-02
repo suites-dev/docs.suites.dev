@@ -21,7 +21,7 @@ in Suites, starting from version `3.0.0`.
 This guide covers the migration process from Automock to Suites, including dependency updates, API changes, and new
 features.
 
-For detailed setup instructions, see the [Installation Guide](/docs/get-started/installation).
+For detailed setup instructions, see the [Installation Guide](/docs/get-started/installation/).
 
 ## The Shift from Automock
 
@@ -54,7 +54,7 @@ manually or understand a specific transformation.
 
 Replace Automock dependencies with Suites equivalents.
 
-See [Installation Guide](/docs/get-started/installation) for detailed adapter information:
+See [Installation Guide](/docs/get-started/installation/) for detailed adapter information:
 
 ```bash
 # Remove Automock packages
@@ -165,10 +165,10 @@ const {unit} = await TestBed.solitary(Service).compile();
 ```
 
 **`TestBed.create()` is now `TestBed.solitary()`**: This change supports the distinction between solitary and sociable
-testing approaches. See [Solitary API](/docs/api-reference/testbed-solitary).
+testing approaches. See [Solitary API](/docs/api-reference/testbed-solitary/).
 
 * **New `.sociable()` method**: Added to the TestBed API for testing with real implementations of select dependencies.
-  See [Sociable API](/docs/api-reference/testbed-sociable).
+  See [Sociable API](/docs/api-reference/testbed-sociable/).
 
 * **Unified TestBed import**: TestBed is now exported from `@suites/unit` regardless of the installed adapters.
   Instead of importing from `@automock/jest` or `@automock/sinon`, now import from `@suites/unit`.
@@ -183,15 +183,15 @@ testing approaches. See [Solitary API](/docs/api-reference/testbed-solitary).
   like `jest.fn()` or `sinon.stub()`.
 - `.mock.final` is similar but without stubs and cannot be retrieved from the unit reference.
 
-See [Mock Configuration API](/docs/api-reference/mock-configuration) for complete details.
+See [Mock Configuration API](/docs/api-reference/mock-configuration/) for complete details.
 
 ### New Features
 
 - **Support for Vitest and ESM**: Suites now supports Vitest and ECMAScript Modules (ESM).
 - **Sociable Unit Testing**: Test with real implementations of selected dependencies.
-  See [Sociable Unit Tests](/docs/guides/sociable).
+  See [Sociable Unit Tests](/docs/guides/sociable/).
 - **Enhanced Type Safety**: Improved TypeScript support with the `Mocked<T>` type.
-  See [Types API](/docs/api-reference/types).
+  See [Types API](/docs/api-reference/types/).
 
 ## Troubleshooting Common Migration Issues
 
@@ -204,7 +204,7 @@ Errors like `TypeError: Cannot read properties of undefined (reading 'get')` ind
 
 Type errors with mocked dependencies require using the new `Mocked<T>` type from `@suites/unit`.
 
-See [Types API Reference](/docs/api-reference/types) for details:
+See [Types API Reference](/docs/api-reference/types/) for details:
 
 ```typescript
 // Before
@@ -225,7 +225,7 @@ let userRepo: Mocked<UserRepository>;
 
 Errors about missing dependencies indicate that adapter packages need installation.
 
-See [Installation Guide](/docs/get-started/installation#supported-libraries-adapters) for the complete list of adapters.
+See [Installation Guide](/docs/get-started/installation/#supported-libraries-adapters) for the complete list of adapters.
 
 ## Looking for old Automock internals?
 

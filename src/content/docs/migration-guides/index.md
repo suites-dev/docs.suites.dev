@@ -8,7 +8,7 @@ Guides for migrating to Suites from other testing frameworks or upgrading betwee
 
 ## Available Guides
 
-### [From Automock](/docs/migration-guides/from-automock)
+### [From Automock](/docs/migration-guides/from-automock/)
 Migrate from Automock to Suites with step-by-step instructions and API mapping.
 
 ## Future Guides

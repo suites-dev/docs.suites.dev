@@ -40,17 +40,17 @@ const sidebar: SidebarConfig = {
         // sidebar_position: 1
         { label: "Get Started", href: "/docs/get-started/" },
         // sidebar_position: 2
-        { label: "Why Suites?", href: "/docs/get-started/why-suites" },
+        { label: "Why Suites?", href: "/docs/get-started/why-suites/" },
         // sidebar_position: 3
         {
           label:
             "Install Suites for NestJS, Inversify, Jest, Vitest, and Sinon",
-          href: "/docs/get-started/installation",
+          href: "/docs/get-started/installation/",
         },
         // sidebar_position: 4
         {
           label: "Suites Quick Start: Write Your First Unit Test in 5 Minutes",
-          href: "/docs/get-started/quickstart",
+          href: "/docs/get-started/quickstart/",
         },
       ],
     },
@@ -62,28 +62,28 @@ const sidebar: SidebarConfig = {
         // sidebar_position: 1
         {
           label: "Unit Testing Fundamentals",
-          href: "/docs/guides/fundamentals",
+          href: "/docs/guides/fundamentals/",
         },
         // sidebar_position: 2
         {
           label:
             "TypeScript Test Doubles: Auto-Generated Mocks, Stubs, Spies & Fakes",
-          href: "/docs/guides/test-doubles",
+          href: "/docs/guides/test-doubles/",
         },
         // sidebar_position: 3
         {
           label: "Testing in Isolation (Solitary)",
-          href: "/docs/guides/solitary",
+          href: "/docs/guides/solitary/",
         },
         // sidebar_position: 4
         {
           label: "Testing Components Together (Sociable)",
-          href: "/docs/guides/sociable",
+          href: "/docs/guides/sociable/",
         },
         // sidebar_position: 7
         {
           label: "Virtual Test Container Concept",
-          href: "/docs/guides/virtual-test-container",
+          href: "/docs/guides/virtual-test-container/",
         },
       ],
     },
@@ -95,24 +95,24 @@ const sidebar: SidebarConfig = {
         // sidebar_position: 2
         {
           label: "TestBed.solitary()",
-          href: "/docs/api-reference/testbed-solitary",
+          href: "/docs/api-reference/testbed-solitary/",
         },
         // sidebar_position: 3
         {
           label: "TestBed.sociable()",
-          href: "/docs/api-reference/testbed-sociable",
+          href: "/docs/api-reference/testbed-sociable/",
         },
         // sidebar_position: 4
         {
           label: "Mock Configuration",
-          href: "/docs/api-reference/mock-configuration",
+          href: "/docs/api-reference/mock-configuration/",
         },
         // sidebar_position: 5 (unit-reference)
-        { label: "UnitReference", href: "/docs/api-reference/unit-reference" },
+        { label: "UnitReference", href: "/docs/api-reference/unit-reference/" },
         // sidebar_position: 5 (mock)
-        { label: "mock() and stub()", href: "/docs/api-reference/mock" },
+        { label: "mock() and stub()", href: "/docs/api-reference/mock/" },
         // sidebar_position: 6
-        { label: "Types", href: "/docs/api-reference/types" },
+        { label: "Types", href: "/docs/api-reference/types/" },
       ],
     },
     {
@@ -123,7 +123,7 @@ const sidebar: SidebarConfig = {
         // sidebar_position: 5
         {
           label: "Migrating from Automock to Suites",
-          href: "/docs/migration-guides/from-automock",
+          href: "/docs/migration-guides/from-automock/",
         },
       ],
     },
@@ -131,7 +131,7 @@ const sidebar: SidebarConfig = {
       label: "Changelog",
       items: [
         // sidebar_position: 6
-        { label: "Changelog", href: "/docs/changelog" },
+        { label: "Changelog", href: "/docs/changelog/" },
       ],
     },
   ],

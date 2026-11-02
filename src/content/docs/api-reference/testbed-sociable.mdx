@@ -11,7 +11,7 @@ Creates a test environment that mixes real implementations with mocked dependenc
 <Aside type="info" title="Sociable Tests Are Still Unit Tests">
 Even with multiple real classes, sociable tests remain unit tests because external I/O (databases, HTTP, caches) are
 injected via tokens (`@Inject('DATABASE')`) which are automatically mocked. You're testing business logic interactions,
-not actual I/O.  See the [Sociable Unit Tests Guide](/docs/guides/sociable) for concepts.
+not actual I/O.  See the [Sociable Unit Tests Guide](/docs/guides/sociable/) for concepts.
 </Aside>
 
 ## Signature
@@ -71,6 +71,6 @@ const database = unitRef.get(Database);
 
 ## See Also
 
-- [Sociable Unit Tests Guide](/docs/guides/sociable) - When to use, concepts, detailed examples
-- [TestBed.solitary()](/docs/api-reference/testbed-solitary) - For fully isolated tests
-- [Mock Configuration](/docs/api-reference/mock-configuration) - Configuring mock behavior
+- [Sociable Unit Tests Guide](/docs/guides/sociable/) - When to use, concepts, detailed examples
+- [TestBed.solitary()](/docs/api-reference/testbed-solitary/) - For fully isolated tests
+- [Mock Configuration](/docs/api-reference/mock-configuration/) - Configuring mock behavior

@@ -10,12 +10,12 @@ API reference for setting up and managing unit tests with Suites.
 
 ### Core APIs
 
-- [**TestBed.solitary()**](/docs/api-reference/testbed-solitary) - Create isolated unit tests where all dependencies are automatically mocked
-- [**TestBed.sociable()**](/docs/api-reference/testbed-sociable) - Test business logic interactions, keep specific dependencies real
-- [**Mock Configuration**](/docs/api-reference/mock-configuration) - Configure mock behavior with `.mock().final()` and `.mock().impl()`
-- [**mock() and stub()**](/docs/api-reference/mock) - Create standalone mocks outside `TestBed` API
-- [**UnitReference**](/docs/api-reference/unit-reference) - Access mocked dependencies in tests
-- [**Types**](/docs/api-reference/types) - TypeScript type definitions
+- [**TestBed.solitary()**](/docs/api-reference/testbed-solitary/) - Create isolated unit tests where all dependencies are automatically mocked
+- [**TestBed.sociable()**](/docs/api-reference/testbed-sociable/) - Test business logic interactions, keep specific dependencies real
+- [**Mock Configuration**](/docs/api-reference/mock-configuration/) - Configure mock behavior with `.mock().final()` and `.mock().impl()`
+- [**mock() and stub()**](/docs/api-reference/mock/) - Create standalone mocks outside `TestBed` API
+- [**UnitReference**](/docs/api-reference/unit-reference/) - Access mocked dependencies in tests
+- [**Types**](/docs/api-reference/types/) - TypeScript type definitions
 
 </div>
 

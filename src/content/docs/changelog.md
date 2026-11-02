@@ -79,7 +79,7 @@ const { unit } = await TestBed.solitary(UserService).compile();
 **Migration Support**
 
 We've prepared comprehensive migration guides to help you upgrade smoothly:
-- [Migration from Automock →](/docs/migration-guides/from-automock)
+- [Migration from Automock →](/docs/migration-guides/from-automock/)
 - Migration tool development in progress
 
 [View full release notes →](https://github.com/suites-dev/suites/releases/tag/v3.0.0)

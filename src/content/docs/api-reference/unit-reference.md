@@ -143,7 +143,7 @@ const database = unitRef.get(Database);
 
 ## Type Safety
 
-The `Mocked<T>` type ensures type safety for your mocks (See more in [Types Reference](/docs/api-reference/types):
+The `Mocked<T>` type ensures type safety for your mocks (See more in [Types Reference](/docs/api-reference/types/):
 
 ```typescript
 interface UserRepository {
@@ -203,7 +203,7 @@ const logger = unitRef.get<Logger>('LoggerToken'); // ✅ Correct symbol
 
 ## See Also
 
-- [Types](/docs/api-reference/types) - Type definitions including `Mocked<T>`
-- [Mock Configuration](/docs/api-reference/mock-configuration) - Configuring mock behavior
-- [TestBed.solitary()](/docs/api-reference/testbed-solitary) - Creating isolated tests
-- [TestBed.sociable()](/docs/api-reference/testbed-sociable) - Creating sociable tests
+- [Types](/docs/api-reference/types/) - Type definitions including `Mocked<T>`
+- [Mock Configuration](/docs/api-reference/mock-configuration/) - Configuring mock behavior
+- [TestBed.solitary()](/docs/api-reference/testbed-solitary/) - Creating isolated tests
+- [TestBed.sociable()](/docs/api-reference/testbed-sociable/) - Creating sociable tests
