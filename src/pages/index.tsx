@@ -62,6 +62,15 @@ function HomepageHeader() {
                 GitHub
               </Link>
             </div>
+            <p className={styles.automockNote}>
+              Coming from Automock?{" "}
+              <Link
+                to="/docs/migration-guides/from-automock/"
+                onClick={() => trackButtonClick("from_automock", "homepage_hero")}
+              >
+                Read the migration guide
+              </Link>
+            </p>
             <div className={styles.worksWithSection}>
               <p className={styles.worksWithTitle}>Works with projects using</p>
               <div className={styles.logoGrid}>

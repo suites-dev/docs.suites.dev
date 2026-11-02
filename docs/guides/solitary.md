@@ -8,7 +8,7 @@ description: Testing in isolation with Suites
 
 > **What this covers:** Writing unit tests that isolate a single component (class) using automatic mocking \
 > **Time to read:** ~8 minutes \
-> **Prerequisites:** [Unit Testing Fundamentals](/docs/guides/fundamentals), [Test Doubles](./test-doubles) \
+> **Prerequisites:** [Unit Testing Fundamentals](/docs/guides/fundamentals), [Test Doubles](/docs/guides/test-doubles/) \
 > **Best for:** Testing component logic in complete isolation, controlling all inputs for predictable results
 
 Solitary unit tests evaluate a single unit of work in complete isolation from its external dependencies. These tests use

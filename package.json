@@ -6,6 +6,8 @@
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
     "build": "docusaurus build",
+    "algolia:reindex": "node scripts/algolia-reindex.mjs",
+    "algolia:sync-config": "node scripts/sync-algolia-config.mjs",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
@@ -17,7 +19,6 @@
   "dependencies": {
     "@algolia/client-search": "^4.24.0",
     "@docusaurus/core": "^3.4.0",
-    "@docusaurus/plugin-client-redirects": "^3.4.0",
     "@docusaurus/plugin-google-gtag": "^3.4.0",
     "@docusaurus/plugin-sitemap": "^3.4.0",
     "@docusaurus/preset-classic": "^3.4.0",

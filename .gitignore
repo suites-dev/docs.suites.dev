@@ -2,3 +2,9 @@ node_modules
 .idea
 .docusaurus
 build
+
+# Local Netlify folder
+.netlify
+
+# macOS
+.DS_Store

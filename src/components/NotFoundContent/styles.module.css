@@ -1,0 +1,86 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 1.5rem;
+  min-height: 60vh;
+}
+
+.inner {
+  max-width: 720px;
+  width: 100%;
+  text-align: left;
+}
+
+.code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Cascadia Mono", monospace;
+  font-size: 1rem;
+  letter-spacing: 0.15em;
+  color: var(--ifm-color-emphasis-600);
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+}
+
+.title {
+  font-size: 2.25rem;
+  line-height: 1.2;
+  margin: 0 0 1rem;
+}
+
+.subtitle {
+  font-size: 1.05rem;
+  color: var(--ifm-color-emphasis-700);
+  margin-bottom: 2.5rem;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2.5rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .list {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.item {
+  margin: 0;
+}
+
+.itemLink {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 0.5rem;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.itemLink:hover {
+  border-color: var(--ifm-color-primary);
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+.itemLabel {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.itemDescription {
+  font-size: 0.9rem;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.footer {
+  font-size: 0.95rem;
+  color: var(--ifm-color-emphasis-700);
+}
