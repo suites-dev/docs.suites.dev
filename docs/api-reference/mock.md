@@ -48,7 +48,7 @@ function mock<T>(mockImplementation: DeepPartial<T> = {}): Mocked<T>
 `Mocked<T>` - A deeply mocked instance where all methods are automatically stubbed.
 
 :::note
-See [Types](/docs/api-reference/types#mockedt) for more about the `Mocked<T>` type.
+See [Types](/docs/api-reference/types/#mockedt) for more about the `Mocked<T>` type.
 :::
 
 ### How It Works
@@ -287,5 +287,5 @@ obj.method2.mockReturnValue(100);
 ## See Also
 
 - [Types](/docs/api-reference/types/#mockedt) - `Mocked<T>` type definition
-- [TestBed.solitary()](/docs/api-reference/testbed-solitary) - Automatic dependency mocking
+- [TestBed.solitary()](/docs/api-reference/testbed-solitary/) - Automatic dependency mocking
 - [TestBed Configuration](/docs/api-reference/testbed-solitary/#configuring-mocks) - Using `.mock().impl()` with `stub()`
