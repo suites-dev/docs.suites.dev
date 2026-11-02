@@ -42,7 +42,13 @@ const {
     'test doubles',
     'typescript testing',
   ],
-  canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin).toString(),
+  // Astro.url.pathname comes through without the trailing slash even under
+  // trailingSlash: 'always', and a canonical that redirects to another URL
+  // is a canonical pointing away from itself.
+  canonicalUrl = new URL(
+    Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `${Astro.url.pathname}/`,
+    Astro.site ?? Astro.url.origin,
+  ).toString(),
   noIndex = false,
   showFooter = true,
   showHeader = true,
