@@ -230,11 +230,9 @@ from = "/api-reference"
 to = "/docs/api-reference/"
 status = 301
 
-[[redirects]]
-from = "/docs"
-to = "/docs/get-started/"
-status = 301
-
+# /docs is a real page on this site, not a redirect. Netlify skips a
+# non-forced redirect when a file exists at the path, so a rule here would be
+# dead weight: Pretty URLs sends /docs to /docs/ and the landing page answers.
 
 [[redirects]]
 from = "/docs/introduction/quick-example"

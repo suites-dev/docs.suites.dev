@@ -23,11 +23,6 @@ export default defineConfig({
   // to agree with it or every page redirects away from its own canonical URL.
   trailingSlash: "always",
   output: "static",
-  vite: {
-    server: {
-      allowedHosts: ["7fcf-77-125-115-106.ngrok-free.app"],
-    },
-  },
   integrations: [
     expressiveCode({
       themes: [suitesCodeTheme],
