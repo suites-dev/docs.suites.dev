@@ -1,0 +1,110 @@
+---
+/**
+ * Pointer-events-free atmospheric grid.
+ *
+ * Props: `mode` controls full/contained width, `origin` positions the halo and
+ * grid construction point, and `fade` selects the mask direction. This layer
+ * is always decorative and hidden from assistive technology.
+ */
+interface Props {
+  mode?: 'full' | 'contained';
+  origin?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'center';
+  fade?: 'down' | 'up' | 'left' | 'right' | 'radial' | 'none';
+  class?: string;
+  [key: string]: unknown;
+}
+
+const {
+  mode = 'full',
+  origin = 'top-left',
+  fade = 'down',
+  class: className,
+  ...attrs
+} = Astro.props;
+---
+
+<div
+  {...attrs}
+  class:list={['primitive-grid-backdrop', className]}
+  data-mode={mode}
+  data-origin={origin}
+  data-fade={fade}
+  aria-hidden="true"
+></div>
+
+<style>
+  .primitive-grid-backdrop {
+    --grid-origin-x: 0%;
+    --grid-origin-y: 0%;
+    --grid-mask: none;
+
+    position: absolute;
+    inset-block: 0;
+    inset-inline: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(
+        circle at var(--grid-origin-x) var(--grid-origin-y),
+        var(--ui-grid-halo),
+        transparent 36%
+      ),
+      linear-gradient(to right, var(--ui-grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--ui-grid-line) 1px, transparent 1px);
+    background-position:
+      center,
+      var(--grid-origin-x) var(--grid-origin-y),
+      var(--grid-origin-x) var(--grid-origin-y);
+    background-size: auto, 56px 56px, 56px 56px;
+    -webkit-mask-image: var(--grid-mask);
+    mask-image: var(--grid-mask);
+  }
+
+  .primitive-grid-backdrop[data-mode='contained'] {
+    inset-inline: 50% auto;
+    width: min(calc(100% - (2 * var(--ui-gutter))), var(--ui-container-wide));
+    transform: translateX(-50%);
+  }
+
+  .primitive-grid-backdrop[data-origin='top-right'] {
+    --grid-origin-x: 100%;
+  }
+
+  .primitive-grid-backdrop[data-origin='bottom-left'] {
+    --grid-origin-y: 100%;
+  }
+
+  .primitive-grid-backdrop[data-origin='bottom-right'] {
+    --grid-origin-x: 100%;
+    --grid-origin-y: 100%;
+  }
+
+  .primitive-grid-backdrop[data-origin='center'] {
+    --grid-origin-x: 50%;
+    --grid-origin-y: 50%;
+  }
+
+  .primitive-grid-backdrop[data-fade='down'] {
+    --grid-mask: linear-gradient(to bottom, black 12%, transparent 100%);
+  }
+
+  .primitive-grid-backdrop[data-fade='up'] {
+    --grid-mask: linear-gradient(to top, black 12%, transparent 100%);
+  }
+
+  .primitive-grid-backdrop[data-fade='left'] {
+    --grid-mask: linear-gradient(to left, black 12%, transparent 100%);
+  }
+
+  .primitive-grid-backdrop[data-fade='right'] {
+    --grid-mask: linear-gradient(to right, black 12%, transparent 100%);
+  }
+
+  .primitive-grid-backdrop[data-fade='radial'] {
+    --grid-mask: radial-gradient(circle at var(--grid-origin-x) var(--grid-origin-y), black, transparent 72%);
+  }
+
+  .primitive-grid-backdrop[data-fade='none'] {
+    --grid-mask: none;
+  }
+</style>

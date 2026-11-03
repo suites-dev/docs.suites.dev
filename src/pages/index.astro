@@ -1,0 +1,516 @@
+---
+import MarketingLayout from '@/layouts/MarketingLayout.astro';
+import LovableHomepage from '@/components/home/LovableHomepage.astro';
+import LovableTechnicalFigure from '@/components/home/LovableTechnicalFigure.astro';
+import { Code } from 'astro-expressive-code/components';
+
+const unitCode = `import { TestBed } from '@suites/unit';
+import { OrderService } from './order.service';
+import { PaymentGateway } from './payment.gateway';
+
+const { unit, unitRef } = await TestBed
+  .solitary(OrderService)
+  .compile();
+
+const payments = unitRef.get(PaymentGateway);
+payments.authorize.mockResolvedValue({ approved: true });
+
+await unit.placeOrder(order);
+
+expect(payments.authorize).toHaveBeenCalled();`;
+
+const unitIntegrations = ['NestJS', 'InversifyJS', 'Jest', 'Vitest', 'Sinon'];
+
+const projectLinks = [
+  {
+    label: 'Source code',
+    description: 'Public Suites repositories.',
+    href: 'https://github.com/suites-dev',
+  },
+  {
+    label: 'Runnable examples',
+    description: 'Working TypeScript projects.',
+    href: 'https://github.com/suites-dev/examples',
+  },
+  {
+    label: 'Unit issues',
+    description: 'Bugs and improvements for Unit.',
+    href: 'https://github.com/suites-dev/suites/issues',
+  },
+  {
+    label: 'Unit discussions',
+    description: 'Questions and design discussions.',
+    href: 'https://github.com/suites-dev/suites/discussions',
+  },
+  {
+    label: 'Contributing to Unit',
+    description: 'Contribution workflow and requirements.',
+    href: 'https://github.com/suites-dev/suites/blob/master/CONTRIBUTING.md',
+  },
+  {
+    label: 'Apache 2.0 license',
+    description: 'The license used by the project.',
+    href: 'https://github.com/suites-dev/suites/blob/master/LICENSE',
+  },
+];
+---
+
+<MarketingLayout
+  title="Homepage"
+  description="Suites Unit is an open-source unit testing framework for TypeScript projects built on dependency injection, with typed doubles for Jest, Vitest, and Sinon."
+  showHeader={false}
+>
+  <LovableHomepage />
+
+  <div class="home">
+    <LovableTechnicalFigure />
+
+    <section class="tools-section" aria-label="Suites tools">
+      <article class="tool tool--unit" aria-labelledby="unit-title">
+        <div class="tool-copy">
+          <header class="tool-header">
+            <div class="package-line">
+              <code>@suites/unit</code>
+              <span class="status status--stable">stable</span>
+            </div>
+            <h2 id="unit-title">Suites Unit</h2>
+          </header>
+
+          <p>
+            <code>@suites/unit</code> creates <strong>solitary tests</strong>, where all
+            dependencies are mocked, or sociable test environments for supported
+            DI-based TypeScript frameworks. It provides typed doubles for Jest,
+            Vitest, and Sinon.
+          </p>
+
+          <p class="install-line">
+            <span>Install</span>
+            <code>npm install -D @suites/unit</code>
+          </p>
+
+          <div class="compatibility">
+            <span>Integrates with</span>
+            <ul>
+              {unitIntegrations.map((item) => <li>{item}</li>)}
+            </ul>
+          </div>
+
+          <nav class="tool-links" aria-label="Suites Unit resources">
+            <a href="/docs/get-started/quickstart">Quickstart <span aria-hidden="true">→</span></a>
+            <a href="/docs/get-started/installation">Installation <span aria-hidden="true">→</span></a>
+            <a href="/docs/api-reference/">API reference <span aria-hidden="true">→</span></a>
+            <a href="https://github.com/suites-dev/examples" target="_blank" rel="noopener noreferrer">
+              Examples <span aria-hidden="true">↗</span>
+            </a>
+          </nav>
+        </div>
+
+        <div class="artifact artifact--code" role="group" aria-labelledby="unit-example-title">
+          <div class="artifact-titlebar">
+            <span id="unit-example-title">order.service.spec.ts</span>
+            <code>@suites/unit</code>
+          </div>
+          <Code code={unitCode} lang="ts" />
+        </div>
+      </article>
+
+    </section>
+
+    <section class="project-section" aria-labelledby="project-title">
+      <header class="project-intro">
+        <h2 id="project-title">Project</h2>
+        <p>Suites is developed in the open under Apache 2.0.</p>
+      </header>
+
+      <nav class="project-directory" aria-label="Suites project links">
+        {projectLinks.map((link) => (
+          <a href={link.href} target="_blank" rel="noopener noreferrer">
+            <span>
+              <strong>{link.label}</strong>
+              <small>{link.description}</small>
+            </span>
+            <span aria-hidden="true">↗</span>
+          </a>
+        ))}
+      </nav>
+    </section>
+  </div>
+</MarketingLayout>
+
+<style>
+  :global(body:has([data-lovable-homepage])) {
+    background: var(--background);
+  }
+
+  .home {
+    width: min(100%, 1200px);
+    margin: 0 auto;
+    padding: 0 24px 96px;
+  }
+
+  .tools-section {
+    padding-top: 72px;
+  }
+
+  .project-intro {
+    max-width: 620px;
+    padding-bottom: 42px;
+  }
+
+  .project-intro h2,
+  .tool-header h2 {
+    margin-bottom: 10px;
+    color: var(--text);
+    font-size: clamp(28px, 4vw, 38px);
+    font-weight: var(--fw-semibold);
+    letter-spacing: -0.035em;
+    line-height: 1.12;
+  }
+
+  .project-intro > p:last-child,
+  .tool-copy > p {
+    margin-bottom: 0;
+    color: var(--text-muted);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  .tool {
+    display: grid;
+    gap: clamp(48px, 5vw, 80px);
+    align-items: center;
+    justify-content: space-between;
+    padding: 88px 0;
+  }
+
+  .tool--unit {
+    grid-template-columns: minmax(300px, 620px) minmax(400px, 720px);
+  }
+
+  .tool + .tool {
+    border-top: 1px solid var(--border);
+  }
+
+  .tool-header {
+    margin-bottom: 20px;
+  }
+
+  .package-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .package-line > code {
+    color: var(--text-muted);
+    font-family: var(--font-code);
+    font-size: 12px;
+  }
+
+  .status {
+    display: inline-flex;
+    min-height: 22px;
+    align-items: center;
+    padding: 2px 8px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-family: var(--font-code);
+    font-size: 9px;
+    font-weight: var(--fw-semibold);
+    letter-spacing: 0.08em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .status--stable {
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.035);
+  }
+
+  :global(:root[data-theme='light']) .status--stable {
+    background: rgba(15, 15, 18, 0.035);
+  }
+
+  .tool-copy > p code {
+    color: var(--code-text);
+    font-family: var(--font-code);
+    font-size: 0.9em;
+  }
+
+  .tool-copy strong {
+    color: var(--text);
+    font-weight: var(--fw-semibold);
+  }
+
+  .install-line {
+    display: grid;
+    gap: 8px;
+    margin-top: 24px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.018);
+  }
+
+  :global(:root[data-theme='light']) .install-line {
+    background: rgba(15, 15, 18, 0.018);
+  }
+
+  .install-line span,
+  .compatibility > span {
+    color: var(--text-soft);
+    font-family: var(--font-code);
+    font-size: 10px;
+    font-weight: var(--fw-semibold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .install-line code {
+    overflow-wrap: anywhere;
+    color: var(--code-text);
+    font-family: var(--font-code);
+    font-size: 12px;
+    line-height: 1.55;
+  }
+
+  .compatibility {
+    display: grid;
+    gap: 10px;
+    margin-top: 24px;
+  }
+
+  .compatibility ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .compatibility li {
+    color: var(--text-muted);
+    font-family: var(--font-code);
+    font-size: 11px;
+  }
+
+  .tool-links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 32px;
+    border-top: 1px solid var(--border);
+  }
+
+  .tool-links a {
+    display: flex;
+    min-height: 46px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 0;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-code);
+    font-size: 10px;
+    letter-spacing: 0.015em;
+    text-decoration: none;
+    transition: color 180ms ease-out;
+  }
+
+  .tool-links a:nth-child(odd) {
+    padding-right: 18px;
+  }
+
+  .tool-links a:nth-child(even) {
+    padding-left: 18px;
+    border-left: 1px solid var(--border);
+  }
+
+  .tool-links a span {
+    color: var(--text-soft);
+    transition: transform 180ms ease-out;
+  }
+
+  @media (hover: hover) {
+    .tool-links a:hover {
+      color: var(--text);
+    }
+
+    .tool-links a:hover span {
+      transform: translateX(3px);
+    }
+  }
+
+  .artifact {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--border-strong);
+    border-radius: 5px;
+    background: var(--code-bg);
+  }
+
+  .artifact-titlebar {
+    display: flex;
+    min-height: 40px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 0 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-soft);
+    font-family: var(--font-code);
+    font-size: 10px;
+  }
+
+  .artifact-titlebar code {
+    color: var(--text-muted);
+    font-family: inherit;
+  }
+
+  .artifact--code :global(.expressive-code) {
+    margin: 0;
+  }
+
+  .artifact--code :global(.expressive-code figure) {
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .artifact--code :global(.expressive-code .frame) {
+    box-shadow: none;
+  }
+
+  .artifact--code :global(.expressive-code .header) {
+    display: none;
+  }
+
+  .artifact--code :global(.expressive-code pre) {
+    max-height: none;
+    padding-block: 22px;
+    border: 0;
+    border-radius: 0;
+    font-size: 12px;
+  }
+
+  .pass {
+    color: var(--success);
+  }
+
+  .fail {
+    color: var(--error);
+  }
+
+  .project-section {
+    padding: 84px 0 0;
+  }
+
+  .project-directory {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 48px;
+    border-top: 1px solid var(--border);
+  }
+
+  .project-directory a {
+    display: flex;
+    min-height: 84px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+  }
+
+  .project-directory a > span:first-child {
+    display: grid;
+    gap: 8px;
+  }
+
+  .project-directory strong {
+    color: var(--text);
+    font-size: 14px;
+    font-weight: var(--fw-semibold);
+  }
+
+  .project-directory small {
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .project-directory a > span:last-child {
+    color: var(--text-soft);
+    font-size: 12px;
+    transition:
+      color 180ms ease-out,
+      transform 180ms ease-out;
+  }
+
+  @media (hover: hover) {
+    .project-directory a:hover strong,
+    .project-directory a:hover > span:last-child {
+      color: var(--primary);
+    }
+
+    .project-directory a:hover > span:last-child {
+      transform: translate(2px, -2px);
+    }
+  }
+
+  @media (max-width: 1050px) {
+    .tools-section,
+    .project-section {
+      padding-top: 64px;
+    }
+
+    .tool {
+      grid-template-columns: 1fr;
+      gap: 40px;
+      padding: 64px 0;
+    }
+
+  }
+
+  @media (max-width: 620px) {
+    .home {
+      padding-bottom: 72px;
+      padding-right: 16px;
+      padding-left: 16px;
+    }
+
+    .project-intro {
+      padding-bottom: 32px;
+    }
+
+    .tool {
+      gap: 32px;
+      padding: 52px 0;
+    }
+
+    .tool-links {
+      grid-template-columns: 1fr;
+    }
+
+    .tool-links a:nth-child(odd),
+    .tool-links a:nth-child(even) {
+      padding-right: 0;
+      padding-left: 0;
+      border-left: 0;
+    }
+
+    .artifact-titlebar {
+      align-items: flex-start;
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+
+    .project-directory {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

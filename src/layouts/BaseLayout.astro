@@ -1,0 +1,154 @@
+---
+import DocsHeader from '@/components/site/Header.astro';
+import MarketingHeader from '@/components/site/MarketingHeader.astro';
+import Footer from '@/components/site/Footer.astro';
+import GoogleAnalytics from '@/components/islands/GoogleAnalytics.astro';
+import '@/styles/globals.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  keywords?: string[];
+  canonicalUrl?: string;
+  noIndex?: boolean;
+  /* Routes can opt out of the shared branded footer when they provide their
+     own page ending. Documentation and marketing surfaces render it by default. */
+  showFooter?: boolean;
+  /* Full-page replicas can provide their own exact header while every other
+     route keeps the normal Suites header. */
+  showHeader?: boolean;
+  /* "docs" renders the compact docs header with DocSearch and active product
+     context. "marketing" renders the homepage project header. Defaults to marketing
+     so non-docs surfaces don't need to opt in. */
+  header?: 'docs' | 'marketing';
+}
+
+const {
+  title = 'Suites Documentation',
+  description = 'A unit testing framework for TypeScript backends working with inversion of control and dependency injection',
+  ogImage = 'https://suites.dev/img/banner.png',
+  keywords = [
+    'auto mocking',
+    'unit testing framework',
+    'jest',
+    'sinon',
+    'vitest',
+    'dependency injection',
+    'inversion of control',
+    'nestjs',
+    'inversifyjs',
+    'unit testing',
+    'test doubles',
+    'typescript testing',
+  ],
+  canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin).toString(),
+  noIndex = false,
+  showFooter = true,
+  showHeader = true,
+  header = 'marketing',
+} = Astro.props;
+
+const fullTitle = title === 'Suites Documentation' ? title : `${title} | Suites`;
+const robots = noIndex
+  ? 'noindex, follow'
+  : 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1';
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/img/favicon.svg?v=20260823" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon.png?v=20260823" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png?v=20260823" />
+    <link rel="shortcut icon" href="/img/favicon.ico?v=20260823" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=20260823" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    {header === 'docs' && (
+      <>
+        <link
+          rel="preload"
+          href="/fonts/onest-variable.ttf"
+          as="font"
+          type="font/ttf"
+          crossorigin="anonymous"
+        />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap"
+        />
+      </>
+    )}
+
+    <!-- SEO -->
+    {keywords.length > 0 && <meta name="keywords" content={keywords.join(', ')} />}
+    <meta name="author" content="Suites" />
+    <meta name="robots" content={robots} />
+    <meta name="googlebot" content={robots} />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={fullTitle} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Suites" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={fullTitle} />
+
+    <!-- Additional SEO -->
+    <meta name="theme-color" content="#1a1a1a" />
+    <meta name="application-name" content="Suites" />
+    <meta name="apple-mobile-web-app-title" content="Suites" />
+
+    {/* Theme resolver: runs before first paint to avoid a flash.
+        Order of precedence: explicit user choice in localStorage,
+        otherwise OS preference, otherwise dark (our default). */}
+    <script is:inline>
+      (function () {
+        function applyTheme(theme) {
+          document.documentElement.setAttribute('data-theme', theme);
+          var themeColor = document.querySelector('meta[name="theme-color"]');
+          if (themeColor) themeColor.setAttribute('content', theme === 'light' ? '#FFFFFF' : '#0F0F12');
+        }
+
+        try {
+          var stored = localStorage.getItem('suites-theme');
+          var prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+          var theme = stored || (prefersLight ? 'light' : 'dark');
+          applyTheme(theme);
+        } catch (e) {
+          applyTheme('dark');
+        }
+      })();
+    </script>
+
+    <GoogleAnalytics />
+  </head>
+  <body class:list={{ 'docs-page': header === 'docs' }}>
+    <a href="#main" class="skip-link">Skip to main content</a>
+    {showHeader && (header === 'docs' ? <DocsHeader /> : <MarketingHeader />)}
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    {showFooter && <Footer />}
+  </body>
+</html>

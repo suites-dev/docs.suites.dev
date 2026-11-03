@@ -1,0 +1,14 @@
+---
+interface Props {
+  variant?: 'marketing' | 'docs';
+  context?: 'homepage' | 'docs-landing' | 'docs-article';
+}
+
+const { variant, context } = Astro.props;
+---
+<header class="topbar" data-variant={variant} data-context={context}>
+  <nav class="nav" aria-label="Primary">
+    <slot />
+  </nav>
+  <slot name="tabs" />
+</header>

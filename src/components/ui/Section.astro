@@ -1,0 +1,19 @@
+---
+interface Props {
+  title?: string;
+  desc?: string;
+}
+const { title, desc } = Astro.props;
+---
+<section class="section">
+  {(title || desc || Astro.slots.has('aside')) && (
+    <div class="section-head">
+      <div>
+        {title && <h2 class="section-title">{title}</h2>}
+        {desc && <p class="section-desc">{desc}</p>}
+      </div>
+      <slot name="aside" />
+    </div>
+  )}
+  <slot />
+</section>

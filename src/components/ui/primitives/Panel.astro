@@ -1,0 +1,92 @@
+---
+/**
+ * Bordered content surface. Interactivity is always opt-in.
+ *
+ * Props: `surface` selects default, code, or technical styling; `tag` selects
+ * the semantic element; `href` renders an anchor; and `interactive` enables
+ * hover/focus feedback. The default slot contains panel content.
+ */
+interface Props {
+  surface?: 'default' | 'code' | 'technical';
+  tag?: 'div' | 'article' | 'figure' | 'a';
+  href?: string;
+  interactive?: boolean;
+  class?: string;
+  [key: string]: unknown;
+}
+
+const {
+  surface = 'default',
+  tag = 'div',
+  href,
+  interactive = false,
+  class: className,
+  ...attrs
+} = Astro.props;
+const Tag = href ? 'a' : tag;
+---
+
+<Tag
+  {...attrs}
+  class:list={[
+    'primitive-panel',
+    interactive && 'primitive-panel--interactive',
+    className,
+  ]}
+  data-surface={surface}
+  href={Tag === 'a' ? href : undefined}
+>
+  <slot />
+</Tag>
+
+<style>
+  .primitive-panel {
+    display: block;
+    min-width: 0;
+    padding: var(--ui-panel-padding);
+    overflow: hidden;
+    color: var(--ui-foreground);
+    background: linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--ui-card) 92%, transparent),
+      color-mix(in oklab, var(--ui-background) 92%, transparent)
+    );
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius-panel);
+    font-family: var(--font-interface);
+  }
+
+  .primitive-panel[data-surface='code'] {
+    background: var(--ui-code-bg);
+    font-family: var(--font-technical);
+  }
+
+  .primitive-panel[data-surface='technical'] {
+    background-color: var(--ui-technical-surface);
+    background-image:
+      linear-gradient(to right, var(--ui-grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--ui-grid-line) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+
+  a.primitive-panel {
+    text-decoration: none;
+  }
+
+  .primitive-panel--interactive {
+    touch-action: manipulation;
+    cursor: pointer;
+    transition:
+      border-color var(--ui-transition-duration) var(--ui-transition-ease),
+      background-color var(--ui-transition-duration) var(--ui-transition-ease);
+  }
+
+  .primitive-panel--interactive:hover {
+    border-color: color-mix(in oklab, var(--ui-primary) 50%, transparent);
+  }
+
+  .primitive-panel--interactive:focus-visible {
+    outline: 2px solid var(--ui-focus-ring);
+    outline-offset: 3px;
+  }
+</style>

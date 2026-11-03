@@ -1,0 +1,39 @@
+---
+interface Props {
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
+  href?: string;
+  as?: 'a' | 'button';
+  size?: 'sm';
+  loading?: boolean;
+  [key: string]: unknown;
+}
+const { variant, href, as: Tag = href ? 'a' : 'button', size, loading, ...rest } = Astro.props;
+const cls = [
+  'btn',
+  variant ? `btn-${variant}` : '',
+  size === 'sm' ? 'btn-sm' : '',
+  loading ? 'btn-loading' : '',
+].filter(Boolean).join(' ');
+// When rendered as an anchor, mirror `disabled` onto aria-disabled and drop href
+// so the link cannot be activated by keyboard or pointer. The CSS picks this up
+// via [aria-disabled="true"] for the disabled visual treatment.
+// `loading` is treated as a soft-disabled state: aria-busy + aria-disabled, but
+// preserves focusability so screen readers still announce the in-flight action.
+const isHardDisabled = rest.disabled === true || rest['aria-disabled'] === 'true' || rest['aria-disabled'] === true;
+const isDisabled = isHardDisabled || loading === true;
+const ariaBusy: 'true' | undefined = loading === true ? 'true' : undefined;
+const anchorRest = isDisabled
+  ? { ...rest, 'aria-disabled': 'true' as const, 'aria-busy': ariaBusy, tabindex: -1 }
+  : { ...rest, 'aria-busy': ariaBusy };
+const anchorHref = isDisabled ? undefined : href;
+const buttonRest = { ...rest, 'aria-busy': ariaBusy, disabled: isHardDisabled || loading ? true : (rest.disabled as boolean | undefined) };
+---
+{Tag === 'a' ? (
+  <a class={cls} href={anchorHref} {...anchorRest}>
+    <slot />
+  </a>
+) : (
+  <button class={cls} type={(rest.type as string) ?? 'button'} {...buttonRest}>
+    <slot />
+  </button>
+)}

@@ -1,0 +1,111 @@
+---
+/**
+ * Vertical page section with an optional structured header.
+ *
+ * Props: `spacing` controls vertical rhythm and `align` controls the header.
+ * Slots: `heading`, `description`, `aside`, and `content`. The default slot is
+ * used as content when the named `content` slot is omitted.
+ */
+interface Props {
+  spacing?: 'default' | 'compact' | 'spacious';
+  align?: 'start' | 'center';
+  class?: string;
+  [key: string]: unknown;
+}
+
+const {
+  spacing = 'default',
+  align = 'start',
+  class: className,
+  ...attrs
+} = Astro.props;
+
+const hasHeader =
+  Astro.slots.has('heading') ||
+  Astro.slots.has('description') ||
+  Astro.slots.has('aside');
+const hasNamedContent = Astro.slots.has('content');
+---
+
+<section
+  {...attrs}
+  class:list={['primitive-section', className]}
+  data-spacing={spacing}
+>
+  {hasHeader && (
+    <header class="primitive-section__header" data-align={align}>
+      <div class="primitive-section__copy">
+        <slot name="heading" />
+        <slot name="description" />
+      </div>
+      {Astro.slots.has('aside') && (
+        <div class="primitive-section__aside">
+          <slot name="aside" />
+        </div>
+      )}
+    </header>
+  )}
+
+  <div class="primitive-section__content">
+    {hasNamedContent ? <slot name="content" /> : <slot />}
+  </div>
+</section>
+
+<style>
+  .primitive-section {
+    --section-space: var(--ui-section-default);
+
+    padding-block: var(--section-space);
+    font-family: var(--font-interface);
+  }
+
+  .primitive-section[data-spacing='compact'] {
+    --section-space: var(--ui-section-compact);
+  }
+
+  .primitive-section[data-spacing='spacious'] {
+    --section-space: var(--ui-section-spacious);
+  }
+
+  .primitive-section__header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: var(--ui-grid-gap);
+    margin-block-end: clamp(32px, 5vw, 48px);
+  }
+
+  .primitive-section__header[data-align='center'] {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    text-align: center;
+  }
+
+  .primitive-section__copy {
+    min-width: 0;
+    max-width: var(--ui-container-text);
+  }
+
+  .primitive-section__aside {
+    min-width: 0;
+  }
+
+  .primitive-section__header[data-align='center'] .primitive-section__aside {
+    justify-self: center;
+  }
+
+  .primitive-section__content {
+    min-width: 0;
+  }
+
+  @media (max-width: 640px) {
+    .primitive-section__header {
+      grid-template-columns: minmax(0, 1fr);
+      align-items: start;
+    }
+
+    .primitive-section__aside {
+      justify-self: start;
+    }
+  }
+</style>

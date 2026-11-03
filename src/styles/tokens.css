@@ -1,0 +1,335 @@
+/*
+ * Suites Design System, Tokens
+ * Source of truth: ~/Downloads/suites-design-system-board (2).html
+ * Lines 11-69 of the baseline. Do not invent new tokens here.
+ * Additions/changes belong upstream in the baseline file first.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&display=swap");
+
+/* Local faces from the supplied reference capture. Documentation maps its
+   semantic font roles to these tokens; marketing surfaces keep Geist until
+   they are deliberately migrated. */
+@font-face {
+  font-family: "Hanken Grotesk Local";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/hanken-grotesk-latin.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "JetBrains Mono Local";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/jetbrains-mono-latin.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Onest Local";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/onest-variable.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Syne Local";
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url("/fonts/syne-variable.ttf") format("truetype");
+}
+
+:root {
+  /* Typography */
+  --font-title:
+    "Geist", "Inter", ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-body:
+    "Geist", "Inter", ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-code:
+    "Geist Mono", "SFMono-Regular", "Cascadia Code", "Roboto Mono", Consolas,
+    monospace;
+
+  /* Brand typography roles. These stacks stay independent of the semantic
+     aliases above so a page can safely map --font-body/title/code onto them. */
+  --font-interface:
+    "Hanken Grotesk Local", "Hanken Grotesk", "Geist", "Inter", ui-sans-serif,
+    system-ui, sans-serif;
+  --font-reference-heading:
+    "Onest Local", "Onest", "Geist", "Inter", ui-sans-serif, system-ui,
+    sans-serif;
+  --font-technical:
+    "JetBrains Mono Local", "JetBrains Mono", "Geist Mono", "SFMono-Regular",
+    monospace;
+  --font-accent: "Syne Local", "Syne", var(--font-interface);
+
+  /* Font weight ladder.
+     Geist is loaded as a variable font (wght 100..900) so fractional weights
+     interpolate cleanly. Values below are pre-baked to a dark-only surface:
+     each token is shifted ~25 units lighter than its conventional name to
+     compensate for the optical bloom that light glyphs gain on dark graphite.
+     Reference: Prisma "eclipse" design system, packages/eclipse/src/tokens/
+     index.ts:415-424 (the same -25 mechanism applied at runtime in dark mode).
+     Use these tokens instead of literal numbers so the ladder stays coherent. */
+  --fw-regular: 400; /* body, list items, aside/alert body, inputs */
+  --fw-medium: 475; /* nav resting, sidebar resting, field labels, inline code, buttons */
+  --fw-semibold: 575; /* eyebrow caps, badges, tabs, table th, active nav, aside titles */
+  --fw-heading-secondary: 625; /* article h3, h4 (fills the 600->700 gap, Prisma uses 650) */
+  --fw-bold: 675; /* article h1, h2, brand wordmark */
+  --fw-display: 775; /* hero h1 (clamp 52-108px), .section-title, marketing display */
+
+  /* Deprecated: --fw-caption (50-unit step) is sub-perceptual on dark + Geist
+     above 12px. Aliased to --fw-regular so legacy call sites do not break.
+     Audit and remove call sites, then delete this alias. */
+  --fw-caption: var(--fw-regular);
+
+  /* Base */
+  --bg: #0f0f12;
+  --bg-subtle: #131318;
+  --surface: #17171c;
+  --surface-raised: #202027;
+  --surface-hover: #292934;
+
+  /* Structure */
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.16);
+
+  /* Text */
+  --text: #f4f4f5;
+  --text-muted: #a1a1aa;
+  --text-soft: #8b8b94;
+
+  /* Canonical brand colors from public/img/branding. Keep these three
+     anchors exact so site accents and exported logo assets stay aligned. */
+  --brand-deep: #db486f;
+  --brand-mid: #e67189;
+  --brand-soft: #ef9dab;
+
+  /* Semantic brand roles. Dark surfaces use the soft logo band for text;
+     light surfaces override --primary-light with an accessible darker step. */
+  --primary: var(--brand-deep);
+  --primary-light: var(--brand-soft);
+  --primary-dark: #a43653;
+  --on-primary: #0f0f12;
+  --primary-soft: rgba(219, 72, 111, 0.12);
+  --primary-border: rgba(219, 72, 111, 0.32);
+
+  /* Extended pink ramp built around the three canonical logo colors. */
+  --pink-50: #fdf3f5;
+  --pink-100: #fbe6ea;
+  --pink-200: #f6c9d1;
+  --pink-300: var(--brand-soft);
+  --pink-400: var(--brand-mid);
+  --pink-500: var(--brand-deep);
+  --pink-600: #c54164;
+  --pink-700: var(--primary-dark);
+  --pink-800: #832b43;
+  --pink-900: #632032;
+  --pink-950: #421622;
+
+  /* Semantic. Four distinct colors so Tip / Note / Warning / Danger remain
+     visually separable. Tuned away from Prisma's signature blues + teal:
+     info stays cool but cooler-blue not sky; success is grass-green not
+     teal-mint; warning is orange (NOT the FFD166 yellow we previously
+     shipped); error is salmon. All verified >= 4.5:1 on var(--bg). */
+  --info: #93c5fd; /* sky-300, kept (neutral, not Prisma indigo) */
+  --success: #86efac; /* emerald-300, replaces the teal mint */
+  --warning: #fb923c; /* orange-400, replaces the yellow */
+  --error: #ff6b6b; /* salmon, kept */
+
+  /* Code. Lifted further from --bg (#0F0F12) so fenced blocks read as a
+     distinct surface, not as a wash on the page. Previously sat at #111116
+     which was only +2 luminance ticks above bg, effectively invisible. */
+  --code-bg: #1b1b22;
+  --code-text: #e4e4e7;
+
+  --radius-xs: 10px;
+  --radius-sm: 14px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
+  --radius-xl: 36px;
+
+  /* Layout. Outer reach is 1600px so the article track gets enough room to
+     reach its target width (1016px box, 952px text inside 32px padding).
+     Math at the 1600 outer with 24px side gutter:
+       inner = 1600 - 48 = 1552
+       article track = inner - sidebar (268) - toc (268) = 1016
+     The prior 1504 outer left the article track at 920px, which truncated
+     the article box (964 max-width) and produced a noticeably narrow column. */
+  --max: 1600px; /* outer container max-width */
+  --header-h: 56px; /* main topbar bar, matches prisma h-14 */
+  --docs-header-h: 64px; /* docs navigation with product switcher and search */
+  --docs-article-header-h: 52px; /* compact reading-state docs navigation */
+  --header-tabs-h: 40px; /* optional secondary nav row, matches prisma h-10 */
+  --sidebar-w: 268px; /* matches prisma --fd-sidebar-width */
+  --content-w: 1016px; /* article box = 952 readable text + 32 side padding x2 */
+  --toc-w: 268px; /* matches prisma --fd-toc-width */
+
+  /* Additive page and component primitives reconstructed from the reference. */
+  --ui-container-wide: 1152px;
+  --ui-container-focused: 1024px;
+  --ui-container-text: 720px;
+  --ui-gutter: clamp(16px, 4vw, 24px);
+  --ui-header-h: 64px;
+  --ui-section-compact: clamp(40px, 6vw, 56px);
+  --ui-section-default: clamp(56px, 8vw, 88px);
+  --ui-section-spacious: clamp(64px, 10vw, 96px);
+  --ui-panel-padding: clamp(24px, 4vw, 32px);
+  --ui-panel-padding-large: clamp(28px, 5vw, 40px);
+  --ui-grid-gap: clamp(20px, 3vw, 24px);
+  --ui-radius-control: 5px;
+  --ui-radius-base: 14px;
+  --ui-radius-code: 18px;
+  --ui-radius-panel: 22px;
+  --ui-transition-duration: 300ms;
+  --ui-transition-ease: cubic-bezier(0, 0, 0.2, 1);
+
+  /* Additive page primitives aligned with the canonical brand colors. */
+  --ui-background: oklch(16.8% 0.004 285);
+  --ui-foreground: oklch(97.3% 0.003 285);
+  --ui-card: oklch(21.2% 0.005 285);
+  --ui-secondary: oklch(25.3% 0.005 285);
+  --ui-muted-foreground: oklch(70.5% 0.006 285);
+  --ui-primary: var(--brand-deep);
+  --ui-on-primary: var(--on-primary);
+  --ui-brand-mid: var(--brand-mid);
+  --ui-brand-soft: var(--brand-soft);
+  --ui-brand-interactive: var(--brand-mid);
+  --ui-border: oklch(100% 0 0 / 0.1);
+  --ui-code-bg: oklch(20.1% 0.004 285);
+  --ui-code-comment: oklch(66% 0.09 160);
+  --ui-code-keyword: var(--brand-mid);
+  --ui-code-string: oklch(80% 0.11 90);
+  --ui-code-function: oklch(80% 0.09 240);
+  --ui-gradient-brand: linear-gradient(
+    100deg,
+    var(--ui-primary),
+    var(--ui-brand-mid) 55%,
+    var(--ui-brand-soft)
+  );
+  --ui-focus-ring: var(--ui-primary);
+  --ui-technical-surface: color-mix(
+    in oklab,
+    var(--ui-secondary) 25%,
+    transparent
+  );
+  --ui-grid-line: oklch(100% 0 0 / 0.07);
+  --ui-grid-halo: color-mix(in oklab, var(--ui-primary) 14%, transparent);
+  --ui-figure-outline: color-mix(
+    in oklab,
+    var(--ui-foreground) 40%,
+    transparent
+  );
+  --ui-figure-fill-low: color-mix(
+    in oklab,
+    var(--ui-foreground) 4%,
+    transparent
+  );
+  --ui-figure-fill-mid: color-mix(
+    in oklab,
+    var(--ui-foreground) 10%,
+    transparent
+  );
+  --ui-figure-fill-high: color-mix(
+    in oklab,
+    var(--ui-foreground) 16%,
+    transparent
+  );
+  --ui-shadow-brand: 0 12px 40px -12px
+    color-mix(in oklab, var(--ui-primary) 55%, transparent);
+  --ui-shadow-panel: 0 24px 70px -30px oklch(0% 0 0 / 0.8);
+
+  --shadow: 0 24px 90px rgba(0, 0, 0, 0.45);
+
+  /* Z-index scale, formalized before first modal/dropdown lands.
+     Maps existing 20 (.topbar) and 100 (.skip-link) onto a named tier.
+     Per audit section I and ui-ux-pro-max z-index-management rule. */
+  --z-base: 1;
+  --z-sticky: 20; /* .topbar */
+  --z-overlay: 40;
+  --z-modal: 50;
+  --z-tooltip: 60;
+  --z-skip: 100; /* .skip-link must beat any modal/tooltip */
+}
+
+/*
+ * Light theme overrides.
+ * Activated by data-theme="light" on <html>, set by the inline script in
+ * BaseLayout.astro before first paint. Only the tokens that genuinely flip
+ * between themes are restated; brand pink, radii, layout dims, weights, and
+ * z-index are theme-agnostic and inherited from :root above.
+ */
+:root[data-theme="light"] {
+  /* Base surfaces */
+  --bg: #ffffff;
+  --bg-subtle: #f7f7f8;
+  --surface: #ffffff;
+  --surface-raised: #f4f4f5;
+  --surface-hover: #eeeef0;
+
+  /* Structure */
+  --border: rgba(15, 15, 18, 0.1);
+  --border-strong: rgba(15, 15, 18, 0.18);
+
+  /* Text */
+  --text: #18181b; /* zinc-900 */
+  --text-muted: #52525b; /* zinc-600 */
+  --text-soft: #71717a; /* zinc-500 */
+
+  /* The exact brand colors stay unchanged. Text and interactive roles use
+     the darker extended step so small pink text remains legible on white. */
+  --primary-light: var(--pink-600);
+  --primary-soft: rgba(219, 72, 111, 0.1);
+  --primary-border: rgba(219, 72, 111, 0.36);
+
+  /* Code */
+  --code-bg: #f4f4f5;
+  --code-text: #18181b;
+
+  /* Shadow is lighter on white. */
+  --shadow: 0 16px 60px rgba(15, 15, 18, 0.12);
+
+  /* A dark pink ring stays visible against white and pale panels. */
+  --ui-background: oklch(98.5% 0.003 285);
+  --ui-foreground: oklch(21.5% 0.006 285);
+  --ui-card: oklch(100% 0 0);
+  --ui-secondary: oklch(95.5% 0.004 285);
+  --ui-muted-foreground: oklch(50.5% 0.008 285);
+  --ui-primary: var(--brand-deep);
+  --ui-brand-mid: var(--brand-mid);
+  --ui-brand-soft: var(--brand-soft);
+  --ui-brand-interactive: var(--pink-600);
+  --ui-border: oklch(20% 0.01 285 / 0.12);
+  --ui-code-bg: oklch(96.8% 0.004 285);
+  --ui-code-comment: oklch(52% 0.08 160);
+  --ui-code-keyword: var(--pink-600);
+  --ui-code-string: oklch(55% 0.11 90);
+  --ui-code-function: oklch(52% 0.12 240);
+  --ui-focus-ring: var(--ui-primary);
+  --ui-grid-line: oklch(20% 0.01 285 / 0.06);
+  --ui-shadow-panel: 0 24px 70px -34px oklch(20% 0.02 285 / 0.22);
+
+  /* DocSearch theme adjustments (the modal is portaled, so we re-set its
+     vars at the same data-theme scope). */
+  --docsearch-text-color: var(--text);
+  --docsearch-muted-color: var(--text-muted);
+  --docsearch-container-background: rgba(15, 15, 18, 0.32);
+  --docsearch-modal-background: var(--surface);
+  --docsearch-searchbox-background: var(--bg-subtle);
+  --docsearch-searchbox-focus-background: var(--bg);
+  --docsearch-hit-background: transparent;
+  --docsearch-hit-color: var(--text);
+  --docsearch-hit-active-color: var(--primary);
+  --docsearch-footer-background: var(--bg-subtle);
+  --docsearch-footer-shadow: inset 0 1px 0 0 var(--border);
+  --docsearch-key-gradient: linear-gradient(180deg, #fafafb 0%, #efeff1 100%);
+  --docsearch-key-shadow:
+    inset 0 -2px 0 0 rgba(15, 15, 18, 0.12),
+    inset 0 0 1px 1px rgba(15, 15, 18, 0.04), 0 1px 2px rgba(15, 15, 18, 0.08);
+  --docsearch-logo-color: var(--text-muted);
+}

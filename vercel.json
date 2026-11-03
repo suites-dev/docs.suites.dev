@@ -1,0 +1,65 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/docs/category/getting-started/:slug*",
+      "destination": "/docs/get-started/",
+      "permanent": true
+    },
+    {
+      "source": "/docs/developer-guide/unit-tests/suites-api/:slug*",
+      "destination": "/docs/api-reference/",
+      "permanent": true
+    },
+    {
+      "source": "/docs/developer-guide/unit-tests/solitary/:slug*",
+      "destination": "/docs/guides/solitary",
+      "permanent": true
+    },
+    {
+      "source": "/docs/developer-guide/unit-tests/sociable/:slug*",
+      "destination": "/docs/guides/sociable",
+      "permanent": true
+    },
+    {
+      "source": "/docs/developer-guide/unit-tests/test-doubles/:slug*",
+      "destination": "/docs/guides/test-doubles",
+      "permanent": true
+    },
+    {
+      "source": "/docs/developer-guide/unit-tests/fundamentals/:slug*",
+      "destination": "/docs/guides/fundamentals",
+      "permanent": true
+    },
+    {
+      "source": "/docs/developer-guide/unit-tests/:slug*",
+      "destination": "/docs/guides/",
+      "permanent": true
+    },
+    {
+      "source": "/docs/developer-guide/:slug*",
+      "destination": "/docs/guides/",
+      "permanent": true
+    },
+    {
+      "source": "/docs/adapters/:slug*",
+      "destination": "/docs/get-started/",
+      "permanent": true
+    }
+  ],
+  "rewrites": [
+    { "source": "/favicon.ico", "destination": "/img/favicon.png" },
+    { "source": "/apple-touch-icon.png", "destination": "/img/favicon.png" },
+    { "source": "/apple-touch-icon-precomposed.png", "destination": "/img/favicon.png" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+      ]
+    }
+  ]
+}

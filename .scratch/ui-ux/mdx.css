@@ -1,0 +1,153 @@
+/* === mdx === */
+/* Surgical deltas for src/components/mdx/* (Aside, Tabs, TabItem, MermaidDiagram).
+   All selectors here are inside the documented scope: .aside*, .tabs, .tab,
+   .tab.active. Mermaid additions use a fresh .mermaid-* namespace introduced
+   by the component itself. */
+
+
+/* ---------- Aside ---------------------------------------------------------- */
+
+/* APPEND-TO: .aside  (components.css L541-L549)
+   Tighten left-rule paint when role="note" is announced (no change in look)
+   and add a subtle variant tint so the four severity colors are visually
+   distinct on the body, not only on the icon tile. Tint alphas chosen so
+   --text-muted (#A1A1AA, 8.4:1 on #0F0F12) keeps >= 4.5:1 contrast on top. */
+.aside { isolation: isolate; }
+
+/* APPEND-TO: .aside-info / .aside-success / .aside-warning / .aside-error
+   (components.css L616-L619)
+   Add a faint tinted wash to the card surface. The left-border accent and
+   icon tile colors are already set; this only changes the background. */
+.aside-info    { background: linear-gradient(to right, rgba(147,197,253,.045), rgba(255,255,255,.03) 40%); }
+.aside-success { background: linear-gradient(to right, rgba(99,230,190,.045),  rgba(255,255,255,.03) 40%); }
+.aside-warning { background: linear-gradient(to right, rgba(255,209,102,.045), rgba(255,255,255,.03) 40%); }
+.aside-error   { background: linear-gradient(to right, rgba(255,107,107,.05),  rgba(255,255,255,.03) 40%); }
+
+/* APPEND-TO: .aside-title  (components.css L572-L580)
+   <strong> is bold by default; reset and rely on the token weight. Keep the
+   element semantically a strong-emphasis label rather than a heading so the
+   article outline is not polluted by every Aside title. */
+.aside-title { font-style: normal; font-weight: 720; }
+
+
+/* ---------- Tabs ----------------------------------------------------------- */
+
+/* REPLACES: components.css L655-L662  (.tabs)
+   Add flex-wrap so the rail doesn't horizontally overflow the 72ch article
+   column on narrow viewports, and a row-gap so wrapped pills line up cleanly. */
+.tabs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  row-gap: 3px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255,255,255,.03);
+  gap: 3px;
+  max-width: 100%;
+}
+
+/* REPLACES: components.css L664-L670  (.tab)
+   Add background:transparent (so inactive tabs paint over the rail), color
+   transition for smooth selection, and an explicit border:0 reset since
+   buttons inherit UA borders. Cursor and disabled state are inherited from
+   the existing .btn, .tab, [role="button"] block at L1119-L1120. */
+.tab {
+  border: 0;
+  background: transparent;
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 13px;
+  transition: color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+}
+
+/* NEW: hover affordance for inactive tabs.
+   Active state already paints color + soft pink; this is just a hint that
+   the inactive label is interactive. */
+.tab:hover:not(.active) {
+  color: var(--text);
+  background: rgba(255,255,255,.04);
+}
+
+/* NEW: visible keyboard focus ring on the tab itself.
+   Global :focus-visible at components.css L1110-L1116 already paints an
+   outline on every focusable element, but tabs sit on a tinted background
+   so we bump contrast with an inset ring that respects the brand color. */
+.tab:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* NEW: focus ring on the tabpanel so screen-reader/keyboard users see where
+   focus has landed after activating a tab. The panel is tabindex=0 so it can
+   receive focus and be scrolled by the user with arrow keys. */
+.tabs-block [role="tabpanel"]:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 4px;
+  border-radius: var(--radius-xs, 10px);
+}
+
+/* NEW: respect reduced motion for the tab transition. */
+@media (prefers-reduced-motion: reduce) {
+  .tab { transition: none; }
+}
+
+
+/* ---------- Mermaid -------------------------------------------------------- */
+/* NEW: .mermaid-* namespace introduced by MermaidDiagram.tsx. Article column
+   is 72ch (~720px) so we let the diagram fill width and scroll horizontally
+   only when its intrinsic width truly exceeds the column. */
+.mermaid-figure {
+  margin: 24px 0;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md, 20px);
+  background: rgba(255,255,255,.03);
+  overflow-x: auto;
+}
+
+.mermaid-diagram {
+  display: flex;
+  justify-content: center;
+}
+
+.mermaid-diagram > svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.mermaid-caption {
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.mermaid-loading {
+  position: relative;
+  width: 100%;
+  color: var(--text-soft);
+  font-size: 13px;
+}
+.mermaid-loading::after {
+  content: "Loading diagram\2026";
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mermaid-loading::after { content: "Loading diagram"; }
+}
+
+
+/* TOKEN PROPOSALS */
+/* (none). The existing --primary, --primary-soft, --primary-border,
+   --info, --success, --warning, --error, --text-muted, --border, --radius-*
+   tokens cover every selector above. If we later want named aside tints,
+   propose:
+     --aside-tint-info:    rgba(147,197,253,.045);
+     --aside-tint-success: rgba(99,230,190,.045);
+     --aside-tint-warning: rgba(255,209,102,.045);
+     --aside-tint-error:   rgba(255,107,107,.05);
+*/

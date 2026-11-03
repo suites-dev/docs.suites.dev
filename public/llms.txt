@@ -1,0 +1,41 @@
+# Suites
+
+> Suites is a unit testing framework for TypeScript backends working with inversion of control and dependency injection. It generates mocks for class dependencies and provides a virtual test container that mirrors your real DI container, so you can write solitary or sociable unit tests with minimal boilerplate.
+
+Suites supports NestJS and InversifyJS, integrates with Jest, Sinon, and Vitest, and offers a migration path from Automock.
+
+## Get started
+
+- [Get Started overview](https://suites.dev/docs/get-started/): entry point for new users
+- [Why Suites](https://suites.dev/docs/get-started/why-suites): the problem Suites solves and how it differs from manual mocking
+- [Installation](https://suites.dev/docs/get-started/installation): install the right packages for your DI framework and test runner
+- [Quickstart](https://suites.dev/docs/get-started/quickstart): a minimal end-to-end example
+
+## Guides
+
+- [Guides overview](https://suites.dev/docs/guides/): index of conceptual and how-to guides
+- [Fundamentals](https://suites.dev/docs/guides/fundamentals): core concepts and the testing model
+- [Solitary tests](https://suites.dev/docs/guides/solitary): isolating a single class with auto-generated mocks
+- [Sociable tests](https://suites.dev/docs/guides/sociable): testing a class together with selected real collaborators
+- [Test doubles](https://suites.dev/docs/guides/test-doubles): mocks, stubs, and spies in Suites
+- [Virtual test container](https://suites.dev/docs/guides/virtual-test-container): how Suites builds an isolated DI graph for each test
+
+## API reference
+
+- [API Reference index](https://suites.dev/docs/api-reference/)
+- [TestBed (solitary)](https://suites.dev/docs/api-reference/testbed-solitary)
+- [TestBed (sociable)](https://suites.dev/docs/api-reference/testbed-sociable)
+- [Mock](https://suites.dev/docs/api-reference/mock)
+- [Mock configuration](https://suites.dev/docs/api-reference/mock-configuration)
+- [Unit reference](https://suites.dev/docs/api-reference/unit-reference)
+- [Types](https://suites.dev/docs/api-reference/types)
+
+## Migration
+
+- [Migrating from Automock](https://suites.dev/docs/migration-guides/from-automock)
+
+## Project
+
+- [Changelog](https://suites.dev/docs/changelog)
+- [GitHub repository](https://github.com/suites-dev/suites)
+- [Examples repository](https://github.com/suites-dev/examples)

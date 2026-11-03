@@ -1,0 +1,10 @@
+---
+interface Props {
+  variant?: 'pink' | 'success' | 'warning' | 'error';
+}
+const { variant } = Astro.props;
+const cls = ['badge', variant ? `badge-${variant}` : ''].filter(Boolean).join(' ');
+---
+<span class={cls}>
+  <slot />
+</span>
