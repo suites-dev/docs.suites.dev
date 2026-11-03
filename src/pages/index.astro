@@ -1,516 +1,592 @@
 ---
+/**
+ * The homepage carries the same elements the Docusaurus site publishes today,
+ * rebuilt in the design system rather than with the old stylesheet: the hero,
+ * the With Suites / Without Suites comparison, the adapter row, the four
+ * capability cards and the four alternating sections.
+ *
+ * The two-tool marketing page lives on the astro branch and ships with
+ * Blackbox.
+ */
 import MarketingLayout from '@/layouts/MarketingLayout.astro';
-import LovableHomepage from '@/components/home/LovableHomepage.astro';
-import LovableTechnicalFigure from '@/components/home/LovableTechnicalFigure.astro';
+import Tabs from '@/components/mdx/Tabs.astro';
+import TabItem from '@/components/mdx/TabItem.astro';
 import { Code } from 'astro-expressive-code/components';
 
-const unitCode = `import { TestBed } from '@suites/unit';
-import { OrderService } from './order.service';
-import { PaymentGateway } from './payment.gateway';
+const withSuites = `import { TestBed, type Mocked } from '@suites/unit';
 
+describe('User Service', () => {
+  let userService: UserService; // The unit we are testing
+  let userApi: Mocked<UserApi>; // The dependencies we are mocking
+  let database: Mocked<Database>;
+
+  beforeAll(async () => {
+    // Create an isolated test env for the unit
+    const { unit, unitRef } = await TestBed.solitary(UserService).compile();
+
+    userService = unit;
+    // Retrieve the unit's dependency mocks - automatically generated
+    userApi = unitRef.get(UserApi);
+    database = unitRef.get(Database);
+  });
+
+  // \u2705 Test test test
+  it('should generate a random user and save to the database', async () => {
+    userApi.getRandom.mockResolvedValue({id: 1, name: 'John'} as User);
+    await userService.generateRandomUser();
+    expect(database.saveUser).toHaveBeenCalledWith(userFixture);
+  });
+});`;
+
+const withoutSuites = `// THE MANUAL WAY
+// (Similar complexity exists in NestJS, InversifyJS, etc.)
+
+import { UserService } from './user-service';
+import { UserApi } from './user-api';
+import { Database } from './database';
+
+describe('User Service', () => {
+  let userService: UserService;
+  let userApi: any; // \u274c Lost type safety!
+  let database: any;
+
+  beforeAll(async () => {
+    // \ud83d\udd27 Manually create mocks for each dependency
+    userApi = {
+      getRandom: jest.fn(),
+      // Missing methods? Who knows? No compile-time checks!
+    };
+
+    database = {
+      saveUser: jest.fn(),
+      // What other methods exist? \u00af\\_(\u30c4)_/\u00af
+    };
+
+    // Manual wiring - boilerplate for every test
+    userService = new UserService(userApi, database);
+  });
+
+  it('should generate a random user and save to the database', async () => {
+    userApi.getRandom.mockResolvedValue({id: 1, name: 'John'} as User);
+    await userService.generateRandomUser();
+    expect(database.saveUser).toHaveBeenCalledWith(userFixture);
+  });
+}`;
+
+const frameworks = `// Same pattern works everywhere
+// NestJS, InversifyJS, TSyringe...
+
+TestBed.solitary(OrderService).compile();
+
+// Or test with real dependencies
+TestBed.sociable(OrderService)
+  .expose(PaymentProcessor)
+  .compile();`;
+
+const intent = `// One line creates the entire test environment
 const { unit, unitRef } = await TestBed
-  .solitary(OrderService)
+  .solitary(UserService)
   .compile();
 
-const payments = unitRef.get(PaymentGateway);
-payments.authorize.mockResolvedValue({ approved: true });
+// Just test the logic
+const userApi = unitRef.get(UserApi);
+userApi.getRandom.mockResolvedValue(user);
+await unit.generateRandomUser();`;
 
-await unit.placeOrder(order);
+const typeSafe = `// No manual mocks needed!
+const { unit, unitRef } = await TestBed
+  .solitary(UserService)
+  .compile();
 
-expect(payments.authorize).toHaveBeenCalled();`;
+// Fully-typed mocks, automatically generated
+const userApi = unitRef.get(UserApi);
 
-const unitIntegrations = ['NestJS', 'InversifyJS', 'Jest', 'Vitest', 'Sinon'];
+userApi.get.mockResolvedValue({ name: 'John' });`;
 
-const projectLinks = [
+const aiFirst = `// Manual: 40+ lines per test in AI context
+// class MockUserApi { getRandom = jest.fn(); ... }
+// class MockDatabase { saveUser = jest.fn(); ... }
+// const userService = new UserService(mockUserApi, mockDb);
+
+// Suites: Single canonical pattern
+const { unit, unitRef } = await TestBed
+  .solitary(UserService)
+  .compile();
+
+// AI agents learn the entire API from one example`;
+
+const adapters = [
+  { name: 'NestJS', img: '/img/nestjs-logo.png', href: 'https://docs.nestjs.com/recipes/suites', official: true },
+  { name: 'InversifyJS', img: '/img/inversify-logo.png', href: 'https://inversify.io/docs/ecosystem/suites/', official: true },
+  { name: 'Vitest', img: '/img/vitest-logo.png' },
+  { name: 'Jest', img: '/img/jest-logo.png' },
+  { name: 'Sinon', img: '/img/sinon-logo.png' },
+];
+
+const features = [
   {
-    label: 'Source code',
-    description: 'Public Suites repositories.',
-    href: 'https://github.com/suites-dev',
+    emoji: '\ud83d\udc69\u200d\ud83d\udcbb',
+    title: 'Declarative',
+    body: "Suites' declarative API creates fully-typed, isolated test environments with a single declaration. Suites auto-generates all mocks and wires dependencies automatically.",
   },
   {
-    label: 'Runnable examples',
-    description: 'Working TypeScript projects.',
-    href: 'https://github.com/suites-dev/examples',
+    emoji: '\u2705',
+    title: 'Type-Safe',
+    body: 'Generate type-safe mocks bound to implementations. Eliminate broken tests after refactors, silent runtime failures, and manual type casting.',
   },
   {
-    label: 'Unit issues',
-    description: 'Bugs and improvements for Unit.',
-    href: 'https://github.com/suites-dev/suites/issues',
+    emoji: '\ud83d\udd04',
+    title: 'Refactoring Confidence',
+    body: 'Change constructors, add dependencies, refactor classes - tests adapt automatically. Skip manual mock updates. Catch breaking changes at compile time, not runtime.',
   },
   {
-    label: 'Unit discussions',
-    description: 'Questions and design discussions.',
-    href: 'https://github.com/suites-dev/suites/discussions',
-  },
-  {
-    label: 'Contributing to Unit',
-    description: 'Contribution workflow and requirements.',
-    href: 'https://github.com/suites-dev/suites/blob/master/CONTRIBUTING.md',
-  },
-  {
-    label: 'Apache 2.0 license',
-    description: 'The license used by the project.',
-    href: 'https://github.com/suites-dev/suites/blob/master/LICENSE',
+    emoji: '\u2728',
+    title: 'AI Ready',
+    body: 'One canonical pattern teaches AI agents the entire API. Coding agents like Claude Code and Cursor write correct tests in a single pass with 95% less context consumption compared to manual mocking patterns.',
   },
 ];
 ---
 
 <MarketingLayout
-  title="Homepage"
-  description="Suites Unit is an open-source unit testing framework for TypeScript projects built on dependency injection, with typed doubles for Jest, Vitest, and Sinon."
-  showHeader={false}
+  title="Suites | Unit Testing Framework"
+  description="Suites is a unit testing framework for TypeScript backends working with inversion of control and dependency injection"
 >
-  <LovableHomepage />
-
   <div class="home">
-    <LovableTechnicalFigure />
+    <section class="hero">
+      <div class="hero-copy">
+        <h1 class="hero-title">Suites</h1>
+        <p class="hero-lede">
+          A unit testing framework for TypeScript backends working with
+          inversion of control and dependency injection.
+        </p>
 
-    <section class="tools-section" aria-label="Suites tools">
-      <article class="tool tool--unit" aria-labelledby="unit-title">
-        <div class="tool-copy">
-          <header class="tool-header">
-            <div class="package-line">
-              <code>@suites/unit</code>
-              <span class="status status--stable">stable</span>
+        <nav class="hero-actions" aria-label="Get started with Suites">
+          <a class="cta cta--primary" href="/docs/get-started/" data-track="get_started">Get Started</a>
+          <a class="cta" href="/docs/get-started/why-suites/" data-track="why_suites">Why Suites?</a>
+          <a class="cta" href="/docs/guides/" data-track="guides">Guides</a>
+          <a
+            class="cta cta--icon"
+            href="https://github.com/suites-dev/suites"
+            target="_blank"
+            rel="noopener noreferrer"
+            data-track="github"
+          >
+            <svg viewBox="0 0 16 16" aria-hidden="true" width="15" height="15">
+              <path
+                fill="currentColor"
+                d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"
+              />
+            </svg>
+            GitHub
+          </a>
+        </nav>
+
+        <div class="adapters">
+          <p class="adapters-label">Works with projects using</p>
+          <div class="adapter-row">
+            {adapters.map((item) =>
+              item.href ? (
+                <a href={item.href} target="_blank" rel="noopener noreferrer" class="adapter">
+                  <img src={item.img} alt="" class="adapter-logo" />
+                  <span class="adapter-name">{item.name}</span>
+                  {item.official && <span class="adapter-badge">Official</span>}
+                </a>
+              ) : (
+                <div class="adapter">
+                  <img src={item.img} alt="" class="adapter-logo" />
+                  <span class="adapter-name">{item.name}</span>
+                </div>
+              ),
+            )}
+            <div class="adapter adapter--more">
+              <span class="adapter-plus" aria-hidden="true">+</span>
+              <span class="adapter-name">more</span>
             </div>
-            <h2 id="unit-title">Suites Unit</h2>
-          </header>
-
-          <p>
-            <code>@suites/unit</code> creates <strong>solitary tests</strong>, where all
-            dependencies are mocked, or sociable test environments for supported
-            DI-based TypeScript frameworks. It provides typed doubles for Jest,
-            Vitest, and Sinon.
-          </p>
-
-          <p class="install-line">
-            <span>Install</span>
-            <code>npm install -D @suites/unit</code>
-          </p>
-
-          <div class="compatibility">
-            <span>Integrates with</span>
-            <ul>
-              {unitIntegrations.map((item) => <li>{item}</li>)}
-            </ul>
           </div>
-
-          <nav class="tool-links" aria-label="Suites Unit resources">
-            <a href="/docs/get-started/quickstart/">Quickstart <span aria-hidden="true">→</span></a>
-            <a href="/docs/get-started/installation/">Installation <span aria-hidden="true">→</span></a>
-            <a href="/docs/api-reference/">API reference <span aria-hidden="true">→</span></a>
-            <a href="https://github.com/suites-dev/examples" target="_blank" rel="noopener noreferrer">
-              Examples <span aria-hidden="true">↗</span>
-            </a>
-          </nav>
         </div>
+      </div>
 
-        <div class="artifact artifact--code" role="group" aria-labelledby="unit-example-title">
-          <div class="artifact-titlebar">
-            <span id="unit-example-title">order.service.spec.ts</span>
-            <code>@suites/unit</code>
-          </div>
-          <Code code={unitCode} lang="ts" />
-        </div>
-      </article>
-
+      <div class="hero-code">
+        <Tabs groupId="suites-comparison">
+          <TabItem value="with-suites" label="With Suites" default>
+            <Code code={withSuites} lang="ts" />
+          </TabItem>
+          <TabItem value="without-suites" label="Without Suites">
+            <Code code={withoutSuites} lang="ts" />
+          </TabItem>
+        </Tabs>
+      </div>
     </section>
 
-    <section class="project-section" aria-labelledby="project-title">
-      <header class="project-intro">
-        <h2 id="project-title">Project</h2>
-        <p>Suites is developed in the open under Apache 2.0.</p>
-      </header>
-
-      <nav class="project-directory" aria-label="Suites project links">
-        {projectLinks.map((link) => (
-          <a href={link.href} target="_blank" rel="noopener noreferrer">
-            <span>
-              <strong>{link.label}</strong>
-              <small>{link.description}</small>
-            </span>
-            <span aria-hidden="true">↗</span>
-          </a>
+    <section class="capabilities" aria-labelledby="capabilities-title">
+      <h2 id="capabilities-title" class="sr-only">What Suites gives you</h2>
+      <div class="capability-grid">
+        {features.map((feature) => (
+          <article class="capability">
+            <span class="capability-mark" aria-hidden="true">{feature.emoji}</span>
+            <h3>{feature.title}</h3>
+            <p>{feature.body}</p>
+          </article>
         ))}
-      </nav>
+      </div>
+    </section>
+
+    <section class="detail">
+      <div class="detail-copy">
+        <h2>Standardized Testing Across Teams</h2>
+        <p>
+          Stop relearning test patterns on every project. Suites provides a
+          consistent, standardized approach that works identically across
+          NestJS, InversifyJS, and any DI framework, giving teams a unified
+          testing experience.
+        </p>
+        <a class="detail-link" href="/docs/get-started/why-suites/#3-inconsistent-patterns-across-teams">
+          See framework support <span aria-hidden="true">→</span>
+        </a>
+      </div>
+      <div class="detail-code"><Code code={frameworks} lang="ts" /></div>
+    </section>
+
+    <section class="detail detail--reverse">
+      <div class="detail-copy">
+        <h2>Tests That Reveal Intent, Not Boilerplate</h2>
+        <p>
+          Suites' declarative API removes 90% of test setup code. No more
+          scrolling through mock wiring, logic is front and center. New team
+          members write tests on day one, not day ten.
+        </p>
+        <a class="detail-link" href="/docs/get-started/quickstart/">
+          See quick start <span aria-hidden="true">→</span>
+        </a>
+      </div>
+      <div class="detail-code"><Code code={intent} lang="ts" /></div>
+    </section>
+
+    <section class="detail">
+      <div class="detail-copy">
+        <h2>Type-Safe, Automatic Mocking</h2>
+        <p>
+          No more debugging broken mocks. Suites automatically generates
+          fully-typed mocks bound to implementation. Catch errors at compile
+          time, not runtime. Refactor with confidence while mocks stay valid
+          when dependencies change.
+        </p>
+        <a class="detail-link" href="/docs/guides/test-doubles/">
+          Learn about mocking <span aria-hidden="true">→</span>
+        </a>
+      </div>
+      <div class="detail-code"><Code code={typeSafe} lang="ts" /></div>
+    </section>
+
+    <section class="detail detail--reverse">
+      <div class="detail-copy">
+        <h2>Built for AI-First Development</h2>
+        <p>
+          Manual mocking forces AI agents to hold 40+ lines of boilerplate per
+          test in context. Suites provides one canonical pattern that reduces
+          token consumption by 95%. AI coding assistants like Claude Code,
+          Cursor, and GitHub Copilot generate accurate tests in a single pass
+          without burning tokens on repetitive setup code.
+        </p>
+        <a class="detail-link" href="/docs/get-started/why-suites/#2-excessive-boilerplate-obscures-test-intent-and-confuses-llms">
+          Suites and AI <span aria-hidden="true">→</span>
+        </a>
+      </div>
+      <div class="detail-code"><Code code={aiFirst} lang="ts" /></div>
     </section>
   </div>
 </MarketingLayout>
 
-<style>
-  :global(body:has([data-lovable-homepage])) {
-    background: var(--background);
-  }
+<script>
+  // The Docusaurus homepage tracked these clicks through trackButtonClick.
+  // Importing the util installs its window shim; the listener keeps the
+  // markup free of inline handlers.
+  import { trackButtonClick } from '@/utils/analytics';
 
+  document.querySelectorAll<HTMLElement>('[data-track]').forEach((el) => {
+    el.addEventListener('click', () => {
+      trackButtonClick(el.dataset.track as string, 'homepage_hero');
+    });
+  });
+</script>
+
+<style>
   .home {
     width: min(100%, 1200px);
     margin: 0 auto;
     padding: 0 24px 96px;
   }
 
-  .tools-section {
-    padding-top: 72px;
+  /* Hero ------------------------------------------------------------------ */
+
+  .hero {
+    display: grid;
+    gap: clamp(40px, 5vw, 72px);
+    align-items: start;
+    padding: clamp(56px, 7vw, 96px) 0 clamp(56px, 7vw, 88px);
+    grid-template-columns: minmax(320px, 1fr) minmax(420px, 1.05fr);
   }
 
-  .project-intro {
-    max-width: 620px;
-    padding-bottom: 42px;
-  }
-
-  .project-intro h2,
-  .tool-header h2 {
-    margin-bottom: 10px;
+  .hero-title {
+    margin: 0 0 18px;
     color: var(--text);
-    font-size: clamp(28px, 4vw, 38px);
+    font-size: clamp(2.75rem, 6vw, 4rem);
+    font-weight: var(--fw-semibold);
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+  }
+
+  .hero-lede {
+    max-inline-size: 30rem;
+    margin: 0 0 32px;
+    color: var(--text-muted);
+    font-size: clamp(1rem, 1.4vw, 1.125rem);
+    line-height: 1.6;
+    text-wrap: pretty;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 48px;
+  }
+
+  .cta {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 22px;
+    color: var(--text);
+    background: transparent;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition:
+      background var(--ui-transition-duration) var(--ui-transition-ease),
+      border-color var(--ui-transition-duration) var(--ui-transition-ease);
+  }
+
+  .cta:hover {
+    background: var(--surface-hover);
+    border-color: var(--text-soft);
+  }
+
+  .cta--primary {
+    color: var(--on-primary);
+    background: var(--primary);
+    border-color: transparent;
+  }
+
+  .cta--primary:hover {
+    background: var(--brand-mid);
+    border-color: transparent;
+  }
+
+  .cta:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+  }
+
+  /* Adapter row ----------------------------------------------------------- */
+
+  .adapters-label {
+    margin: 0 0 16px;
+    color: var(--text-soft);
+    font-family: var(--font-code);
+    font-size: 0.6rem;
+    font-weight: var(--fw-semibold);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .adapter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .adapter {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    color: var(--text);
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 0.82rem;
+    text-decoration: none;
+    transition: border-color var(--ui-transition-duration) var(--ui-transition-ease);
+  }
+
+  a.adapter:hover {
+    border-color: var(--primary-border);
+  }
+
+  .adapter-logo {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+  }
+
+  .adapter-badge {
+    padding: 2px 7px;
+    color: var(--primary-light);
+    background: var(--primary-soft);
+    border: 1px solid var(--primary-border);
+    border-radius: 999px;
+    font-family: var(--font-code);
+    font-size: 0.55rem;
+    font-weight: var(--fw-semibold);
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+
+  .adapter--more {
+    color: var(--text-muted);
+  }
+
+  .adapter-plus {
+    color: var(--text-soft);
+    font-family: var(--font-code);
+  }
+
+  .hero-code {
+    min-width: 0;
+  }
+
+  /* Capability cards ------------------------------------------------------ */
+
+  .capabilities {
+    padding: clamp(48px, 6vw, 72px) 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .capability-grid {
+    display: grid;
+    gap: var(--ui-grid-gap);
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+
+  .capability {
+    padding: var(--ui-panel-padding);
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--ui-radius-panel);
+  }
+
+  .capability-mark {
+    display: block;
+    margin-bottom: 14px;
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+
+  .capability h3 {
+    margin: 0 0 10px;
+    color: var(--text);
+    font-size: 1.0625rem;
+    font-weight: var(--fw-semibold);
+    letter-spacing: -0.015em;
+  }
+
+  .capability p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.65;
+  }
+
+  /* Alternating detail sections ------------------------------------------- */
+
+  .detail {
+    display: grid;
+    gap: clamp(32px, 5vw, 72px);
+    align-items: center;
+    padding: clamp(56px, 7vw, 88px) 0;
+    border-top: 1px solid var(--border);
+    grid-template-columns: minmax(300px, 1fr) minmax(380px, 1.05fr);
+  }
+
+  .detail--reverse .detail-copy {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .detail--reverse .detail-code {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .detail-copy h2 {
+    margin: 0 0 14px;
+    color: var(--text);
+    font-size: clamp(1.625rem, 3.4vw, 2.25rem);
     font-weight: var(--fw-semibold);
     letter-spacing: -0.035em;
-    line-height: 1.12;
+    line-height: 1.14;
   }
 
-  .project-intro > p:last-child,
-  .tool-copy > p {
-    margin-bottom: 0;
+  .detail-copy p {
+    margin: 0 0 24px;
     color: var(--text-muted);
-    font-size: 15px;
+    font-size: 0.95rem;
     line-height: 1.7;
   }
 
-  .tool {
-    display: grid;
-    gap: clamp(48px, 5vw, 80px);
-    align-items: center;
-    justify-content: space-between;
-    padding: 88px 0;
-  }
-
-  .tool--unit {
-    grid-template-columns: minmax(300px, 620px) minmax(400px, 720px);
-  }
-
-  .tool + .tool {
-    border-top: 1px solid var(--border);
-  }
-
-  .tool-header {
-    margin-bottom: 20px;
-  }
-
-  .package-line {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 14px;
-  }
-
-  .package-line > code {
-    color: var(--text-muted);
-    font-family: var(--font-code);
-    font-size: 12px;
-  }
-
-  .status {
+  .detail-link {
     display: inline-flex;
-    min-height: 22px;
     align-items: center;
-    padding: 2px 8px;
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    font-family: var(--font-code);
-    font-size: 9px;
-    font-weight: var(--fw-semibold);
-    letter-spacing: 0.08em;
-    line-height: 1;
-    text-transform: uppercase;
-  }
-
-  .status--stable {
-    color: var(--text-muted);
-    background: rgba(255, 255, 255, 0.035);
-  }
-
-  :global(:root[data-theme='light']) .status--stable {
-    background: rgba(15, 15, 18, 0.035);
-  }
-
-  .tool-copy > p code {
-    color: var(--code-text);
-    font-family: var(--font-code);
-    font-size: 0.9em;
-  }
-
-  .tool-copy strong {
-    color: var(--text);
-    font-weight: var(--fw-semibold);
-  }
-
-  .install-line {
-    display: grid;
-    gap: 8px;
-    margin-top: 24px;
-    padding: 14px 16px;
-    border: 1px solid var(--border);
-    border-radius: 5px;
-    background: rgba(255, 255, 255, 0.018);
-  }
-
-  :global(:root[data-theme='light']) .install-line {
-    background: rgba(15, 15, 18, 0.018);
-  }
-
-  .install-line span,
-  .compatibility > span {
-    color: var(--text-soft);
-    font-family: var(--font-code);
-    font-size: 10px;
-    font-weight: var(--fw-semibold);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .install-line code {
-    overflow-wrap: anywhere;
-    color: var(--code-text);
-    font-family: var(--font-code);
-    font-size: 12px;
-    line-height: 1.55;
-  }
-
-  .compatibility {
-    display: grid;
-    gap: 10px;
-    margin-top: 24px;
-  }
-
-  .compatibility ul {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 14px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .compatibility li {
-    color: var(--text-muted);
-    font-family: var(--font-code);
-    font-size: 11px;
-  }
-
-  .tool-links {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    margin-top: 32px;
-    border-top: 1px solid var(--border);
-  }
-
-  .tool-links a {
-    display: flex;
-    min-height: 46px;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 10px 0;
-    color: var(--text-muted);
-    border-bottom: 1px solid var(--border);
-    font-family: var(--font-code);
-    font-size: 10px;
-    letter-spacing: 0.015em;
+    gap: 7px;
+    color: var(--primary-light);
+    font-size: 0.9rem;
+    font-weight: 500;
     text-decoration: none;
-    transition: color 180ms ease-out;
   }
 
-  .tool-links a:nth-child(odd) {
-    padding-right: 18px;
+  .detail-link:hover {
+    color: var(--brand-mid);
   }
 
-  .tool-links a:nth-child(even) {
-    padding-left: 18px;
-    border-left: 1px solid var(--border);
-  }
-
-  .tool-links a span {
-    color: var(--text-soft);
-    transition: transform 180ms ease-out;
-  }
-
-  @media (hover: hover) {
-    .tool-links a:hover {
-      color: var(--text);
-    }
-
-    .tool-links a:hover span {
-      transform: translateX(3px);
-    }
-  }
-
-  .artifact {
+  .detail-code {
     min-width: 0;
-    overflow: hidden;
-    border: 1px solid var(--border-strong);
-    border-radius: 5px;
-    background: var(--code-bg);
   }
 
-  .artifact-titlebar {
-    display: flex;
-    min-height: 40px;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 0 14px;
-    border-bottom: 1px solid var(--border);
-    color: var(--text-soft);
-    font-family: var(--font-code);
-    font-size: 10px;
+  :global(:root[data-theme='light']) .detail-link {
+    color: var(--primary-dark);
   }
 
-  .artifact-titlebar code {
-    color: var(--text-muted);
-    font-family: inherit;
+  :global(:root[data-theme='light']) .adapter-badge {
+    color: var(--primary-dark);
   }
 
-  .artifact--code :global(.expressive-code) {
-    margin: 0;
-  }
+  /* Responsive ------------------------------------------------------------ */
 
-  .artifact--code :global(.expressive-code figure) {
-    margin: 0;
-    border: 0;
-    border-radius: 0;
-  }
-
-  .artifact--code :global(.expressive-code .frame) {
-    box-shadow: none;
-  }
-
-  .artifact--code :global(.expressive-code .header) {
-    display: none;
-  }
-
-  .artifact--code :global(.expressive-code pre) {
-    max-height: none;
-    padding-block: 22px;
-    border: 0;
-    border-radius: 0;
-    font-size: 12px;
-  }
-
-  .pass {
-    color: var(--success);
-  }
-
-  .fail {
-    color: var(--error);
-  }
-
-  .project-section {
-    padding: 84px 0 0;
-  }
-
-  .project-directory {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: 48px;
-    border-top: 1px solid var(--border);
-  }
-
-  .project-directory a {
-    display: flex;
-    min-height: 84px;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    padding: 16px 0;
-    border-bottom: 1px solid var(--border);
-    text-decoration: none;
-  }
-
-  .project-directory a > span:first-child {
-    display: grid;
-    gap: 8px;
-  }
-
-  .project-directory strong {
-    color: var(--text);
-    font-size: 14px;
-    font-weight: var(--fw-semibold);
-  }
-
-  .project-directory small {
-    color: var(--text-muted);
-    font-size: 12px;
-    line-height: 1.5;
-  }
-
-  .project-directory a > span:last-child {
-    color: var(--text-soft);
-    font-size: 12px;
-    transition:
-      color 180ms ease-out,
-      transform 180ms ease-out;
-  }
-
-  @media (hover: hover) {
-    .project-directory a:hover strong,
-    .project-directory a:hover > span:last-child {
-      color: var(--primary);
+  @media (max-width: 996px) {
+    .hero,
+    .detail {
+      grid-template-columns: minmax(0, 1fr);
     }
 
-    .project-directory a:hover > span:last-child {
-      transform: translate(2px, -2px);
+    .detail--reverse .detail-copy,
+    .detail--reverse .detail-code {
+      grid-column: 1;
+      grid-row: auto;
     }
   }
 
-  @media (max-width: 1050px) {
-    .tools-section,
-    .project-section {
-      padding-top: 64px;
-    }
-
-    .tool {
-      grid-template-columns: 1fr;
-      gap: 40px;
-      padding: 64px 0;
-    }
-
-  }
-
-  @media (max-width: 620px) {
+  @media (max-width: 640px) {
     .home {
-      padding-bottom: 72px;
-      padding-right: 16px;
-      padding-left: 16px;
+      padding: 0 16px 72px;
     }
 
-    .project-intro {
-      padding-bottom: 32px;
-    }
-
-    .tool {
-      gap: 32px;
-      padding: 52px 0;
-    }
-
-    .tool-links {
-      grid-template-columns: 1fr;
-    }
-
-    .tool-links a:nth-child(odd),
-    .tool-links a:nth-child(even) {
-      padding-right: 0;
-      padding-left: 0;
-      border-left: 0;
-    }
-
-    .artifact-titlebar {
-      align-items: flex-start;
-      padding-top: 10px;
-      padding-bottom: 10px;
-    }
-
-    .project-directory {
-      grid-template-columns: 1fr;
+    .hero-actions .cta {
+      flex: 1 1 calc(50% - 12px);
     }
   }
 </style>
