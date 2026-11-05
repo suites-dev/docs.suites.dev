@@ -1,0 +1,67 @@
+---
+import sidebar, { productFromPath } from '@/config/sidebar';
+
+const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
+const activeProduct = productFromPath(Astro.url.pathname);
+const groups = sidebar[activeProduct];
+
+function isGroupActive(items: { href: string }[]) {
+  return items.some((item) => {
+    const h = item.href.replace(/\/$/, '');
+    return currentPath === h;
+  });
+}
+---
+<nav class="sidebar-nav" aria-label="Documentation">
+  {groups.map((group) => {
+    const open = isGroupActive(group.items);
+    if (group.collapsible === false) {
+      const item = group.items[0];
+      const isActive = currentPath === item.href.replace(/\/$/, '');
+      return (
+        <a
+          href={item.href}
+          class:list={['sidebar-group', 'sidebar-group-label', 'sidebar-direct-link', { active: isActive }]}
+          aria-current={isActive ? 'page' : undefined}
+        >
+          {item.label}
+        </a>
+      );
+    }
+    return (
+      <details class="sidebar-group" open={open}>
+        <summary class="sidebar-group-label">
+          <span>{group.label}</span>
+          <svg class="sidebar-group-caret" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+            <path d="M3.5 4.5L6 7L8.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+          </svg>
+        </summary>
+        <ul class="sidebar-group-items" role="list">
+          {group.items.map((item) => {
+            const normalizedHref = item.href.replace(/\/$/, '');
+            const isActive = currentPath === normalizedHref;
+            return (
+              <li>
+                <a
+                  href={item.href}
+                  class={isActive ? 'active' : ''}
+                  aria-current={isActive ? 'page' : undefined}
+                >
+                  {item.label}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </details>
+    );
+  })}
+</nav>
+
+<style>
+  .sidebar-nav .sidebar-direct-link {
+    font-size: 12px;
+    font-weight: var(--fw-semibold);
+    text-decoration: none;
+  }
+</style>

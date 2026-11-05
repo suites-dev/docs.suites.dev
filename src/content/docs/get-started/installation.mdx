@@ -1,0 +1,260 @@
+---
+sidebar_position: 3
+title: "Install Suites for NestJS, Inversify, or InjectionJS with Jest or Vitest"
+description: "Install Suites 4, select adapters, add explicit TypeScript references, and configure Jest or Vitest to emit decorator metadata."
+keywords: [install suites, nestjs unit testing setup, inversify testing, vitest nestjs, jest nestjs setup, emitDecoratorMetadata nestjs, suites v4]
+meta_title: "Install Suites for NestJS, InversifyJS, and InjectionJS"
+---
+
+import Aside from '@/components/mdx/Aside.astro';
+import Tabs from '@/components/mdx/Tabs.astro';
+import TabItem from '@/components/mdx/TabItem.astro';
+
+Install `@suites/unit`, one dependency injection adapter, and one test-double adapter. Follow these steps to reach your first test:
+
+1. [Install packages](#install-suites-and-adapters) for your stack.
+2. [Add type references](#type-reference-configuration) and include them in your test tsconfig.
+3. [Configure your runner](#configure-the-test-runner) to emit decorator metadata.
+4. [Choose your Quick Start framework](/docs/get-started/quickstart/).
+
+## Prerequisites
+
+These requirements apply to **Suites 4**:
+
+| Dependency | Supported versions |
+| --- | --- |
+| Node.js | `^22.22.2 \|\| ^24.15.0 \|\| ^26.0.0` |
+| NestJS (`@nestjs/common`) | `^10.0.0 \|\| ^11.0.0 \|\| ^12.0.1` |
+| Inversify | `^7.0.0 \|\| ^8.0.0` |
+| InjectionJS (`injection-js`) | `^2.6.1` |
+| Jest and `@jest/globals` | Matching versions satisfying `^30.5.2` |
+| Vitest and `@vitest/spy` | Peer range `>=1.0`; release tests use `5.1.0` |
+
+Use a supported Node major: 22, 24, or 26. Suites supports both CommonJS and ESM. Your framework and test runner may impose additional requirements.
+
+For `TestBed`, enable TypeScript decorators and choose NestJS, InversifyJS, or InjectionJS. InjectionJS support requires Suites 4.1 or later and supports constructor injection, not contextual `inject()` calls. For plain TypeScript without a DI framework, use the [standalone mock utilities](/docs/api-reference/mock/).
+
+<Aside type="note" title="Upgrading an existing project?">
+Follow [Suites 3 to 4](/docs/migration-guides/from-v3/) or [Automock to Suites](/docs/migration-guides/from-automock/). The Sinon adapter is no longer maintained and has no v4 release.
+</Aside>
+
+## Install Suites and adapters
+
+Choose the command for your stack. These commands use pnpm; `npm install --save-dev` and `yarn add --dev` are equivalent. You do not need to change your application's package manager.
+
+<Tabs>
+<TabItem value="nestjs-jest" label="NestJS + Jest" default>
+
+```bash
+pnpm add -D @suites/unit @suites/di.nestjs @suites/doubles.jest
+pnpm add -D jest @jest/globals @types/jest @swc/jest @swc/core typescript
+```
+
+</TabItem>
+<TabItem value="nestjs-vitest" label="NestJS + Vitest">
+
+```bash
+pnpm add -D @suites/unit @suites/di.nestjs @suites/doubles.vitest
+pnpm add -D vitest @vitest/spy unplugin-swc @swc/core typescript
+```
+
+</TabItem>
+<TabItem value="inversify-jest" label="Inversify + Jest">
+
+```bash
+pnpm add -D @suites/unit @suites/di.inversify @suites/doubles.jest
+pnpm add -D jest @jest/globals @types/jest @swc/jest @swc/core typescript
+```
+
+</TabItem>
+<TabItem value="inversify-vitest" label="Inversify + Vitest">
+
+```bash
+pnpm add -D @suites/unit @suites/di.inversify @suites/doubles.vitest
+pnpm add -D vitest @vitest/spy unplugin-swc @swc/core typescript
+```
+
+</TabItem>
+<TabItem value="injectionjs-jest" label="InjectionJS + Jest">
+
+```bash
+pnpm add -D @suites/unit @suites/di.injectionjs @suites/doubles.jest
+pnpm add -D jest @jest/globals @types/jest @swc/jest @swc/core typescript
+```
+
+</TabItem>
+<TabItem value="injectionjs-vitest" label="InjectionJS + Vitest">
+
+```bash
+pnpm add -D @suites/unit @suites/di.injectionjs @suites/doubles.vitest
+pnpm add -D vitest @vitest/spy unplugin-swc @swc/core typescript
+```
+
+</TabItem>
+</Tabs>
+
+Keep your existing NestJS, Inversify, or InjectionJS version if it is in the supported range. For a new project, also install the framework and its runtime dependencies:
+
+```bash
+# NestJS
+pnpm add @nestjs/common @nestjs/core reflect-metadata rxjs
+
+# OR Inversify
+pnpm add inversify reflect-metadata
+
+# OR InjectionJS
+pnpm add injection-js reflect-metadata
+```
+
+Install only one DI adapter and one doubles adapter in each test workspace. Keep the Suites packages on matching release versions. Suites discovers the adapters at runtime.
+
+## Type Reference Configuration
+
+Suites 4 does **not** run a postinstall script to modify declarations. Create `suites.d.ts` and include exactly one doubles `/unit` reference and one DI `/metadata` reference in each test TypeScript project.
+
+**NestJS + Jest:**
+
+```typescript title="suites.d.ts"
+/// <reference types="@suites/doubles.jest/unit" />
+/// <reference types="@suites/di.nestjs/metadata" />
+```
+
+For Vitest, replace the first line with `@suites/doubles.vitest/unit`. For Inversify, replace the second line with `@suites/di.inversify/metadata`; for InjectionJS, use `@suites/di.injectionjs/metadata`. For example, **Inversify + Vitest** uses:
+
+```typescript title="suites.d.ts"
+/// <reference types="@suites/doubles.vitest/unit" />
+/// <reference types="@suites/di.inversify/metadata" />
+```
+
+The doubles reference supplies module augmentations for `Mocked`, `Stub`, and mock builder methods. The DI reference selects the metadata argument type for `mock()` and `unitRef.get()`. Continue importing `TestBed` and these types from `@suites/unit`:
+
+```typescript
+import { TestBed, type Mocked } from '@suites/unit';
+```
+
+## Setting Up `tsconfig.json`
+
+Enable decorator metadata and include the declaration file you just created. Merge these settings into the tsconfig used by your tests:
+
+```json title="tsconfig.json"
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
+  "include": ["src/**/*.ts", "tests/**/*.ts", "suites.d.ts"]
+}
+```
+
+Preserve your project's `module`, `moduleResolution`, and existing include paths. CommonJS and ESM projects are both supported; ESM projects must also use their test runner's ESM configuration.
+
+Import `reflect-metadata` before loading decorated classes, for example in your test setup file or at the top of your test entry point.
+
+## Configure the test runner
+
+Your TypeScript transform must emit legacy decorator metadata. The following configurations use SWC, which supports it.
+
+### Jest with CommonJS tests
+
+```javascript title="jest.config.cjs"
+module.exports = {
+  testEnvironment: 'node',
+  testMatch: ['<rootDir>/**/*.spec.ts'],
+  transform: {
+    '^.+\\.m?js$': ['@swc/jest', { module: { type: 'commonjs' } }],
+    '^.+\\.ts$': ['@swc/jest', {
+      jsc: {
+        target: 'es2022',
+        parser: { syntax: 'typescript', decorators: true },
+        transform: { legacyDecorator: true, decoratorMetadata: true },
+      },
+      module: { type: 'commonjs' },
+    }],
+  },
+  transformIgnorePatterns: [
+    '/node_modules/(?!(?:\\.pnpm/)?(?:@suites[+/]|inversify|@inversifyjs[+/]|@nestjs[+/]|uuid))',
+  ],
+};
+```
+
+The JavaScript transform handles ESM dependencies used by current framework versions in CommonJS tests. See [ESM projects](#esm-projects) below if your tests also use ESM.
+
+Run the tests:
+
+```bash
+pnpm exec jest
+```
+
+### Vitest: decorator metadata setup
+
+```typescript title="vitest.config.ts"
+import swc from 'unplugin-swc';
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: { globals: true, include: ['**/*.spec.ts'] },
+  plugins: [swc.vite({
+    module: { type: 'es6' },
+    jsc: {
+      parser: { syntax: 'typescript', decorators: true },
+      transform: { legacyDecorator: true, decoratorMetadata: true },
+    },
+  })],
+});
+```
+
+For **InjectionJS + Vitest**, also add `server.deps.external` inside the existing `test` object. This keeps the adapter and your tests using the same InjectionJS module and token identities:
+
+```typescript
+server: { deps: { external: ['injection-js'] } },
+```
+
+Keep the decorator metadata plugin and your other test settings.
+
+Run the tests:
+
+```bash
+pnpm exec vitest run
+```
+
+SWC transforms TypeScript but does not type-check it. Run your project's TypeScript check separately, for example `pnpm exec tsc --noEmit -p tsconfig.json`.
+
+## Next Step: Run Your First Test
+
+Continue to [Quick Start](/docs/get-started/quickstart/) and choose NestJS, InversifyJS, or InjectionJS. Each path includes application code and a complete unit test. A passing first test confirms that your adapters, declarations, and decorator transform work together.
+
+## Troubleshooting
+
+### Missing `Mocked` or mock methods
+
+Check that your **test** tsconfig includes `suites.d.ts` and that the file references the installed doubles adapter's `/unit` entry point. Reinstalling packages does not add the references for you.
+
+### Dependencies are not discovered
+
+Import `reflect-metadata` before decorated classes and check both your tsconfig and runner transform. The transform must emit legacy decorator metadata; enabling the TypeScript options alone does not configure SWC.
+
+### ESM projects
+
+Suites supports ESM as well as CommonJS. For Jest ESM tests, follow the [Jest ESM setup](https://jestjs.io/docs/ecmascript-modules), emit ESM from your transform, and import test globals from `@jest/globals`. Keep your project's module format and resolution settings consistent.
+
+## Monorepo Support
+
+Install Suites and its adapters in each workspace that runs tests. Include that workspace's `suites.d.ts` in its test tsconfig. Keep Jest and Vitest augmentations in separate TypeScript projects when a monorepo uses both.
+
+## Supported Libraries (Adapters)
+
+| Purpose | Package |
+| --- | --- |
+| NestJS dependency metadata | `@suites/di.nestjs` |
+| Inversify dependency metadata | `@suites/di.inversify` |
+| InjectionJS constructor metadata | `@suites/di.injectionjs` |
+| Jest mocks | `@suites/doubles.jest` |
+| Vitest mocks | `@suites/doubles.vitest` |
+
+## Related References
+
+- [NestJS guide](/docs/guides/nestjs/) for service tests and custom injection tokens
+- [InversifyJS guide](/docs/guides/inversify/) for symbol tokens and named dependencies
+- [InjectionJS guide](/docs/guides/injectionjs/) for a complete test, token overrides, and support boundaries
+- [Types](/docs/api-reference/types/) for module augmentation and DI metadata
+- [Suites 3 to 4](/docs/migration-guides/from-v3/) for existing projects

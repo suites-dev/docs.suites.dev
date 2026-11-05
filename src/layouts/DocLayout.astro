@@ -1,0 +1,155 @@
+---
+/*
+ * Single shared docs layout.
+ *
+ * Owns the entire article column so cross-cutting affordances (breadcrumb,
+ * page-actions, last-updated, prev/next) ship in one edit instead of one
+ * per page. Pages just author MDX; everything else lives here.
+ *
+ * Stack, top to bottom:
+ *  1. Breadcrumb (computed from slug)
+ *  2. Title block: <h1> with optional badge, plus description as a lede paragraph
+ *  3. Page actions (Copy Markdown + Open in LLM + Edit on GitHub)
+ *  4. <slot /> -- the MDX body
+ *  5. Last updated stamp (if frontmatter provides it)
+ *  6. Prev/Next pager
+ */
+import BaseLayout from './BaseLayout.astro';
+import Sidebar from '@/components/docs/Sidebar.astro';
+import TOC from '@/components/docs/TOC.astro';
+import PrevNext from '@/components/docs/PrevNext.astro';
+import Breadcrumb from '@/components/docs/Breadcrumb.astro';
+import PageActions from '@/components/docs/PageActions.astro';
+import LastUpdated from '@/components/docs/LastUpdated.astro';
+import { docsBreadcrumbs } from '@/lib/breadcrumbs';
+import { SITE_URL } from '@/config/seo';
+import { addLegacyAnchors } from '@/lib/legacyAnchors';
+
+interface Heading {
+  depth: number;
+  text: string;
+  slug: string;
+}
+
+interface Props {
+  title: string;
+  titleInContent?: boolean;
+  metaTitle?: string;
+  description?: string;
+  headings?: Heading[];
+  slug: string;
+  /* Optional metadata from the entry frontmatter; layout falls back to safe defaults. */
+  badge?: 'alpha' | 'beta' | 'new' | 'deprecated';
+  lastUpdated?: string;
+  editUrl?: string;
+  hideToc?: boolean;
+  keywords?: string[];
+  noIndex?: boolean;
+  canonicalUrl?: string;
+  /* Raw markdown body, passed in from the dynamic route so PageActions can copy it. */
+  rawBody?: string;
+  /* Entry id (the file path relative to src/content/docs), used to compute the default Edit URL. */
+  entryId?: string;
+}
+
+const {
+  title,
+  titleInContent = false,
+  metaTitle,
+  description,
+  headings = [],
+  slug,
+  badge,
+  lastUpdated,
+  editUrl: editUrlProp,
+  hideToc = false,
+  keywords,
+  noIndex = false,
+  canonicalUrl,
+  rawBody = '',
+  entryId,
+} = Astro.props;
+
+const GITHUB_EDIT_BASE = 'https://github.com/suites-dev/docs.suites.dev/edit/master/src/content/docs/';
+const editUrl = editUrlProp ?? (entryId ? GITHUB_EDIT_BASE + entryId : GITHUB_EDIT_BASE);
+
+const showToc = !hideToc && headings.length > 0;
+let tableNumber = 0;
+const content = addLegacyAnchors(slug, await Astro.slots.render('default'))
+  .replace(/<table\b[^>]*>[\s\S]*?<\/table>/g, table =>
+    `<div class="doc-table-scroll" role="region" aria-label="Scrollable table ${++tableNumber}" tabindex="0">${table}</div>`);
+const site = Astro.site ?? new URL(SITE_URL);
+const breadcrumbItems = [{ label: 'Documentation', href: '/docs/' }, ...docsBreadcrumbs(slug, title)];
+const breadcrumbSchema = {
+  '@type': 'BreadcrumbList',
+  itemListElement: breadcrumbItems.map((item, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: item.label,
+    item: new URL(item.href, site).href,
+  })),
+};
+---
+<BaseLayout
+  title={metaTitle ?? title}
+  description={description}
+  keywords={keywords}
+  noIndex={noIndex}
+  canonicalUrl={canonicalUrl}
+  header="docs"
+  pageType="TechArticle"
+  modifiedTime={lastUpdated}
+  structuredData={[breadcrumbSchema]}
+>
+  <div class="shell shell--docs">
+    <div class="doc-layout">
+      <aside class="sidebar">
+        <div class="sidebar-viewport">
+          <Sidebar />
+        </div>
+      </aside>
+
+      <article class="article">
+        <header class="article-header">
+          <div class="article-meta-row">
+            <Breadcrumb slug={slug} title={title} />
+            <PageActions rawBody={rawBody} slug={slug} />
+          </div>
+
+          {!titleInContent && <h1 class="article-title">
+            <span>{title}</span>
+            {badge && (
+              <span class="article-title-badge" data-variant={badge} aria-label={`${badge} status`}>
+                {badge}
+              </span>
+            )}
+          </h1>}
+          {titleInContent && badge && (
+            <span class="article-title-badge" data-variant={badge} aria-label={`${badge} status`}>
+              {badge}
+            </span>
+          )}
+
+          {/* Description stays in BaseLayout for <title>, og:description, and
+              twitter:description. We do NOT render it as a visible lede here
+              because our content commonly leads with an Abstract or intro
+              paragraph that paraphrases it, which would create a duplicate
+              read on every page. */}
+        </header>
+
+        <Fragment set:html={content} />
+
+        {lastUpdated && <LastUpdated iso={lastUpdated} />}
+        <p class="doc-edit-link"><a href={editUrl}>Edit this page on GitHub</a></p>
+        <PrevNext slug={slug} />
+      </article>
+
+      {showToc && (
+        <nav class="toc" aria-label="On this page">
+          <p class="toc-label">On this page</p>
+          <TOC headings={headings} />
+        </nav>
+      )}
+    </div>
+  </div>
+</BaseLayout>

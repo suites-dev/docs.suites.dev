@@ -1,0 +1,66 @@
+---
+const id = `unit-reference-${crypto.randomUUID()}`;
+const dependencies = [
+  { label: 'Auto mock', kind: 'mock' },
+  { label: '.impl() mock', kind: 'mock' },
+  { label: '.final() supplied', kind: 'supplied' },
+  { label: '.expose() real', kind: 'real' },
+];
+---
+
+<figure class="unit-reference-figure">
+  <div class="diagram-scroll" tabindex="0" role="region" aria-label="Injected dependencies and mock lookups diagram">
+    <svg viewBox="0 0 480 514" role="img" aria-labelledby={`${id}-title ${id}-desc`}>
+      <title id={`${id}-title`}>Injected dependencies and retrievable mocks</title>
+      <desc id={`${id}-desc`}>The real unit receives auto mocks, .impl() mocks, supplied .final() values, and exposed real classes. unitRef.get() can look up only auto mocks and .impl() mocks. Exposed classes apply to sociable tests.</desc>
+      <defs>
+        <marker id={`${id}-arrow`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" class="arrowhead" />
+        </marker>
+      </defs>
+      <rect class="panel" x="1" y="1" width="478" height="278" rx="12" />
+      <text class="heading" x="20" y="32">1. Injected into the unit</text>
+      <rect class="node real" x="20" y="130" width="130" height="58" rx="8" />
+      <text x="85" y="154" text-anchor="middle">unit</text>
+      <text class="secondary" x="85" y="176" text-anchor="middle">Real class</text>
+      {dependencies.map((dependency, index) => (
+        <g>
+          <path class="edge" d={`M 150 159 H 185 V ${83 + index * 54} H 235`} marker-end={`url(#${id}-arrow)`} />
+          <rect class:list={['node', dependency.kind]} x="238" y={62 + index * 54} width="220" height="42" rx="7" />
+          <text x="348" y={89 + index * 54} text-anchor="middle">{dependency.label}</text>
+        </g>
+      ))}
+      <rect class="panel" x="1" y="295" width="478" height="218" rx="12" />
+      <text class="heading" x="20" y="327">2. Available through lookup</text>
+      <rect class="node" x="20" y="379" width="150" height="48" rx="8" />
+      <text x="95" y="409" text-anchor="middle">unitRef.get()</text>
+      {[{ label: 'Auto mock', y: 354 }, { label: '.impl() mock', y: 412 }].map(({ label, y }) => (
+        <g>
+          <path class="edge lookup" d={`M 170 403 H 202 V ${y + 21} H 235`} marker-end={`url(#${id}-arrow)`} />
+          <rect class="node mock" x="238" y={y} width="220" height="42" rx="7" />
+          <text x="348" y={y + 27} text-anchor="middle">{label}</text>
+        </g>
+      ))}
+      <text class="secondary" x="20" y="489">No lookup: .final() values or exposed classes.</text>
+    </svg>
+  </div>
+  <figcaption>Solid arrows show injection; dotted arrows show lookup. Dashed boxes are configurable mocks. Exposed real classes apply to sociable tests.</figcaption>
+</figure>
+
+<style>
+  .unit-reference-figure { margin: 1.5rem 0; }
+  .diagram-scroll { overflow-x: auto; border-radius: 12px; }
+  .diagram-scroll:focus-visible { outline: 2px solid var(--primary-light); outline-offset: 4px; }
+  svg { display: block; width: 100%; min-width: 440px; max-width: 560px; margin-inline: auto; height: auto; }
+  text { fill: var(--text); font-family: var(--font-interface, sans-serif); font-size: 14px; }
+  .heading { font-weight: 600; }
+  .secondary { fill: var(--text-muted); font-size: 14px; }
+  .panel { fill: var(--bg-subtle); stroke: var(--border); }
+  .node { fill: var(--surface-raised); stroke: var(--primary-light); stroke-width: 1.5; }
+  .mock { stroke-dasharray: 5 4; }
+  .real { stroke-width: 2; }
+  .edge { fill: none; stroke: var(--text-muted); stroke-width: 1.5; }
+  .lookup { stroke-dasharray: 2 4; }
+  .arrowhead { fill: var(--text-muted); }
+  figcaption { margin-top: 0.75rem; color: var(--text-muted); font-size: 0.875rem; line-height: 1.6; }
+</style>

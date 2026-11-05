@@ -1,0 +1,563 @@
+---
+import Container from '@/components/ui/primitives/Container.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const unitTasks = [
+  {
+    label: 'Write your first test with your framework',
+    href: '/docs/get-started/quickstart/',
+  },
+  {
+    label: 'Install for your test stack',
+    href: '/docs/get-started/installation/',
+  },
+  {
+    label: 'Choose solitary or sociable testing',
+    href: '/docs/guides/fundamentals/',
+  },
+  {
+    label: 'Create mocks and stubs without TestBed',
+    href: '/docs/api-reference/mock/',
+  },
+  {
+    label: 'Migrate from Automock',
+    href: '/docs/migration-guides/from-automock/',
+  },
+];
+
+const unitSections = [
+  {
+    label: 'Get Started',
+    description: 'Explore supported frameworks and configure Suites.',
+    href: '/docs/get-started/',
+  },
+  {
+    label: 'Quick Start',
+    description: 'Write your first test with NestJS, InversifyJS, or InjectionJS.',
+    href: '/docs/get-started/quickstart/',
+  },
+  {
+    label: 'Guides',
+    description: 'Learn testing modes, test doubles, and core patterns.',
+    href: '/docs/guides/',
+  },
+  {
+    label: 'API Reference',
+    description: 'Look up TestBed methods, mock configuration, and types.',
+    href: '/docs/api-reference/',
+  },
+  {
+    label: 'Migration Guides',
+    description: 'Move existing projects to the current Suites packages.',
+    href: '/docs/migration-guides/',
+  },
+  {
+    label: 'Changelog',
+    description: 'Review releases and behavior changes.',
+    href: '/docs/changelog/',
+  },
+];
+
+---
+
+<BaseLayout
+  title="Documentation"
+  description="Documentation for Suites Unit: isolated unit testing for DI-based TypeScript projects."
+  header="docs"
+>
+  <div class="docs-landing">
+    <section class="docs-hero" aria-labelledby="docs-landing-title">
+      <Container class="docs-hero__grid">
+        <div class="docs-hero__copy">
+          <h1 id="docs-landing-title">Test classes with their dependencies under control.</h1>
+          <p class="docs-hero__lede">
+            Suites Unit tests classes and dependencies with typed test doubles, in solitary
+            isolation or with selected collaborators left real.
+          </p>
+
+          <div class="docs-hero__actions">
+            <button class="docs-search" type="button" data-docs-landing-search>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="11" cy="11" r="6.5"></circle>
+                <path d="m16 16 4 4"></path>
+              </svg>
+              <span>Search documentation</span>
+              <kbd aria-hidden="true">/</kbd>
+            </button>
+
+            <a class="docs-continue" href="/docs/get-started/">
+              Continue to docs <span aria-hidden="true">→</span>
+            </a>
+          </div>
+        </div>
+      </Container>
+    </section>
+
+    <section class="docs-section" aria-labelledby="docs-tasks-title">
+      <Container class="docs-section__layout">
+        <div class="docs-section__heading">
+          <p class="docs-eyebrow">Task paths</p>
+          <h2 id="docs-tasks-title">Start with your current task.</h2>
+          <p>Choose the path that matches the project as it exists now.</p>
+        </div>
+
+        <div class="docs-task-grid">
+          <div class="docs-link-group">
+            <h3>Unit testing</h3>
+            <ul>
+              {unitTasks.map((task) => (
+                <li>
+                  <a href={task.href}>
+                    <span>{task.label}</span>
+                    <span aria-hidden="true">→</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </Container>
+    </section>
+
+    <section class="docs-section" aria-labelledby="docs-browse-title">
+      <Container class="docs-section__layout">
+        <div class="docs-section__heading">
+          <p class="docs-eyebrow">Directory</p>
+          <h2 id="docs-browse-title">Browse the documentation.</h2>
+          <p>Open a section when you already know the kind of information you need.</p>
+        </div>
+
+        <div class="docs-directory-grid">
+          <div class="docs-directory-group">
+            <h3>Suites Unit</h3>
+            <ul>
+              {unitSections.map((section) => (
+                <li>
+                  <a href={section.href}>
+                    <span>
+                      <strong>{section.label}</strong>
+                      <small>{section.description}</small>
+                    </span>
+                    <span aria-hidden="true">→</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </Container>
+    </section>
+
+    <section class="docs-help" aria-labelledby="docs-help-title">
+      <Container>
+        <div class="docs-help__panel">
+          <div>
+            <p class="docs-eyebrow">Support</p>
+            <h2 id="docs-help-title">Get help.</h2>
+            <p>
+              Search the documentation first. If the answer is missing, ask the community or
+              report a reproducible issue.
+            </p>
+          </div>
+          <nav class="docs-help__links" aria-label="Support resources">
+            <a href="https://github.com/suites-dev/examples" target="_blank" rel="noopener noreferrer">
+              Working examples <span aria-hidden="true">↗</span>
+            </a>
+            <a href="https://github.com/suites-dev/suites/discussions" target="_blank" rel="noopener noreferrer">
+              GitHub Discussions <span aria-hidden="true">↗</span>
+            </a>
+            <a href="https://github.com/suites-dev/suites/issues" target="_blank" rel="noopener noreferrer">
+              Report an issue <span aria-hidden="true">↗</span>
+            </a>
+          </nav>
+        </div>
+      </Container>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  const landingSearch = document.querySelector<HTMLButtonElement>('[data-docs-landing-search]');
+
+  landingSearch?.addEventListener('click', () => {
+    let attempts = 0;
+
+    const openSearch = () => {
+      const headerSearch = document.querySelector<HTMLButtonElement>(
+        '[data-docsearch-root] .DocSearch-Button',
+      );
+
+      if (headerSearch) {
+        headerSearch.click();
+        return;
+      }
+
+      attempts += 1;
+      if (attempts < 30) window.requestAnimationFrame(openSearch);
+    };
+
+    openSearch();
+  });
+</script>
+
+<style>
+  .docs-landing {
+    color: var(--text);
+    background: var(--bg);
+  }
+
+  .docs-hero {
+    padding-block: clamp(64px, 8vw, 96px) clamp(56px, 7vw, 80px);
+  }
+
+  .docs-hero__grid {
+    display: block;
+  }
+
+  .docs-hero__copy {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .docs-eyebrow {
+    margin: 0;
+    color: var(--primary-light);
+    font-family: var(--font-code);
+    font-size: 0.6875rem;
+    font-weight: var(--fw-semibold);
+    letter-spacing: 0.12em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  .docs-hero h1 {
+    max-width: none;
+    margin: 0;
+    font-size: clamp(1.5rem, 3.6vw, 2.875rem);
+    font-weight: var(--fw-display);
+    letter-spacing: -0.045em;
+    line-height: 1.04;
+    text-wrap: nowrap;
+    white-space: nowrap;
+  }
+
+  .docs-hero__lede {
+    max-width: 72ch;
+    margin: 24px 0 0;
+    color: var(--text-muted);
+    font-size: clamp(1.0625rem, 1.7vw, 1.1875rem);
+    line-height: 1.7;
+    text-wrap: pretty;
+  }
+
+  .docs-hero__actions {
+    display: flex;
+    align-items: stretch;
+    flex-wrap: wrap;
+    gap: 16px;
+    max-width: 840px;
+    margin-top: 32px;
+  }
+
+  .docs-continue {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 48px;
+    flex-shrink: 0;
+    padding: 12px 24px;
+    border: 1px solid var(--primary);
+    border-radius: 6px;
+    background: var(--primary);
+    color: var(--on-primary);
+    font-size: 0.9375rem;
+    font-weight: var(--fw-semibold);
+  }
+
+  .docs-continue:hover {
+    background: var(--primary-light);
+    border-color: var(--primary-light);
+  }
+
+  .docs-search {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    flex: 1 1 320px;
+    min-width: 0;
+    width: 100%;
+    min-height: 56px;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 10px 8px 16px;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: 12px;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition:
+      color 160ms ease,
+      border-color 160ms ease,
+      background-color 160ms ease;
+  }
+
+  .docs-search:hover {
+    color: var(--text);
+    background: var(--surface-raised);
+    border-color: var(--primary-border);
+  }
+
+  .docs-search svg {
+    width: 19px;
+    height: 19px;
+    fill: none;
+    stroke: var(--primary-light);
+    stroke-linecap: round;
+    stroke-width: 1.7;
+  }
+
+  .docs-search kbd {
+    display: grid;
+    width: 30px;
+    height: 30px;
+    place-items: center;
+    color: var(--text-muted);
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    font-family: var(--font-code);
+    font-size: 0.75rem;
+  }
+
+  .docs-task-grid,
+  .docs-directory-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--ui-grid-gap);
+  }
+
+  .docs-section {
+    padding-block: clamp(64px, 8vw, 88px);
+    border-top: 1px solid var(--border);
+  }
+
+  .docs-section__heading {
+    max-width: 720px;
+    margin-bottom: clamp(32px, 5vw, 48px);
+  }
+
+  @media (min-width: 981px) {
+    .docs-section :global(.docs-section__layout) {
+      display: grid;
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      gap: clamp(40px, 6vw, 80px);
+      align-items: start;
+    }
+
+    .docs-section__heading {
+      margin-bottom: 0;
+    }
+  }
+
+  .docs-section__heading h2,
+  .docs-help h2 {
+    margin: 14px 0 0;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: var(--fw-bold);
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+  }
+
+  .docs-section__heading > p:last-child,
+  .docs-help__panel > div > p:last-child {
+    margin: 18px 0 0;
+    color: var(--text-muted);
+    font-size: 1rem;
+    line-height: 1.65;
+  }
+
+  .docs-link-group,
+  .docs-directory-group {
+    min-width: 0;
+  }
+
+  .docs-link-group h3,
+  .docs-directory-group h3 {
+    margin: 0 0 12px;
+    font-size: 1.125rem;
+    font-weight: var(--fw-semibold);
+  }
+
+  .docs-link-group ul,
+  .docs-directory-group ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--border);
+  }
+
+  .docs-link-group li,
+  .docs-directory-group li {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .docs-link-group a,
+  .docs-directory-group a {
+    display: flex;
+    min-height: 58px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    color: var(--text-muted);
+    transition:
+      color 160ms ease,
+      background-color 160ms ease;
+  }
+
+  .docs-link-group a {
+    padding: 10px 4px;
+  }
+
+  .docs-link-group a > span:last-child,
+  .docs-directory-group a > span:last-child {
+    color: var(--primary-light);
+    transition: transform 160ms ease;
+  }
+
+  .docs-link-group a:hover,
+  .docs-directory-group a:hover {
+    color: var(--text);
+  }
+
+  .docs-link-group a:hover > span:last-child,
+  .docs-directory-group a:hover > span:last-child {
+    transform: translateX(3px);
+  }
+
+  .docs-directory-group {
+    padding: clamp(22px, 3vw, 28px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--ui-radius-base);
+  }
+
+  .docs-directory-group a {
+    padding: 14px 2px;
+  }
+
+  .docs-directory-group a > span:first-child {
+    display: grid;
+    gap: 4px;
+  }
+
+  .docs-directory-group strong {
+    color: var(--text);
+    font-size: 0.9375rem;
+    font-weight: var(--fw-semibold);
+  }
+
+  .docs-directory-group small {
+    color: var(--text-muted);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+  }
+
+  .docs-help {
+    padding-block: clamp(64px, 9vw, 104px);
+    border-top: 1px solid var(--border);
+  }
+
+  .docs-help__panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 0.55fr);
+    gap: clamp(40px, 7vw, 88px);
+    align-items: end;
+    padding: clamp(28px, 5vw, 48px);
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--brand-deep);
+    border-radius: var(--ui-radius-panel);
+  }
+
+  .docs-help__links {
+    display: grid;
+    border-top: 1px solid var(--border);
+  }
+
+  .docs-help__links a {
+    display: flex;
+    min-height: 50px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.875rem;
+    font-weight: var(--fw-medium);
+  }
+
+  .docs-help__links a:hover {
+    color: var(--text);
+  }
+
+  .docs-help__links a span {
+    color: var(--primary-light);
+  }
+
+  @media (max-width: 960px) {
+    .docs-hero__copy {
+      max-width: 100%;
+    }
+
+    .docs-help__panel {
+      grid-template-columns: 1fr;
+      align-items: start;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .docs-task-grid,
+    .docs-directory-grid {
+      grid-template-columns: 1fr;
+    }
+
+  }
+
+  @media (max-width: 600px) {
+    .docs-hero h1 {
+      max-width: 100%;
+      font-size: clamp(2.25rem, 10vw, 3.25rem);
+      text-wrap: balance;
+      white-space: normal;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .docs-hero {
+      padding-block: 56px 48px;
+    }
+
+    .docs-hero__grid {
+      gap: 40px;
+    }
+
+    .docs-directory-group,
+    .docs-help__panel {
+      padding: 22px;
+    }
+
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .docs-search,
+    .docs-link-group a,
+    .docs-directory-group a,
+    .docs-help__links a,
+    .docs-link-group a > span:last-child,
+    .docs-directory-group a > span:last-child {
+      transition: none;
+    }
+  }
+</style>

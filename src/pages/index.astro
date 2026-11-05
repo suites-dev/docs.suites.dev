@@ -1,0 +1,368 @@
+---
+/** Unit-only homepage. */
+import MarketingLayout from '@/layouts/MarketingLayout.astro';
+import Tabs from '@/components/mdx/Tabs.astro';
+import TabItem from '@/components/mdx/TabItem.astro';
+import { Code } from 'astro-expressive-code/components';
+
+const withSuites = `import { TestBed, type Mocked } from '@suites/unit';
+
+describe('User Service', () => {
+  let userService: UserService; // The unit we are testing
+  let userApi: Mocked<UserApi>; // The dependencies we are mocking
+  let database: Mocked<Database>;
+
+  beforeAll(async () => {
+    // Create an isolated test env for the unit
+    const { unit, unitRef } = await TestBed.solitary(UserService).compile();
+
+    userService = unit;
+    // Retrieve the unit's dependency mocks - automatically generated
+    userApi = unitRef.get(UserApi);
+    database = unitRef.get(Database);
+  });
+
+  // \u2705 Test test test
+  it('should generate a random user and save to the database', async () => {
+    userApi.getRandom.mockResolvedValue({id: 1, name: 'John'} as User);
+    await userService.generateRandomUser();
+    expect(database.saveUser).toHaveBeenCalledWith(userFixture);
+  });
+});`;
+
+const withoutSuites = `// THE MANUAL WAY
+// (Similar complexity exists in NestJS, InversifyJS, etc.)
+
+import { UserService } from './user-service';
+import { UserApi } from './user-api';
+import { Database } from './database';
+
+describe('User Service', () => {
+  let userService: UserService;
+  let userApi: any; // \u274c Lost type safety!
+  let database: any;
+
+  beforeAll(async () => {
+    // \ud83d\udd27 Manually create mocks for each dependency
+    userApi = {
+      getRandom: jest.fn(),
+      // Missing methods? Who knows? No compile-time checks!
+    };
+
+    database = {
+      saveUser: jest.fn(),
+      // What other methods exist? \u00af\\_(\u30c4)_/\u00af
+    };
+
+    // Manual wiring - boilerplate for every test
+    userService = new UserService(userApi, database);
+  });
+
+  it('should generate a random user and save to the database', async () => {
+    userApi.getRandom.mockResolvedValue({id: 1, name: 'John'} as User);
+    await userService.generateRandomUser();
+    expect(database.saveUser).toHaveBeenCalledWith(userFixture);
+  });
+}`;
+
+const heroExample = `import { TestBed } from '@suites/unit';
+import { UserService } from './user.service';
+import { UserRepository } from './user.repository';
+
+const { unit, unitRef } = await TestBed
+  .solitary(UserService)
+  .compile();
+
+const repository = unitRef.get(UserRepository);
+repository.getUserById.mockResolvedValue(user);
+
+expect(await unit.getUserName(user.id))
+  .toBe(user.name);`;
+
+const supportedFrameworks = [
+  { name: 'NestJS', icon: '/img/nestjs-logo.png' },
+  { name: 'InversifyJS', icon: '/img/inversify-logo.png' },
+  { name: 'InjectionJS', icon: null },
+];
+const supportedRunners = [
+  { name: 'Jest', icon: '/img/jest-logo.png' },
+  { name: 'Vitest', icon: '/img/vitest-logo.png' },
+];
+
+const frameworks = `// Same pattern works everywhere
+// NestJS, InversifyJS, InjectionJS
+
+TestBed.solitary(OrderService).compile();
+
+// Or test with real dependencies
+TestBed.sociable(OrderService)
+  .expose(PaymentProcessor)
+  .compile();`;
+
+const intent = `// One line creates the entire test environment
+const { unit, unitRef } = await TestBed
+  .solitary(UserService)
+  .compile();
+
+// Just test the logic
+const userApi = unitRef.get(UserApi);
+userApi.getRandom.mockResolvedValue(user);
+await unit.generateRandomUser();`;
+
+const typeSafe = `// No manual mocks needed!
+const { unit, unitRef } = await TestBed
+  .solitary(UserService)
+  .compile();
+
+// Fully-typed mocks, automatically generated
+const userApi = unitRef.get(UserApi);
+
+userApi.get.mockResolvedValue({ name: 'John' });`;
+
+const aiFirst = `// Manual: 40+ lines per test in AI context
+// class MockUserApi { getRandom = jest.fn(); ... }
+// class MockDatabase { saveUser = jest.fn(); ... }
+// const userService = new UserService(mockUserApi, mockDb);
+
+// Suites: Single canonical pattern
+const { unit, unitRef } = await TestBed
+  .solitary(UserService)
+  .compile();
+
+// AI agents learn the entire API from one example`;
+
+---
+
+<MarketingLayout
+  title="TypeScript Unit Testing Framework"
+  description="Suites is a unit testing framework for TypeScript backends working with inversion of control and dependency injection"
+>
+  <div class="home workbench">
+    <section class="home-hero" aria-labelledby="home-title">
+      <div class="hero-shell">
+        <p class="eyebrow"><span class="brand-dot" aria-hidden="true"></span> SUITES / TYPESCRIPT UNIT TESTING</p>
+        <h1 id="home-title" class="hero-title">Project Suites.</h1>
+        <p class="hero-lede">
+          A unit testing framework for TypeScript backends working with
+          inversion of control and dependency injection
+        </p>
+
+        <nav class="hero-actions" aria-label="Get started with Suites">
+          <a class="cta cta--primary" href="/docs/get-started/" data-track="read_the_docs">Read the Docs</a>
+          <a
+            class="cta cta--icon"
+            href="https://github.com/suites-dev/suites"
+            target="_blank"
+            rel="noopener noreferrer"
+            data-track="github"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16">
+              <path
+                fill="currentColor"
+                d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.55v-2.02c-3.2.7-3.88-1.4-3.88-1.4-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.2 1.77 1.2 1.03 1.78 2.7 1.27 3.36.97.1-.75.4-1.27.73-1.56-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.25 5.69.41.36.78 1.06.78 2.14v3.17c0 .3.2.66.8.55A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"
+              />
+            </svg>
+            <span>GitHub</span>
+          </a>
+        </nav>
+        <p class="hero-note">Open source. Built for dependency injection.</p>
+      </div>
+      <div class="hero-preview">
+        <div class="preview-heading"><span class="file-tab">user.service.spec.ts</span><span class="preview-language">TypeScript</span></div>
+        <Code code={heroExample} lang="ts" />
+        <div class="preview-footer"><span class="preview-check" aria-hidden="true">✓</span> Real unit. Typed mocks. Ready to test.</div>
+      </div>
+    </section>
+
+    <section class="ecosystem" aria-labelledby="ecosystem-title">
+      <div class="ecosystem-intro"><p class="eyebrow" id="ecosystem-title">FITS YOUR STACK</p><p>One testing pattern.<br />The tools you already use.</p></div>
+      <div class="ecosystem-group">
+        <h2>Dependency injection</h2>
+        <ul>
+          {supportedFrameworks.map(({ name, icon }) => (
+            <li><span class="stack-icon">{icon ? <img src={icon} width="32" height="32" alt="" /> : <svg viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="11" y="3" width="10" height="8" rx="2" /><rect x="2" y="22" width="10" height="8" rx="2" /><rect x="20" y="22" width="10" height="8" rx="2" /><path d="M16 11v6M7 22v-5h18v5" /></svg>}</span><span>{name}</span></li>
+          ))}
+        </ul>
+      </div>
+      <div class="ecosystem-group runners">
+        <h2>Test runners</h2>
+        <ul>{supportedRunners.map(({ name, icon }) => <li><span class="stack-icon"><img src={icon} width="32" height="32" alt="" /></span><span>{name}</span></li>)}</ul>
+      </div>
+    </section>
+
+    <section class="compare" aria-labelledby="comparison-title">
+      <div class="rule-head">
+        <div><p class="eyebrow">LESS WIRING. MORE TESTING.</p><h2 id="comparison-title" class="rule-title">Suites compared with manual mocking</h2></div>
+        <p>Keep the test.<br />Let Suites handle the setup.</p>
+      </div>
+
+      <div class="compare-tray">
+        <Tabs groupId="suites-comparison" label="Compare Suites with manual mocking">
+          <TabItem value="with-suites" label="With Suites" default>
+            <Code code={withSuites} lang="ts" />
+          </TabItem>
+          <TabItem value="without-suites" label="Without Suites">
+            <Code code={withoutSuites} lang="ts" />
+          </TabItem>
+        </Tabs>
+      </div>
+    </section>
+
+    <div class="section-intro"><p class="eyebrow">A SMALL API. A CLEARER TEST.</p><h2>Make room for the behavior<br />that matters.</h2></div>
+    <div class="capabilities">
+
+      <section class="cap" aria-labelledby="cap-standards">
+        <header class="cap-heading">
+          <span class="cap-index" aria-hidden="true">01</span>
+          <h2 id="cap-standards">Standardized Testing Across Teams</h2>
+        </header>
+        <div class="cap-copy">
+          <p>
+            Stop relearning test patterns on every project. Suites provides a
+            consistent, standardized approach that works identically across
+            NestJS, InversifyJS, and InjectionJS, with Jest or Vitest as your
+            test runner.
+          </p>
+          <a class="cap-link" href="/docs/get-started/#supported-frameworks-and-runners">
+            See framework support <span aria-hidden="true">→</span>
+          </a>
+        </div>
+        <div class="cap-code"><Code code={frameworks} lang="ts" /></div>
+      </section>
+
+      <section class="cap" aria-labelledby="cap-intent">
+        <header class="cap-heading">
+          <span class="cap-index" aria-hidden="true">02</span>
+          <h2 id="cap-intent">Tests That Reveal Intent, Not Boilerplate</h2>
+        </header>
+        <div class="cap-copy">
+          <p>
+            Create the unit and its dependency mocks in one step. Keep setup
+            short so the behavior you arrange, run, and assert is easy to find.
+          </p>
+          <a class="cap-link" href="/docs/get-started/quickstart/">
+            See quick start <span aria-hidden="true">→</span>
+          </a>
+        </div>
+        <div class="cap-code"><Code code={intent} lang="ts" /></div>
+      </section>
+
+      <section class="cap" aria-labelledby="cap-types">
+        <header class="cap-heading">
+          <span class="cap-index" aria-hidden="true">03</span>
+          <h2 id="cap-types">Type-Safe, Automatic Mocking</h2>
+        </header>
+        <div class="cap-copy">
+          <p>
+            No more debugging broken mocks. Suites automatically generates
+            fully-typed mocks bound to implementation. Catch errors at compile
+            time, not runtime. Refactor with confidence while mocks stay valid
+            when dependencies change.
+          </p>
+          <a class="cap-link" href="/docs/guides/test-doubles/">
+            Learn about mocking <span aria-hidden="true">→</span>
+          </a>
+        </div>
+        <div class="cap-code"><Code code={typeSafe} lang="ts" /></div>
+      </section>
+
+      <section class="cap" aria-labelledby="cap-ai">
+        <header class="cap-heading">
+          <span class="cap-index" aria-hidden="true">04</span>
+          <h2 id="cap-ai">Built for AI-First Development</h2>
+        </header>
+        <div class="cap-copy">
+          <p>
+            A consistent TestBed pattern gives coding assistants a small,
+            repeatable example to follow. Spend your review on test behavior
+            instead of generated mock classes and constructor wiring.
+          </p>
+          <a class="cap-link" href="/docs/get-started/why-suites/">
+            Suites and AI <span aria-hidden="true">→</span>
+          </a>
+        </div>
+        <div class="cap-code"><Code code={aiFirst} lang="ts" /></div>
+      </section>
+    </div>
+    <section class="closing-cta" aria-labelledby="closing-title"><div><p class="eyebrow">START WITH ONE CLASS</p><h2 id="closing-title">Write your first Suites test.</h2><p>Choose your framework and runner. Follow the same simple pattern.</p></div><a class="cta cta--primary" href="/docs/get-started/quickstart/">Open the quickstart <span aria-hidden="true">→</span></a></section>
+  </div>
+</MarketingLayout>
+
+<script>
+  // The Docusaurus homepage tracked these clicks through trackButtonClick.
+  // Importing the util installs its window shim; the listener keeps the
+  // markup free of inline handlers.
+  import { trackButtonClick } from '@/utils/analytics';
+
+  document.querySelectorAll<HTMLElement>('[data-track]').forEach((el) => {
+    el.addEventListener('click', () => {
+      trackButtonClick(el.dataset.track as string, 'homepage_hero');
+    });
+  });
+</script>
+
+<style>
+  .workbench { width: min(100%,1200px); margin-inline:auto; padding:0 var(--ui-gutter) 80px; }
+  .home-hero { display:grid; grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr); align-items:center; gap:56px; padding:88px 0 64px; }
+  .hero-shell,.hero-preview { min-width:0; }
+  .eyebrow { display:block; width:auto; padding:0; border:0; border-radius:0; background:none; margin:0 0 20px; font-family:var(--font-code); font-size:.6875rem; font-weight:500; letter-spacing:.1em; line-height:1.6; color:var(--text-muted); }
+  .hero-shell .eyebrow { display:flex; gap:10px; align-items:center; }
+  .brand-dot { width:7px; height:7px; border-radius:50%; background:var(--primary-light); }
+  .hero-title { margin:0 0 24px; font-family:var(--font-title); font-size:clamp(2.75rem,4.5vw,4rem); font-weight:600; line-height:1.06; letter-spacing:-.055em; }
+  .hero-title span { color:var(--primary-light); }
+  .hero-lede { max-width:38ch; margin:0 0 28px; font-size:1.125rem; line-height:1.7; color:var(--text-muted); text-wrap:pretty; }
+  .hero-actions { display:flex; flex-wrap:wrap; gap:12px; }
+  .cta { display:inline-flex; align-items:center; justify-content:center; gap:10px; min-height:48px; padding:12px 22px; border:1px solid var(--control-border); border-radius:6px; background:var(--bg); color:var(--text); font-size:.875rem; font-weight:600; text-decoration:none; transition:background 180ms,border-color 180ms; }
+  .cta--primary { background:var(--primary); border-color:var(--primary); color:var(--on-primary); }
+  .hero-note { margin:18px 0 0; font-size:.75rem; color:var(--text-soft); }
+  .hero-preview { border:1px solid var(--border-strong); border-radius:12px; overflow:hidden; background:var(--code-bg); box-shadow:0 16px 48px -24px color-mix(in srgb,var(--text) 18%,transparent); }
+  .preview-heading { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:16px 20px; border-bottom:1px solid var(--border); background:var(--surface); font-family:var(--font-code); font-size:.6875rem; }
+  .preview-language { color:var(--text-soft); }
+  .hero-preview :global(.expressive-code pre) { border:0; border-radius:0; font-size:.75rem; line-height:1.85; }
+  .hero-preview :global(.expressive-code .frame) { border:0; }
+  .preview-footer { display:flex; align-items:center; gap:10px; padding:14px 20px; font-size:.75rem; color:var(--text-muted); border-top:1px solid var(--border); background:var(--surface); }
+  .preview-check { color:var(--success); font-size:1rem; }
+  .ecosystem { display:grid; grid-template-columns:1fr 1.8fr 1fr; align-items:center; gap:32px; padding:32px 0; border-block:1px solid var(--border); }
+  .ecosystem-intro .eyebrow { margin-bottom:8px; }
+  .ecosystem-intro>p:last-child { margin:0; color:var(--text-muted); font-size:.875rem; line-height:1.6; }
+  .ecosystem-group h2 { margin:0 0 16px; font-size:.6875rem; font-weight:500; color:var(--text-soft); }
+  .ecosystem ul { display:flex; flex-wrap:wrap; gap:20px 28px; list-style:none; margin:0; padding:0; }
+  .ecosystem li { display:flex; align-items:center; gap:10px; font-size:.8125rem; font-weight:600; white-space:nowrap; }
+  .stack-icon { display:grid; place-items:center; flex:0 0 36px; width:36px; height:36px; color:var(--primary-light); }
+  .stack-icon img { display:block; width:28px; height:28px; object-fit:contain; }
+  .compare { margin-block:80px 96px; border:1px solid var(--border-strong); border-radius:12px; overflow:hidden; background:var(--bg-subtle); min-width:0; }
+  .rule-head { display:flex; align-items:center; justify-content:space-between; gap:32px; padding:28px 32px; border-bottom:1px solid var(--border); }
+  .rule-head .eyebrow { margin-bottom:10px; }
+  .rule-title { margin:0; font-size:clamp(1.375rem,2.6vw,1.875rem); line-height:1.25; letter-spacing:-.035em; font-weight:600; }
+  .rule-head>p { margin:0; flex-shrink:0; color:var(--text-muted); font-size:.875rem; line-height:1.6; }
+  .compare-tray { padding:24px; min-width:0; }
+  .compare-tray :global(.tabs) { display:flex; width:fit-content; max-width:100%; gap:4px; padding:4px; border:1px solid var(--border); border-radius:7px; background:var(--surface-raised); }
+  .compare-tray :global(.tab) { min-height:44px; padding:10px 20px; border:1px solid transparent; border-radius:4px; font-size:.8125rem; color:var(--text-muted); cursor:pointer; }
+  .compare-tray :global(.tab[aria-selected='true']) { background:var(--surface); color:var(--text); border-color:var(--border-strong); box-shadow:inset 0 -2px 0 var(--primary); }
+  .compare-tray :global(.tabs-panels) { margin-top:16px; }
+  .compare-tray :global(pre) { max-height:540px; font-size:.8125rem; line-height:1.8; }
+  .section-intro { margin-bottom:48px; }
+  .section-intro h2 { margin:0; font-size:clamp(1.875rem,3.5vw,2.75rem); font-weight:600; line-height:1.15; letter-spacing:-.04em; }
+  .cap { display:grid; grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr); column-gap:72px; row-gap:20px; padding:40px 0 48px; border-top:1px solid var(--border); }
+  .cap-heading { grid-column:1; display:flex; flex-direction:column; gap:20px; }
+  .cap-index { color:var(--primary-light); font-family:var(--font-code); font-size:.75rem; }
+  .cap h2 { margin:0; max-width:22ch; font-size:clamp(1.375rem,2.5vw,1.75rem); font-weight:600; line-height:1.25; letter-spacing:-.025em; }
+  .cap-copy { grid-column:1; grid-row:2; min-width:0; }
+  .cap p { margin:0 0 16px; font-size:.9375rem; line-height:1.75; color:var(--text-muted); }
+  .cap-code { grid-column:2; grid-row:1 / span 2; align-self:center; min-width:0; border:1px solid var(--border); border-radius:10px; padding:6px; background:var(--bg-subtle); }
+  .cap-code :global(pre) { font-size:.75rem; line-height:1.85; }
+  .cap-code :global(.expressive-code),.compare-tray :global(.expressive-code) { margin:0; min-width:0; max-width:100%; }
+  .cap-link { display:inline-flex; align-items:center; gap:16px; min-height:44px; color:var(--primary-light); font-size:.8125rem; font-weight:600; text-decoration:none; }
+  .cap-link:hover { text-decoration:underline; text-underline-offset:5px; }
+  .closing-cta { display:flex; align-items:center; justify-content:space-between; gap:32px; margin-top:48px; padding:40px; border:1px solid var(--primary-border); border-radius:12px; background:var(--primary-soft); }
+  .closing-cta .eyebrow { margin-bottom:12px; }
+  .closing-cta h2 { margin:0 0 12px; font-size:clamp(1.5rem,3vw,2rem); letter-spacing:-.035em; line-height:1.2; }
+  .closing-cta p:last-child { margin:0; color:var(--text-muted); font-size:.9375rem; line-height:1.6; }
+  .closing-cta .cta { flex-shrink:0; }
+  .cta:focus-visible,.cap-link:focus-visible,.compare-tray :global(.tab:focus-visible) { outline:2px solid var(--primary-light); outline-offset:4px; }
+  @media(hover:hover) { .cta:hover { background:var(--surface-hover); border-color:var(--primary-light); } .cta--primary:hover { background:var(--primary-hover); color:var(--on-primary-hover); } }
+  @media(max-width:1050px) { .home-hero { gap:32px; } .ecosystem { grid-template-columns:minmax(0,1.8fr) minmax(0,1fr); } .ecosystem-intro { grid-column:1 / -1; display:flex; align-items:center; gap:32px; } .ecosystem-intro>p:last-child br { display:none; } .ecosystem ul { gap:20px; } .cap { column-gap:40px; } }
+  @media(max-width:800px) { .home-hero { grid-template-columns:1fr; padding-top:56px; gap:40px; } .hero-lede { max-width:48ch; } .hero-title { font-size:clamp(2.75rem,7vw,3.75rem); } .rule-head { align-items:flex-start; } .rule-head>p { display:none; } .cap { grid-template-columns:1fr; row-gap:16px; } .cap h2 { max-width:32ch; } .cap-code { grid-column:1; grid-row:3; } .cap-heading { gap:12px; } .cap-copy { max-width:54ch; } .closing-cta { align-items:flex-start; flex-direction:column; } }
+  @media(max-width:600px) { .ecosystem { grid-template-columns:1fr; gap:24px; } .ecosystem-intro { display:block; } .ecosystem-intro .eyebrow { margin-bottom:8px; } .ecosystem ul { flex-wrap:wrap; column-gap:20px; row-gap:16px; } .ecosystem li { font-size:.75rem; gap:6px; } .stack-icon { flex-basis:28px; width:28px; } .stack-icon img { width:24px; height:24px; } .ecosystem-group h2 { margin-bottom:10px; } .compare { margin-block:48px 64px; } .rule-head { padding:24px 20px; } .compare-tray { padding:12px; } .compare-tray :global(.tab) { padding-inline:12px; } .section-intro { margin-bottom:32px; } .cap { padding-block:32px; } .closing-cta { padding:28px 24px; margin-top:32px; } .preview-heading { padding:14px; } .preview-language { display:none; } }
+  @media(prefers-reduced-motion:reduce) { .cta { transition:none; } }
+</style>

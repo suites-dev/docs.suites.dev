@@ -1,0 +1,143 @@
+---
+sidebar_position: 2
+title: "TypeScript Test Doubles: Mocks, Stubs, Spies, and Fakes"
+description: "Configure typed mocks, verify calls, and choose test doubles for TypeScript unit tests with Suites, Jest, and Vitest."
+keywords: [test doubles, mocks, stubs, spies, fakes, mocks vs stubs, typescript testing, unit testing, mock generation typescript, auto mocks, nestjs testing, vitest mocks, jest mocks]
+meta_title: "TypeScript Test Doubles: Mocks, Stubs, Spies, and Fakes"
+---
+
+import ImportedDependencyDiagram from '@/components/docs/ImportedDependencyDiagram.astro';
+import ClassDependenciesExample from '@/components/docs/ClassDependenciesExample.astro';
+
+A **test double** replaces a dependency in a test so you can control its behavior. With Suites, retrieve the mock, set the value its method should return, and assert the result.
+
+## Define the service for your framework
+
+Complete [Installation](/docs/get-started/installation/) for your framework and runner. Choose the matching version of `src/user.service.ts`; the test below works unchanged with all three versions. The repository throws if its real method runs, so the tests replace it.
+
+<ClassDependenciesExample />
+
+NestJS and InjectionJS use emitted constructor types; InversifyJS uses explicit `@inject()` decorators here. Token dependencies use the same mocking workflow; see your [framework quick start](/docs/get-started/quickstart/) for token examples.
+
+## Configure a Mock and Verify a Call
+
+Create this test alongside the service. It uses Jest; for Vitest, change the runner import from `@jest/globals` to `vitest`.
+
+```typescript title="src/test-doubles.spec.ts"
+import 'reflect-metadata';
+import { beforeAll, describe, expect, it } from '@jest/globals';
+import { TestBed, type Mocked } from '@suites/unit';
+import { NameFormatter, UserRepository, UserService } from './user.service';
+
+describe('UserService, dependency mocks', () => {
+  let unit: UserService;
+  let repository: Mocked<UserRepository>;
+  let formatter: Mocked<NameFormatter>;
+
+  beforeAll(async () => {
+    const testBed = await TestBed.solitary(UserService).compile();
+    unit = testBed.unit;
+    repository = testBed.unitRef.get(UserRepository);
+    formatter = testBed.unitRef.get(NameFormatter);
+  });
+
+  it('greets the user returned by the repository', async () => {
+    repository.findName.mockResolvedValue(' Ada ');
+    formatter.format.mockReturnValue('Ada');
+
+    await expect(unit.greet('user-1')).resolves.toBe('Hello, Ada!');
+    expect(repository.findName).toHaveBeenCalledWith('user-1');
+    expect(formatter.format).toHaveBeenCalledWith(' Ada ');
+  });
+});
+```
+
+Run `pnpm exec jest` or `pnpm exec vitest run`. This test should pass without executing the real repository method.
+
+`repository` is the **mock**, a replacement for the dependency. Its `findName` method is a **stub**: `.mockResolvedValue()` supplies the response, and the runner records calls so you can verify how the service used it.
+
+## Choose a Test Double
+
+The terminology comes from [xUnit Test Patterns](http://xunitpatterns.com/Test%20Double.html) and [Martin Fowler's discussion of mocks and stubs](https://martinfowler.com/articles/mocksArentStubs.html). Libraries use these terms differently; Suites calls a replacement object a mock and its replacement methods stubs.
+
+| Test double | Purpose | Example |
+| --- | --- | --- |
+| **Stub** | Supplies a controlled response | Return a user without querying a database |
+| **Mock** | Supports checking expected interactions | Verify the repository received the requested ID |
+| **Spy** | Records calls to an existing method; behavior can also be replaced | Observe a real collaborator with `jest.spyOn()` or `vi.spyOn()` |
+| **Fake** | Provides a simplified working implementation | Store records in an in-memory repository |
+
+Suites' doubles adapters create mocks and stub methods. Write a fake implementation yourself when the test needs stateful behavior, and use the runner's spy API when you need to observe an existing method.
+
+## Verify Results and Interactions
+
+The first example checks both:
+
+- **Result verification:** The service returns `'Hello, Ada!'`.
+- **Interaction verification:** The repository receives ID `'user-1'`.
+
+Choose assertions that describe the behavior you care about. An interaction assertion is useful when the interaction itself matters, such as sending an email or saving a record. You do not need to assert every internal call.
+
+## Test an Error Response
+
+Create a fresh TestBed for another scenario, then configure a rejected promise:
+
+```typescript title="src/user.service.error.spec.ts"
+import 'reflect-metadata';
+import { beforeAll, describe, expect, it } from '@jest/globals';
+import { TestBed, type Mocked } from '@suites/unit';
+import { UserRepository, UserService } from './user.service';
+
+describe('UserService, repository errors', () => {
+  let unit: UserService;
+  let repository: Mocked<UserRepository>;
+
+  beforeAll(async () => {
+    const testBed = await TestBed.solitary(UserService).compile();
+    unit = testBed.unit;
+    repository = testBed.unitRef.get(UserRepository);
+  });
+
+  it('propagates a repository error', async () => {
+    repository.findName.mockRejectedValue(new Error('User not found'));
+
+    await expect(unit.greet('user-1')).rejects.toThrow('User not found');
+  });
+});
+```
+
+This test passes when the service propagates the rejection. Fresh mocks keep return values and call histories from leaking between scenarios.
+
+## Know Which Dependencies Suites Can Replace
+
+TestBed resolves dependencies through the DI adapter: constructor parameters and supported injected properties. It does not intercept functions imported directly by the tested class, such as `import { sendEmail } from './email-utils'`.
+
+For external I/O, inject a collaborator that the test can replace. Direct imports that remain in the code execute normally; TestBed does not prevent network or database calls inside them.
+
+<ImportedDependencyDiagram />
+
+For code without a DI framework, import `mock()` from `@suites/doubles.jest` or `@suites/doubles.vitest`, then pass the mock into the function or constructor. See [Standalone Mocks](/docs/api-reference/mock/) for examples.
+
+## Choose Configurable Mocks or Supplied Values
+
+| Need | Approach |
+| --- | --- |
+| Change a response or inspect calls during a test | Retrieve the mock with `unitRef.get()` |
+| Configure stub behavior before constructing the unit | `.mock(Dependency).impl(stub => ({ ... }))` |
+| Inject a configuration value or a supplied implementation | `.mock(Dependency).final(value)` |
+| Run selected real collaborators | `TestBed.sociable(...).expose(Dependency)` |
+
+Values supplied with `.final()` and real classes selected with `.expose()` are not retrievable through `unitRef`. See [Mock Configuration](/docs/api-reference/mock-configuration/) for details.
+
+## Summary
+
+- Configure a stub's response to control the dependency's behavior.
+- Assert returned results and the interactions that matter to the test.
+- Keep external I/O behind dependencies you can replace.
+- Use fresh mocks when scenarios need independent call histories and responses.
+
+## Next Steps
+
+- **[Solitary Unit Tests](/docs/guides/solitary/)**: Configure dependencies while testing a single class.
+- **[Sociable Unit Tests](/docs/guides/sociable/)**: Exercise selected collaborators together.
+- **[Types](/docs/api-reference/types/)**: Understand `Mocked<T>` and adapter declarations.

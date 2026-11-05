@@ -1,0 +1,111 @@
+---
+sidebar_position: 3
+title: Testing in Isolation (Solitary)
+description: "Test a TypeScript class with its injected dependencies mocked. Use TestBed.solitary(), retrieve typed mocks, and verify behavior with Jest or Vitest."
+meta_title: "Solitary Unit Tests: Mock Injected Dependencies"
+---
+
+import ClassDependenciesExample from '@/components/docs/ClassDependenciesExample.astro';
+
+A **solitary test** is a unit test where all dependencies are mocked. Use it to check your class's behavior with controlled responses from its collaborators.
+
+Complete [Installation](/docs/get-started/installation/) for your framework and runner, or start with your [framework quick start](/docs/get-started/quickstart/). [Unit Testing Fundamentals](/docs/guides/fundamentals/) and [Test Doubles](/docs/guides/test-doubles/) are optional background; you can follow this example without reading them first.
+
+## Step 1: Define the service and its dependencies
+
+Choose your framework's version of `src/user.service.ts`. Each version defines the same service, repository, and formatter, so the test below works unchanged with any of the three adapters.
+
+<ClassDependenciesExample />
+
+The repository deliberately throws if its real method runs. The test replaces it with a **mock**, an object whose methods are **stubs** that return the values you configure. No database is needed.
+
+NestJS and InjectionJS read emitted constructor types. InversifyJS uses explicit `@inject()` decorators here. Keep the matching adapter's `/metadata` declaration and decorator transform from [Installation](/docs/get-started/installation/#configure-the-test-runner).
+
+## Step 2: Compile the test bed in beforeAll
+
+Create this spec alongside the service. The example uses Jest; for Vitest, change the runner import from `@jest/globals` to `vitest`.
+
+```typescript title="src/user.service.spec.ts"
+import { beforeAll, describe, expect, it } from '@jest/globals';
+import { TestBed, type Mocked } from '@suites/unit';
+import { NameFormatter, UserRepository, UserService } from './user.service';
+
+describe('UserService, solitary', () => {
+  let unit: UserService;
+  let repository: Mocked<UserRepository>;
+  let formatter: Mocked<NameFormatter>;
+
+  beforeAll(async () => {
+    const testBed = await TestBed.solitary(UserService).compile();
+    unit = testBed.unit;
+    repository = testBed.unitRef.get(UserRepository);
+    formatter = testBed.unitRef.get(NameFormatter);
+  });
+
+  it('greets the user returned by the repository', async () => {
+    repository.findName.mockResolvedValue(' Ada ');
+    formatter.format.mockReturnValue('Ada');
+
+    await expect(unit.greet('user-1')).resolves.toBe('Hello, Ada!');
+    expect(repository.findName).toHaveBeenCalledWith('user-1');
+    expect(formatter.format).toHaveBeenCalledWith(' Ada ');
+  });
+});
+```
+
+`unit` is the class under test. `unitRef.get()` returns the generated dependency mock with the selected runner's mock methods and TypeScript types.
+
+The formatter is also mocked: its real `trim()` implementation does not run. The test explicitly supplies the formatted value.
+
+## Step 3: Run the test
+
+Use your configured runner:
+
+```bash
+# Jest
+pnpm exec jest
+
+# Vitest
+pnpm exec vitest run
+```
+
+Expect **one passing test**. The service produces the greeting from the configured dependency responses without executing the repository or formatter implementations.
+
+## Step 4: Configure different responses
+
+A stub starts without a configured return value. Set every response that the tested behavior needs, including values used from collaborator methods.
+
+To test a failure, replace the previous `it` block with this one:
+
+```typescript
+it('propagates a repository error', async () => {
+  repository.findName.mockRejectedValue(new Error('User not found'));
+
+  await expect(unit.greet('user-1')).rejects.toThrow('User not found');
+});
+```
+
+If you keep multiple scenarios in one `describe`, clear mock call histories in `beforeEach` using your runner's `clearAllMocks()`. Set the required stub responses in each test; use `resetAllMocks()` when responses also need to be cleared. Keep compilation in `beforeAll`.
+
+To configure a dependency before construction, use `.mock(Dependency).impl(...)` inside the setup hook. See [Mock Configuration](/docs/api-reference/mock-configuration/) for complete examples and supplied values with `.final()`.
+
+## Use injection tokens with the same workflow
+
+The example uses class dependencies so its test is identical across frameworks. For a token dependency, retrieve the mock with `unitRef.get<Dependency>(TOKEN)` and configure its methods in the same way.
+
+- **[NestJS tokens](/docs/guides/nestjs/#supply-custom-injection-tokens)**: Use the token from `@Inject(token)`.
+- **[InversifyJS tokens](/docs/guides/inversify/#2-define-a-token-and-its-consumer)**: Share the symbol used by `@inject(token)`; include names or tags when applicable.
+- **[InjectionJS tokens](/docs/guides/injectionjs/#2-define-a-service-and-its-token)**: Share the same typed `InjectionToken` instance.
+
+## Summary
+
+- Compile the test bed in `beforeAll` and access the class through `unit`.
+- Retrieve dependency mocks through `unitRef`.
+- Set the responses each test needs and assert the result.
+- Use a solitary test when all injected collaborators should remain mocked.
+
+## Next steps
+
+- **[Sociable Unit Tests](/docs/guides/sociable/)**: Keep selected collaborators real while controlling external dependencies.
+- **[Mock Configuration](/docs/api-reference/mock-configuration/)**: Configure mocks before construction or inject supplied values.
+- **[How Suites works](/docs/guides/how-suites-works/)**: Understand dependency discovery and test bed construction.

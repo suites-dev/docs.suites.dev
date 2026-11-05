@@ -1,0 +1,91 @@
+---
+/* Site-wide project footer with the official full brand signature. */
+
+const year = new Date().getFullYear();
+
+interface FooterLink {
+  label: string;
+  href: string;
+  external?: boolean;
+}
+
+interface FooterGroup {
+  label: string;
+  links: FooterLink[];
+}
+
+const footerGroups: FooterGroup[] = [
+  {
+    label: 'Documentation',
+    links: [
+      { label: 'Suites Unit', href: '/docs/get-started/' },
+      { label: 'API reference', href: '/docs/api-reference/' },
+    ],
+  },
+  {
+    label: 'Open source',
+    links: [
+      { label: 'Examples', href: 'https://github.com/suites-dev/examples', external: true },
+      { label: 'GitHub', href: 'https://github.com/suites-dev', external: true },
+      {
+        label: 'Contributing',
+        href: 'https://github.com/suites-dev/suites/blob/master/CONTRIBUTING.md',
+        external: true,
+      },
+    ],
+  },
+];
+---
+<footer class="site-footer" role="contentinfo">
+  <div class="site-footer-inner">
+    <div class="site-footer-main">
+      <div class="site-footer-brand">
+        <a href="/" class="site-footer-logo-link">
+          <img
+            class="site-footer-logo"
+            src="/img/branding/Suites_PrimaryLogo_FullColor.svg"
+            width="190"
+            height="46"
+            alt="Suites"
+          />
+        </a>
+        <p class="site-footer-tagline">
+          Open-source verification for TypeScript, from isolated classes to running systems.
+        </p>
+      </div>
+
+      <nav class="site-footer-nav" aria-label="Footer navigation">
+        {footerGroups.map((group) => (
+          <div class="site-footer-group">
+            <p class="site-footer-group-title">{group.label}</p>
+            <ul class="site-footer-group-links">
+              {group.links.map((link) => (
+                <li>
+                  <a
+                    href={link.href}
+                    {...(link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                  >
+                    <span>{link.label}</span>
+                    {link.external && <span class="site-footer-external" aria-hidden="true">↗</span>}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </nav>
+    </div>
+
+    <div class="site-footer-divider" aria-hidden="true"></div>
+
+    <div class="site-footer-bottom">
+      <p class="site-footer-meta">
+        Released under the Apache 2.0 License
+      </p>
+      <p class="site-footer-meta">
+        &copy; {year} Suites &middot;
+        <a class="site-footer-link" href="https://omermorad.me/" target="_blank" rel="noopener noreferrer">Omer Morad</a>
+      </p>
+    </div>
+  </div>
+</footer>

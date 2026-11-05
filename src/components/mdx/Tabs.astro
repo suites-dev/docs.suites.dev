@@ -1,0 +1,144 @@
+---
+interface Props {
+  groupId?: string;
+  label?: string;
+}
+
+const { groupId, label } = Astro.props;
+---
+<div class="tabs-block" data-group-id={groupId ?? undefined}>
+  <div
+    class="tabs"
+    role="tablist"
+    aria-label={label ?? 'Content tabs'}
+    data-tabs-bar
+  ></div>
+  <div class="tabs-panels">
+    <slot />
+  </div>
+</div>
+
+<style>
+  /* No-JS / pre-hydration fallback: show all panels stacked with their labels
+     so the content is never hidden behind a non-functional tab bar. Once JS
+     attaches and sets data-tabs-ready, this rule is dropped and only the
+     active panel is shown. */
+  .tabs-block:not([data-tabs-ready]) [data-tab-panel]::before {
+    content: attr(data-tab-label);
+    display: block;
+    margin: 14px 0 6px;
+    font-size: 13px;
+    font-weight: var(--fw-semibold);
+    color: var(--text-muted, #A1A1AA);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .tabs-block[data-tabs-ready] [data-tab-panel][hidden] {
+    display: none;
+  }
+  .tabs-panels {
+    margin-top: 14px;
+  }
+</style>
+
+<script>
+  type PanelEl = HTMLElement & { dataset: DOMStringMap };
+
+  let tabIdCounter = 0;
+
+  function initTabs(block: HTMLElement): void {
+    if (block.dataset.tabsReady !== undefined) return;
+    const bar = block.querySelector<HTMLDivElement>('[data-tabs-bar]');
+    const panels = Array.from(
+      block.querySelectorAll<PanelEl>(':scope > .tabs-panels > [data-tab-panel]'),
+    );
+    if (!bar || panels.length === 0) return;
+
+    let activeIdx = panels.findIndex((p) => p.dataset.tabDefault !== undefined);
+    if (activeIdx < 0) activeIdx = 0;
+
+    const groupId = `suites-tabs-${++tabIdCounter}`;
+    const buttons: HTMLButtonElement[] = [];
+
+    panels.forEach((panel, idx) => {
+      const labelText = panel.dataset.tabLabel ?? `Tab ${idx + 1}`;
+      const value = panel.dataset.tabValue ?? String(idx);
+      const tabId = `${groupId}-tab-${idx}`;
+      const panelId = `${groupId}-panel-${idx}`;
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.id = tabId;
+      btn.className = `tab${idx === activeIdx ? ' active' : ''}`;
+      btn.setAttribute('role', 'tab');
+      btn.setAttribute('aria-selected', idx === activeIdx ? 'true' : 'false');
+      btn.setAttribute('aria-controls', panelId);
+      btn.tabIndex = idx === activeIdx ? 0 : -1;
+      btn.dataset.tabBtnIndex = String(idx);
+      btn.textContent = labelText;
+      btn.addEventListener('click', () => selectTab(idx, { focus: false }));
+      btn.addEventListener('keydown', onKeyDown);
+      bar.appendChild(btn);
+      buttons.push(btn);
+
+      panel.id = panelId;
+      panel.setAttribute('role', 'tabpanel');
+      panel.setAttribute('aria-labelledby', tabId);
+      panel.tabIndex = 0;
+      panel.hidden = idx !== activeIdx;
+      panel.dataset.tabValue = value;
+    });
+
+    function selectTab(nextIdx: number, opts: { focus: boolean }) {
+      if (nextIdx < 0) nextIdx = buttons.length - 1;
+      if (nextIdx >= buttons.length) nextIdx = 0;
+      activeIdx = nextIdx;
+      buttons.forEach((btn, i) => {
+        const active = i === nextIdx;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-selected', active ? 'true' : 'false');
+        btn.tabIndex = active ? 0 : -1;
+      });
+      panels.forEach((panel, i) => {
+        panel.hidden = i !== nextIdx;
+      });
+      if (opts.focus) {
+        buttons[nextIdx].focus();
+      }
+    }
+
+    function onKeyDown(this: HTMLButtonElement, event: KeyboardEvent) {
+      const current = Number(this.dataset.tabBtnIndex);
+      switch (event.key) {
+        case 'ArrowRight':
+          event.preventDefault();
+          selectTab(current + 1, { focus: true });
+          break;
+        case 'ArrowLeft':
+          event.preventDefault();
+          selectTab(current - 1, { focus: true });
+          break;
+        case 'Home':
+          event.preventDefault();
+          selectTab(0, { focus: true });
+          break;
+        case 'End':
+          event.preventDefault();
+          selectTab(buttons.length - 1, { focus: true });
+          break;
+      }
+    }
+
+    block.dataset.tabsReady = '';
+  }
+
+  function initAll() {
+    document.querySelectorAll<HTMLElement>('.tabs-block').forEach(initTabs);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAll);
+  } else {
+    initAll();
+  }
+</script>

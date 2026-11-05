@@ -1,0 +1,45 @@
+---
+/*
+ * Docs breadcrumb. Uses the Quick Start navigation hierarchy for framework
+ * paths and the URL hierarchy for other pages.
+ *
+ * Shape: Section / Subsection / ... / Current Page
+ *
+ * No "Docs" prefix, no "Home" prefix; both are tautological. The topbar's
+ * `Suites / docs` brand mark already signals "you are in docs". The breadcrumb
+ * starts at the section so the first item is always a useful jump.
+ *
+ * Separator is a thin slash character (not an SVG chevron) so it lines up
+ * cleanly with the text baseline at 13px and matches the existing brand-mark
+ * "Suites / docs" pattern in the header.
+ *
+ * Intermediate segments are humanized from the slug (`effect-coverage` -> `Effect coverage`,
+ * only first word capitalised so multi-word labels do not become Title Case).
+ * The final segment uses the page's frontmatter title verbatim so it matches the h1.
+ */
+
+import { docsBreadcrumbs } from '@/lib/breadcrumbs';
+
+interface Props {
+  slug: string;
+  title?: string;
+}
+
+const { slug, title } = Astro.props;
+
+const items = docsBreadcrumbs(slug, title);
+---
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <ol class="breadcrumb-list" role="list">
+    {items.map((seg, i) => (
+      <li class="breadcrumb-item">
+        {i > 0 && <span class="breadcrumb-sep" aria-hidden="true">/</span>}
+        {seg.isLast ? (
+          <span class="breadcrumb-current" aria-current="page">{seg.label}</span>
+        ) : (
+          <a href={seg.href} class="breadcrumb-link">{seg.label}</a>
+        )}
+      </li>
+    ))}
+  </ol>
+</nav>

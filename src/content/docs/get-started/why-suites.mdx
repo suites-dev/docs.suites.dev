@@ -1,0 +1,109 @@
+---
+sidebar_position: 2
+title: Why Suites?
+description: Compare manual mock setup with Suites. Create typed dependency mocks and choose between solitary and sociable unit tests for NestJS, Inversify, and InjectionJS.
+meta_title: "Why Suites? Typed Mocks and Simpler Unit Tests"
+---
+
+import Tabs from '@/components/mdx/Tabs.astro';
+import TabItem from '@/components/mdx/TabItem.astro';
+
+Suites discovers a class's injected dependencies, creates typed mocks, and constructs the class for your test. You configure the behavior the test needs through `unitRef`.
+
+## Compare the Same Test
+
+Both tests below verify that a service greets a user. They use the `UserService`, `UserRepository`, and `NameFormatter` classes from the [NestJS quick start](/docs/guides/nestjs/#2-define-the-service-and-its-collaborators). Complete [Installation](/docs/get-started/installation/) with NestJS and Jest to run them.
+
+<Tabs>
+<TabItem value="manual" label="Manual setup" default>
+
+```typescript title="src/user.service.manual.spec.ts"
+import 'reflect-metadata';
+import { beforeAll, describe, expect, it, jest } from '@jest/globals';
+import { NameFormatter, UserRepository, UserService } from './user.service';
+
+describe('UserService, manual setup', () => {
+  let service: UserService;
+  let repository: jest.Mocked<UserRepository>;
+  let formatter: jest.Mocked<NameFormatter>;
+
+  beforeAll(() => {
+    repository = { findName: jest.fn<UserRepository['findName']>() };
+    formatter = { format: jest.fn<NameFormatter['format']>() };
+    service = new UserService(repository, formatter);
+  });
+
+  it('greets the user returned by the repository', async () => {
+    repository.findName.mockResolvedValue(' Ada ');
+    formatter.format.mockReturnValue('Ada');
+
+    await expect(service.greet('user-1')).resolves.toBe('Hello, Ada!');
+    expect(repository.findName).toHaveBeenCalledWith('user-1');
+    expect(formatter.format).toHaveBeenCalledWith(' Ada ');
+  });
+});
+```
+
+</TabItem>
+<TabItem value="suites" label="Suites">
+
+```typescript title="src/user.service.suites.spec.ts"
+import 'reflect-metadata';
+import { beforeAll, describe, expect, it } from '@jest/globals';
+import { TestBed, type Mocked } from '@suites/unit';
+import { NameFormatter, UserRepository, UserService } from './user.service';
+
+describe('UserService, Suites setup', () => {
+  let unit: UserService;
+  let repository: Mocked<UserRepository>;
+  let formatter: Mocked<NameFormatter>;
+
+  beforeAll(async () => {
+    const testBed = await TestBed.solitary(UserService).compile();
+    unit = testBed.unit;
+    repository = testBed.unitRef.get(UserRepository);
+    formatter = testBed.unitRef.get(NameFormatter);
+  });
+
+  it('greets the user returned by the repository', async () => {
+    repository.findName.mockResolvedValue(' Ada ');
+    formatter.format.mockReturnValue('Ada');
+
+    await expect(unit.greet('user-1')).resolves.toBe('Hello, Ada!');
+    expect(repository.findName).toHaveBeenCalledWith('user-1');
+    expect(formatter.format).toHaveBeenCalledWith(' Ada ');
+  });
+});
+```
+
+</TabItem>
+</Tabs>
+
+Both tests have typed mocks and the same assertions. Suites handles mock creation and constructor wiring. When the class gains another injected dependency, TestBed discovers it; you configure that dependency if its behavior matters to the test.
+
+## What Suites Handles
+
+- **Dependency discovery:** NestJS, Inversify, and InjectionJS adapters read injection metadata.
+- **Mock creation:** Methods on mocked dependencies expose your selected runner's mock API.
+- **Reference tracking:** `unitRef.get()` retrieves a mock by its class or injection token.
+- **Selected real collaborators:** `TestBed.sociable().expose()` keeps chosen classes real while other dependencies remain mocked.
+
+You still decide what behavior to test, which values mocks return, and which assertions demonstrate the expected result.
+
+## Choose the Right Testing Boundary
+
+Use **solitary tests** to check one class with all its dependencies mocked. Use **sociable tests** to check interactions between selected real classes, leaving external boundaries mocked.
+
+TestBed constructs classes without initializing the application's framework container. Use your framework's testing tools when the test needs to verify module registration, application lifecycle behavior, HTTP routing, or other framework integration.
+
+For plain TypeScript without a DI adapter, use [standalone `mock()` and `stub()` helpers](/docs/api-reference/mock/) and pass the mocks into your code yourself.
+
+## Supported Stacks
+
+Suites ships DI adapters for NestJS 10/11/12 and Inversify 7/8, plus InjectionJS 2.6.1 through 2.x starting in Suites 4.1. All three work with Jest and Vitest. [InjectionJS support](/docs/guides/injectionjs/) covers constructor injection; contextual `inject()` calls are not supported. See [Installation](/docs/get-started/installation/#prerequisites) for exact supported versions and setup.
+
+Use `TestBed` and augmented types such as `Mocked<T>` from `@suites/unit`. Standalone `mock()` and `stub()` functions come from the doubles adapter.
+
+## Next Step
+
+[Install Suites](/docs/get-started/installation/), then choose your framework in [Quick Start](/docs/get-started/quickstart/) to write your first unit test.

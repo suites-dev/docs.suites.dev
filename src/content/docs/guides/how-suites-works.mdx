@@ -1,0 +1,242 @@
+---
+sidebar_position: 7
+title: How Suites works
+description: "See how Suites reads dependency metadata, generates typed mocks, and constructs your class without bootstrapping the application framework."
+meta_title: "How Suites Discovers and Mocks Dependencies"
+---
+
+import ContainerComparisonDiagram from '@/components/docs/ContainerComparisonDiagram.astro';
+
+# How Suites works
+
+> **What this covers:** How Suites creates lightweight test environments without full framework initialization \
+> **Time to read:** ~10 minutes
+
+Suites' test container reads a class's supported injection metadata, creates dependency mocks, and constructs the class under test. Sociable tests can keep selected collaborators real. It does not load the framework's production provider registrations.
+
+## Overview
+
+This guide covers:
+1. What the Virtual Test Container is and its purpose
+2. The problems it addresses in IoC testing
+3. How it works with automatic mock generation
+4. Token injections as boundaries between logic and I/O
+5. Performance and type safety characteristics
+6. Framework support across dependency injection systems
+
+## Concept
+
+You can test a class by constructing it yourself, using its framework's dependency injection container, or using Suites. Each approach exercises a different part of the application setup.
+
+The virtual test container takes a different approach. It inspects the tested class at test time to discover what
+dependencies it needs. Based on this analysis, it generates only the necessary mocks and wires them together. TestBed creates an isolated test environment without the overhead of full application initialization or the maintenance burden of manual mock setup.
+
+## Suites vs your framework's test container
+
+Your framework's **IoC container** resolves dependencies using the provider registrations and resolution rules configured for that container. Suites reads supported injection metadata and constructs the **unit**, the class under test, with generated mocks or selected real collaborators.
+
+**Both approaches can use mocks.** A native container can contain just a few providers; it does not have to start the entire application. The choice is about whether the test should exercise the framework's own dependency resolution.
+
+<ContainerComparisonDiagram />
+
+| Concern | Framework test container | Suites TestBed |
+| --- | --- | --- |
+| Dependency discovery | Uses registered providers, bindings, or modules | Reads the class's supported injection metadata |
+| Test setup | Register real providers and mock replacements in the container | Compile the class; injected dependencies are mocked by default |
+| Real collaborators | Register or retain their real implementations | Select class dependencies with `.sociable(...).expose(...)` |
+| Provider factories and resolution rules | Runs the rules and factories configured in the test container | Does not load production provider registrations or execute their factories |
+| What a passing test demonstrates | Class behavior plus the configured test container's resolution | Class behavior with the dependency boundary chosen by the test |
+
+### What this means for each framework
+
+| Framework | Native testing entry point | What Suites does not exercise |
+| --- | --- | --- |
+| NestJS | `Test.createTestingModule(...)` | Module imports, provider registrations and factories, or Nest's scope resolution |
+| InversifyJS | Bind dependencies in a `Container`, then resolve the service | Application bindings, container modules, scopes, and activation hooks |
+| InjectionJS | `ReflectiveInjector.resolveAndCreate(...)` | Provider configuration, factories, multi-providers, and injector hierarchy lookup |
+
+For example, a NestJS service can pass its Suites test even if its module forgets to register a dependency. Suites discovers that dependency from the class metadata and supplies a mock. A test that resolves the service from the relevant Nest module can catch the missing registration.
+
+Native container tests only validate the registrations included in that test. A minimal test container does not prove that the production application is wired correctly unless it uses the relevant production configuration.
+
+### Choose the boundary your test needs
+
+- **Use Suites** to test class behavior with controlled dependency responses or selected real collaborators.
+- **Use your framework's container** to test provider registration, factories, scopes, or resolution behavior.
+- **Use application tests** to exercise request handling, framework lifecycle behavior, or other application wiring that matters to the scenario.
+
+A sociable Suites test still uses Suites' test bed. Selecting a real collaborator with `.expose()` does not boot the framework's native container.
+
+For framework-specific details, see the [NestJS boundary guide](/docs/guides/nestjs/#choose-the-right-test-boundary), [InversifyJS boundary guide](/docs/guides/inversify/#supply-values-and-understand-the-boundary), and [InjectionJS limitations](/docs/guides/injectionjs/#scope-and-limitations).
+
+## The Problem It Addresses
+
+A test that imports a broad application module or container configuration can become coupled to unrelated providers. A new external connection elsewhere in that graph may require extra test setup even when the class's own behavior has not changed.
+
+Constructing the class manually avoids that container setup, but requires creating and wiring its dependencies yourself. Typed manual mocks are possible; constructor changes still require updating the setup that supplies those dependencies.
+
+Suites automates dependency discovery and mock creation for class behavior tests. Use native container or application tests alongside it when the production wiring also needs verification.
+
+## How It Works
+
+Let's walk through a concrete example to see the Virtual Test Container in action.
+
+Here's a service class with two dependencies:
+
+```typescript title='user.service.ts'
+@Injectable()
+class UserService {
+  constructor(
+    private readonly userApi: UserApi,
+    private readonly database: Database
+  ) {}
+
+  async generateRandomUser(): Promise<number> {
+    const user = await this.userApi.getRandomUser();
+    return this.database.saveUser(user);
+  }
+}
+```
+
+When writing a test for this service, Suites analyzes the class structure:
+
+```typescript title='user.service.spec.ts'
+import { type Mocked, TestBed } from '@suites/unit';
+import { beforeAll, describe, expect, it } from '@jest/globals';
+import { UserService, UserApi, Database } from './services';
+
+let userService: UserService;
+let userApi: Mocked<UserApi>;
+let database: Mocked<Database>;
+
+describe('User Service Unit Spec', () => {
+  beforeAll(async () => {
+    const { unit, unitRef } = await TestBed.solitary(UserService).compile();
+
+    // Virtual container created:
+    // - UserService instance (real)
+    // - Mocked UserApi (automatically generated)
+    // - Mocked Database (automatically generated)
+
+    userService = unit;
+    userApi = unitRef.get(UserApi);
+    database = unitRef.get(Database);
+  });
+
+  it('saves a random user from the api in the database', async () => {
+    const dummyUser = { id: 1, name: 'John' };
+    userApi.getRandomUser.mockResolvedValue(dummyUser);
+
+    await userService.generateRandomUser();
+    expect(database.saveUser).toHaveBeenCalledWith(dummyUser);
+  });
+})
+```
+
+Here's what happens behind the scenes when calling `.compile()`:
+
+**Step-by-step process:**
+1. **Read metadata**: The Virtual Test Container examines `UserService`'s constructor
+2. **Identify dependencies**: It discovers that `UserService` depends on `UserApi` and `Database`
+3. **Generate mocks**: It creates fully-typed mock implementations of both dependencies
+4. **Wire everything together**: It creates an instance of `UserService` and injects the mocks
+5. **Provide access**: It returns typed references to both the service (`unit`) and its mocks (`unitRef`)
+
+All of this happens automatically. The Virtual Test Container handles the entire setup based on the class structure, without manual mock creation or wiring.
+
+## Token Injections Are Natural Boundaries
+
+So far, we've looked at class-based dependencies (like `UserApi` and `Database`). But many applications also use 
+token-based injection for external resources. Understanding how the Virtual Test Container handles these tokens is 
+important.
+
+Token-injected dependencies are always mocked, regardless of whether the tests run in solitary or sociable mode. This design choice exists for an important reason: tokens typically represent the boundary between application logic and external systems.
+
+Let's look at an example:
+
+```typescript
+@Injectable()
+class PaymentService {
+  constructor(
+    private validator: PaymentValidator,              // Class - mocking depends on test mode
+    @Inject('STRIPE_API') private stripe: StripeApi,  // Token - always mocked
+    @Inject('APP_CONFIG') private config: AppConfig   // Token - always mocked
+  ) {}
+}
+```
+
+Notice the difference. The `validator` dependency is a regular class injection. In solitary mode, Suites mocks it. In sociable mode, it runs as a real instance only when you select it with `.expose(PaymentValidator)`. But the token-injected dependencies (`STRIPE_API` and `APP_CONFIG`) are always mocked, regardless of test mode.
+
+### Understanding Different Token Types
+
+Tokens come in different flavors, and each requires slightly different handling.
+
+**Class-based tokens** work automatically. Suites analyzes the class structure and generates mocks with stub methods:
+
+```typescript
+@Inject('STRIPE_API') private stripe: StripeApi
+// Suites automatically creates a mock with all StripeApi methods as stubs
+// Configure behavior: stripe.createCharge.mockResolvedValue(...)
+```
+
+**Interface tokens** can use proxy mocks too: retrieve them with a generic type, such as `unitRef.get<StripeApi>('STRIPE_API')`. TypeScript types do not exist at runtime, but the doubles adapter creates stub methods on access. For configuration values or primitives, provide explicit values with `.final()`.
+
+Provide values for these tokens using `.final()`:
+
+```typescript title='database-config.interface.ts'
+export interface DatabaseConfig {
+  readonly uri: string;
+}
+```
+
+```typescript
+@Injectable()
+class UserService {
+  constructor(@Inject('DB_CONFIG') private config: DatabaseConfig) {}
+}
+
+// In test - provide value using .final():
+await TestBed.solitary(UserService)
+  .mock<DatabaseConfig>('DB_CONFIG')
+  .final({ uri: 'mongodb://localhost' })
+  .compile();
+```
+
+The `.final()` method tells Suites exactly what value to inject for that token, providing complete control over the test environment.
+
+### Why This Matters: The Boundary Pattern
+
+Token injection creates a natural separation in the architecture. This pattern keeps tests fast and predictable without additional configuration.
+
+Tokens typically represent external boundaries - the points where the application interacts with the outside world:
+- **Databases**: Data persistence systems
+- **HTTP clients**: External API communications
+- **External APIs**: Third-party service integrations
+- **File systems**: File read/write operations
+- **Configuration objects**: Environment-specific settings
+
+Keep external boundaries mocked in sociable tests. Exposed classes and directly imported functions run real code, so choose them carefully if they perform I/O.
+
+Consider this sociable test example:
+
+```typescript
+// In sociable mode with multiple real classes
+await TestBed.sociable(OrderService)
+  .expose(PriceCalculator)  // Real instance
+  .expose(TaxCalculator)    // Real instance
+  .compile();
+
+// Token-injected @Inject('DATABASE') remains mocked
+// Test executes business logic without accessing real external systems
+```
+
+In this test, `OrderService`, `PriceCalculator`, and `TaxCalculator` are all real instances. They interact with each other naturally. But any token-injected database connection stays mocked. Business logic runs authentically while keeping tests fast and isolated from external systems.
+
+Suites resolves injected dependencies from metadata; it does not detect I/O. Use `.expose()` only for the collaborators whose real behavior you want to test.
+
+## Next Steps
+
+Explore how to use the Virtual Test Container in different testing scenarios:
+
+- **[Solitary Unit Tests](/docs/guides/solitary/)**: Use the virtual container for complete isolation with automatic mocking
+- **[Sociable Unit Tests](/docs/guides/sociable/)**: Use `.expose()` for controlled collaboration

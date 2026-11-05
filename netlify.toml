@@ -1,10 +1,10 @@
 # ===========================================
 # BUILD
 # ===========================================
-# Triggers an Algolia DocSearch crawler reindex after every successful
-# production build. The script is a no-op for deploy previews and branch
-# deploys, and a no-op (with a warning) if crawler env vars are missing,
-# so it cannot break the build.
+# Builds validate metadata, links, legacy fragments and emitted assets.
+# The local plugin syncs the crawler configuration and requests a recrawl only
+# after a production deploy is published. Previews never mutate the index.
+# Production credentials are checked before building.
 #
 # Required env vars in Netlify → Site settings → Environment variables:
 #   ALGOLIA_CRAWLER_USER_ID
@@ -12,12 +12,15 @@
 #   ALGOLIA_CRAWLER_ID
 
 [build]
-command = "yarn run build && yarn algolia:reindex"
-publish = "build"
+command = "pnpm build"
+publish = "dist"
+
+[[plugins]]
+package = "./plugins/algolia-crawler"
 
 # Pinned rather than left to the dashboard toggle, because file configuration
 # overrides UI configuration. Pretty URLs serves the slash-terminated form,
-# which is what `trailingSlash: true` in docusaurus.config.ts declares as
+# which is what `trailingSlash: "always"` in astro.config.mjs declares as
 # canonical. The two settings must agree or every page redirects away from
 # its own canonical URL.
 [build.processing.html]
@@ -98,7 +101,7 @@ status = 301
 
 [[redirects]]
 from = "/docs/getting-started/change-log"
-to = "/docs/migration-guides/from-automock/"
+to = "/docs/changelog/"
 status = 301
 
 # ===========================================
@@ -181,6 +184,17 @@ to = "/docs/guides/"
 status = 301
 
 # ===========================================
+# SITEMAP
+# ===========================================
+# Preserve the sitemap URL used by existing Search Console submissions.
+# robots.txt advertises the generated sitemap-index.xml directly.
+
+[[redirects]]
+from = "/sitemap.xml"
+to = "/sitemap-index.xml"
+status = 200
+
+# ===========================================
 # FAVICON / APPLE TOUCH ICONS
 # ===========================================
 
@@ -217,11 +231,9 @@ from = "/api-reference"
 to = "/docs/api-reference/"
 status = 301
 
-[[redirects]]
-from = "/docs"
-to = "/docs/get-started/"
-status = 301
-
+# /docs is a real page on this site, not a redirect. Netlify skips a
+# non-forced redirect when a file exists at the path, so a rule here would be
+# dead weight: Pretty URLs sends /docs to /docs/ and the landing page answers.
 
 [[redirects]]
 from = "/docs/introduction/quick-example"
@@ -262,7 +274,7 @@ status = 301
 
 [[redirects]]
 from = "/docs/guides/adapters/inversifyjs"
-to = "/docs/get-started/"
+to = "/docs/guides/inversify/"
 status = 301
 
 # ===========================================
@@ -292,4 +304,10 @@ status = 301
 [[redirects]]
 from = "/docs/category/api-reference"
 to = "/docs/api-reference/"
+status = 301
+
+# The guide now uses its reader-facing title as the canonical URL.
+[[redirects]]
+from = "/docs/guides/virtual-test-container"
+to = "/docs/guides/how-suites-works/"
 status = 301

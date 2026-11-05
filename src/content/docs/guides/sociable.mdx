@@ -1,0 +1,130 @@
+---
+sidebar_position: 4
+title: Testing Components Together (Sociable)
+description: "Test TypeScript classes together with selected real collaborators. Use TestBed.sociable().expose() and keep external dependencies controlled with mocks."
+meta_title: "Sociable Unit Tests: Keep Selected Collaborators Real"
+---
+
+import ClassDependenciesExample from '@/components/docs/ClassDependenciesExample.astro';
+import TestingModeDiagram from '@/components/docs/TestingModeDiagram.astro';
+import DependencyDecisionDiagram from '@/components/docs/DependencyDecisionDiagram.astro';
+
+A **sociable test** is a unit test where selected dependencies are real. Use it to check how your class works with a collaborator's actual business logic while keeping external dependencies mocked.
+
+Start with [Solitary Unit Tests](/docs/guides/solitary/) or your [framework quick start](/docs/get-started/quickstart/). Keep the same adapter and runner configuration. [Unit Testing Fundamentals](/docs/guides/fundamentals/) and [Test Doubles](/docs/guides/test-doubles/) are optional background.
+
+## Step 1: Define the service and its collaborators
+
+Choose your framework's version of `src/user.service.ts`. This example checks a user's email through a real `EmailValidator` and saves the user through a database dependency injected with the `'DATABASE'` token.
+
+<ClassDependenciesExample example="email" />
+
+NestJS and InjectionJS use `@Inject()` for the database token; InversifyJS uses `@inject()`. All three use the same test below. The validator performs a small illustrative format check, not full email address validation.
+
+## Step 2: Select the real collaborator
+
+Call `.expose(EmailValidator)` to use its real implementation. The database remains mocked, so the test does not connect to a database.
+
+```typescript title="src/user.service.spec.ts"
+import { beforeAll, beforeEach, describe, expect, it } from '@jest/globals';
+import { TestBed, type Mocked } from '@suites/unit';
+import { EmailValidator, UserService, type DatabaseClient } from './user.service';
+
+describe('UserService, sociable', () => {
+  let unit: UserService;
+  let database: Mocked<DatabaseClient>;
+
+  beforeAll(async () => {
+    const testBed = await TestBed.sociable(UserService)
+      .expose(EmailValidator)
+      .compile();
+    unit = testBed.unit;
+    database = testBed.unitRef.get<DatabaseClient>('DATABASE');
+  });
+
+  beforeEach(() => {
+    database.users.save.mockReset();
+  });
+
+  it('saves an email accepted by the real validator', async () => {
+    database.users.save.mockResolvedValue({ id: 1, email: 'ada@example.com' });
+
+    await expect(unit.createUser('ada@example.com')).resolves.toEqual({
+      id: 1,
+      email: 'ada@example.com',
+    });
+    expect(database.users.save).toHaveBeenCalledWith({ email: 'ada@example.com' });
+  });
+
+  it('rejects an invalid email before accessing the database', async () => {
+    await expect(unit.createUser('invalid')).rejects.toThrow('Invalid email');
+    expect(database.users.save).not.toHaveBeenCalled();
+  });
+
+  it('propagates a database error', async () => {
+    database.users.save.mockRejectedValue(new Error('Connection failed'));
+
+    await expect(unit.createUser('ada@example.com')).rejects.toThrow('Connection failed');
+  });
+});
+```
+
+For Vitest, change the runner import from `@jest/globals` to `vitest`. Keep the rest of the test unchanged.
+
+`beforeAll` compiles the test bed once. `beforeEach` resets the database stub's behavior and call history so each test configures its own scenario.
+
+## Step 3: Run the tests
+
+Use your configured runner:
+
+```bash
+# Jest
+pnpm exec jest
+
+# Vitest
+pnpm exec vitest run
+```
+
+Expect **three passing tests**. They exercise real validation logic and service behavior while controlling database results and failures through the mock.
+
+<TestingModeDiagram mode="sociable" caption="The test selects EmailValidator with .expose(). The dashed database mock records save calls and returns the configured result without contacting a database." />
+
+## Choose which dependencies stay real
+
+Select each real class explicitly with `.expose()`. For multiple real collaborators, chain another `.expose(OtherCollaborator)` before `.compile()` and check every exposed class's dependencies for I/O.
+
+Exposed classes must be class dependencies that the adapter can discover. For InjectionJS, they must use supported constructor injection. Token-injected dependencies remain mocked by default; use `.mock<Dependency>(TOKEN).final(value)` when you need a supplied value or implementation instead.
+
+Neither exposed real classes nor values supplied with `.final()` can be retrieved through `unitRef`. See [UnitReference](/docs/api-reference/unit-reference/#important-limitations) for lookup rules.
+
+## Configure mocks before construction
+
+Use `.mock(Dependency).impl(...)` inside `beforeAll` when the class needs a configured mock during construction. Use the returned `unitRef` for behavior configured after compilation, as in the complete test above.
+
+A `.final()` replacement is injected as supplied. If you use it for the database, remove the `unitRef` lookup and the reset hook for that dependency. See [Mock Configuration](/docs/api-reference/mock-configuration/) for complete setup examples.
+
+## Decision Framework
+
+Choose the boundary for each dependency. Suites does not classify dependencies by whether they perform I/O.
+
+<DependencyDecisionDiagram />
+
+- **External I/O:** Keep the dependency mocked or supply a controlled test double.
+- **Selected real classes:** Use `.expose()` when their real behavior belongs in the test.
+- **Token values:** Use `.mock(token).final(value)` for supplied values or implementations.
+- **Other injected dependencies:** Leave them mocked by default.
+
+Suites replaces dependencies resolved through the adapter. It does not intercept direct imports, detect I/O inside exposed code, or validate production module and container registrations. Use your framework's application tests when those behaviors belong in the test.
+
+## Summary
+
+- Compile the test bed in `beforeAll` and select real classes with `.expose()`.
+- Leave external dependencies mocked and retrieve their mocks through `unitRef`.
+- Reset shared stub state between independent scenarios.
+- Check real business behavior together while keeping database and network behavior controlled.
+
+## Next steps
+
+- **[How Suites works](/docs/guides/how-suites-works/)**: Understand dependency discovery and test bed construction.
+- **[Mock Configuration](/docs/api-reference/mock-configuration/)**: Configure mocks before compilation or supply values.
+- **[UnitReference](/docs/api-reference/unit-reference/)**: Retrieve generated mocks by class or token.

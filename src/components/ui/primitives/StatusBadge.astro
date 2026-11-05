@@ -1,0 +1,67 @@
+---
+/**
+ * Compact factual lifecycle status. This component is not an eyebrow label.
+ *
+ * Prop: required `state` (`stable`, `alpha`, or `planned`). The optional
+ * default slot overrides the visible label.
+ */
+interface Props {
+  state: 'stable' | 'alpha' | 'planned';
+  class?: string;
+  [key: string]: unknown;
+}
+
+const { state, class: className, ...attrs } = Astro.props;
+const labels = { stable: 'Stable', alpha: 'Alpha', planned: 'Planned' } as const;
+---
+
+<span
+  {...attrs}
+  class:list={['primitive-status-badge', className]}
+  data-state={state}
+>
+  {Astro.slots.has('default') ? <slot /> : labels[state]}
+</span>
+
+<style>
+  .primitive-status-badge {
+    display: inline-flex;
+    min-height: 22px;
+    align-items: center;
+    padding: 3px 7px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--ui-radius-control);
+    font-family: var(--font-technical);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .primitive-status-badge[data-state='stable'] {
+    color: var(--success);
+    background: color-mix(in srgb, var(--success) 9%, transparent);
+    border-color: color-mix(in srgb, var(--success) 30%, transparent);
+  }
+
+  .primitive-status-badge[data-state='alpha'] {
+    color: var(--primary-light);
+    background: var(--primary-soft);
+    border-color: var(--primary-border);
+  }
+
+  .primitive-status-badge[data-state='planned'] {
+    color: var(--text-muted);
+    background: var(--surface-raised);
+  }
+
+  :global(:root[data-theme='light']) .primitive-status-badge[data-state='alpha'] {
+    color: var(--pink-800);
+  }
+
+  :global(:root[data-theme='light']) .primitive-status-badge[data-state='stable'] {
+    color: color-mix(in srgb, var(--success) 45%, var(--text));
+  }
+</style>

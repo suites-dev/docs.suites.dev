@@ -1,0 +1,174 @@
+---
+import referenceHtml from '../../../loveable.html?raw';
+
+const heading = 'Type-Safe, Automatic Mocking';
+const headingAt = referenceHtml.indexOf(heading);
+const sectionStart = referenceHtml.lastIndexOf('<section', headingAt);
+const sectionEnd = referenceHtml.indexOf('</section>', headingAt) + '</section>'.length;
+
+if (headingAt === -1 || sectionStart === -1 || sectionEnd < '</section>'.length) {
+  throw new Error('Could not find the selected Lovable technical figure');
+}
+
+let figureMarkup = referenceHtml.slice(sectionStart, sectionEnd);
+
+figureMarkup = figureMarkup
+  .replace(
+    '<section class="mx-auto max-w-6xl px-6 pb-24">',
+    '<section class="lovable-figure-section" aria-labelledby="lovable-figure-title">',
+  )
+  .replace(
+    '<div class="panel grid gap-10 p-8 lg:grid-cols-2 lg:items-center lg:p-10">',
+    '<div class="lovable-figure-panel">',
+  )
+  .replace(
+    'class="order-2 lg:order-1"',
+    'class="lovable-figure-visual"',
+  )
+  .replace(
+    'class="order-1 text-center lg:order-2 lg:text-left"',
+    'class="lovable-figure-copy"',
+  )
+  .replace(
+    '<h2\n        class="text-2xl"',
+    '<h2 id="lovable-figure-title"\n        class="text-2xl"',
+  )
+  .replace('Type-Safe, Automatic Mocking', 'Dependencies, assembled for the test')
+  .replace(
+    /<p class="mt-5 text-sm leading-relaxed text-muted-foreground"[^>]*>[\s\S]*?<\/p>/,
+    '<p class="mt-5 text-sm leading-relaxed text-muted-foreground">Suites Unit reads the dependency graph, creates typed test doubles, and gives the test direct access to both the unit and its collaborators. The setup stays close to the behavior being verified.</p>',
+  )
+  .replace(
+    /<span\s+class="mt-8[\s\S]*?Learn about Mocking →<\/span>/,
+    '<a class="lovable-figure-link" href="/docs/guides/">See the Unit guides <span aria-hidden="true">→</span></a>',
+  )
+  .replace(/\sdata-tsd-source="[^"]*"/g, '');
+---
+
+<div class="lovable-replica lovable-technical-figure">
+  <Fragment set:html={figureMarkup} />
+</div>
+
+<style is:global>
+  .lovable-technical-figure .lovable-figure-section {
+    padding: 0;
+  }
+
+  .lovable-technical-figure .lovable-figure-panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1.18fr) minmax(260px, 0.82fr);
+    gap: clamp(40px, 6vw, 84px);
+    align-items: center;
+    min-height: 500px;
+    padding: clamp(30px, 5vw, 64px);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: color-mix(in oklab, var(--secondary) 58%, transparent);
+  }
+
+  .lovable-technical-figure .lovable-figure-visual {
+    min-width: 0;
+  }
+
+  .lovable-technical-figure .lovable-figure-visual > div {
+    min-height: 390px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .lovable-technical-figure .lovable-figure-visual svg {
+    width: 100%;
+    height: 390px;
+    opacity: 0.92;
+  }
+
+  .lovable-technical-figure .lovable-figure-visual > div > div {
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  .lovable-technical-figure .lovable-figure-copy {
+    max-width: 390px;
+    text-align: left;
+  }
+
+  .lovable-technical-figure .lovable-figure-copy::before {
+    display: block;
+    margin-bottom: 18px;
+    color: var(--primary);
+    font-family: var(--font-code);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    content: 'Inside the unit';
+  }
+
+  .lovable-technical-figure .lovable-figure-copy h2 {
+    margin: 0;
+    color: var(--foreground);
+    font-size: clamp(1.75rem, 3vw, 2.35rem);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1.12;
+  }
+
+  .lovable-technical-figure .lovable-figure-copy p {
+    margin: 20px 0 0;
+    color: var(--muted-foreground);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  .lovable-technical-figure .lovable-figure-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 28px;
+    color: var(--foreground);
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .lovable-technical-figure .lovable-figure-link span {
+    color: var(--primary);
+    transition: transform 180ms ease-out;
+  }
+
+  @media (hover: hover) {
+    .lovable-technical-figure .lovable-figure-link:hover span {
+      transform: translateX(3px);
+    }
+  }
+
+  @media (max-width: 860px) {
+    .lovable-technical-figure .lovable-figure-panel {
+      grid-template-columns: 1fr;
+      min-height: 0;
+    }
+
+    .lovable-technical-figure .lovable-figure-copy {
+      grid-row: 1;
+      max-width: 620px;
+    }
+
+    .lovable-technical-figure .lovable-figure-visual {
+      grid-row: 2;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .lovable-technical-figure .lovable-figure-panel {
+      gap: 24px;
+      padding: 26px 20px 18px;
+      border-radius: 8px;
+    }
+
+    .lovable-technical-figure .lovable-figure-visual > div,
+    .lovable-technical-figure .lovable-figure-visual svg {
+      min-height: 280px;
+      height: 280px;
+    }
+  }
+</style>

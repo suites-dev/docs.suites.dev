@@ -1,0 +1,30 @@
+---
+interface Props {
+  variant: 'info' | 'success' | 'warning' | 'error';
+  title?: string;
+}
+const { variant, title } = Astro.props;
+const symbols: Record<string, string> = {
+  info: 'i',
+  success: '✓',
+  warning: '!',
+  error: '×',
+};
+const labels: Record<string, string> = {
+  info: 'Note',
+  success: 'Success',
+  warning: 'Warning',
+  error: 'Error',
+};
+const symbol = symbols[variant] ?? 'i';
+// warning/error are time-sensitive; use role=alert so AT announces immediately.
+// info/success are passive context; role=note keeps them in the page flow.
+const role = variant === 'warning' || variant === 'error' ? 'alert' : 'note';
+---
+<div class={`alert alert-${variant}`} role={role} aria-label={labels[variant]}>
+  <div class="symbol" aria-hidden="true">{symbol}</div>
+  <div class="alert-body">
+    {title && <h3>{title}</h3>}
+    <p><slot /></p>
+  </div>
+</div>

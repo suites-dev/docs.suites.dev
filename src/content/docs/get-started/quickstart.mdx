@@ -1,0 +1,100 @@
+---
+sidebar_position: 4
+title: "Quick Start"
+description: "Write your first Suites unit test with NestJS, InversifyJS, or InjectionJS. Choose your framework and follow a complete example using Jest or Vitest."
+keywords: [suites quickstart, nestjs unit test example, inversify unit test, injectionjs unit test, jest, vitest]
+meta_title: "Quick Start: Write Your First Unit Test"
+---
+
+Write your first unit test with **NestJS**, **InversifyJS**, or **InjectionJS**. Choose your framework below for a complete example with application code, test setup, and assertions. Every path supports **Jest** and **Vitest**.
+
+## Choose your framework
+
+Follow the guide for the framework your project already uses. You only need one path.
+
+<div class="framework-choices">
+  <a href="/docs/guides/nestjs/">
+    <span class="framework-choice-heading">
+      <span class="framework-choice-icon framework-choice-icon-nestjs" aria-hidden="true"></span>
+      <strong>NestJS</strong>
+    </span>
+    <span>Test a service with class dependencies, then keep a selected collaborator real.</span>
+    <span class="framework-choices-action">Start with NestJS →</span>
+  </a>
+  <a href="/docs/guides/inversify/">
+    <span class="framework-choice-heading">
+      <svg class="framework-choice-icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+        <path d="M3 5h26L16 28Z" />
+        <path d="M8 15s3-4 8-4 8 4 8 4-3 4-8 4-8-4-8-4Z" />
+        <circle cx="16" cy="15" r="3" />
+      </svg>
+      <strong>InversifyJS</strong>
+    </span>
+    <span>Test a class with symbol tokens, then keep a selected collaborator real.</span>
+    <span class="framework-choices-action">Start with InversifyJS →</span>
+  </a>
+  <a href="/docs/guides/injectionjs/">
+    <span class="framework-choice-heading">
+      <svg class="framework-choice-icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+        <rect x="11" y="3" width="10" height="8" rx="2" />
+        <rect x="2" y="22" width="10" height="8" rx="2" />
+        <rect x="20" y="22" width="10" height="8" rx="2" />
+        <path d="M16 11v6M7 22v-5h18v5" />
+      </svg>
+      <strong>InjectionJS</strong>
+    </span>
+    <span>Test a constructor-injected service with a typed injection token.</span>
+    <span class="framework-choices-action">Start with InjectionJS →</span>
+  </a>
+</div>
+
+Need to configure your project first? Follow [Installation](/docs/get-started/installation/) for the adapter, type declarations, and runner configuration. Each framework guide points to the settings it needs.
+
+## Follow the same testing flow
+
+Each guide starts with a **solitary test**, a unit test where all dependencies are mocked. Suites creates the **unit**, the class under test, and its dependency mocks.
+
+1. **Define the service and its dependencies.** Use your framework's decorators and share any injection tokens between the service and its test.
+2. **Create the test bed in `beforeAll`.** Call `TestBed.solitary(UserService).compile()`. The result provides `unit` and `unitRef`.
+3. **Retrieve the dependency mocks.** Use `unitRef.get(Dependency)` for class dependencies or `unitRef.get<Dependency>(TOKEN)` for tokens.
+4. **Set behavior and assert the result in `it`.** Configure the mock's response, call the unit, and check its output and dependency calls.
+
+The framework determines how Suites discovers dependencies. The TestBed workflow stays the same. Each guide includes the full imports and application code for its example.
+
+## Run your first test
+
+After copying the application and test code from your chosen guide, run your configured runner:
+
+```bash
+# Jest
+pnpm exec jest
+
+# Vitest
+pnpm exec vitest run
+```
+
+The first example in each guide should produce **one passing test**. The service receives the configured mock response without starting an application or connecting to a database.
+
+The NestJS and InversifyJS guides also include a **sociable test**, a unit test where selected dependencies are real. Add that example to exercise a real collaborator with `TestBed.sociable(...).expose(...)`; both tests should then pass. InjectionJS supports the same API for class dependencies that use constructor injection.
+
+## Summary
+
+- Choose one framework guide and either Jest or Vitest.
+- Compile the test bed in `beforeAll`, then configure behavior and make assertions in `it`.
+- Use `unit` to call your class and `unitRef` to access its dependency mocks.
+
+## Start your first test
+
+Choose your framework to copy its complete example:
+
+- **[NestJS quick start](/docs/guides/nestjs/)**
+- **[InversifyJS quick start](/docs/guides/inversify/)**
+- **[InjectionJS quick start](/docs/guides/injectionjs/)**
+
+## Next steps
+
+After your framework's first test passes, continue with the testing pattern you need:
+
+- **[Solitary Unit Tests](/docs/guides/solitary/)**: Configure mocks and test a class in isolation.
+- **[Sociable Unit Tests](/docs/guides/sociable/)**: Keep selected collaborators real while mocking external dependencies.
+- **[How Suites works](/docs/guides/how-suites-works/)**: Understand how Suites discovers dependencies and constructs your class.

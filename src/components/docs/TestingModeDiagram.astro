@@ -1,0 +1,61 @@
+---
+interface Props {
+  mode: 'solitary' | 'sociable';
+  caption?: string;
+}
+const { mode, caption } = Astro.props;
+const sociable = mode === 'sociable';
+const id = `testing-mode-${crypto.randomUUID()}`;
+---
+<figure class="testing-mode-figure">
+  <div class="diagram-scroll" tabindex="0" role="region" aria-label={`${mode} test dependency graph`}>
+  <svg viewBox="0 0 640 290" role="img" aria-labelledby={`${id}-title ${id}-desc`}>
+    <title id={`${id}-title`}>{sociable ? 'Sociable' : 'Solitary'} test boundary</title>
+    <desc id={`${id}-desc`}>From left to right, a test calls the real UserService, which depends on EmailValidator and DATABASE. {sociable ? 'EmailValidator runs real code because the test exposes it.' : 'EmailValidator is mocked.'} DATABASE stays mocked. The outlined area encloses real implementations exercised. All mocks still run inside the test process.</desc>
+    <defs>
+      <marker id={`${id}-arrow`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10z" fill="var(--text-muted)" />
+      </marker>
+    </defs>
+    {sociable ? (
+      <path class="boundary" d="M174 84 Q174 62 196 62 H414 V24 H626 V158 H390 V194 H174 Z" />
+    ) : (
+      <ellipse class="boundary" cx="279" cy="131" rx="109" ry="82" />
+    )}
+    <text class="boundary-label" x={sociable ? 410 : 279} y={sociable ? 12 : 37} text-anchor="middle">Real implementations exercised</text>
+    <g class="edges" marker-end={`url(#${id}-arrow)`}>
+      <path d="M112 132 H192" />
+      <path d="M364 118 L438 76" />
+      <path d="M364 148 L438 232" />
+    </g>
+    <path class="test" d="M12 132 L62 98 L112 132 L62 166 Z" />
+    <text x="62" y="139" text-anchor="middle">Test</text>
+    <rect class="node unit" x="196" y="100" width="168" height="64" rx="10" />
+    <text x="280" y="126" text-anchor="middle">UserService</text>
+    <text class="detail" x="280" y="151" text-anchor="middle">real unit</text>
+    <rect class:list={['node', { mock: !sociable }]} x="444" y="42" width="170" height="68" rx="10" />
+    <text x="529" y="69" text-anchor="middle">EmailValidator</text>
+    <text class="detail" x="529" y="95" text-anchor="middle">{sociable ? 'real collaborator' : 'mock'}</text>
+    <rect class="node mock" x="444" y="200" width="170" height="68" rx="10" />
+    <text x="529" y="227" text-anchor="middle">'DATABASE'</text>
+    <text class="detail" x="529" y="253" text-anchor="middle">mock</text>
+  </svg>
+  </div>
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
+<style>
+  .diagram-scroll { overflow-x: auto; }
+  .diagram-scroll:focus-visible { outline: 2px solid var(--primary-light); outline-offset: 4px; }
+  .test { fill: var(--primary-soft); stroke: var(--primary-light); stroke-width: 2; }
+  .testing-mode-figure { margin: 1.5rem 0; }
+  svg { display: block; width: 100%; min-width: 560px; max-width: 720px; height: auto; margin: 0 auto; overflow: visible; }
+  text { fill: var(--text); font-family: inherit; font-size: 16px; font-weight: 600; }
+  .detail, .boundary-label { font-size: 14px; font-weight: 400; }
+  .boundary-label { fill: var(--text-muted); }
+  .boundary { fill: var(--bg-subtle); stroke: var(--primary-light); stroke-width: 1.5; }
+  .node { fill: var(--surface-raised); stroke: var(--text-muted); stroke-width: 1.5; }
+  .unit { stroke: var(--primary-light); stroke-width: 2; }
+  .mock { stroke-dasharray: 5 4; }
+  .edges { fill: none; stroke: var(--text-muted); stroke-width: 1.5; }
+  figcaption { margin-top: .75rem; color: var(--text-muted); font-size: .9rem; line-height: 1.6; }
+</style>

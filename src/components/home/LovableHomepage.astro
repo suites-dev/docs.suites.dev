@@ -1,0 +1,614 @@
+---
+import referenceHtml from '../../../loveable.html?raw';
+import referenceCss from '../../../loveable.css?raw';
+
+const pageStart = referenceHtml.indexOf('<div id="top"');
+const pageEndMarker = '</div><!--/$-->';
+const pageEnd = referenceHtml.lastIndexOf(pageEndMarker);
+
+if (pageStart === -1 || pageEnd === -1) {
+  throw new Error('Could not find the Lovable homepage inside loveable.html');
+}
+
+const assetMap = new Map([
+  [
+    '/__l5e/assets-v1/87ac2c2c-8740-41c3-9533-e52503d479ea/suites-logo.svg',
+    '/img/branding/Suites_LogoMark_FullColor.svg',
+  ],
+  [
+    '/__l5e/assets-v1/4ccb5b2c-cd9a-4cb5-b285-4914c7be07f9/nestjs.png',
+    '/img/lovable/nestjs.png',
+  ],
+  [
+    '/__l5e/assets-v1/cfba7528-07d7-43b3-bb9d-7f263a183b52/inversify.png',
+    '/img/lovable/inversify.png',
+  ],
+  [
+    '/__l5e/assets-v1/018d335e-b2c2-4cc4-a0c4-049cfb56fc8d/vitest.png',
+    '/img/lovable/vitest.png',
+  ],
+  [
+    '/__l5e/assets-v1/2c16c75b-903a-42f1-a3d4-4dc6a134fd71/jest.png',
+    '/img/lovable/jest.png',
+  ],
+  [
+    '/__l5e/assets-v1/c54c315c-92b4-460b-889e-6141f2189b20/sinon.png',
+    '/img/lovable/sinon.png',
+  ],
+  [
+    '/__l5e/assets-v1/aeed902c-f1fe-4a95-b9bb-9af26f1eeceb/monday.png',
+    '/img/lovable/monday.png',
+  ],
+  [
+    '/__l5e/assets-v1/c7a73c03-b232-4274-95e2-78d308900211/lemonade.png',
+    '/img/lovable/lemonade.png',
+  ],
+  [
+    '/__l5e/assets-v1/b045d4a6-0fa9-4401-8035-4c777802d14c/balance.png',
+    '/img/lovable/balance.png',
+  ],
+  [
+    '/__l5e/assets-v1/dd4e01f2-59e4-4945-9027-78b39d07d83b/harmonya.png',
+    '/img/lovable/harmonya.png',
+  ],
+  [
+    '/__l5e/assets-v1/258a194b-0c75-48e5-af31-5a56beb46312/vetric.png',
+    '/img/lovable/vetric.png',
+  ],
+]);
+
+let homepageMarkup = referenceHtml.slice(pageStart, pageEnd + pageEndMarker.indexOf('<!--'));
+
+homepageMarkup = homepageMarkup.replace(
+  'class="relative min-h-screen isolate"',
+  'class="relative isolate"',
+);
+
+for (const [remotePath, localPath] of assetMap) {
+  homepageMarkup = homepageMarkup.replaceAll(remotePath, localPath);
+}
+
+const scrollGlowStart = homepageMarkup.indexOf('<div class="scroll-glow"');
+const scrollGlowEnd = homepageMarkup.indexOf('</div>', scrollGlowStart) + '</div>'.length;
+
+if (scrollGlowStart === -1 || scrollGlowEnd < '</div>'.length) {
+  throw new Error('Could not find the Lovable ambient background glow inside loveable.html');
+}
+
+homepageMarkup = `${homepageMarkup.slice(0, scrollGlowStart)}${homepageMarkup.slice(scrollGlowEnd)}`;
+
+const headerStart = homepageMarkup.indexOf('<header');
+const headerEnd = homepageMarkup.indexOf('</header>', headerStart) + '</header>'.length;
+
+if (headerStart === -1 || headerEnd < '</header>'.length) {
+  throw new Error('Could not find the Lovable homepage header inside loveable.html');
+}
+
+const topHeader = `
+<header class="lovable-site-header" data-context="homepage">
+  <div class="lovable-header-inner">
+    <a class="lovable-header-brand" href="#top" aria-label="Suites — back to top">
+      <img src="/img/branding/Suites_LogoMark_FullColor.svg" alt="" width="25" height="28" />
+    </a>
+
+    <nav class="lovable-desktop-nav" aria-label="Primary navigation">
+      <a href="/docs/">Docs</a>
+      <a href="#unit-title">Unit</a>
+      <a href="https://github.com/suites-dev/examples" target="_blank" rel="noopener noreferrer">Examples</a>
+    </nav>
+
+    <div class="lovable-header-actions">
+      <a
+        class="lovable-header-action lovable-github-link"
+        href="https://github.com/suites-dev"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Suites on GitHub (opens in a new tab)"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.55v-2.02c-3.2.7-3.88-1.4-3.88-1.4-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.2 1.77 1.2 1.03 1.78 2.7 1.27 3.36.97.1-.75.4-1.27.73-1.56-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.25 5.69.41.36.78 1.06.78 2.14v3.17c0 .3.2.66.8.55A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"></path>
+        </svg>
+      </a>
+
+      <button class="lovable-header-action lovable-theme-toggle" type="button" data-lovable-theme-toggle aria-label="Switch to light mode" title="Light mode">
+        <svg class="lovable-theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"></circle>
+          <path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4"></path>
+        </svg>
+        <svg class="lovable-theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+
+      <button class="lovable-header-action lovable-mobile-toggle" type="button" data-lovable-mobile-toggle aria-expanded="false" aria-controls="lovable-mobile-nav" aria-label="Open navigation menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M4 7h16M4 12h16M4 17h16"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+</header>`;
+
+homepageMarkup = `${homepageMarkup.slice(0, headerStart)}${topHeader}${homepageMarkup.slice(headerEnd)}`;
+
+const heroStart = homepageMarkup.indexOf('<section');
+const heroEnd = homepageMarkup.indexOf('</section>', heroStart) + '</section>'.length;
+
+if (heroStart === -1 || heroEnd < '</section>'.length) {
+  throw new Error('Could not find the Lovable hero inside loveable.html');
+}
+
+const topHero = `
+<section class="lovable-top-hero relative" aria-labelledby="lovable-home-title">
+  <div class="lovable-hero-shell relative mx-auto max-w-6xl px-6">
+    <div class="lovable-hero-layout">
+      <div class="lovable-hero-copy">
+        <h1 id="lovable-home-title" class="lovable-hero-title text-balance leading-[1.08]">
+          <span class="lovable-hero-project">Project Suites.</span> Make unit testing clear for TypeScript projects built on dependency injection.
+        </h1>
+        <p class="lovable-hero-description mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground">
+          An open-source testing project for TypeScript. Suites Unit is stable and in production use.
+        </p>
+        <nav class="lovable-hero-actions mt-10 flex flex-wrap items-center gap-6" aria-label="Get started with Suites">
+          <a class="lovable-hero-cta rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-brand transition-transform hover:scale-[1.02] active:scale-95" href="/docs/">
+            Read the Docs
+          </a>
+          <a class="lovable-hero-cta lovable-github-cta" href="https://github.com/suites-dev/suites" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" class="size-4 fill-current" aria-hidden="true">
+              <path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.55v-2.02c-3.2.7-3.88-1.4-3.88-1.4-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.2 1.77 1.2 1.03 1.78 2.7 1.27 3.36.97.1-.75.4-1.27.73-1.56-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.25 5.69.41.36.78 1.06.78 2.14v3.17c0 .3.2.66.8.55A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5Z"></path>
+            </svg>
+            <span>GitHub</span>
+          </a>
+        </nav>
+      </div>
+    </div>
+  </div>
+</section>`;
+
+homepageMarkup = `${homepageMarkup.slice(0, heroStart)}${topHero}${homepageMarkup.slice(heroEnd)}`;
+
+const retainedHeroEnd = homepageMarkup.indexOf('</section>', heroStart) + '</section>'.length;
+
+if (retainedHeroEnd < '</section>'.length) {
+  throw new Error('Could not retain the rebuilt hero inside the Lovable homepage');
+}
+
+homepageMarkup = `${homepageMarkup.slice(0, retainedHeroEnd)}\n</div>`;
+
+const localFontFaces = `
+@font-face {
+  font-family: "Hanken Grotesk";
+  src: url('/fonts/hanken-grotesk-latin.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url('/fonts/jetbrains-mono-latin.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+}
+`;
+
+const homepageStyles = `${localFontFaces}${referenceCss
+  .replace(
+    '/__l5e/assets-v1/16a891b8-0750-41ef-a9f6-95a83cb89458/Onest-VariableFont_wght.ttf',
+    '/fonts/onest-variable.ttf',
+  )
+  .replace(
+    '/__l5e/assets-v1/45907748-7e1c-47da-9513-dba7dc3e186a/Syne-VariableFont_wght.ttf',
+    '/fonts/syne-variable.ttf',
+  )}`;
+---
+
+<style is:global set:html={homepageStyles}></style>
+
+<div class="lovable-replica" data-lovable-homepage>
+  <Fragment set:html={homepageMarkup} />
+
+  <nav
+    id="lovable-mobile-nav"
+    class="lovable-mobile-nav"
+    aria-label="Mobile navigation"
+    hidden
+    data-lovable-mobile-nav
+  >
+    <a href="/docs/">Docs</a>
+    <a href="#unit-title">Unit</a>
+    <a href="https://github.com/suites-dev/examples" target="_blank" rel="noopener noreferrer">Examples</a>
+  </nav>
+</div>
+
+<style is:global>
+  .lovable-replica {
+    position: relative;
+    isolation: isolate;
+    color: var(--foreground);
+    background: var(--background);
+    font-family: var(--font-body);
+  }
+
+  .lovable-site-header {
+    position: sticky;
+    z-index: 50;
+    top: 0;
+    color: var(--foreground);
+    background: color-mix(in oklab, var(--background) 88%, transparent);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(20px) saturate(130%);
+  }
+
+  .lovable-header-inner {
+    display: flex;
+    width: 100%;
+    max-width: 72rem;
+    height: 64px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .lovable-header-brand {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    place-items: center start;
+    border-radius: 10px;
+  }
+
+  .lovable-header-brand img {
+    display: block;
+    width: 25px;
+    height: 28px;
+  }
+
+  .lovable-desktop-nav {
+    display: flex;
+    align-items: center;
+    gap: clamp(20px, 2.4vw, 32px);
+    margin-left: auto;
+  }
+
+  .lovable-desktop-nav a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    color: color-mix(in oklab, var(--foreground) 78%, transparent);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 160ms ease;
+  }
+
+  .lovable-desktop-nav a:hover,
+  .lovable-desktop-nav a:focus-visible {
+    color: var(--foreground);
+  }
+
+  .lovable-nav-alpha {
+    margin-left: 7px;
+    color: var(--primary);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .lovable-header-actions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .lovable-header-action {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    place-items: center;
+    padding: 0;
+    color: color-mix(in oklab, var(--foreground) 78%, transparent);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    transition:
+      color 160ms ease,
+      background-color 160ms ease,
+      border-color 160ms ease;
+  }
+
+  .lovable-header-action:hover {
+    color: var(--foreground);
+    background: color-mix(in oklab, var(--foreground) 6%, transparent);
+    border-color: var(--border);
+  }
+
+  .lovable-header-action svg {
+    width: 19px;
+    height: 19px;
+    fill: currentColor;
+  }
+
+  .lovable-theme-toggle svg,
+  .lovable-mobile-toggle svg {
+    fill: none;
+  }
+
+  .lovable-theme-moon,
+  .lovable-mobile-toggle {
+    display: none;
+  }
+
+  :root[data-theme='light'] .lovable-theme-sun {
+    display: none;
+  }
+
+  :root[data-theme='light'] .lovable-theme-moon {
+    display: block;
+  }
+
+  .lovable-replica .lovable-top-hero {
+    display: flex;
+    isolation: isolate;
+    min-height: clamp(560px, calc(82svh - 64px), 660px);
+    align-items: center;
+  }
+
+  .lovable-replica .lovable-top-hero::after {
+    position: absolute;
+    z-index: 1;
+    top: 100%;
+    right: 0;
+    left: 0;
+    height: 112px;
+    background: linear-gradient(to bottom, transparent, var(--background));
+    content: '';
+    pointer-events: none;
+  }
+
+  .lovable-replica .lovable-hero-shell {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    padding-block: clamp(84px, 8vw, 108px);
+  }
+
+  .lovable-replica .lovable-hero-layout {
+    display: block;
+  }
+
+  .lovable-replica .lovable-hero-copy {
+    max-width: 760px;
+    min-width: 0;
+  }
+
+  .lovable-replica .lovable-hero-title {
+    max-inline-size: 700px;
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    line-height: 1.12;
+    text-wrap: balance;
+  }
+
+  .lovable-replica .lovable-hero-project {
+    color: var(--primary);
+  }
+
+  .lovable-replica .lovable-hero-description {
+    text-wrap: pretty;
+  }
+
+  .lovable-replica .lovable-hero-actions {
+    position: relative;
+    z-index: 3;
+    pointer-events: auto;
+  }
+
+  .lovable-replica .lovable-hero-actions a {
+    position: relative;
+    z-index: 3;
+    pointer-events: auto;
+    touch-action: manipulation;
+  }
+
+  .lovable-replica .lovable-hero-cta {
+    display: inline-flex;
+    width: 168px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .lovable-replica .lovable-github-cta {
+    gap: 8px;
+    padding: 10px 20px;
+    color: var(--foreground);
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition:
+      color 180ms ease,
+      border-color 180ms ease,
+      transform 180ms ease;
+  }
+
+  .lovable-replica .lovable-github-cta:hover {
+    color: var(--primary);
+    background: transparent;
+    border-color: color-mix(in oklab, var(--primary) 72%, var(--border));
+  }
+
+  .lovable-replica .lovable-github-cta:active {
+    transform: scale(0.97);
+  }
+
+  .lovable-replica .lovable-github-cta:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+  }
+
+  .lovable-replica .lovable-github-cta svg {
+    width: 16px;
+    height: 16px;
+    flex: none;
+  }
+
+  @media (max-width: 767px) {
+    .lovable-header-inner {
+      gap: 12px;
+      padding-inline: 16px;
+    }
+
+    .lovable-desktop-nav {
+      display: none;
+    }
+
+    .lovable-mobile-toggle {
+      display: grid;
+    }
+  }
+
+  @media (max-width: 880px) {
+    .lovable-replica .lovable-top-hero {
+      min-height: auto;
+    }
+
+    .lovable-replica .lovable-hero-shell {
+      padding-block: clamp(72px, 9vw, 92px);
+    }
+  }
+
+  @media (max-width: 520px) {
+    .lovable-replica .lovable-top-hero::after {
+      height: 56px;
+    }
+
+    .lovable-replica .lovable-hero-shell {
+      padding-block: 64px;
+    }
+
+    .lovable-replica .lovable-hero-actions {
+      gap: 12px 20px;
+    }
+  }
+
+  .lovable-mobile-nav {
+    position: fixed;
+    z-index: 49;
+    top: 64px;
+    right: 0;
+    left: 0;
+    display: grid;
+    gap: 2px;
+    padding: 12px 24px 18px;
+    color: var(--foreground);
+    background: color-mix(in oklab, var(--background) 96%, transparent);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow-panel);
+    backdrop-filter: blur(24px);
+  }
+
+  .lovable-mobile-nav[hidden] {
+    display: none;
+  }
+
+  .lovable-mobile-nav a {
+    display: flex;
+    min-height: 44px;
+    align-items: center;
+    padding: 0 12px;
+    color: color-mix(in oklab, var(--foreground) 85%, transparent);
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .lovable-mobile-nav a:hover,
+  .lovable-mobile-nav a:focus-visible {
+    color: var(--primary);
+    background: color-mix(in oklab, var(--primary) 10%, transparent);
+  }
+
+  @media (min-width: 768px) {
+    .lovable-mobile-nav {
+      display: none !important;
+    }
+  }
+</style>
+
+<script>
+  const homepage = document.querySelector<HTMLElement>('[data-lovable-homepage]');
+
+  if (homepage) {
+    const themeToggle = homepage.querySelector<HTMLButtonElement>('[data-lovable-theme-toggle]');
+    const mobileToggle = homepage.querySelector<HTMLButtonElement>('[data-lovable-mobile-toggle]');
+    const mobileNav = homepage.querySelector<HTMLElement>('[data-lovable-mobile-nav]');
+    const applyReferenceTheme = (theme: 'light' | 'dark') => {
+      document.documentElement.classList.toggle('light', theme === 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+      themeToggle?.setAttribute('aria-label', `Switch to ${theme === 'light' ? 'dark' : 'light'} mode`);
+      themeToggle?.setAttribute('title', theme === 'light' ? 'Dark mode' : 'Light mode');
+    };
+
+    const currentTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+    applyReferenceTheme(currentTheme);
+
+    themeToggle?.addEventListener('click', () => {
+      const nextTheme = document.documentElement.classList.contains('light') ? 'dark' : 'light';
+      applyReferenceTheme(nextTheme);
+      try {
+        localStorage.setItem('suites-theme', nextTheme);
+      } catch {
+        // The selected theme still applies for the current page.
+      }
+    });
+
+    const setMobileMenu = (open: boolean) => {
+      if (!mobileToggle || !mobileNav) return;
+      mobileNav.hidden = !open;
+      mobileToggle.setAttribute('aria-expanded', String(open));
+      mobileToggle.setAttribute('aria-controls', 'lovable-mobile-nav');
+      mobileToggle.setAttribute('aria-label', open ? 'Close navigation menu' : 'Open navigation menu');
+    };
+
+    mobileToggle?.addEventListener('click', () => setMobileMenu(Boolean(mobileNav?.hidden)));
+    mobileNav?.addEventListener('click', () => setMobileMenu(false));
+
+    document.addEventListener('pointerdown', (event) => {
+      if (
+        mobileNav &&
+        !mobileNav.hidden &&
+        event.target instanceof Node &&
+        !mobileNav.contains(event.target) &&
+        !mobileToggle?.contains(event.target)
+      ) {
+        setMobileMenu(false);
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && mobileNav && !mobileNav.hidden) {
+        setMobileMenu(false);
+        mobileToggle?.focus();
+      }
+    });
+
+    window.matchMedia('(min-width: 768px)').addEventListener('change', (event) => {
+      if (event.matches) setMobileMenu(false);
+    });
+
+    setMobileMenu(false);
+  }
+</script>

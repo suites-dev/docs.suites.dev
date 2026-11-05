@@ -1,0 +1,44 @@
+---
+const id = `dependency-choice-${crypto.randomUUID()}`;
+---
+<figure class="dependency-decision-figure">
+  <svg viewBox="0 0 320 570" role="img" aria-labelledby={`${id}-title ${id}-desc`}>
+    <title id={`${id}-title`}>Choose how each injected dependency behaves</title>
+    <desc id={`${id}-desc`}>If a dependency performs external I/O, keep it mocked or supply a test double. If its real behavior belongs in the test, expose a supported class after checking its dependencies for I/O. Leave other dependencies mocked, or supply explicit values with mock and final. These are reader decisions; Suites does not detect I/O.</desc>
+    <g>
+      <rect class="choice" x="8" y="8" width="304" height="160" rx="12" />
+      <text class="number" x="26" y="39">01</text>
+      <text x="26" y="68">External I/O?</text>
+      <text class="detail" x="26" y="100">Keep the dependency mocked</text>
+      <text class="detail" x="26" y="125">or supply a test double.</text>
+      <path class="mock-line" d="M26 148 H294" />
+    </g>
+    <g>
+      <rect class="choice" x="8" y="190" width="304" height="176" rx="12" />
+      <text class="number" x="26" y="221">02</text>
+      <text x="26" y="250">Need its real behavior?</text>
+      <text class="detail" x="26" y="282">Select a supported class with</text>
+      <text class="detail" x="26" y="307">.expose(Class). Check its</text>
+      <text class="detail" x="26" y="332">dependencies for I/O too.</text>
+    </g>
+    <g>
+      <rect class="choice" x="8" y="388" width="304" height="174" rx="12" />
+      <text class="number" x="26" y="419">03</text>
+      <text x="26" y="448">Other dependencies?</text>
+      <text class="detail" x="26" y="480">Leave mocked by default.</text>
+      <text class="detail" x="26" y="505">For supplied values, use</text>
+      <text class="detail" x="26" y="530">.mock(token).final(value).</text>
+    </g>
+  </svg>
+  <figcaption>Choose the boundary explicitly. Injection tokens identify dependencies; they do not tell Suites whether code performs I/O.</figcaption>
+</figure>
+<style>
+  .dependency-decision-figure { margin: 1.5rem 0; }
+  svg { display: block; width: 100%; max-width: 360px; height: auto; margin: 0 auto; }
+  text { fill: var(--text); font-family: inherit; font-size: 16px; font-weight: 600; }
+  .detail { font-size: 14px; font-weight: 400; }
+  .number { fill: var(--primary-light); font-size: 14px; }
+  .choice { fill: var(--surface-raised); stroke: var(--text-muted); stroke-width: 1; }
+  .mock-line { stroke: var(--text-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  figcaption { margin-top: .75rem; color: var(--text-muted); font-size: .9rem; line-height: 1.6; }
+</style>

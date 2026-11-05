@@ -1,4 +1,4 @@
-name: CI
+name: Website checks
 
 on:
   pull_request:
@@ -6,25 +6,21 @@ on:
     branches: [master]
 
 jobs:
-  build:
+  website:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        context: [production, deploy-preview]
     steps:
       - uses: actions/checkout@v4
-
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-          cache: yarn
-
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-
-      # docusaurus.config.ts sets onBrokenLinks: "throw", so this fails the
-      # job on any broken internal link. Without it that failure only shows
-      # up in Netlify after the merge has already landed.
-      #
-      # CONTEXT is unset here, so the build omits the analytics tag. The
-      # Algolia reindex is not run: it is a no-op outside a production
-      # deploy and CI has no crawler credentials.
-      - name: Build
-        run: yarn build
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+      - run: pnpm test
+      - run: pnpm build
+        env:
+          CONTEXT: ${{ matrix.context }}

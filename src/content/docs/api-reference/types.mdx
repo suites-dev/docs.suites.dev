@@ -1,0 +1,96 @@
+---
+sidebar_position: 6
+title: Types
+description: "Configure Suites TypeScript declarations for Mocked, Stub, and dependency metadata. Select the right doubles and DI references for your test project."
+meta_title: "TypeScript Types and Adapter Declarations"
+---
+
+Suites uses your selected adapters to type mocks and dependency identifiers. In v4, load those declarations explicitly in a file included by your test tsconfig.
+
+## Configure module augmentation
+
+For NestJS + Jest:
+
+```typescript title="suites.d.ts"
+/// <reference types="@suites/doubles.jest/unit" />
+/// <reference types="@suites/di.nestjs/metadata" />
+```
+
+Use `@suites/doubles.vitest/unit` for Vitest. Choose `@suites/di.inversify/metadata` for Inversify or `@suites/di.injectionjs/metadata` for InjectionJS (Suites 4.1 or later). Include exactly one doubles reference and one DI reference per test TypeScript project.
+
+Installing an adapter alone does not load these augmentations. Suites 4 has no postinstall script that patches your declarations. See [Type Reference Configuration](/docs/get-started/installation/#type-reference-configuration) for the tsconfig setup.
+
+## `Mocked<T>`
+
+A deeply mocked type: methods gain the selected library's mock API, and nested properties are mocked recursively. Import it as a type from `@suites/unit` after loading the doubles augmentation.
+
+```typescript
+import type { Mocked } from '@suites/unit';
+import { mock } from '@suites/doubles.jest';
+
+interface User {
+  id: string;
+}
+
+interface UserRepository {
+  find(id: string): Promise<User>;
+  cache: { clear(): void };
+}
+
+const repository: Mocked<UserRepository> = mock<UserRepository>();
+repository.find.mockResolvedValue({ id: '1' });
+repository.cache.clear.mockReturnValue(undefined);
+```
+
+With Vitest, change the runtime `mock` import to `@suites/doubles.vitest`. The `Mocked` type import stays the same. `unitRef.get()` also returns the selected adapter's mocked type.
+
+## `Stub<TArgs>`
+
+Represents an individual mock function, with its argument tuple typed by `TArgs`:
+
+```typescript
+import type { Stub } from '@suites/unit';
+import { stub } from '@suites/doubles.jest';
+
+const onMessage: Stub<[string]> = stub();
+onMessage('ready');
+expect(onMessage).toHaveBeenCalledWith('ready');
+```
+
+The `/unit` declaration supplies `Mocked`, `Stub`, and typed methods for `UnitReference` and `MockOverride`. It does not add runtime `mock()` or `stub()` exports to `@suites/unit`; import those functions from your doubles adapter.
+
+## Dependency identifier metadata
+
+The DI `/metadata` reference augments `IdentifierMetadataRegistry` in `@suites/types.di`:
+
+| Reference | Effect on `.mock()` and `unitRef.get()` |
+| --- | --- |
+| `@suites/di.nestjs/metadata` | Metadata type is `never`; use only the dependency class or token |
+| `@suites/di.inversify/metadata` | Accepts a metadata record for named/tagged dependencies |
+| `@suites/di.injectionjs/metadata` | Registers `InjectionToken<T>` identifiers; metadata type is `never`, so omit the metadata argument |
+| No DI reference | Uses a generic `Record<string \| symbol, unknown>` fallback |
+
+For Inversify, select a named dependency with `unitRef.get(Repository, { named: 'primary' })`. Use the same metadata when configuring `.mock(Repository, { named: 'primary' })`.
+
+Custom DI adapters can augment `IdentifierMetadataRegistry` with their own metadata type. Load only the adapter declarations belonging to that test project.
+
+## Adapter-registered dependency tokens
+
+Since Suites 4.1, `InjectableIdentifier<T>` from `@suites/types.di` includes class constructors, strings, symbols, and types registered by your DI adapter through `InjectableIdentifierRegistry<T>`.
+
+Loading `@suites/di.injectionjs/metadata` registers InjectionJS's `InjectionToken<T>`. Supply an explicit dependency type when configuring or retrieving its mock:
+
+```typescript
+// USER_REPOSITORY and UserRepository come from your application.
+const repository = unitRef.get<UserRepository>(USER_REPOSITORY);
+```
+
+The token must be the same instance used by the constructor's `@Inject()` decorator. Two tokens with the same description remain distinct. See the [InjectionJS guide](/docs/guides/injectionjs/) for the complete example.
+
+Custom adapters use `InjectableIdentifierRegistry<T>` for token types and `IdentifierMetadataRegistry` for metadata types. These are separate extension points; registering a token type does not implement runtime reflection for an adapter.
+
+## See Also
+
+- [UnitReference](/docs/api-reference/unit-reference/) for retrieving typed mocks
+- [Mock Configuration](/docs/api-reference/mock-configuration/) for `.impl()` and `.final()`
+- [Suites 3 to 4](/docs/migration-guides/from-v3/) for migration steps

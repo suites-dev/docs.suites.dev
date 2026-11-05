@@ -1,0 +1,41 @@
+---
+/**
+ * Plain content wrapper with responsive page gutters.
+ *
+ * Props: `width` selects the wide, focused, or reading measure. Standard
+ * `class`, `id`, `aria-*`, and `data-*` attributes are forwarded to the div.
+ * Slot: the default slot contains the wrapped page content.
+ */
+interface Props {
+  width?: 'wide' | 'focused' | 'text';
+  class?: string;
+  [key: string]: unknown;
+}
+
+const { width = 'wide', class: className, ...attrs } = Astro.props;
+---
+
+<div
+  {...attrs}
+  class:list={['primitive-container', className]}
+  data-width={width}
+>
+  <slot />
+</div>
+
+<style>
+  .primitive-container {
+    --container-width: var(--ui-container-wide);
+
+    width: min(calc(100% - (2 * var(--ui-gutter))), var(--container-width));
+    margin-inline: auto;
+  }
+
+  .primitive-container[data-width='focused'] {
+    --container-width: var(--ui-container-focused);
+  }
+
+  .primitive-container[data-width='text'] {
+    --container-width: var(--ui-container-text);
+  }
+</style>

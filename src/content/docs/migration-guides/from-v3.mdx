@@ -1,0 +1,197 @@
+---
+sidebar_position: 1
+title: Migrating from Suites 3 to 4
+description: Upgrade to Suites 4 with supported Node and framework versions, explicit type references, and Jest or Vitest adapters.
+meta_title: "Upgrade from Suites 3 to Suites 4"
+---
+
+Suites 4 keeps `TestBed.solitary()`, `TestBed.sociable()`, and async `.compile()`. Upgrade your packages together, check the supported versions, and replace automatic type setup with explicit references.
+
+## 1. Check your runtime and frameworks
+
+| Dependency | Suites 4 supports | Upgrade needed |
+| --- | --- | --- |
+| Node.js | `^22.22.2 \|\| ^24.15.0 \|\| ^26.0.0` | Any version outside these ranges |
+| NestJS | `^10.0.0 \|\| ^11.0.0 \|\| ^12.0.1` | NestJS 8 and 9 |
+| Inversify | `^7.0.0 \|\| ^8.0.0` | Inversify 6 |
+| Jest and `@jest/globals` | Matching versions in `^30.5.2` | Earlier versions |
+| Vitest and `@vitest/spy` | Peer range `>=1.0` | Release tests use matching `5.1.0` versions |
+
+NestJS 10/11 and Inversify 7 remain supported. CommonJS and ESM remain supported; switching module systems is not required.
+
+The Suites repository now uses pnpm and Node 26 for development. This does not require your application to switch package managers or use Node 26 exclusively.
+
+## 2. Upgrade your Suites packages together
+
+For NestJS + Jest:
+
+```bash
+pnpm add -D @suites/unit @suites/di.nestjs @suites/doubles.jest
+pnpm add -D jest @jest/globals @types/jest
+```
+
+For Inversify + Vitest:
+
+```bash
+pnpm add -D @suites/unit @suites/di.inversify @suites/doubles.vitest
+pnpm add -D vitest @vitest/spy
+```
+
+Choose the adapters matching your stack. Use `npm install --save-dev` or `yarn add --dev` if that is your package manager. Upgrade any directly installed `@suites/core.unit` or `@suites/types.*` packages to v4 as well.
+
+### Replace the Sinon adapter
+
+`@suites/doubles.sinon` is no longer maintained, is not discovered by Suites 4, and has no v4 release. Remove it and select Jest or Vitest:
+
+```bash
+pnpm remove @suites/doubles.sinon
+```
+
+Migrate Sinon-specific stub calls and assertions, such as `.resolves(value)` to `.mockResolvedValue(value)`. Update the test runner configuration and type references too; changing the adapter dependency alone does not migrate Sinon tests.
+
+## 3. Add explicit type references
+
+Suites no longer patches declaration files during installation. Module augmentation still provides the adapter-specific types, but you must include its declaration entry point.
+
+### Run the v4 codemod
+
+[`@suites/codemod` 0.2.0](https://www.npmjs.com/package/@suites/codemod/v/0.2.0) adds the references and updates legacy helper imports. Commit your dependency changes first so you start with a clean Git working tree. Run it separately for each test TypeScript project.
+
+```bash
+# Preview without changing files
+npx @suites/codemod@latest suites/3/to-suites-v4 ./src --dry --print
+
+# Apply after reviewing the preview
+npx @suites/codemod@latest suites/3/to-suites-v4 ./src
+```
+
+Replace `./src` with the directory or quoted glob covering your tests and declaration setup files. The transform processes `.ts`, `.tsx`, and `.d.ts` files.
+
+The codemod infers adapters from the nearest `package.json`, existing references, and imports. If multiple adapters are installed or inference fails, select them explicitly in both the preview and apply commands:
+
+```bash
+npx @suites/codemod@latest suites/3/to-suites-v4 ./src --doubles jest --di nestjs --dry --print
+```
+
+Use `vitest` or `inversify` for the corresponding adapters. The transform:
+
+- Adds doubles `/unit` references and DI `/metadata` references where needed.
+- Moves named `mock` and `stub` imports from `@suites/unit` to your doubles adapter.
+- Replaces obsolete adapter `/types` references and declaration-only side-effect imports.
+
+It leaves package manifests, lockfiles, tsconfigs, and runner configuration unchanged. Sinon APIs and DI metadata changes still need manual migration. If it reports an error, the affected file stays unchanged, but other files may already have changed. Review the diff before retrying.
+
+References are added per file. You can keep them there or consolidate them into `suites.d.ts` as described below. Continue with [DI-specific checks](#4-check-di-specific-metadata) and [type checking and tests](#5-check-types-and-run-tests) after applying.
+
+### Set up references manually or consolidate them
+
+Create `suites.d.ts` for **NestJS + Jest**:
+
+```typescript title="suites.d.ts"
+/// <reference types="@suites/doubles.jest/unit" />
+/// <reference types="@suites/di.nestjs/metadata" />
+```
+
+For **Inversify + Vitest**:
+
+```typescript title="suites.d.ts"
+/// <reference types="@suites/doubles.vitest/unit" />
+/// <reference types="@suites/di.inversify/metadata" />
+```
+
+You can combine either doubles reference with either DI reference. Include exactly one of each in a test TypeScript project. Replace obsolete `/types` references with the appropriate `/unit` or `/metadata` path.
+
+Add `suites.d.ts` to your test tsconfig's `include`, preserving existing paths:
+
+```json
+{
+  "include": ["src/**/*.ts", "tests/**/*.ts", "suites.d.ts"]
+}
+```
+
+Your TestBed imports remain:
+
+```typescript
+import { TestBed, type Mocked, type Stub } from '@suites/unit';
+```
+
+If you use standalone runtime helpers, import them from your doubles adapter:
+
+```typescript
+import { mock, stub } from '@suites/doubles.jest';
+// Vitest: import { mock, stub } from '@suites/doubles.vitest';
+```
+
+`@suites/unit` does not export these standalone functions in v4.
+
+## 4. Check DI-specific metadata
+
+### NestJS
+
+With `@suites/di.nestjs/metadata` loaded, TypeScript rejects a metadata argument to `.mock()` or `unitRef.get()`. NestJS identifies dependencies by their class or token, so omit that argument:
+
+```typescript
+const { unitRef } = await TestBed.solitary(UserService)
+  .mock(UserRepository)
+  .impl(stub => ({ find: stub().mockResolvedValue([]) }))
+  .compile();
+
+const repository = unitRef.get(UserRepository);
+```
+
+### Inversify
+
+If you already use Inversify 7, you can keep it. When upgrading from Inversify 6:
+
+- Replace `LazyServiceIdentifer` with `LazyServiceIdentifier`.
+- Replace `@targetName(value)` with `@named(value)` and use `{ named: value }` to select that dependency in Suites.
+- Add explicit `@inject(Dependency)` to constructor parameters using `@named(...)` or `@tagged(...)`.
+- Use `@injectFromBase()` when a subclass inherits injection metadata.
+
+Plain class-typed parameters without named/tagged decorators can still use inferred injection. For a named dependency:
+
+```typescript
+import 'reflect-metadata';
+import { inject, injectable, named } from 'inversify';
+import { TestBed } from '@suites/unit';
+
+@injectable()
+class Repository {
+  find(): string[] { return []; }
+}
+
+@injectable()
+class Service {
+  constructor(@inject(Repository) @named('primary') private repository: Repository) {}
+  list(): string[] { return this.repository.find(); }
+}
+
+const { unit, unitRef } = await TestBed.solitary(Service)
+  .mock(Repository, { named: 'primary' })
+  .impl(stub => ({ find: stub().mockReturnValue(['example']) }))
+  .compile();
+
+const repository = unitRef.get(Repository, { named: 'primary' });
+expect(unit.list()).toEqual(['example']);
+expect(repository.find).toHaveBeenCalled();
+```
+
+## 5. Check types and run tests
+
+Run your project's TypeScript check and test suite. For example:
+
+```bash
+pnpm exec tsc --noEmit -p tsconfig.json
+pnpm exec jest
+# OR
+pnpm exec vitest run
+```
+
+Check that `Mocked<T>` resolves, mock methods are typed, and your existing tests pass. If decorators fail to resolve dependencies, verify that your transform emits decorator metadata. If Jest CommonJS tests encounter ESM dependencies, use the transform configuration in [Installation](/docs/get-started/installation/#configure-the-test-runner).
+
+## Next Steps
+
+- [Quick Start](/docs/get-started/quickstart/) to verify your migrated setup with your framework
+- [Installation](/docs/get-started/installation/) for complete runner configuration
+- [Types](/docs/api-reference/types/) for module augmentation details
+- [v4.0.0 release notes](https://github.com/suites-dev/unit/releases/tag/v4.0.0) for the full change list

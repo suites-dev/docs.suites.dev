@@ -1,0 +1,25 @@
+---
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  noIndex?: boolean;
+  canonicalUrl?: string | false;
+  showHeader?: boolean;
+  showFooter?: boolean;
+}
+const { title, description, ogImage, noIndex, canonicalUrl, showHeader, showFooter } = Astro.props;
+---
+<BaseLayout
+  title={title}
+  description={description}
+  ogImage={ogImage}
+  noIndex={noIndex}
+  canonicalUrl={canonicalUrl}
+  showHeader={showHeader}
+  showFooter={showFooter}
+>
+  <slot />
+</BaseLayout>

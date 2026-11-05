@@ -1,0 +1,76 @@
+---
+sidebar_position: 3
+title: TestBed.sociable()
+description: "Use TestBed.sociable() with expose() to select real collaborators. Review the API, dependency behavior, and which mocks UnitReference can retrieve."
+meta_title: "TestBed.sociable(): Real Collaborators and Mocked I/O"
+---
+
+import Aside from '@/components/mdx/Aside.astro';
+
+Creates a test environment that mixes real implementations with mocked dependencies for testing interactions between business logic classes.
+
+<Aside type="info" title="Sociable Tests Are Still Unit Tests">
+Keep external I/O dependencies mocked to test interactions between real business logic classes without contacting databases or APIs. Suites mocks injected dependencies by default, including tokens such as `@Inject('DATABASE')`. Direct imports and supplied implementations can still perform I/O. See the [Sociable Unit Tests Guide](/docs/guides/sociable/) for concepts.
+</Aside>
+
+## Signature
+
+```typescript
+TestBed.sociable<T>(targetClass: Type<T>): SociableTestBedBuilder<T>
+```
+
+## Parameters
+
+| Parameter   | Type      | Description                   |
+|-------------|-----------|-------------------------------|
+| targetClass | `Type<T>` | The class constructor to test |
+
+## Returns
+
+`SociableTestBedBuilder<T>` with the following configuration method:
+
+- **`.expose()`** - List classes to keep real. Everything else is mocked.
+- **`.mock(dependency)`** - Configure specific mock behavior before compilation
+- **`.compile()`** - Finalizes configuration and creates the test environment
+
+### The `.expose()` Method
+
+```typescript
+expose<D>(dependency: Type<D>): SociableTestBedBuilder<T>
+```
+
+* `.expose()` only accepts class constructors, not string, symbol, or other non-class tokens. Those tokens identify dependencies but do not supply a class implementation for Suites to instantiate. Token dependencies are mocked by default; `.mock().final()` can instead inject a supplied value or implementation.
+
+* `.expose()` method only controls explicit, injected dependencies. Implicit dependencies (direct imports) are not
+intercepted by `TestBed` and will execute as normal.
+
+## Example
+
+```typescript
+const { unit, unitRef } = await TestBed.sociable(UserService)
+  .expose(UserValidator)  // Only this is real
+  .compile();
+
+// Can retrieve non-exposed (mocked)
+const database = unitRef.get(Database);
+
+// Cannot retrieve exposed
+// const validator = unitRef.get(UserValidator);  // ERROR - it's real
+```
+
+## What's Retrievable
+
+**With `.expose()`:**
+- ✅ Non-exposed dependencies (mocked by default)
+- ✅ Tokens (auto-mocked or configured with `.impl()`)
+- ✅ Dependencies configured with `.mock().impl()`
+- ❌ Exposed dependencies (real, not retrievable)
+- ❌ Values supplied with `.mock().final()`
+
+See [injected dependencies and retrievable mocks](/docs/api-reference/unit-reference/#important-limitations) for how injection differs from `unitRef` lookup.
+
+## See Also
+
+- [Sociable Unit Tests Guide](/docs/guides/sociable/) - When to use, concepts, detailed examples
+- [TestBed.solitary()](/docs/api-reference/testbed-solitary/) - For fully isolated tests
+- [Mock Configuration](/docs/api-reference/mock-configuration/) - Configuring mock behavior

@@ -1,0 +1,282 @@
+---
+import { Code } from 'astro-expressive-code/components';
+
+const withoutSuitesCode = `import { UserService } from './user-service';
+import { UserApi } from './user-api';
+import { Database } from './database';
+import { Logger } from './logger';
+
+let userApi: jest.Mocked<UserApi>;
+let database: jest.Mocked<Database>;
+let logger: jest.Mocked<Logger>;
+let userService: UserService;
+
+beforeEach(() => {
+  userApi = {
+    getRandom: jest.fn(),
+    findById: jest.fn(),
+  } as jest.Mocked<UserApi>;
+
+  database = {
+    saveUser: jest.fn(),
+    deleteUser: jest.fn(),
+  } as jest.Mocked<Database>;
+
+  logger = {
+    info: jest.fn(),
+    error: jest.fn(),
+  } as jest.Mocked<Logger>;
+
+  userService = new UserService(userApi, database, logger);
+});
+
+it('generates and saves a random user', async () => {
+  userApi.getRandom.mockResolvedValue({ id: 1, name: 'Ada' });
+  await userService.generateRandomUser();
+  expect(database.saveUser).toHaveBeenCalled();
+});`;
+
+const withSuitesCode = `import { TestBed } from '@suites/unit';
+
+const { unit, unitRef } = await TestBed
+  .solitary(UserService)
+  .compile();
+
+const userApi = unitRef.get(UserApi);
+const database = unitRef.get(Database);
+
+it('generates and saves a random user', async () => {
+  userApi.getRandom.mockResolvedValue({ id: 1, name: 'Ada' });
+  await unit.generateRandomUser();
+  expect(database.saveUser).toHaveBeenCalled();
+});`;
+
+const withoutLines = withoutSuitesCode.split('\n').length;
+const withLines = withSuitesCode.split('\n').length;
+---
+
+<section class="code-comparison" aria-label="Suites Unit code comparison">
+  <div class="code-playground" data-code-comparison>
+    <header class="code-playground__bar">
+      <span class="code-playground__file">UserService.test.ts</span>
+
+      <div class="code-playground__controls">
+        <span class="code-playground__count" aria-live="polite">
+          <strong data-code-line-count>{withoutLines}</strong> lines
+        </span>
+
+        <div class="code-playground__tabs" role="tablist" aria-label="Compare test setup">
+          <button
+            type="button"
+            role="tab"
+            aria-selected="true"
+            aria-controls="without-suites-panel"
+            id="without-suites-tab"
+            data-code-tab="without"
+            data-line-count={withoutLines}
+          >
+            Without Suites
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="with-suites-panel"
+            id="with-suites-tab"
+            data-code-tab="with"
+            data-line-count={withLines}
+          >
+            With Suites
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div
+      id="without-suites-panel"
+      class="code-playground__panel"
+      role="tabpanel"
+      aria-labelledby="without-suites-tab"
+      data-code-panel="without"
+    >
+      <Code code={withoutSuitesCode} lang="ts" />
+    </div>
+
+    <div
+      id="with-suites-panel"
+      class="code-playground__panel"
+      role="tabpanel"
+      aria-labelledby="with-suites-tab"
+      data-code-panel="with"
+      hidden
+    >
+      <Code code={withSuitesCode} lang="ts" />
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-code-comparison]').forEach((comparison) => {
+    const tabs = comparison.querySelectorAll<HTMLButtonElement>('[data-code-tab]');
+    const panels = comparison.querySelectorAll<HTMLElement>('[data-code-panel]');
+    const lineCount = comparison.querySelector<HTMLElement>('[data-code-line-count]');
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const target = tab.dataset.codeTab;
+
+        tabs.forEach((candidate) => {
+          candidate.setAttribute('aria-selected', String(candidate === tab));
+        });
+
+        panels.forEach((panel) => {
+          panel.hidden = panel.dataset.codePanel !== target;
+        });
+
+        if (lineCount && tab.dataset.lineCount) {
+          lineCount.textContent = tab.dataset.lineCount;
+        }
+      });
+    });
+  });
+</script>
+
+<style>
+  .code-comparison {
+    padding-top: 72px;
+  }
+
+  .code-playground {
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid var(--border-strong);
+    border-radius: 12px;
+    background: var(--code-bg);
+    box-shadow: 0 28px 72px -42px rgba(0, 0, 0, 0.8);
+  }
+
+  .code-playground__bar {
+    display: flex;
+    min-height: 56px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 24px;
+    padding: 10px 16px 10px 20px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.018);
+  }
+
+  .code-playground__file,
+  .code-playground__count,
+  .code-playground__tabs button {
+    font-family: var(--font-code);
+    font-size: 10px;
+  }
+
+  .code-playground__file,
+  .code-playground__count {
+    color: var(--text-soft);
+  }
+
+  .code-playground__count strong {
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .code-playground__controls,
+  .code-playground__tabs {
+    display: flex;
+    align-items: center;
+  }
+
+  .code-playground__controls {
+    gap: 18px;
+  }
+
+  .code-playground__tabs {
+    gap: 2px;
+    padding: 2px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+
+  .code-playground__tabs button {
+    min-height: 32px;
+    padding: 0 12px;
+    color: var(--text-soft);
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .code-playground__tabs button[aria-selected='true'] {
+    color: var(--primary-light);
+    background: var(--primary-soft);
+  }
+
+  .code-playground__panel[hidden] {
+    display: none;
+  }
+
+  .code-playground__panel :global(.expressive-code) {
+    margin: 0;
+  }
+
+  .code-playground__panel :global(.expressive-code figure) {
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .code-playground__panel :global(.expressive-code .frame) {
+    box-shadow: none;
+  }
+
+  .code-playground__panel :global(.expressive-code .header) {
+    display: none;
+  }
+
+  .code-playground__panel :global(.expressive-code pre) {
+    max-height: 560px;
+    padding-block: 24px;
+    border: 0;
+    border-radius: 0;
+    font-size: 12px;
+  }
+
+  @media (max-width: 620px) {
+    .code-comparison {
+      padding-top: 48px;
+    }
+
+    .code-playground__bar,
+    .code-playground__controls {
+      align-items: flex-start;
+    }
+
+    .code-playground__bar,
+    .code-playground__controls {
+      flex-direction: column;
+    }
+
+    .code-playground__bar {
+      padding: 14px;
+    }
+
+    .code-playground__controls {
+      width: 100%;
+      gap: 10px;
+    }
+
+    .code-playground__tabs {
+      width: 100%;
+    }
+
+    .code-playground__tabs button {
+      flex: 1;
+      padding-inline: 8px;
+    }
+  }
+</style>

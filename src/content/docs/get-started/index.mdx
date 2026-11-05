@@ -1,0 +1,46 @@
+---
+sidebar_position: 1
+title: Get Started
+description: "Start testing NestJS, InversifyJS, or InjectionJS classes with Suites. Choose Jest or Vitest, configure your adapters, and write your first unit test."
+meta_title: "Get Started with TypeScript Unit Testing"
+---
+
+Suites helps you unit test TypeScript classes built with **NestJS**, **InversifyJS**, or **InjectionJS**. Run your tests with **Jest** or **Vitest**. Suites creates the class and its dependency mocks; your runner executes the tests and checks assertions.
+
+## Supported frameworks and runners
+
+Every framework below works with either test runner:
+
+| Dependency injection framework | Jest | Vitest |
+| --- | --- | --- |
+| [NestJS](/docs/guides/nestjs/) | Supported | Supported |
+| [InversifyJS](/docs/guides/inversify/) | Supported | Supported |
+| InjectionJS | Supported | Supported |
+
+Keep your framework and choose the runner that fits your project. The same Suites testing API works across these combinations.
+
+InjectionJS support covers constructor injection. Contextual `inject()` calls, including class field initializers, are not supported. Follow the [InjectionJS guide](/docs/guides/injectionjs/) for a complete example.
+
+**No DI framework?** Use the [standalone `mock()` and `stub()` utilities](/docs/api-reference/mock/) with Jest or Vitest to create test doubles for plain TypeScript code.
+
+Upgrading from Suites 3? See the [migration guide](/docs/migration-guides/from-v3/).
+
+<div class="in-this-section">
+
+### In This Section
+- [**Why Suites?**](/docs/get-started/why-suites/) - Compare with manual mocking and explore what Suites provides
+- [**Installation**](/docs/get-started/installation/) - Install and configure Suites
+</div>
+
+## Recommended Path
+
+For those new to Suites:
+
+1. **[Why Suites?](/docs/get-started/why-suites/)** - Explore what Suites provides
+2. **[Installation](/docs/get-started/installation/)** - Set up the environment
+3. **[Quick Start](/docs/get-started/quickstart/)** - Choose your framework and write your first test with Jest or Vitest
+4. **[Guides](/docs/guides/)** - Learn testing patterns
+
+## Resources
+
+- **[Suites Examples Repository](https://github.com/suites-dev/suites-unit-examples)** - Complete working examples for all testing patterns
