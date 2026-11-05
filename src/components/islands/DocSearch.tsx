@@ -8,58 +8,23 @@ import {
 } from '@/lib/algolia';
 
 /*
- * Algolia DocSearch island.
- *
- * Algolia handles the cmd+k / ctrl+k shortcut binding, the platform-aware hint
- * chip (Mac vs Windows/Linux), modal open/close, focus trap inside the modal,
- * escape-to-close, focus return to the trigger, recent-searches persistence,
- * and arrow-key navigation between hits. We do not re-implement those.
- *
- * Our job is:
- *   1. Scope the modal under a stable wrapper so .DocSearch-* overrides in
- *      components.css cannot leak.
- *   2. Provide a sensible "no results" fallback URL (GitHub issues) so users
- *      have a next step instead of a dead end (ui-ux-pro-max search/no-results).
- *   3. Localize the placeholder + button text so screen readers announce a
- *      useful label.
- *   4. Bind the extra "/" shortcut that the button aria-label advertises, since
- *      Algolia only binds cmd+k / ctrl+k natively. We ignore the keypress when
- *      the user is already typing in an input/textarea/contenteditable element.
- *
- * Hydration cost: this is the only search island in the header, mounted with
- * client:load. We deliberately do not import additional runtime deps.
+ * DocSearch owns shortcuts, modal focus trapping, results and persistence.
+ * Its current close handler does not restore focus to the search button.
  */
 export default function DocSearchIsland() {
-  // Bind "/" as a global open shortcut. Algolia's button is rendered inside our
-  // wrapper, so we click it to inherit Algolia's own focus + a11y behaviour
-  // (which restores focus to the button on close).
   useEffect(() => {
-    const isEditable = (el: EventTarget | null): boolean => {
-      if (!(el instanceof HTMLElement)) return false;
-      const tag = el.tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
-      if (el.isContentEditable) return true;
-      return false;
-    };
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== '/') return;
-      if (event.defaultPrevented) return;
-      if (event.metaKey || event.ctrlKey || event.altKey) return;
-      if (isEditable(event.target)) return;
-      // If the Algolia modal is already open, do not steal the keystroke.
-      if (document.querySelector('.DocSearch-Modal')) return;
-
-      const trigger = document.querySelector<HTMLButtonElement>(
-        '.suites-docsearch .DocSearch-Button',
-      );
-      if (!trigger) return;
-      event.preventDefault();
-      trigger.click();
-    };
-
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
+    let wasOpen = Boolean(document.querySelector('.DocSearch-Modal'));
+    const observer = new MutationObserver(() => {
+      const isOpen = Boolean(document.querySelector('.DocSearch-Modal'));
+      if (wasOpen && !isOpen && document.activeElement === document.body) {
+        document.querySelector<HTMLButtonElement>('[data-docsearch-root] .DocSearch-Button')
+          ?.focus({ preventScroll: true });
+      }
+      wasOpen = isOpen;
+    });
+    // The modal is a direct portal child of body. Result updates stay nested.
+    observer.observe(document.body, { childList: true });
+    return () => observer.disconnect();
   }, []);
 
   return (
