@@ -17,8 +17,7 @@ Migrate to `@suites/unit` using this guide. All new features and improvements ar
 Suites succeeds Automock as the actively developed testing framework. Support for Automock 2.x ended on
 **June 30, 2026**. All new development continues in Suites, starting from version `3.0.0`.
 
-This guide covers the migration process from Automock to Suites, including dependency updates, API changes, and new
-features.
+This guide migrates Automock tests to the TestBed API used by Suites 4. Also complete the [Suites 4 setup steps](/docs/migration-guides/from-v3/) for supported runtime versions, explicit type references, and adapter changes.
 
 For detailed setup instructions, see the [Installation Guide](/docs/get-started/installation/).
 
@@ -31,22 +30,34 @@ and better support. Automock `v2.1.x` no longer receives fixes. All new developm
 ## Migration Guide
 
 <Aside type="tip" title="Recommended: run the codemod">
-The [`@suites/codemod`](https://github.com/suites-dev/codemod) package automates almost everything in this guide: it
-rewrites imports, converts `TestBed.create()` to `await TestBed.solitary().compile()`, picks between `.impl()` and
-`.final()` for each mock, switches `jest.Mocked<T>` to `Mocked<T>`, and adds `async`/`await` to test hooks where needed.
+Use [`@suites/codemod`](https://github.com/suites-dev/suites-unit-codemod) to migrate the TestBed API, then run its v4 transform for explicit type references and helper imports. Package upgrades, runner configuration, and Sinon-specific calls still require manual changes.
+</Aside>
+
+### Automate the migration
+
+Start with a clean Git working tree. Preview and apply the Automock transform:
 
 ```bash
 # Preview the changes first (no files written)
-npx @suites/codemod automock/2/to-suites-v3 'src/**/*.spec.ts' --dry
+npx @suites/codemod@latest automock/2/to-suites-v3 'src/**/*.spec.ts' --dry --print
 
 # Apply
-npx @suites/codemod automock/2/to-suites-v3 'src/**/*.spec.ts'
+npx @suites/codemod@latest automock/2/to-suites-v3 'src/**/*.spec.ts'
 ```
 
-After running, you still need to [update your dependencies](#step-1-update-dependencies) (the codemod only rewrites
-code, not `package.json`). The remaining steps below describe what the codemod does, in case you want to migrate
-manually or understand a specific transformation.
-</Aside>
+This transform rewrites imports, converts `TestBed.create()` to async `TestBed.solitary().compile()`, and updates mock configuration and types. It targets the Suites 3 TestBed API, which Suites 4 retains.
+
+Next, [update your dependencies](#step-1-update-dependencies), review and commit those changes, then [run the v4 codemod](/docs/migration-guides/from-v3/#run-the-v4-codemod). The v4 transform is available in `@suites/codemod` 0.2.0 and later:
+
+```bash
+# Preview v4 references and helper imports
+npx @suites/codemod@latest suites/3/to-suites-v4 ./src --dry --print
+
+# Apply after reviewing the preview
+npx @suites/codemod@latest suites/3/to-suites-v4 ./src
+```
+
+Adjust the target to include your tests and declaration files. Complete the remaining [v4 migration steps](/docs/migration-guides/from-v3/) and run your TypeScript check and tests. Neither transform migrates Sinon-specific stubs or assertions.
 
 ### Step 1: Update Dependencies
 
@@ -69,15 +80,15 @@ npm install --save-dev @suites/doubles.jest @suites/di.nestjs
 # NestJS + Vitest
 npm install --save-dev @suites/doubles.vitest @suites/di.nestjs
 
-# NestJS + Sinon
-npm install --save-dev @suites/doubles.sinon @suites/di.nestjs
+# InversifyJS + Jest
+npm install --save-dev @suites/doubles.jest @suites/di.inversify
 
-# InversifyJS + Sinon
-npm install --save-dev @suites/doubles.sinon @suites/di.inversify
+# InversifyJS + Vitest
+npm install --save-dev @suites/doubles.vitest @suites/di.inversify
 ```
 
 Suites splits the doubles library and the DI integration into separate packages, so install one `@suites/doubles.*` and
-one `@suites/di.*` matching your stack.
+one `@suites/di.*` matching your stack. Suites 4 does not support Sinon: migrate Sinon-specific tests to Jest or Vitest and follow the [installation instructions](/docs/get-started/installation/) for runner dependencies and type references.
 
 ### Step 2: Update Imports
 
@@ -146,7 +157,7 @@ await TestBed.solitary(UserService)
 ### Versioning
 
 - Automock stopped at version `2.1.2` and is no longer maintained.
-- Suites started at version `3.0.0` and is currently at `3.0.1+`, continuing active development.
+- Suites started at version `3.0.0`; this guide now targets Suites 4.
 
 ### Breaking Changes
 
@@ -178,7 +189,7 @@ testing approaches. See [Solitary API](/docs/api-reference/testbed-solitary/).
 
 - `.mock.using` is now `.mock.impl` and `.mock.final`.
 - `.mock.impl` provides runtime stubs within the callback, eliminating the need for library-specific mock functions
-  like `jest.fn()` or `sinon.stub()`.
+  like `jest.fn()` or `vi.fn()`.
 - `.mock.final` is similar but without stubs and cannot be retrieved from the unit reference.
 
 See [Mock Configuration API](/docs/api-reference/mock-configuration/) for complete details.
@@ -200,7 +211,7 @@ Errors like `TypeError: Cannot read properties of undefined (reading 'get')` ind
 
 ### Type Errors with Mocked
 
-Type errors with mocked dependencies require using the new `Mocked<T>` type from `@suites/unit`.
+Import `Mocked<T>` from `@suites/unit` and include the adapter's `/unit` declaration in your test project. See [Type Reference Configuration](/docs/get-started/installation/#type-reference-configuration).
 
 See [Types API Reference](/docs/api-reference/types/) for details:
 
@@ -233,16 +244,16 @@ or been renamed in Suites. The most common ones people search for:
 | Automock                                        | Suites                                                                                                                 |
 |-------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
 | `@automock/jest`                                | `@suites/unit` plus `@suites/doubles.jest`                                                                             |
-| `@automock/sinon`                               | `@suites/unit` plus `@suites/doubles.sinon`                                                                            |
-| `@automock/core`                                | `@suites/core` (internal; consume the public API via `@suites/unit`)                                                   |
+| `@automock/sinon`                               | Migrate to `@suites/unit` with the Jest or Vitest adapter; Sinon has no v4 adapter                                                                            |
+| `@automock/core`                                | `@suites/core.unit` (internal; consume the public API via `@suites/unit`)                                                   |
 | `TestBed.create(Service)`                       | `TestBed.solitary(Service)` (now `async`)                                                                              |
 | `.mock(X).using({...})`                         | `.mock(X).final({...})` or `.mock(X).impl((stub) => ({...}))`                                                          |
-| `packages/core/src/services/testbed-builder.ts` | Restructured under `@suites/core` and the DI adapters                                                                  |
+| `packages/core/src/services/testbed-builder.ts` | Restructured under `@suites/core.unit` and the DI adapters                                                                  |
 | `TestbedBuilder` (internal class)               | Split into solitary and sociable builders, kept internal                                                               |
 | `ClassCtorReflector`, `class-props-reflector`   | Reflection utilities now live inside `@suites/di.nestjs` and `@suites/di.inversify` and are not part of the public API |
 
 Recommended path: depend only on the public surface (`TestBed` from `@suites/unit` and the `Mocked<T>` type). If you
-have a use case that requires internals, please [open an issue](https://github.com/suites-dev/suites/issues) so we can
+have a use case that requires internals, please [open an issue](https://github.com/suites-dev/unit/issues) so we can
 either expose what you need or suggest an alternative.
 
 ## Historical Releases and NPM Packages
@@ -250,4 +261,4 @@ either expose what you need or suggest an alternative.
 The release history and NPM packages under the `@automock` scope remain available for historical reference and
 existing projects. All new features and improvements are released under the `@suites` scope.
 
-For more information, see the [Suites release notes](https://github.com/suites-dev/suites/releases).
+For more information, see the [Suites release notes](https://github.com/suites-dev/unit/releases).

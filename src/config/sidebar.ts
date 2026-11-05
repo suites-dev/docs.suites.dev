@@ -1,6 +1,8 @@
 export interface SidebarItem {
   label: string;
   href: string;
+  previous?: string;
+  next?: string;
 }
 
 export interface SidebarGroup {
@@ -43,14 +45,14 @@ const sidebar: SidebarConfig = {
         { label: "Why Suites?", href: "/docs/get-started/why-suites/" },
         // sidebar_position: 3
         {
-          label:
-            "Install Suites for NestJS, Inversify, Jest, Vitest, and Sinon",
+          label: "Installation",
           href: "/docs/get-started/installation/",
         },
         // sidebar_position: 4
         {
-          label: "Suites Quick Start: Write Your First Unit Test in 5 Minutes",
+          label: "Quick Start",
           href: "/docs/get-started/quickstart/",
+          next: "/docs/guides/solitary/",
         },
       ],
     },
@@ -58,7 +60,7 @@ const sidebar: SidebarConfig = {
       label: "Guides",
       items: [
         // sidebar_position: 2 (section index)
-        { label: "Guides", href: "/docs/guides/" },
+        { label: "Overview", href: "/docs/guides/" },
         // sidebar_position: 1
         {
           label: "Unit Testing Fundamentals",
@@ -67,23 +69,27 @@ const sidebar: SidebarConfig = {
         // sidebar_position: 2
         {
           label:
-            "TypeScript Test Doubles: Auto-Generated Mocks, Stubs, Spies & Fakes",
+            "Test Doubles",
           href: "/docs/guides/test-doubles/",
         },
         // sidebar_position: 3
         {
           label: "Testing in Isolation (Solitary)",
           href: "/docs/guides/solitary/",
+          previous: "/docs/get-started/quickstart/",
         },
         // sidebar_position: 4
         {
           label: "Testing Components Together (Sociable)",
           href: "/docs/guides/sociable/",
         },
-        // sidebar_position: 7
         {
-          label: "Virtual Test Container Concept",
-          href: "/docs/guides/virtual-test-container/",
+          label: "InjectionJS",
+          href: "/docs/guides/injectionjs/",
+        },
+        {
+          label: "How Suites works",
+          href: "/docs/guides/how-suites-works/",
         },
       ],
     },
@@ -91,7 +97,7 @@ const sidebar: SidebarConfig = {
       label: "API Reference",
       items: [
         // sidebar_position: 3 (section index)
-        { label: "API Reference", href: "/docs/api-reference/" },
+        { label: "Overview", href: "/docs/api-reference/" },
         // sidebar_position: 2
         {
           label: "TestBed.solitary()",
@@ -120,6 +126,7 @@ const sidebar: SidebarConfig = {
       items: [
         // sidebar_position: 5 (section index)
         { label: "Migration Guides", href: "/docs/migration-guides/" },
+        { label: "Suites 3 to 4", href: "/docs/migration-guides/from-v3/" },
         // sidebar_position: 5
         {
           label: "Migrating from Automock to Suites",

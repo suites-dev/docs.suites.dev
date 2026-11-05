@@ -27,7 +27,7 @@ import {
  *      the user is already typing in an input/textarea/contenteditable element.
  *
  * Hydration cost: this is the only search island in the header, mounted with
- * client:only="react". We deliberately do not import additional runtime deps.
+ * client:load. We deliberately do not import additional runtime deps.
  */
 export default function DocSearchIsland() {
   // Bind "/" as a global open shortcut. Algolia's button is rendered inside our

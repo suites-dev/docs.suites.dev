@@ -1,33 +1,24 @@
 ---
 sidebar_position: 2
 title: Guides
-description: Practical guides for testing with Suites
-toc_min_heading_level: 3
+description: Learn the testing fundamentals, choose solitary or sociable tests, and explore framework-specific guidance.
 ---
 
-import Aside from '@/components/mdx/Aside.astro';
+Learn how to test a class, control its dependencies, and verify interactions between collaborators. Start with the fundamentals or jump to the guide that matches your task.
 
-# Testing Guides
+## Understand the basics
 
-Practical guides for writing solitary and sociable unit tests with Suites. Learn how to test components in isolation, verify real interactions between classes, and control external dependencies.
+- **[Unit Testing Fundamentals](/docs/guides/fundamentals/)**: Decide what to test and where to draw the boundary around a unit.
+- **[Test Doubles](/docs/guides/test-doubles/)**: Understand mocks, stubs, and spies, and when to use each.
 
+## Write your tests
 
-<div class="in-this-section">
+- **[Solitary Unit Tests](/docs/guides/solitary/)**: Test one class with all its dependencies mocked. Start here to learn the core TestBed workflow.
+- **[Sociable Unit Tests](/docs/guides/sociable/)**: Test a class with selected real collaborators while keeping external dependencies mocked.
 
-### In This Section
+## Explore further
 
-- [**Fundamentals of Unit Testing**](/docs/guides/fundamentals/) - Core principles and best practices
-- [**Solitary Unit Tests**](/docs/guides/solitary/) - Testing components in complete isolation
-- [**Sociable Unit Tests**](/docs/guides/sociable/) - Testing with real dependencies
-- [**Test Doubles**](/docs/guides/test-doubles/) - Mocks, stubs, and spies
-- [**Virtual Test Container**](/docs/guides/virtual-test-container/) - How Suites creates test environments
+- **[InjectionJS](/docs/guides/injectionjs/)**: Work with constructor injection and typed tokens, and understand the adapter's supported patterns.
+- **[How Suites works](/docs/guides/how-suites-works/)**: See how Suites discovers dependencies, creates mocks, and constructs the class under test.
 
-</div>
-
-<Aside type="tip">
-Start with [Fundamentals](/docs/guides/fundamentals/), then [Solitary](/docs/guides/solitary/) and [Sociable](/docs/guides/sociable/) testing.
-</Aside>
-
-<Aside type="tip" title="Working Examples">
-Browse the [Suites Examples repository](https://github.com/suites-dev/examples) for complete, runnable examples of solitary, sociable, and real-world testing patterns.
-</Aside>
+For complete, runnable projects, browse the [Suites Examples repository](https://github.com/suites-dev/suites-unit-examples).

@@ -1,8 +1,8 @@
 # Suites
 
-> Suites is a unit testing framework for TypeScript backends working with inversion of control and dependency injection. It generates mocks for class dependencies and provides a virtual test container that mirrors your real DI container, so you can write solitary or sociable unit tests with minimal boilerplate.
+> Suites is a unit testing framework for TypeScript backends working with inversion of control and dependency injection. It generates mocks for class dependencies and provides a flat test container that constructs classes without bootstrapping your application framework, so you can write solitary or sociable unit tests with minimal boilerplate.
 
-Suites supports NestJS and InversifyJS, integrates with Jest, Sinon, and Vitest, and offers a migration path from Automock.
+Suites supports NestJS 10/11/12 and Inversify 7/8, plus InjectionJS ^2.6.1 starting in Suites 4.1. It integrates with Jest and Vitest and offers migration guides from Automock and Suites 3. Node.js requirements: ^22.22.2 || ^24.15.0 || ^26.0.0. CommonJS and ESM are supported. InjectionJS supports constructor injection, not contextual inject() calls or production provider/container configuration.
 
 ## Get started
 
@@ -17,8 +17,9 @@ Suites supports NestJS and InversifyJS, integrates with Jest, Sinon, and Vitest,
 - [Fundamentals](https://suites.dev/docs/guides/fundamentals): core concepts and the testing model
 - [Solitary tests](https://suites.dev/docs/guides/solitary): isolating a single class with auto-generated mocks
 - [Sociable tests](https://suites.dev/docs/guides/sociable): testing a class together with selected real collaborators
+- [InjectionJS](https://suites.dev/docs/guides/injectionjs/): constructor injection, InjectionToken overrides, Vitest module identity, and support boundaries
 - [Test doubles](https://suites.dev/docs/guides/test-doubles): mocks, stubs, and spies in Suites
-- [Virtual test container](https://suites.dev/docs/guides/virtual-test-container): how Suites builds an isolated DI graph for each test
+- [How Suites works](https://suites.dev/docs/guides/how-suites-works/): how Suites builds an isolated DI graph for each test
 
 ## API reference
 
@@ -32,10 +33,11 @@ Suites supports NestJS and InversifyJS, integrates with Jest, Sinon, and Vitest,
 
 ## Migration
 
+- [Migrating from Suites 3 to 4](https://suites.dev/docs/migration-guides/from-v3/)
 - [Migrating from Automock](https://suites.dev/docs/migration-guides/from-automock)
 
 ## Project
 
 - [Changelog](https://suites.dev/docs/changelog)
-- [GitHub repository](https://github.com/suites-dev/suites)
-- [Examples repository](https://github.com/suites-dev/examples)
+- [GitHub repository](https://github.com/suites-dev/unit)
+- [Examples repository](https://github.com/suites-dev/suites-unit-examples)

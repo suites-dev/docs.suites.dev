@@ -35,7 +35,7 @@ const { unit, unitRef } = await TestBed.sociable(UserService)
 
 ### Configuring Mocks
 ```typescript
-// Final configuration (immutable)
+// Final configuration (injected as supplied, not retrievable via unitRef)
 await TestBed.solitary(UserService)
   .mock(UserApi)
   .final({ getRandom: async () => ({ id: 1, name: 'John' }) })
@@ -50,7 +50,8 @@ await TestBed.solitary(UserService)
 
 ### Creating Standalone Mocks
 ```typescript
-import { mock, stub } from '@suites/unit';
+import { mock, stub } from '@suites/doubles.jest';
+// Vitest: import from '@suites/doubles.vitest'.
 
 // Mock a full class
 const userRepo = mock<UserRepository>();

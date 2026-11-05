@@ -61,8 +61,8 @@
   background: var(--primary);
 }
 :root[data-theme="light"] .btn-primary:hover {
-  background: var(--pink-600);
-  color: #fff;
+  background: var(--primary-hover);
+  color: var(--on-primary-hover);
 }
 :root[data-theme="light"] .doc-pager a {
   background: rgba(15, 15, 18, 0.02);
@@ -150,27 +150,6 @@
   letter-spacing: -0.025em;
 }
 
-.mark {
-  width: 30px;
-  height: 30px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--brand-deep), var(--brand-soft));
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.16) inset,
-    0 14px 34px rgba(219, 72, 111, 0.28);
-  position: relative;
-}
-
-.mark::before,
-.mark::after {
-  content: "";
-  position: absolute;
-  inset: 8px 10px;
-  border-top: 2px solid #0f0f12;
-  border-bottom: 2px solid #0f0f12;
-  transform: skew(-18deg);
-}
-
 .navlinks {
   display: flex;
   gap: 16px;
@@ -190,13 +169,83 @@
  * ============================================================ */
 
 .topbar[data-variant="marketing"] {
+  --header-h: 80px;
   border-bottom: 1px solid var(--border);
   background: color-mix(in srgb, var(--bg) 88%, transparent);
 }
 
 .topbar[data-variant="marketing"] .nav {
-  max-width: 1440px;
-  padding-inline: 24px;
+  max-width: 1200px;
+  padding-inline: var(--ui-gutter);
+  gap: 24px;
+}
+
+.topbar .marketing-logomark {
+  flex: 0 0 auto;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.marketing-logo {
+  display: block;
+  width: 36px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.theme-logo-light,
+:root[data-theme="light"] .theme-logo-dark {
+  display: none;
+}
+
+:root[data-theme="light"] .theme-logo-light {
+  display: block;
+}
+
+.topbar[data-variant="marketing"] .nav-cluster {
+  flex-shrink: 0;
+  gap: 8px;
+  padding-left: 20px;
+  border-left: 1px solid var(--border);
+}
+
+.topbar[data-variant="marketing"] .icon-link {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+@media (max-width: 767px) {
+  .topbar[data-variant="marketing"] {
+    --header-h: 64px;
+  }
+
+  .topbar[data-variant="marketing"] .nav {
+    gap: 12px;
+  }
+
+  .marketing-logo {
+    width: 32px;
+    height: 36px;
+  }
+
+  .topbar[data-variant="marketing"] .nav-cluster {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .topbar[data-variant="marketing"] .marketing-github {
+    display: none;
+  }
+
+  .topbar[data-variant="marketing"] .marketing-mobile-toggle {
+    width: auto;
+    gap: 8px;
+    padding-inline: 10px;
+    border: 1px solid var(--border-strong);
+    font-size: 14px;
+    font-weight: var(--fw-medium);
+    color: var(--text);
+  }
 }
 
 .marketing-brand {
@@ -245,12 +294,18 @@
 }
 
 .topbar[data-context="docs-landing"] .nav {
-  max-width: 1200px;
   height: var(--docs-header-h);
 }
 
 .topbar[data-context="docs-article"] {
   background: color-mix(in srgb, var(--bg) 94%, transparent);
+}
+
+.docs-brand-group {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 8px;
 }
 
 .topbar[data-context="docs-article"] .docs-brand {
@@ -370,13 +425,61 @@
 .topbar[data-variant="docs"] .nav-search {
   flex: 1 1 300px;
   min-width: 0;
-  max-width: 400px;
+  max-width: 520px;
   margin: 0 0 0 auto;
 }
 
 .topbar[data-context="docs-article"] .nav-search {
   max-width: 520px;
 }
+
+
+@media (min-width: 981px) {
+  .topbar[data-variant="docs"] .nav {
+    display: grid;
+    grid-template-columns: var(--docs-columns);
+    gap: 0;
+  }
+
+  .topbar[data-variant="docs"] .docs-brand-group {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .topbar[data-variant="docs"] .nav-search {
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: end;
+    width: calc(100% - 64px);
+    max-width: 520px;
+    margin: 0 32px 0 0;
+  }
+
+  .topbar[data-variant="docs"] .nav-cluster {
+    grid-column: 4;
+    grid-row: 1;
+    justify-self: start;
+    padding-inline: 32px;
+  }
+}
+
+@media (min-width: 981px) and (max-width: 1279px) {
+  .topbar[data-variant="docs"] .docs-header-utilities {
+    display: none;
+  }
+
+  .topbar[data-variant="docs"] .nav-search {
+    width: calc(100% - 160px);
+    margin-right: 128px;
+  }
+
+  .topbar[data-variant="docs"] .nav-cluster {
+    grid-column: 3;
+    justify-self: end;
+    padding-left: 0;
+  }
+}
+
 
 .docs-header-utilities {
   display: inline-flex;
@@ -425,7 +528,8 @@
 .marketing-navlinks {
   display: flex;
   align-items: center;
-  gap: 4px;
+  justify-content: flex-end;
+  gap: 8px;
   flex: 1;
   margin-left: 24px;
 }
@@ -434,11 +538,11 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-height: 36px;
-  padding: 0 10px;
+  min-height: 44px;
+  padding: 0 12px;
   color: var(--text-muted);
-  border-radius: 8px;
-  font-size: 12px;
+  border-radius: 6px;
+  font-size: 15px;
   font-weight: var(--fw-medium);
   transition:
     color 160ms ease,
@@ -448,7 +552,7 @@
 
 .marketing-nav-link:hover {
   color: var(--text);
-  background: rgba(255, 255, 255, 0.04);
+  background: color-mix(in srgb, var(--text) 4%, transparent);
 }
 
 .marketing-nav-alpha {
@@ -488,7 +592,7 @@
 
 .marketing-dropdown[open] > .marketing-dropdown-trigger {
   color: var(--text);
-  background: rgba(255, 255, 255, 0.04);
+  background: color-mix(in srgb, var(--text) 4%, transparent);
 }
 :root[data-theme="light"]
   .marketing-dropdown[open]
@@ -529,7 +633,7 @@
 }
 
 .marketing-dropdown-item:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: color-mix(in srgb, var(--text) 4%, transparent);
 }
 
 :root[data-theme="light"] .marketing-dropdown-item:hover {
@@ -573,7 +677,7 @@
 
 .marketing-badge[data-variant="stable"] {
   color: var(--text-muted);
-  background: rgba(255, 255, 255, 0.06);
+  background: color-mix(in srgb, var(--text) 6%, transparent);
   border: 1px solid var(--border);
 }
 
@@ -687,10 +791,10 @@ h1 {
     linear-gradient(
       180deg,
       rgba(255, 255, 255, 0.055),
-      rgba(255, 255, 255, 0.02)
+      color-mix(in srgb, var(--text) 2%, transparent)
     ),
     rgba(23, 23, 28, 0.74);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--text) 4%, transparent) inset;
 }
 
 .section + .section {
@@ -909,7 +1013,7 @@ h1 {
   padding: 0 18px;
   border-radius: 999px;
   border: 1px solid var(--border-strong);
-  background: rgba(255, 255, 255, 0.04);
+  background: color-mix(in srgb, var(--text) 4%, transparent);
   color: var(--text);
   font-size: 14px;
   font-weight: var(--fw-medium);
@@ -936,9 +1040,9 @@ h1 {
 }
 
 .btn-danger {
-  background: rgba(255, 107, 107, 0.1);
-  border-color: rgba(255, 107, 107, 0.28);
-  color: #ffb4b4;
+  background: color-mix(in srgb, var(--error) 10%, transparent);
+  border-color: color-mix(in srgb, var(--error) 28%, transparent);
+  color: var(--error);
 }
 
 .badge-row {
@@ -968,18 +1072,18 @@ h1 {
 }
 .badge-success {
   color: var(--success);
-  background: rgba(134, 239, 172, 0.1);
-  border-color: rgba(134, 239, 172, 0.25);
+  background: color-mix(in srgb, var(--success) 10%, transparent);
+  border-color: color-mix(in srgb, var(--success) 25%, transparent);
 }
 .badge-warning {
   color: var(--warning);
-  background: rgba(251, 146, 60, 0.1);
-  border-color: rgba(251, 146, 60, 0.28);
+  background: color-mix(in srgb, var(--warning) 10%, transparent);
+  border-color: color-mix(in srgb, var(--warning) 28%, transparent);
 }
 .badge-error {
   color: var(--error);
-  background: rgba(255, 107, 107, 0.1);
-  border-color: rgba(255, 107, 107, 0.25);
+  background: color-mix(in srgb, var(--error) 10%, transparent);
+  border-color: color-mix(in srgb, var(--error) 25%, transparent);
 }
 
 .field {
@@ -1025,7 +1129,7 @@ textarea:focus {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.03);
+  background: color-mix(in srgb, var(--text) 3%, transparent);
 }
 
 .alert .symbol {
@@ -1096,19 +1200,19 @@ textarea:focus {
 }
 
 .alert-info .symbol {
-  background: rgba(147, 197, 253, 0.12);
+  background: color-mix(in srgb, var(--info) 12%, transparent);
   color: var(--info);
 }
 .alert-success .symbol {
-  background: rgba(134, 239, 172, 0.12);
+  background: color-mix(in srgb, var(--success) 12%, transparent);
   color: var(--success);
 }
 .alert-warning .symbol {
-  background: rgba(251, 146, 60, 0.14);
+  background: color-mix(in srgb, var(--warning) 14%, transparent);
   color: var(--warning);
 }
 .alert-error .symbol {
-  background: rgba(255, 107, 107, 0.12);
+  background: color-mix(in srgb, var(--error) 12%, transparent);
   color: var(--error);
 }
 
@@ -1122,7 +1226,7 @@ textarea:focus {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.03);
+  background: color-mix(in srgb, var(--text) 3%, transparent);
 }
 
 .aside .aside-symbol {
@@ -1215,19 +1319,19 @@ textarea:focus {
 }
 
 .aside-info .aside-symbol {
-  background: rgba(147, 197, 253, 0.12);
+  background: color-mix(in srgb, var(--info) 12%, transparent);
   color: var(--info);
 }
 .aside-success .aside-symbol {
-  background: rgba(134, 239, 172, 0.12);
+  background: color-mix(in srgb, var(--success) 12%, transparent);
   color: var(--success);
 }
 .aside-warning .aside-symbol {
-  background: rgba(251, 146, 60, 0.14);
+  background: color-mix(in srgb, var(--warning) 14%, transparent);
   color: var(--warning);
 }
 .aside-error .aside-symbol {
-  background: rgba(255, 107, 107, 0.12);
+  background: color-mix(in srgb, var(--error) 12%, transparent);
   color: var(--error);
 }
 
@@ -1267,7 +1371,7 @@ textarea:focus {
   padding: 0 18px;
   border: 1px solid var(--border);
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.03);
+  background: color-mix(in srgb, var(--text) 3%, transparent);
 }
 
 .tabs {
@@ -1275,7 +1379,7 @@ textarea:focus {
   padding: 4px;
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.03);
+  background: color-mix(in srgb, var(--text) 3%, transparent);
   gap: 3px;
 }
 
@@ -1314,7 +1418,7 @@ textarea:focus {
       rgba(219, 72, 111, 0.16),
       transparent 18rem
     ),
-    rgba(255, 255, 255, 0.04);
+    color-mix(in srgb, var(--text) 4%, transparent);
 }
 
 .price {
@@ -1354,19 +1458,16 @@ textarea:focus {
   font-weight: var(--fw-display);
 }
 
-/* Docs three-pane layout, verified against prisma/web Fumadocs notebook layout.
-   Grid: outer-slack | sidebar 268 | content 900 | toc 268 | outer-slack
-   Outer slack lets the layout center inside --max on wide screens; the grid
-   itself is bounded to --max + 24px gutter on each side so the docs chrome
-   never reaches the viewport edge on ultra-wide displays. */
+/* The article header and page share these tracks at every breakpoint. */
+body.docs-page {
+  --docs-columns:
+    minmax(0, 1fr) var(--sidebar-w) minmax(0, var(--content-w))
+    var(--toc-w) minmax(0, 1fr);
+}
+
 .doc-layout {
   display: grid;
-  grid-template-columns:
-    minmax(0, 1fr)
-    var(--sidebar-w)
-    minmax(0, var(--content-w))
-    var(--toc-w)
-    minmax(0, 1fr);
+  grid-template-columns: var(--docs-columns);
   grid-template-areas: "edge-l sidebar content toc edge-r";
   min-height: calc(100vh - var(--docs-header-h));
   max-width: var(--max);
@@ -1388,10 +1489,12 @@ textarea:focus {
 }
 
 @media (max-width: 1279px) {
+  body.docs-page {
+    --docs-columns:
+      minmax(0, 1fr) var(--sidebar-w) minmax(0, var(--content-w)) minmax(0, 1fr);
+  }
+
   .doc-layout {
-    grid-template-columns:
-      minmax(0, 1fr) var(--sidebar-w) minmax(0, var(--content-w))
-      minmax(0, 1fr);
     grid-template-areas: "edge-l sidebar content edge-r";
   }
   .doc-layout > .toc {
@@ -1399,10 +1502,11 @@ textarea:focus {
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 980px) {
   .doc-layout {
     grid-template-columns: 1fr;
     grid-template-areas: "content";
+    padding-inline: var(--ui-gutter);
   }
   .doc-layout > .sidebar {
     display: none;
@@ -1460,7 +1564,7 @@ textarea:focus {
 /* Hover: subtle surface lift only, no pink. Pink is reserved for active. */
 .sidebar a:hover {
   color: var(--text);
-  background: rgba(255, 255, 255, 0.04);
+  background: color-mix(in srgb, var(--text) 4%, transparent);
 }
 
 /* Active page: brand pink wash + pink text.
@@ -1509,9 +1613,13 @@ textarea:focus {
   border-radius: 0;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 980px) {
   .article {
-    padding: 24px 16px 24px;
+    padding: 24px 0;
+  }
+
+  .article .article-meta-row {
+    margin-bottom: 28px;
   }
 }
 
@@ -1556,7 +1664,7 @@ textarea:focus {
 .article p {
   color: var(--text);
   margin: 0 0 16px;
-  max-width: none;
+  max-width: 72ch;
 }
 
 /* Prose lists only. Scoped to direct children of .article so the rule does not
@@ -1567,7 +1675,7 @@ textarea:focus {
   color: var(--text);
   padding-left: 24px;
   margin: 0 0 16px;
-  max-width: none;
+  max-width: 72ch;
 }
 
 .article > ul > li,
@@ -1589,12 +1697,13 @@ textarea:focus {
    16px body size and reads visually larger than 13px expressive-code blocks.
    Per audit J.5 + Top-12 fix 8. */
 .article :not(pre) > code {
+  overflow-wrap: anywhere;
   font-family: var(--font-code);
   font-size: 0.9em;
   font-weight: var(--fw-medium);
   padding: 0.15em 0.4em;
   border-radius: 6px;
-  background: rgba(255, 255, 255, 0.06);
+  background: color-mix(in srgb, var(--text) 6%, transparent);
   color: var(--code-text);
 }
 
@@ -1753,17 +1862,17 @@ textarea:focus {
 }
 .article-title-badge[data-variant="beta"] {
   color: var(--info);
-  background: rgba(147, 197, 253, 0.12);
-  border: 1px solid rgba(147, 197, 253, 0.32);
+  background: color-mix(in srgb, var(--info) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--info) 32%, transparent);
 }
 .article-title-badge[data-variant="new"] {
   color: var(--success);
-  background: rgba(134, 239, 172, 0.12);
-  border: 1px solid rgba(134, 239, 172, 0.32);
+  background: color-mix(in srgb, var(--success) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--success) 32%, transparent);
 }
 .article-title-badge[data-variant="deprecated"] {
   color: var(--text-soft);
-  background: rgba(255, 255, 255, 0.04);
+  background: color-mix(in srgb, var(--text) 4%, transparent);
   border: 1px solid var(--border);
 }
 :root[data-theme="light"] .article-title-badge[data-variant="deprecated"] {
@@ -1820,7 +1929,7 @@ textarea:focus {
 }
 .page-action:hover {
   color: var(--text);
-  background: rgba(255, 255, 255, 0.04);
+  background: color-mix(in srgb, var(--text) 4%, transparent);
   border-color: var(--border-strong);
 }
 :root[data-theme="light"] .page-action:hover {
@@ -1853,7 +1962,7 @@ textarea:focus {
 }
 .page-action-menu[open] > summary {
   color: var(--text);
-  background: rgba(255, 255, 255, 0.04);
+  background: color-mix(in srgb, var(--text) 4%, transparent);
   border-color: var(--border-strong);
 }
 :root[data-theme="light"] .page-action-menu[open] > summary {
@@ -1886,7 +1995,7 @@ textarea:focus {
   transition: background-color 160ms ease;
 }
 .page-action-menu-item:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: color-mix(in srgb, var(--text) 5%, transparent);
 }
 :root[data-theme="light"] .page-action-menu-item:hover {
   background: rgba(15, 15, 18, 0.06);
@@ -2013,7 +2122,7 @@ td {
 }
 
 th {
-  background: rgba(255, 255, 255, 0.04);
+  background: color-mix(in srgb, var(--text) 4%, transparent);
   color: var(--text);
   font-weight: var(--fw-semibold);
 }
@@ -2104,7 +2213,7 @@ tr:last-child td {
 .scale-bar {
   height: 12px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
+  background: color-mix(in srgb, var(--text) 6%, transparent);
   overflow: hidden;
   border: 1px solid var(--border);
 }
@@ -2269,14 +2378,14 @@ html.docs-menu-open {
 }
 .icon-link:hover {
   color: var(--text);
-  background: rgba(255, 255, 255, 0.04);
+  background: color-mix(in srgb, var(--text) 4%, transparent);
 }
 .icon-link svg {
   width: 18px;
   height: 18px;
 }
 
-/* Light-mode icon-link hover wash. The dark rgba(255,255,255,.04) would be
+/* Light-mode icon-link hover wash. The dark color-mix(in srgb, var(--text) 4%, transparent) would be
    invisible on white, so use a neutral graphite tint. */
 :root[data-theme="light"] .icon-link:hover {
   background: rgba(15, 15, 18, 0.06);
@@ -2495,7 +2604,7 @@ html.docs-menu-open {
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--text-muted);
-  background: rgba(255, 255, 255, 0.02);
+  background: color-mix(in srgb, var(--text) 2%, transparent);
   border-bottom: 1px solid var(--border);
   transition:
     border-color 200ms ease-out,
@@ -2506,7 +2615,7 @@ html.docs-menu-open {
 .doc-pager a:hover {
   color: var(--text);
   border-color: var(--border-strong);
-  background: rgba(255, 255, 255, 0.04);
+  background: color-mix(in srgb, var(--text) 4%, transparent);
 }
 
 .doc-pager a > span:first-child {
@@ -2723,8 +2832,8 @@ html.docs-menu-open {
     padding: 10px 16px;
   }
   .icon-link {
-    width: 44px;
-    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
   }
 
   /* Marketing header collapses links + dropdowns into the mobile drawer
@@ -2964,7 +3073,7 @@ html.marketing-menu-open {
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--text-muted);
-  background: rgba(255, 255, 255, 0.02);
+  background: color-mix(in srgb, var(--text) 2%, transparent);
   text-decoration: none;
   transition:
     border-color 200ms ease-out,
@@ -3107,7 +3216,7 @@ html.marketing-menu-open {
   padding: 0 18px;
   border-radius: 999px;
   border: 1px solid var(--border-strong);
-  background: rgba(255, 255, 255, 0.04);
+  background: color-mix(in srgb, var(--text) 4%, transparent);
   color: var(--text);
   font-size: 14px;
   font-weight: var(--fw-medium);
@@ -3125,7 +3234,7 @@ html.marketing-menu-open {
    Generic hover for secondary/ghost/danger. Primary keeps its own rule below.
    Uses color/border only (no transform) so layout never shifts. */
 .btn:hover {
-  background: rgba(255, 255, 255, 0.07);
+  background: color-mix(in srgb, var(--text) 7%, transparent);
   border-color: var(--border-strong);
   color: var(--text);
 }
@@ -3144,7 +3253,7 @@ html.marketing-menu-open {
 /* NEW
    Pressed-state feedback. Color shift only, no scale (avoids content jump). */
 .btn:active:not(:disabled):not([aria-disabled="true"]) {
-  background: rgba(255, 255, 255, 0.09);
+  background: color-mix(in srgb, var(--text) 9%, transparent);
 }
 
 /* REPLACES: components.css L387-394
@@ -3158,9 +3267,9 @@ html.marketing-menu-open {
   box-shadow: 0 14px 38px rgba(219, 72, 111, 0.26);
 }
 .btn-primary:hover {
-  background: var(--primary-light);
-  border-color: var(--primary-light);
-  color: var(--on-primary);
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+  color: var(--on-primary-hover);
   box-shadow: 0 14px 38px rgba(219, 72, 111, 0.34);
 }
 .btn-primary:active:not(:disabled):not([aria-disabled="true"]) {
@@ -3179,14 +3288,14 @@ html.marketing-menu-open {
 /* APPEND-TO: .btn-ghost  (components.css L400-402)
    Ghost needs a visible hover or it looks dead. */
 .btn-ghost:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: color-mix(in srgb, var(--text) 5%, transparent);
 }
 
 /* APPEND-TO: .btn-danger  (components.css L404-408) */
 .btn-danger:hover {
-  background: rgba(255, 107, 107, 0.16);
-  border-color: rgba(255, 107, 107, 0.42);
-  color: #ffd4d4;
+  background: color-mix(in srgb, var(--error) 16%, transparent);
+  border-color: color-mix(in srgb, var(--error) 42%, transparent);
+  color: var(--error);
 }
 
 /* REPLACES: components.css L1120
@@ -3228,7 +3337,7 @@ html.marketing-menu-open {
   color: #0f0f12;
 }
 .btn-danger.btn-loading::after {
-  color: #ffb4b4;
+  color: var(--error);
 }
 
 @keyframes btn-spin {
@@ -3444,7 +3553,7 @@ html.marketing-menu-open {
   border: 1px solid var(--border);
   border-radius: 18px;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.03);
+  background: color-mix(in srgb, var(--text) 3%, transparent);
 }
 .aside .aside-symbol {
   grid-area: icon;
@@ -3466,23 +3575,23 @@ html.marketing-menu-open {
    4px. Body text (--text-muted, 8.4:1 on --bg) keeps >= 4.5:1 contrast on the
    new tinted surfaces (luminance shift under 6%). */
 .aside-info {
-  background: rgba(147, 197, 253, 0.075);
-  border-color: rgba(147, 197, 253, 0.28);
+  background: color-mix(in srgb, var(--info) 7.5%, transparent);
+  border-color: color-mix(in srgb, var(--info) 28%, transparent);
   border-left: 4px solid var(--info);
 }
 .aside-success {
-  background: rgba(134, 239, 172, 0.075);
-  border-color: rgba(134, 239, 172, 0.28);
+  background: color-mix(in srgb, var(--success) 7.5%, transparent);
+  border-color: color-mix(in srgb, var(--success) 28%, transparent);
   border-left: 4px solid var(--success);
 }
 .aside-warning {
-  background: rgba(251, 146, 60, 0.085);
-  border-color: rgba(251, 146, 60, 0.32);
+  background: color-mix(in srgb, var(--warning) 8.5%, transparent);
+  border-color: color-mix(in srgb, var(--warning) 32%, transparent);
   border-left: 4px solid var(--warning);
 }
 .aside-error {
-  background: rgba(255, 107, 107, 0.085);
-  border-color: rgba(255, 107, 107, 0.34);
+  background: color-mix(in srgb, var(--error) 8.5%, transparent);
+  border-color: color-mix(in srgb, var(--error) 34%, transparent);
   border-left: 4px solid var(--error);
 }
 
@@ -3543,7 +3652,7 @@ html.marketing-menu-open {
   padding: 4px;
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.03);
+  background: color-mix(in srgb, var(--text) 3%, transparent);
   gap: 3px;
   max-width: 100%;
 }
@@ -3572,7 +3681,7 @@ html.marketing-menu-open {
    the inactive label is interactive. */
 .tab:hover:not(.active) {
   color: var(--text);
-  background: rgba(255, 255, 255, 0.04);
+  background: color-mix(in srgb, var(--text) 4%, transparent);
 }
 
 /* NEW: visible keyboard focus ring on the tab itself.
@@ -3609,7 +3718,7 @@ html.marketing-menu-open {
   padding: 16px;
   border: 1px solid var(--border);
   border-radius: var(--radius-md, 20px);
-  background: rgba(255, 255, 255, 0.03);
+  background: color-mix(in srgb, var(--text) 3%, transparent);
   overflow-x: auto;
 }
 
@@ -3679,9 +3788,10 @@ html.marketing-menu-open {
  * ============================================================ */
 
 /* NEW */
-:root {
+:root,
+:root[data-theme="dark"] {
   /* Type */
-  --docsearch-primary-color: var(--primary, #db486f);
+  --docsearch-primary-color: var(--primary-light, #ef9dab);
   --docsearch-text-color: var(--text, #f4f4f5);
   --docsearch-muted-color: var(--text-muted, #a1a1aa);
 
@@ -3696,22 +3806,22 @@ html.marketing-menu-open {
   --docsearch-hit-shadow: none;
   --docsearch-footer-background: var(--bg-subtle, #131318);
   --docsearch-footer-shadow: inset 0 1px 0 0
-    var(--border, rgba(255, 255, 255, 0.09));
+    var(--border, color-mix(in srgb, var(--text) 9%, transparent));
 
   /* Key hints (cmd/ctrl/k chips) */
   --docsearch-key-gradient: linear-gradient(180deg, #2a2a33 0%, #1c1c22 100%);
   --docsearch-key-shadow:
     inset 0 -2px 0 0 rgba(0, 0, 0, 0.4),
-    inset 0 0 1px 1px rgba(255, 255, 255, 0.06), 0 1px 2px rgba(0, 0, 0, 0.3);
+    inset 0 0 1px 1px color-mix(in srgb, var(--text) 6%, transparent), 0 1px 2px rgba(0, 0, 0, 0.3);
   --docsearch-key-pressed-shadow:
     inset 0 -1px 0 0 rgba(0, 0, 0, 0.5),
-    inset 0 0 1px 1px rgba(255, 255, 255, 0.04), 0 1px 1px rgba(0, 0, 0, 0.3);
+    inset 0 0 1px 1px color-mix(in srgb, var(--text) 4%, transparent), 0 1px 1px rgba(0, 0, 0, 0.3);
 
   /* Modal sizing + radius */
   --docsearch-modal-shadow: var(--shadow, 0 24px 90px rgba(0, 0, 0, 0.45));
   --docsearch-spacing: 12px;
   --docsearch-icon-stroke-width: 1.6;
-  --docsearch-highlight-color: var(--primary, #db486f);
+  --docsearch-highlight-color: var(--primary-light, #ef9dab);
   --docsearch-logo-color: var(--text-muted, #a1a1aa);
 }
 
@@ -3725,8 +3835,10 @@ html.marketing-menu-open {
 
 /* NEW */
 .suites-docsearch .DocSearch-Button {
+  width: 100%;
+  margin: 0;
   background: var(--bg-subtle, #131318);
-  border: 1px solid var(--border, rgba(255, 255, 255, 0.09));
+  border: 1px solid var(--border, color-mix(in srgb, var(--text) 9%, transparent));
   color: var(--text-muted, #a1a1aa);
   border-radius: var(--radius-sm, 14px);
   padding: 0 10px;
@@ -3747,9 +3859,9 @@ html.marketing-menu-open {
 
 /* NEW */
 .suites-docsearch .DocSearch-Button:focus-visible {
-  outline: 2px solid var(--primary, #db486f);
+  outline: 2px solid var(--primary-light, #ef9dab);
   outline-offset: 2px;
-  border-color: var(--primary, #db486f);
+  border-color: var(--primary-light, #ef9dab);
 }
 
 /* NEW */
@@ -3799,7 +3911,7 @@ html.marketing-menu-open {
 
 .DocSearch-Modal {
   background: var(--surface, #17171c);
-  border: 1px solid var(--border, rgba(255, 255, 255, 0.09));
+  border: 1px solid var(--border, color-mix(in srgb, var(--text) 9%, transparent));
   border-radius: var(--radius-md, 20px);
   box-shadow: var(--shadow, 0 24px 90px rgba(0, 0, 0, 0.45));
   font-family: var(--font-body);
@@ -3809,7 +3921,7 @@ html.marketing-menu-open {
 /* Search bar sits flush at the top, separated from hits by a hairline. */
 .DocSearch-SearchBar {
   padding: 0;
-  border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.09));
+  border-bottom: 1px solid var(--border, color-mix(in srgb, var(--text) 9%, transparent));
 }
 
 /* Form is borderless so the searchbar reads as a single field, not a card. */
@@ -3853,13 +3965,13 @@ html.marketing-menu-open {
 
 /* NEW */
 .DocSearch-Cancel {
-  color: var(--primary, #db486f);
+  color: var(--primary-light, #ef9dab);
   font-weight: var(--fw-medium);
 }
 
 /* NEW: keyboard focus on the close button */
 .DocSearch-Cancel:focus-visible {
-  outline: 2px solid var(--primary, #db486f);
+  outline: 2px solid var(--primary-light, #ef9dab);
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -3922,7 +4034,7 @@ html.marketing-menu-open {
 .DocSearch-Hit[aria-selected="true"] .DocSearch-Hit-path,
 .DocSearch-Hit a:hover .DocSearch-Hit-path {
   color: var(--primary-light, #ef9dab);
-  opacity: 0.7;
+  opacity: 1;
 }
 
 /* Highlighted matched substring inside a hit title. */
@@ -3935,7 +4047,7 @@ html.marketing-menu-open {
 
 .DocSearch-Hit[aria-selected="true"] mark,
 .DocSearch-Hit a:hover mark {
-  color: var(--primary, #db486f);
+  color: var(--primary-light, #ef9dab);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
@@ -3947,13 +4059,13 @@ html.marketing-menu-open {
 
 .DocSearch-Hit[aria-selected="true"] .DocSearch-Hit-icon,
 .DocSearch-Hit a:hover .DocSearch-Hit-icon {
-  color: var(--primary, #db486f);
+  color: var(--primary-light, #ef9dab);
 }
 
 /* Action icon (right side, the return-arrow on the active hit). */
 .DocSearch-Hit[aria-selected="true"] .DocSearch-Hit-action,
 .DocSearch-Hit a:hover .DocSearch-Hit-action {
-  color: var(--primary, #db486f);
+  color: var(--primary-light, #ef9dab);
 }
 
 /* ============================================================
@@ -4010,7 +4122,7 @@ html.marketing-menu-open {
 /* NEW */
 .DocSearch-Logo a {
   color: var(--text-soft, #8b8b94);
-  opacity: 0.7;
+  opacity: 1;
   transition: opacity 180ms ease;
 }
 
@@ -4050,7 +4162,7 @@ html.marketing-menu-open {
   right: 0;
   min-width: 180px;
   background: var(--surface, #17171c);
-  border: 1px solid var(--border, rgba(255, 255, 255, 0.09));
+  border: 1px solid var(--border, color-mix(in srgb, var(--text) 9%, transparent));
   border-radius: var(--radius-sm, 14px);
   box-shadow: var(--shadow, 0 24px 90px rgba(0, 0, 0, 0.45));
   padding: 4px;
@@ -4128,7 +4240,7 @@ html.marketing-menu-open {
 /* NEW: focused/hover icon picks up brand pink */
 .ask-ai-menu-item:hover > svg,
 .ask-ai-menu-item:focus-visible > svg {
-  color: var(--primary, #db486f);
+  color: var(--primary-light, #ef9dab);
 }
 
 /* NEW: keep touch targets >= 44px on coarse pointers */
@@ -4160,8 +4272,26 @@ html.marketing-menu-open {
  *   --ring-primary:    0 0 0 3px rgba(219, 72, 111, 0.18);
  *   --kbd-bg:          linear-gradient(180deg, #2a2a33 0%, #1c1c22 100%);
  *   --kbd-shadow:      inset 0 -2px 0 0 rgba(0,0,0,.4),
- *                      inset 0 0 1px 1px rgba(255,255,255,.06),
+ *                      inset 0 0 1px 1px color-mix(in srgb, var(--text) 6%, transparent),
  *                      0 1px 2px rgba(0,0,0,.3);
  *
  * No changes were made to tokens.css per scope constraints.
  */
+
+/* Control boundaries must stay distinguishable from pale light surfaces. */
+:root[data-theme="light"] :is(.suites-docsearch .DocSearch-Button, .page-action, .btn:not(.btn-primary), .input, .select) {
+  border-color: var(--control-border);
+}
+
+:root[data-theme="light"] .tab.active {
+  color: var(--primary-light);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+:root[data-theme="light"] .DocSearch-Form:focus-within {
+  box-shadow: inset 0 0 0 2px var(--primary);
+}
+
+:root[data-theme="light"] .DocSearch-Input:focus {
+  box-shadow: none;
+}

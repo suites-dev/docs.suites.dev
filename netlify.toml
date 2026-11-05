@@ -304,3 +304,9 @@ status = 301
 from = "/docs/category/api-reference"
 to = "/docs/api-reference/"
 status = 301
+
+# The guide now uses its reader-facing title as the canonical URL.
+[[redirects]]
+from = "/docs/guides/virtual-test-container"
+to = "/docs/guides/how-suites-works/"
+status = 301

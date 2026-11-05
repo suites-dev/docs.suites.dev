@@ -44,6 +44,7 @@
 }
 
 :root {
+  color-scheme: dark;
   /* Typography */
   --font-title:
     "Geist", "Inter", ui-sans-serif, system-ui, -apple-system,
@@ -98,6 +99,7 @@
   /* Structure */
   --border: rgba(255, 255, 255, 0.09);
   --border-strong: rgba(255, 255, 255, 0.16);
+  --control-border: var(--border-strong);
 
   /* Text */
   --text: #f4f4f5;
@@ -116,6 +118,8 @@
   --primary-light: var(--brand-soft);
   --primary-dark: #a43653;
   --on-primary: #0f0f12;
+  --primary-hover: var(--brand-mid);
+  --on-primary-hover: var(--on-primary);
   --primary-soft: rgba(219, 72, 111, 0.12);
   --primary-border: rgba(219, 72, 111, 0.32);
 
@@ -164,7 +168,7 @@
   --max: 1600px; /* outer container max-width */
   --header-h: 56px; /* main topbar bar, matches prisma h-14 */
   --docs-header-h: 64px; /* docs navigation with product switcher and search */
-  --docs-article-header-h: 52px; /* compact reading-state docs navigation */
+  --docs-article-header-h: var(--docs-header-h); /* shared docs navigation height */
   --header-tabs-h: 40px; /* optional secondary nav row, matches prisma h-10 */
   --sidebar-w: 268px; /* matches prisma --fd-sidebar-width */
   --content-w: 1016px; /* article box = 952 readable text + 32 side padding x2 */
@@ -265,57 +269,71 @@
  * z-index are theme-agnostic and inherited from :root above.
  */
 :root[data-theme="light"] {
+  color-scheme: light;
   /* Base surfaces */
   --bg: #ffffff;
-  --bg-subtle: #f7f7f8;
+  --bg-subtle: #f5f5f7;
   --surface: #ffffff;
-  --surface-raised: #f4f4f5;
-  --surface-hover: #eeeef0;
+  --surface-raised: #eaeaee;
+  --surface-hover: #e4e4e9;
 
   /* Structure */
-  --border: rgba(15, 15, 18, 0.1);
-  --border-strong: rgba(15, 15, 18, 0.18);
+  --border: #c6c6ce;
+  --border-strong: #9a9aa5;
+  --control-border: #767681;
 
   /* Text */
   --text: #18181b; /* zinc-900 */
-  --text-muted: #52525b; /* zinc-600 */
-  --text-soft: #71717a; /* zinc-500 */
+  --text-muted: #41414b;
+  --text-soft: #4e4e59;
 
   /* The exact brand colors stay unchanged. Text and interactive roles use
      the darker extended step so small pink text remains legible on white. */
-  --primary-light: var(--pink-600);
-  --primary-soft: rgba(219, 72, 111, 0.1);
-  --primary-border: rgba(219, 72, 111, 0.36);
+  --primary: #982f4b;
+  --on-primary: #ffffff;
+  --primary-light: var(--pink-800);
+  --primary-hover: var(--pink-800);
+  --on-primary-hover: #ffffff;
+  --primary-soft: #f8e8ed;
+  --primary-border: #b46379;
 
   /* Code */
-  --code-bg: #f4f4f5;
+  --code-bg: #f1f1f4;
   --code-text: #18181b;
+
+  /* Semantic foregrounds stay readable on light code and callout surfaces. */
+  --info: #1e40af;
+  --success: #14532d;
+  --warning: #7c2d12;
+  --error: #991b1b;
 
   /* Shadow is lighter on white. */
   --shadow: 0 16px 60px rgba(15, 15, 18, 0.12);
 
   /* A dark pink ring stays visible against white and pale panels. */
-  --ui-background: oklch(98.5% 0.003 285);
-  --ui-foreground: oklch(21.5% 0.006 285);
-  --ui-card: oklch(100% 0 0);
-  --ui-secondary: oklch(95.5% 0.004 285);
-  --ui-muted-foreground: oklch(50.5% 0.008 285);
-  --ui-primary: var(--brand-deep);
+  --ui-background: var(--bg);
+  --ui-foreground: var(--text);
+  --ui-card: var(--surface);
+  --ui-secondary: var(--surface-raised);
+  --ui-muted-foreground: var(--text-muted);
+  --ui-primary: var(--primary);
   --ui-brand-mid: var(--brand-mid);
   --ui-brand-soft: var(--brand-soft);
-  --ui-brand-interactive: var(--pink-600);
-  --ui-border: oklch(20% 0.01 285 / 0.12);
-  --ui-code-bg: oklch(96.8% 0.004 285);
-  --ui-code-comment: oklch(52% 0.08 160);
-  --ui-code-keyword: var(--pink-600);
-  --ui-code-string: oklch(55% 0.11 90);
-  --ui-code-function: oklch(52% 0.12 240);
+  --ui-brand-interactive: var(--primary-light);
+  --ui-border: var(--border);
+  --ui-code-bg: var(--code-bg);
+  --ui-code-comment: var(--text-soft);
+  --ui-code-keyword: var(--primary-light);
+  --ui-code-string: var(--success);
+  --ui-code-function: var(--info);
   --ui-focus-ring: var(--ui-primary);
   --ui-grid-line: oklch(20% 0.01 285 / 0.06);
   --ui-shadow-panel: 0 24px 70px -34px oklch(20% 0.02 285 / 0.22);
 
   /* DocSearch theme adjustments (the modal is portaled, so we re-set its
      vars at the same data-theme scope). */
+  --docsearch-primary-color: var(--primary-light);
+  --docsearch-highlight-color: var(--primary-light);
   --docsearch-text-color: var(--text);
   --docsearch-muted-color: var(--text-muted);
   --docsearch-container-background: rgba(15, 15, 18, 0.32);
@@ -324,7 +342,7 @@
   --docsearch-searchbox-focus-background: var(--bg);
   --docsearch-hit-background: transparent;
   --docsearch-hit-color: var(--text);
-  --docsearch-hit-active-color: var(--primary);
+  --docsearch-hit-active-color: var(--primary-light);
   --docsearch-footer-background: var(--bg-subtle);
   --docsearch-footer-shadow: inset 0 1px 0 0 var(--border);
   --docsearch-key-gradient: linear-gradient(180deg, #fafafb 0%, #efeff1 100%);

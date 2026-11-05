@@ -1,15 +1,13 @@
 ---
 sidebar_position: 7
-title: Virtual Test Container Concept
+title: How Suites works
 description: How Suites creates lightweight test environments following inversion of control and dependency injection
 ---
 
-# Virtual Test Container
+# How Suites works
 
 > **What this covers:** How Suites creates lightweight test environments without full framework initialization \
-> **Time to read:** ~10 minutes \
-> **Prerequisites:** [Unit Testing Fundamentals](/docs/guides/fundamentals/) \
-> **Best for:** Understanding how Suites achieves speed and type safety under the hood
+> **Time to read:** ~10 minutes
 
 The Virtual Test Container is the engine that drives Suites' testing capabilities. It analyzes classes to understand
 their dependencies, then builds minimal test environments tailored specifically for the class under test. This approach eliminates two time-consuming tasks: waiting for a full framework to initialize and manually setting up mocks for every test.
@@ -76,8 +74,10 @@ When writing a test for this service, Suites analyzes the class structure:
 
 ```typescript title='user.service.spec.ts'
 import { type Mocked, TestBed } from '@suites/unit';
-import { describe } from 'node:test';
+import { beforeAll, describe, expect, it } from '@jest/globals';
+import { UserService, UserApi, Database } from './services';
 
+let userService: UserService;
 let userApi: Mocked<UserApi>;
 let database: Mocked<Database>;
 
@@ -90,15 +90,16 @@ describe('User Service Unit Spec', () => {
     // - Mocked UserApi (automatically generated)
     // - Mocked Database (automatically generated)
 
+    userService = unit;
     userApi = unitRef.get(UserApi);
     database = unitRef.get(Database);
   });
 
-  describe('it should save a random user from the api in the database', async () => {
+  it('saves a random user from the api in the database', async () => {
     const dummyUser = { id: 1, name: 'John' };
     userApi.getRandomUser.mockResolvedValue(dummyUser);
 
-    await unit.generateRandomUser();
+    await userService.generateRandomUser();
     expect(database.saveUser).toHaveBeenCalledWith(dummyUser);
   });
 })
@@ -136,7 +137,7 @@ class PaymentService {
 }
 ```
 
-Notice the difference. The `validator` dependency is a regular class injection. In solitary mode, Suites mocks it. In sociable mode, it runs as a real instance. But the token-injected dependencies (`STRIPE_API` and `APP_CONFIG`) are always mocked, regardless of test mode.
+Notice the difference. The `validator` dependency is a regular class injection. In solitary mode, Suites mocks it. In sociable mode, it runs as a real instance only when you select it with `.expose(PaymentValidator)`. But the token-injected dependencies (`STRIPE_API` and `APP_CONFIG`) are always mocked, regardless of test mode.
 
 ### Understanding Different Token Types
 
@@ -150,7 +151,7 @@ Tokens come in different flavors, and each requires slightly different handling.
 // Configure behavior: stripe.createCharge.mockResolvedValue(...)
 ```
 
-**Interface/Type/Primitive tokens** need explicit values because TypeScript interfaces and types don't exist at runtime. Suites can't automatically generate a mock from something that disappears after compilation.
+**Interface tokens** can use proxy mocks too: retrieve them with a generic type, such as `unitRef.get<StripeApi>('STRIPE_API')`. TypeScript types do not exist at runtime, but the doubles adapter creates stub methods on access. For configuration values or primitives, provide explicit values with `.final()`.
 
 Provide values for these tokens using `.final()`:
 
@@ -161,7 +162,10 @@ export interface DatabaseConfig {
 ```
 
 ```typescript
-public contructor(@Inject('DB_CONFIG') private config: DatabaseConfig) {}
+@Injectable()
+class UserService {
+  constructor(@Inject('DB_CONFIG') private config: DatabaseConfig) {}
+}
 
 // In test - provide value using .final():
 await TestBed.solitary(UserService)
@@ -183,7 +187,7 @@ Tokens typically represent external boundaries - the points where the applicatio
 - **File systems**: File read/write operations
 - **Configuration objects**: Environment-specific settings
 
-By automatically mocking these boundaries, Suites ensures that even sociable tests (which use multiple real classes) remain true unit tests. Tests never accidentally hit real databases or make actual API calls.
+Keep external boundaries mocked in sociable tests. Exposed classes and directly imported functions run real code, so choose them carefully if they perform I/O.
 
 Consider this sociable test example:
 
@@ -200,7 +204,7 @@ await TestBed.sociable(OrderService)
 
 In this test, `OrderService`, `PriceCalculator`, and `TaxCalculator` are all real instances. They interact with each other naturally. But any token-injected database connection stays mocked. Business logic runs authentically while keeping tests fast and isolated from external systems.
 
-This separation happens automatically. The Virtual Test Container uses token injection as a signal that something is an I/O boundary.
+Suites resolves injected dependencies from metadata; it does not detect I/O. Use `.expose()` only for the collaborators whose real behavior you want to test.
 
 ## Next Steps
 

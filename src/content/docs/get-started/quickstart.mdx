@@ -1,39 +1,21 @@
 ---
 sidebar_position: 4
-title: "Suites Quick Start: Write Your First Unit Test in 5 Minutes"
-description: "Write your first Suites unit test in 5 minutes. Walkthrough for NestJS and Inversify with Jest or Vitest."
+title: "Quickstart: Your First Suites Test"
+description: "Run complete solitary and sociable tests with NestJS and Jest or Vitest. Includes application code, commands, and expected results."
 keywords: [suites quickstart, nestjs unit test example, inversify unit test, first nestjs test, vitest nestjs example, typescript unit test tutorial]
 ---
 
-import Aside from '@/components/mdx/Aside.astro';
-import Tabs from '@/components/mdx/Tabs.astro';
-import TabItem from '@/components/mdx/TabItem.astro';
-
-# Quick Start Guide
-
-Write the first Suites test in 5 minutes. No manual mocks, no dependency injection configuration, no boilerplate.
-
-**What this guide covers:**
-  * Solitary tests with automatic mocking
-  * Sociable tests with real dependencies
-  * Zero-config testing
-
-<Aside type="info">
-Complete source code for this example (and more) is available in the [Suites Examples repository](https://github.com/suites-dev/examples).
-</Aside>
+Write a **solitary test**, where every dependency is mocked, then a **sociable test**, where a selected dependency runs its real implementation.
 
 ## Prerequisites
 
-Before starting, ensure the [Installation guide](/docs/get-started/installation/) has been completed to set up the project with Suites.
+Complete [Installation](/docs/get-started/installation/) with the NestJS adapter and either Jest or Vitest. This walkthrough uses the runner configuration and `suites.d.ts` from that page. Vitest examples assume `globals: true` as shown there.
 
-- Basic knowledge of TypeScript and unit testing
-- Familiarity with dependency injection patterns
-- Familiarity with unit testing basic concepts
+The same TestBed API works with Inversify and InjectionJS. For framework-specific code, see the [Inversify examples](https://github.com/suites-dev/suites-unit-examples) or follow the [InjectionJS guide](/docs/guides/injectionjs/) for a complete constructor-injection test.
 
 ## Step 1: Creating the Application Code
 
-This guide creates example `UserService` and `UserRepository` classes to test. NestJS decorators are used here, but
-**Suites works with any DI framework** (InversifyJS, etc.) or even plain TypeScript classes with constructor injection:
+Create these three files under `src/`. The repository returns in-memory data, so the example does not need a database.
 
 ```typescript title='src/types.ts'
 export interface User {
@@ -47,12 +29,12 @@ export interface User {
 
 ```typescript title='src/user.repository.ts'
 import { Injectable } from '@nestjs/common';
-import { User } from './types';
+import type { User } from './types';
 
 @Injectable()
 export class UserRepository {
   async getUserById(id: number): Promise<User> {
-    // In a real app, this would fetch from a database
+    // This example returns in-memory data; it performs no I/O.
     return { id, name: 'John Doe', email: 'john@example.com' };
   }
 }
@@ -63,7 +45,6 @@ export class UserRepository {
 ```typescript title='src/user.service.ts'
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from './user.repository';
-import { User } from './types';
 
 @Injectable()
 export class UserService {
@@ -81,6 +62,7 @@ export class UserService {
 This example writes a test for a `UserService` that depends on a `UserRepository`:
 
 ```typescript title="src/user.service.spec.ts"
+import 'reflect-metadata';
 import { type Mocked, TestBed } from '@suites/unit';
 import { UserService } from './user.service';
 import { UserRepository } from './user.repository';
@@ -89,7 +71,7 @@ describe('User Service Unit Spec', () => {
   let userService: UserService;
   let userRepository: Mocked<UserRepository>;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     const { unit, unitRef } = await TestBed.solitary(UserService).compile();
 
     userService = unit;
@@ -113,21 +95,22 @@ describe('User Service Unit Spec', () => {
 
 ### Running the Test
 
-Run tests with:
+Run with the runner configured during installation:
 
 ```bash
-npm test
+pnpm exec jest
+# OR
+pnpm exec vitest run
 ```
 
-You should see output like:
+With these files, expect **one passing test**. Jest output looks like this; Vitest formats the result differently:
 
 ```
  PASS  src/user.service.spec.ts
   User Service Unit Spec
-    ✓ should return the user name and call repository (5ms)
+    ✓ should return the user name and call repository
 
 Tests:  1 passed, 1 total
-Time:   0.5s
 ```
 
 ### What Just Happened?
@@ -139,143 +122,41 @@ When `TestBed.solitary(UserService).compile()` is called, Suites automatically:
 3. **Injected** the mock into `UserService` without manual wiring
 4. **Provided** type-safe access to both the service (`unit`) and its mocks (`unitRef`)
 
-**What was not required:** Manually creating mocks, configuring dependency injection, or writing test setup boilerplate.
+## Step 3: Keep a Dependency Real
 
-<Aside type="tip" title="Key Terminology">
+Reuse the same `UserService` and `UserRepository`. In this example, the repository returns in-memory data, so it is safe to execute without a database.
 
-- **Solitary Test**: A test where all dependencies are automatically mocked (complete isolation)
-- **Mock**: A fake object with stubbed methods (e.g., `Mocked<UserRepository>`)
-- **Stub**: A fake method that returns predefined values (e.g., `mockResolvedValue(...)`)
-</Aside>
+Add a second test file:
 
-## Step 3: Testing with Real Dependencies (Sociable Mode)
-
-Test how components work together using real implementations with **sociable tests**:
-
-```typescript title='src/notification.service.spec.ts'
+```typescript title="src/user.service.sociable.spec.ts"
+import 'reflect-metadata';
 import { TestBed } from '@suites/unit';
-import { NotificationService } from './notification.service';
-import { TemplateService } from './template.service';
-import { EmailClient } from './email.client';
+import { UserService } from './user.service';
+import { UserRepository } from './user.repository';
 
-describe('Notification Service Sociable Spec', () => {
-  it('should use real TemplateService but mock EmailClient', async () => {
-    const { unit, unitRef } = await TestBed.sociable(NotificationService)
-      .expose(TemplateService) // Use real TemplateService
+describe('User Service Sociable Spec', () => {
+  it('returns the name from the real repository', async () => {
+    const { unit } = await TestBed.sociable(UserService)
+      .expose(UserRepository)
       .compile();
 
-    const emailClient = unitRef.get(EmailClient);
-    emailClient.send.mockResolvedValue({ success: true });
-
-    await unit.sendWelcomeEmail('user@example.com');
-
-    // TemplateService.format() runs with REAL logic
-    // EmailClient.send() is mocked
-    expect(emailClient.send).toHaveBeenCalledWith(
-      expect.objectContaining({
-        to: 'user@example.com',
-        subject: 'Welcome!',
-      })
-    );
+    await expect(unit.getUserName(1)).resolves.toBe('John Doe');
   });
 });
 ```
 
-<Aside type="tip">
-Sociable tests verify that components integrate correctly while keeping tests fast by mocking external boundaries (databases, HTTP clients, etc.).
+Run the same test command again. Expect **two passing tests in two files**. The solitary test uses the configured mock; the sociable test calls the repository's real `getUserById()` implementation.
 
-Learn more in the [Sociable Unit Testing guide](/docs/guides/sociable/).
-</Aside>
+Use `.expose()` only for classes whose real behavior you want to exercise. In a repository that accesses a database, keep the database client mocked. Suites does not intercept direct imports or prevent I/O inside exposed code.
 
-## How It Works: No Modules, No Bootstrapping
+## How TestBed Creates the Test
 
-This guide uses NestJS's `@Injectable()` decorators but never creates a NestJS module or calls `Test.createTestingModule()`. This is by design, **and NestJS is just one example**. Suites works the same way with InversifyJS, TSyringe, or any TypeScript class with constructor injection.
+The NestJS adapter reads the class's dependency metadata. TestBed creates mocks for its dependencies, substitutes the real classes selected with `.expose()`, and constructs the unit. It does not bootstrap a NestJS module or application.
 
-### The Traditional Testing Problem
+**Optional reading:** [How Suites works](/docs/guides/how-suites-works/)
 
-Traditional testing approaches require extensive boilerplate and manual setup:
+## Next Steps
 
-<Tabs>
-<TabItem value="manual" label="Manual" default>
-
-```typescript
-// Manual: Define mock classes for every dependency
-class MockUserRepository {
-  findById = jest.fn();
-  save = jest.fn();
-  delete = jest.fn();
-  // ... more methods
-}
-
-class MockEmailService {
-  send = jest.fn();
-  validate = jest.fn();
-  // ... more methods
-}
-
-const mockRepo = new MockUserRepository();
-const mockEmail = new MockEmailService();
-const userService = new UserService(mockRepo, mockEmail);
-// No DI benefits, pure manual wiring
-```
-
-</TabItem>
-<TabItem value="nestjs" label="NestJS">
-
-```typescript
-// NestJS: Complex module setup
-const module = await Test.createTestingModule({
-  imports: [DatabaseModule, ConfigModule, LoggerModule],
-  providers: [
-    UserService,
-    { provide: UserRepository, useValue: mockRepo },
-    { provide: EmailService, useValue: mockEmail },
-    // ... wire every dependency
-  ]
-}).compile();
-// Wait 2-5 seconds for module initialization...
-```
-
-</TabItem>
-<TabItem value="inversify" label="InversifyJS">
-
-```typescript
-// InversifyJS: Container configuration
-const container = new Container();
-container.bind(TYPES.UserRepository).toConstantValue(mockRepo);
-container.bind(TYPES.EmailService).toConstantValue(mockEmail);
-container.bind(TYPES.UserService).toSelf();
-// Manual container setup for every test
-```
-
-</TabItem>
-</Tabs>
-
-### The Suites Solution: Virtual Test Container
-
-Suites bypasses framework initialization entirely:
-
-```typescript
-// Suites: Direct to testing, no ceremony
-const { unit, unitRef } = await TestBed.solitary(UserService).compile();
-// Ready in 50-100ms
-```
-
-**How it works:**
-1. **Metadata extraction** - Reads TypeScript decorator metadata directly
-2. **Selective mocking** - Creates only the dependencies your class needs
-3. **Direct instantiation** - Constructs your class with mocks injected
-4. **Zero overhead** - No modules, no framework, no waiting
-
-**The result:** Tests run 20-100x faster while remaining type-safe and maintainable.
-
-**Deep dive:** [Virtual Test Container Guide](/docs/guides/virtual-test-container/)
-
-## What's Next?
-
-- [Unit Testing Fundamentals](/docs/guides/fundamentals/) - Learn about the core principles of unit testing
-- [Test Doubles](/docs/guides/test-doubles/) - Understand how to work with mocks, stubs, and other test doubles
-- [Solitary Unit Testing](/docs/guides/solitary/) - Dive deeper into testing components in complete isolation
-- [Sociable Unit Testing](/docs/guides/sociable/) - Explore testing with real implementations of select dependencies
-
-Need help? Join the [Suites community on GitHub Discussions](https://github.com/suites-dev/suites/discussions) or report issues on our [GitHub repository](https://github.com/suites-dev/suites).
+- **[Solitary Unit Tests](/docs/guides/solitary/)**: Configure mocks and test a class in isolation.
+- **[Sociable Unit Tests](/docs/guides/sociable/)**: Select real collaborators while keeping external dependencies mocked.
+- **[Test Doubles](/docs/guides/test-doubles/)**: Understand mocks, stubs, spies, and fakes.

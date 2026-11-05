@@ -12,8 +12,13 @@ const flat = sidebar[product].flatMap((group) => group.items);
 
 const idx = flat.findIndex((item) => item.href.replace(/\/$/, '') === currentHref);
 
-const prev = idx > 0 ? flat[idx - 1] : null;
-const next = idx >= 0 && idx < flat.length - 1 ? flat[idx + 1] : null;
+const current = flat[idx];
+const prev = current?.previous
+  ? flat.find((item) => item.href === current.previous)
+  : idx > 0 ? flat[idx - 1] : null;
+const next = current?.next
+  ? flat.find((item) => item.href === current.next)
+  : idx >= 0 && idx < flat.length - 1 ? flat[idx + 1] : null;
 ---
 {(prev || next) && (
   <nav class="doc-pager" aria-label="Previous and next page">

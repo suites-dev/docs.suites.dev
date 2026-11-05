@@ -29,7 +29,7 @@ Returns a `SolitaryTestBedBuilder<TClass>` instance with methods for configuring
 
 `TestBed.solitary()` creates a test environment where all of the class's dependencies are mocked by default. This is ideal for testing the internal logic of a class in complete isolation.
 
-Suites automatically identifies and mocks all constructor dependencies, which can then be accessed via `unitRef.get()`. Learn more in the [Virtual Test Container](/docs/guides/virtual-test-container/) guide.
+Suites automatically identifies and mocks all constructor dependencies, which can then be accessed via `unitRef.get()`. Learn more in the [How Suites works](/docs/guides/how-suites-works/) guide.
 
 ## Configuring Mocks
 
@@ -60,11 +60,13 @@ class PaymentService {
   ) {}
 }
 
-const { unitRef } = await TestBed.solitary(PaymentService).compile();
+const { unitRef } = await TestBed.solitary(PaymentService)
+  .mock<string>('API_KEY')
+  .final('test-api-key')
+  .compile();
 
-// Retrieve mocks by token
+// Retrieve configurable mocks by token. Final values are not retrievable.
 const database = unitRef.get<Connection>('CONNECTION');
-const apiKey = unitRef.get<string>('API_KEY');
 ```
 
 ### Type Safety
@@ -86,4 +88,4 @@ repository.invalidMethod.mockReturnValue(123);
 - [Solitary Tests Guide](/docs/guides/solitary/) - Conceptual guide
 - [TestBed.sociable()](/docs/api-reference/testbed-sociable/) - Test with real dependencies
 - [UnitReference](/docs/api-reference/unit-reference/) - Accessing mocked dependencies with `unitRef.get()`
-- [Virtual Test Container](/docs/guides/virtual-test-container/) - How Suites auto-mocks dependencies
+- [How Suites works](/docs/guides/how-suites-works/) - How Suites auto-mocks dependencies

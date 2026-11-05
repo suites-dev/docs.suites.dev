@@ -15,8 +15,8 @@ import Topbar from '@/components/ui/Topbar.astro';
 import ThemeToggle from '@/components/site/ThemeToggle.astro';
 
 const marketingNavLinks = [
-  { label: 'Docs', href: '/docs/' },
-  { label: 'Unit', href: '/docs/get-started/' },
+  { label: 'Documentation', href: '/docs/get-started/' },
+  { label: 'Quick start', href: '/docs/get-started/quickstart/' },
   {
     label: 'Examples',
     href: 'https://github.com/suites-dev/examples',
@@ -28,20 +28,15 @@ const marketingMobileResources = [
   marketingNavLinks[2],
   {
     label: 'GitHub',
-    href: 'https://github.com/suites-dev',
+    href: 'https://github.com/suites-dev/suites',
     external: true,
   },
 ];
 ---
 <Topbar variant="marketing" context="homepage">
-  <a href="/" class="brand brand-symbol marketing-brand" aria-label="Suites home">
-    <img
-      class="brand-logo"
-      src="/img/branding/Suites_LogoMark_FullColor.svg"
-      width="18"
-      height="22"
-      alt=""
-    />
+  <a href="/" class="brand marketing-brand marketing-logomark" aria-label="Suites home">
+    <img class="marketing-logo theme-logo-dark" src="/img/branding/Suites_LogoMark_White.svg" width="36" height="40" alt="" />
+    <img class="marketing-logo theme-logo-light" src="/img/branding/Suites_LogoMark_Black.svg" width="36" height="40" alt="" />
   </a>
 
   <div class="marketing-navlinks">
@@ -59,11 +54,11 @@ const marketingMobileResources = [
   <div class="nav-cluster">
     <ThemeToggle />
     <a
-      href="https://github.com/suites-dev"
+      href="https://github.com/suites-dev/suites"
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Suites on GitHub (opens in a new tab)"
-      class="icon-link"
+      class="icon-link marketing-github"
     >
       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
         <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2Z" />
@@ -71,28 +66,27 @@ const marketingMobileResources = [
     </a>
 
     <details class="marketing-mobile-menu" data-marketing-mobile-menu>
-      <summary class="icon-link marketing-mobile-toggle" aria-label="Open navigation menu" data-marketing-mobile-toggle>
+      <summary class="icon-link marketing-mobile-toggle" aria-controls="marketing-navigation" aria-label="Open navigation menu" data-marketing-mobile-toggle>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
           <path d="M4 7h16" />
           <path d="M4 12h16" />
           <path d="M4 17h16" />
         </svg>
+        <span>Menu</span>
       </summary>
-      <div class="marketing-mobile-panel">
+      <div class="marketing-mobile-panel" id="marketing-navigation">
         <div class="marketing-mobile-section">
           <p class="marketing-mobile-label">Explore Suites</p>
-          {marketingNavLinks.slice(0, 3).map((link) => (
+          {marketingNavLinks.filter((link) => !link.external).map((link) => (
             <a
               class="marketing-mobile-link"
               href={link.href}
             >
               <span>{link.label}</span>
               <small>
-                {link.label === 'Docs'
-                  ? 'Choose a documentation path.'
-                  : link.label === 'Unit'
-                    ? 'Test classes with controlled dependencies.'
-                    : 'Alpha · Verify running-system behavior.'}
+                {link.label === 'Documentation'
+                  ? 'Get started with Suites.'
+                  : 'Write your first test with Suites.'}
               </small>
             </a>
           ))}

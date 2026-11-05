@@ -30,6 +30,7 @@ interface Heading {
 
 interface Props {
   title: string;
+  titleInContent?: boolean;
   metaTitle?: string;
   description?: string;
   headings?: Heading[];
@@ -50,6 +51,7 @@ interface Props {
 
 const {
   title,
+  titleInContent = false,
   metaTitle,
   description,
   headings = [],
@@ -93,14 +95,19 @@ const showToc = !hideToc && headings.length > 0;
             <PageActions rawBody={rawBody} slug={slug} />
           </div>
 
-          <h1 class="article-title">
+          {!titleInContent && <h1 class="article-title">
             <span>{title}</span>
             {badge && (
               <span class="article-title-badge" data-variant={badge} aria-label={`${badge} status`}>
                 {badge}
               </span>
             )}
-          </h1>
+          </h1>}
+          {titleInContent && badge && (
+            <span class="article-title-badge" data-variant={badge} aria-label={`${badge} status`}>
+              {badge}
+            </span>
+          )}
 
           {/* Description stays in BaseLayout for <title>, og:description, and
               twitter:description. We do NOT render it as a visible lede here

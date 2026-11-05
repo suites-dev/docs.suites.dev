@@ -2,57 +2,53 @@
 import Topbar from '@/components/ui/Topbar.astro';
 import DocSearch from '@/components/islands/DocSearch';
 import ThemeToggle from '@/components/site/ThemeToggle.astro';
+import Sidebar from '@/components/docs/Sidebar.astro';
 import { headerNavLinks } from '@/config/headerNav';
-import { productFromPath } from '@/config/sidebar';
 
 const pathname = Astro.url.pathname;
 const isDocsLanding = pathname === '/docs' || pathname === '/docs/';
-const activeProduct = isDocsLanding ? undefined : productFromPath(pathname);
 const productLinks = headerNavLinks.filter((link) => link.product !== undefined);
 const resourceLinks = headerNavLinks.filter((link) => link.product === undefined);
 const desktopResourceLinks = resourceLinks.filter((link) => link.label !== 'GitHub');
 const docsHeaderContext = isDocsLanding ? 'docs-landing' : 'docs-article';
 ---
 <Topbar variant="docs" context={docsHeaderContext}>
-  <a href="/" class="brand brand-symbol marketing-brand docs-brand" aria-label="Suites home">
-    <img
-      class="brand-logo"
-      src="/img/branding/Suites_LogoMark_FullColor.svg"
-      width="18"
-      height="22"
-      alt=""
-    />
-  </a>
+  <div class="docs-brand-group">
+    <a href="/" class="brand brand-symbol marketing-brand docs-brand" aria-label="Suites home">
+      <img class="brand-logo theme-logo-dark" src="/img/branding/Suites_LogoMark_White.svg" width="18" height="22" alt="" />
+      <img class="brand-logo theme-logo-light" src="/img/branding/Suites_LogoMark_Black.svg" width="18" height="22" alt="" />
+    </a>
 
-  <a
-    href="/docs/"
-    class:list={['docs-home-link', { active: isDocsLanding }]}
-    aria-current={isDocsLanding ? 'page' : undefined}
-  >
-    Docs
-  </a>
-
-  <div class="nav-search">
-    <DocSearch client:only="react" />
+    <a
+      href="/docs/"
+      class:list={['docs-home-link', { active: isDocsLanding }]}
+      aria-current={isDocsLanding ? 'page' : undefined}
+    >
+      Docs
+    </a>
   </div>
 
-  {isDocsLanding && (
-    <div class="docs-header-utilities">
-      {desktopResourceLinks.map((link) => (
-        <a
-          class="docs-resource-link"
-          href={link.href}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <span>{link.label}</span>
-          <span aria-hidden="true">↗</span>
-        </a>
-      ))}
-    </div>
-  )}
+  <div class="nav-search">
+    <DocSearch client:load />
+  </div>
 
   <div class="nav-cluster">
+    {isDocsLanding && (
+      <div class="docs-header-utilities">
+        {desktopResourceLinks.map((link) => (
+          <a
+            class="docs-resource-link"
+            href={link.href}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span>{link.label}</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+        ))}
+      </div>
+    )}
+
     <ThemeToggle />
     <a
       href="https://github.com/suites-dev/suites"
@@ -90,7 +86,7 @@ const docsHeaderContext = isDocsLanding ? 'docs-landing' : 'docs-article';
             </small>
           </a>
           {productLinks.map((link) => {
-            const isActive = link.product !== undefined && link.product === activeProduct;
+            const isActive = pathname.replace(/\/$/, '') === link.href.replace(/\/$/, '');
             return (
               <a
                 class="marketing-mobile-link"
@@ -102,6 +98,10 @@ const docsHeaderContext = isDocsLanding ? 'docs-landing' : 'docs-article';
               </a>
             );
           })}
+        </div>
+
+        <div class="docs-mobile-tree marketing-mobile-section">
+          <Sidebar />
         </div>
 
         <div class="marketing-mobile-section">
@@ -124,6 +124,36 @@ const docsHeaderContext = isDocsLanding ? 'docs-landing' : 'docs-article';
     </details>
   </div>
 </Topbar>
+
+<style>
+  .docs-mobile-tree :global(.sidebar-group-label) {
+    min-height: 44px;
+    font-size: 0.9375rem;
+  }
+
+  .docs-mobile-tree :global(a) {
+    display: flex;
+    min-height: 44px;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  .docs-mobile-tree :global(a:hover) {
+    color: var(--text);
+    background: var(--surface-hover);
+  }
+
+  .docs-mobile-tree :global(a[aria-current='page']) {
+    color: var(--primary-light);
+    background: var(--primary-soft);
+    font-weight: var(--fw-semibold);
+  }
+</style>
 
 <script>
   const mobileMenu = document.querySelector<HTMLDetailsElement>('[data-docs-mobile-menu]');

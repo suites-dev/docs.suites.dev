@@ -10,7 +10,7 @@ Standalone utility functions for creating type-safe mocks. Works with any TypeSc
 
 <Aside type="info" title="Mock and Stub Functions Are Adapter-Specific">
 These functions are provided by your installed doubles adapter: `@suites/doubles.jest` (Jest), `@suites/doubles.vitest`
-(Vitest) and `@suites/doubles.sinon` (Sinon).
+(Vitest). Import these runtime helpers directly from the adapter; `@suites/unit` does not export them in v4.
 </Aside>
 
 ## When to Use
@@ -28,8 +28,7 @@ mock references**. `TestBed` automates this but currently requires dependency in
 
 ## mock()
 
-Creates a fully mocked instance with auto-generated stub methods. This standalone function creates mocks manually,
-outside of `TestBed`.
+Creates a fully mocked instance with auto-generated stub methods, outside of `TestBed`. Examples on this page use Jest. For Vitest, change the helper imports to `@suites/doubles.vitest`. Standalone helpers need no DI adapter; the [type reference setup](/docs/get-started/installation/#type-reference-configuration) is needed when importing augmented types from `@suites/unit`.
 
 ### Signature
 
@@ -53,10 +52,10 @@ See [Types](/docs/api-reference/types/#mockedt) for more about the `Mocked<T>` t
 
 ### How It Works
 
-`mock()` returns a Proxy that intercepts property access. When you access a method for the first time, it automatically creates a stub function (`jest.fn()`, `vi.fn()`, or `sinon.stub()` depending on your adapter).
+`mock()` returns a Proxy that intercepts property access. When you access a method for the first time, it automatically creates a stub function (`jest.fn()` or `vi.fn()` depending on your adapter).
 
 ```typescript
-import { mock } from '@suites/unit';
+import { mock } from '@suites/doubles.jest';
 
 const userRepo = mock<UserRepository>();
 
@@ -71,7 +70,7 @@ userRepo.database.connect.mockResolvedValue(true);
 ### Basic Usage
 
 ```typescript
-import { mock } from '@suites/unit';
+import { mock } from '@suites/doubles.jest';
 
 interface PaymentGateway {
   charge(amount: number): Promise<{ status: string }>;
@@ -187,19 +186,13 @@ function stub<TArgs extends any[] = any[]>(): jest.Mock<any, TArgs>
 
 #### Vitest
 ```typescript
-function stub<TArgs extends any[] = any[]>(): Mock<any, TArgs>
-```
-
-#### Sinon
-```typescript
-function stub<TArgs extends any[] = any[]>(): SinonStub
+const stub: typeof import('@vitest/spy').fn
 ```
 
 <Aside type="info" title="Alias for Native Stub">
 `stub()` is an alias for your test framework's native stub function:
 - **Jest**: `jest.fn()`
 - **Vitest**: `vi.fn()`
-- **Sinon**: `sinon.stub()`
 
 Use it for consistent API across frameworks.
 </Aside>
@@ -211,7 +204,7 @@ A mock function from your testing framework.
 ### Basic Usage
 
 ```typescript
-import { stub } from "@suites/unit";
+import { stub } from "@suites/doubles.jest";
 
 // Create standalone stub
 const mockFn = stub();
@@ -225,21 +218,14 @@ expect(mockFn).toHaveBeenCalled();
 ### Callback Mocking
 
 ```typescript
-interface EventEmitter {
-  on(event: string, callback: (data: any) => void): void;
-  emit(event: string, data: any): void;
-}
-
-const emitter = mock<EventEmitter>();
 const callbackStub = stub();
 
-// Register callback
-emitter.on("data", callbackStub);
+// This function represents code that accepts a callback.
+function deliver(data: unknown, callback: (data: unknown) => void) {
+  callback(data);
+}
 
-// Simulate event (in real code)
-emitter.emit("data", { value: 123 });
-
-// Verify callback was invoked
+deliver({ value: 123 }, callbackStub);
 expect(callbackStub).toHaveBeenCalledWith({ value: 123 });
 ```
 
@@ -260,7 +246,7 @@ class PriceCalculator {
 const taxRateStub = stub().mockReturnValue(0.1);  // 10% tax
 const calculator = new PriceCalculator(taxRateStub);
 
-expect(calculator.calculate(100)).toBe(110);
+expect(calculator.calculate(100)).toBeCloseTo(110);
 expect(taxRateStub).toHaveBeenCalled();
 ```
 

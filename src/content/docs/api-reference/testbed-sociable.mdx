@@ -17,7 +17,7 @@ not actual I/O.  See the [Sociable Unit Tests Guide](/docs/guides/sociable/) for
 ## Signature
 
 ```typescript
-TestBed.sociable<T>(targetClass: Type<T>): SociableTestBuilder<T>
+TestBed.sociable<T>(targetClass: Type<T>): SociableTestBedBuilder<T>
 ```
 
 ## Parameters
@@ -28,7 +28,7 @@ TestBed.sociable<T>(targetClass: Type<T>): SociableTestBuilder<T>
 
 ## Returns
 
-`SociableTestBuilder<T>` with the following configuration method:
+`SociableTestBedBuilder<T>` with the following configuration method:
 
 - **`.expose()`** - List classes to keep real. Everything else is mocked.
 - **`.mock(dependency)`** - Configure specific mock behavior before compilation
@@ -37,7 +37,7 @@ TestBed.sociable<T>(targetClass: Type<T>): SociableTestBuilder<T>
 ### The `.expose()` Method
 
 ```typescript
-expose<D>(dependency: Type<D>): SociableTestBuilder<T>
+expose<D>(dependency: Type<D>): SociableTestBedBuilder<T>
 ```
 
 * `.expose()` only accepts class constructors, not tokens. Tokens represent abstractions (interfaces, types) following

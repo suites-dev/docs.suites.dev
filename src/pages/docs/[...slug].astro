@@ -17,13 +17,15 @@ const slug = entry.slug;
 const data = entry.data;
 
 /* Resolve title and description, allowing meta_* overrides for SEO. */
-const title       = data.title;
+const bodyTitle = headings[0]?.depth === 1 ? headings[0] : undefined;
+const title       = bodyTitle?.text ?? data.title;
 const metaTitle   = data.meta_title       ?? data.title;
 const description = data.meta_description ?? data.description;
 const canonicalUrl = new URL(`/docs/${slug}/`, Astro.site ?? Astro.url.origin).toString();
 ---
 <DocLayout
   title={title}
+  titleInContent={bodyTitle !== undefined}
   metaTitle={metaTitle}
   description={description}
   headings={headings}

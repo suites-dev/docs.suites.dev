@@ -8,7 +8,8 @@ interface MermaidDiagramProps {
   caption?: string;
 }
 
-let mermaidInitialized = false;
+// Mermaid has global configuration. Keep initialization and rendering together.
+let renderQueue: Promise<void> = Promise.resolve();
 
 function prefersReducedMotion(): boolean {
   if (typeof window === 'undefined' || !window.matchMedia) return false;
@@ -22,18 +23,16 @@ export default function MermaidDiagram({ chart, alt, caption }: MermaidDiagramPr
 
   useEffect(() => {
     let cancelled = false;
+    let revision = 0;
 
-    const render = async () => {
-      try {
-        const mermaid = (await import('mermaid')).default;
-
-        if (!mermaidInitialized) {
-          // Dark palette tuned to suites.dev tokens (graphite bg #0F0F12,
-          // brand pink #DB486F, muted #A1A1AA). All foreground colors verified
-          // >= 4.5:1 against the diagram surface.
-          // Reduced-motion users get the linear curve variant so edges don't
-          // animate into Bezier shapes. Other rendering settings are identical.
-          const reduceMotion = prefersReducedMotion();
+    const render = () => {
+      const currentRevision = ++revision;
+      renderQueue = renderQueue.then(async () => {
+        if (cancelled || currentRevision !== revision) return;
+        try {
+          const mermaid = (await import('mermaid')).default;
+          const styles = getComputedStyle(document.documentElement);
+          const color = (name: string) => styles.getPropertyValue(name).trim();
           mermaid.initialize({
             startOnLoad: false,
             theme: 'base',
@@ -43,48 +42,53 @@ export default function MermaidDiagram({ chart, alt, caption }: MermaidDiagramPr
             flowchart: {
               useMaxWidth: true,
               htmlLabels: true,
-              curve: reduceMotion ? 'linear' : 'basis',
+              curve: prefersReducedMotion() ? 'linear' : 'basis',
             },
             sequence: { useMaxWidth: true },
             themeVariables: {
-              background: '#0F0F12',
-              primaryColor: '#1A1A20',
-              primaryTextColor: '#F4F4F5',
-              primaryBorderColor: '#DB486F',
-              secondaryColor: '#131318',
-              tertiaryColor: '#0F0F12',
-              lineColor: '#A1A1AA',
-              textColor: '#F4F4F5',
-              mainBkg: '#1A1A20',
-              nodeBorder: '#DB486F',
-              clusterBkg: '#131318',
-              clusterBorder: 'rgba(255,255,255,0.16)',
-              edgeLabelBackground: '#0F0F12',
-              noteBkgColor: '#131318',
-              noteTextColor: '#F4F4F5',
-              noteBorderColor: 'rgba(255,255,255,0.16)',
+              darkMode: document.documentElement.dataset.theme !== 'light',
+              background: color('--bg'),
+              primaryColor: color('--surface-raised'),
+              primaryTextColor: color('--text'),
+              primaryBorderColor: color('--primary-light'),
+              secondaryColor: color('--bg-subtle'),
+              tertiaryColor: color('--surface'),
+              lineColor: color('--text-muted'),
+              textColor: color('--text'),
+              mainBkg: color('--surface-raised'),
+              nodeBorder: color('--primary-light'),
+              clusterBkg: color('--bg-subtle'),
+              clusterBorder: color('--text-soft'),
+              edgeLabelBackground: color('--bg'),
+              noteBkgColor: color('--bg-subtle'),
+              noteTextColor: color('--text'),
+              noteBorderColor: color('--text-soft'),
             },
           });
-          mermaidInitialized = true;
+          const id = `mermaid-${Math.random().toString(36).slice(2)}`;
+          const { svg: rendered } = await mermaid.render(id, chart);
+          if (!cancelled && currentRevision === revision) {
+            setError('');
+            setSvg(rendered);
+          }
+        } catch (err) {
+          if (!cancelled && currentRevision === revision) {
+            setError(err instanceof Error ? err.message : String(err));
+          }
         }
-
-        const id = `mermaid-${Math.random().toString(36).slice(2)}`;
-        const { svg: rendered } = await mermaid.render(id, chart);
-
-        if (!cancelled) {
-          setSvg(rendered);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(err instanceof Error ? err.message : String(err));
-        }
-      }
+      });
     };
 
+    const observer = new MutationObserver(render);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
     render();
 
     return () => {
       cancelled = true;
+      observer.disconnect();
     };
   }, [chart]);
 

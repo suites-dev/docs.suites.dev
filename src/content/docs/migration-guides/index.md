@@ -11,7 +11,5 @@ Guides for migrating to Suites from other testing frameworks or upgrading betwee
 ### [From Automock](/docs/migration-guides/from-automock/)
 Migrate from Automock to Suites with step-by-step instructions and API mapping.
 
-## Future Guides
-
-- **v3 to v4 Migration** - Coming soon
-- **From Manual Mocking** - Coming soon
+### [From Suites 3 to 4](/docs/migration-guides/from-v3/)
+Upgrade runtime and adapter dependencies, use the codemod for explicit type references and helper imports, and migrate away from the retired Sinon adapter.

@@ -13,7 +13,7 @@ import MermaidDiagram from '@/components/mdx/MermaidDiagram';
 
 > **What this covers:** Testing real component (class) interactions while controlling external dependencies \
 > **Time to read:** ~15 minutes \
-> **Prerequisites:** [Unit Testing Fundamentals](/docs/guides/fundamentals/), [Solitary Unit Tests](./solitary), [Test Doubles](./test-doubles) \
+> **Prerequisites:** [Unit Testing Fundamentals](/docs/guides/fundamentals/), [Solitary Unit Tests](/docs/guides/solitary/), [Test Doubles](/docs/guides/test-doubles/) \
 > **Best for:** Verifying components (classes) work together correctly, catching integration bugs while maintaining test speed
 
 Sociable unit tests verify how components interact with their real dependencies while keeping external I/O operations under control. This approach identifies bugs in how business logic components work together - bugs that solitary tests miss.
@@ -296,11 +296,11 @@ Use this flowchart to decide how to handle each dependency:
 
 <MermaidDiagram chart={`
 flowchart LR
-    A[Dependency] --> B{External I/O?}
-    B -->|Yes| C[@Inject TOKEN<br/>Auto-mocked]
-    B -->|No| D{Business logic<br/>to test?}
-    D -->|Yes| E[.expose Class<br/>Uses real code]
-    D -->|No| F[Leave mocked<br/>default behavior]
+    A["Dependency"] --> B{"External I/O?"}
+    B -->|Yes| C["@Inject TOKEN<br/>Auto-mocked"]
+    B -->|No| D{"Business logic<br/>to test?"}
+    D -->|Yes| E[".expose Class<br/>Uses real code"]
+    D -->|No| F["Leave mocked<br/>default behavior"]
 `} client:visible />
 
 **Rules:**
@@ -327,5 +327,5 @@ Sociable tests work alongside solitary tests to provide comprehensive coverage:
 
 After understanding sociable testing, explore these resources:
 
-- **[Test Doubles](./test-doubles)**: Core concepts of mocking and stubbing
-- **[Suites Examples Repository](https://github.com/suites-dev/examples)**: Working examples of sociable testing patterns
+- **[Test Doubles](/docs/guides/test-doubles/)**: Core concepts of mocking and stubbing
+- **[Suites Examples Repository](https://github.com/suites-dev/suites-unit-examples)**: Working examples of sociable testing patterns

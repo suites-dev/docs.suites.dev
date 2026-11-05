@@ -7,18 +7,20 @@ description: Configure mock behavior with .final() and .impl()
 import Aside from '@/components/mdx/Aside.astro';
 
 Suites provides two methods for configuring mock behavior:
-* `.mock().final()` for immutable configurations
+* `.mock().final()` for supplied values and implementations
 * `.mock().impl()` for flexible implementations
 
 <Aside type="note">
 This page describes the `.mock()` configuration method for `TestBed`. For creating standalone mocks manually, see the [`mock()` and `stub()` utility functions](/docs/api-reference/mock/).
 </Aside>
 
+`InjectableIdentifier<D>` from `@suites/types.di` includes classes, strings, symbols, and adapter-registered tokens such as InjectionJS's `InjectionToken<D>`. The signatures below summarize the overloads; load your [adapter declarations](/docs/api-reference/types/) to enable its token types.
+
 ## Methods
 
 ### `.mock().final()`
 
-Creates an immutable mock configuration. Once set, the mock cannot be retrieved or modified. Use `.final()` for:
+Injects your supplied value without turning it into a configurable mock. It cannot be retrieved through `unitRef`; this does not freeze the JavaScript object. Use `.final()` for:
 - Fixed behavior that won't change across tests
 - Configuration objects and primitives (non-class tokens)
 - Values that don't need runtime control or verification
@@ -26,7 +28,7 @@ Creates an immutable mock configuration. Once set, the mock cannot be retrieved 
 #### Signature
 
 ```typescript
-mock<D>(dependency: Type<D> | string | symbol)
+mock<D>(dependency: InjectableIdentifier<D>)
   .final(implementation: DeepPartial<D>): TestBuilder
 ```
 
@@ -34,7 +36,7 @@ mock<D>(dependency: Type<D> | string | symbol)
 
 | Parameter      | Type                          | Description                        |
 |----------------|-------------------------------|------------------------------------|
-| dependency     | `Type<D> \| string \| symbol` | The dependency to mock             |
+| dependency     | `InjectableIdentifier<D>` | The dependency to mock             |
 | implementation | `DeepPartial<D>`              | Object with method implementations |
 
 #### Example
@@ -66,12 +68,12 @@ const { unit } = await TestBed.solitary(PaymentService)
 
 ### `.mock().impl()`
 
-Creates a flexible mock configuration using the underlying mock library (Jest, Vitest, etc.). The `stubFn` callback corresponds to the installed doubles adapter: `jest.fn()` for Jest, `vi.fn()` for Vitest, or `sinon.stub()` for Sinon.
+Creates a flexible mock configuration using the installed doubles adapter. The `stubFn` callback creates a Jest or Vitest mock function.
 
 #### Signature
 
 ```typescript
-mock<D>(dependency: Type<D> | string | symbol)
+mock<D>(dependency: InjectableIdentifier<D>)
   .impl(factory: (stubFn: () => MockFunction) => DeepPartial<D>): TestBuilder
 ```
 
@@ -79,7 +81,7 @@ mock<D>(dependency: Type<D> | string | symbol)
 
 | Parameter  | Type                          | Description                                                 |
 |------------|-------------------------------|-------------------------------------------------------------|
-| dependency | `Type<D> \| string \| symbol` | The dependency to mock                                      |
+| dependency | `InjectableIdentifier<D>` | The dependency to mock                                      |
 | factory    | `(stubFn) => DeepPartial<D>`  | Factory function receiving the mock library's stub function |
 
 #### Example
@@ -97,6 +99,29 @@ const { unit, unitRef } = await TestBed.solitary(UserService)
 const userApi = unitRef.get(UserApi);
 userApi.getRandom.mockResolvedValue({ id: 2, name: "Jane" });
 ```
+
+## InjectionJS tokens
+
+With `@suites/di.injectionjs/metadata` referenced, use the same `InjectionToken` instance as your constructor. This example uses the service and token from the [InjectionJS guide](/docs/guides/injectionjs/):
+
+```typescript
+import { TestBed } from '@suites/unit';
+import { USER_REPOSITORY, UserService } from './user.service';
+import type { UserRepository } from './user.service';
+
+const { unit, unitRef } = await TestBed.solitary(UserService)
+  .mock<UserRepository>(USER_REPOSITORY)
+  .impl(stub => ({ findName: stub().mockResolvedValue('Alice') }))
+  .compile();
+
+const repository = unitRef.get<UserRepository>(USER_REPOSITORY);
+```
+
+You can also use `.final(...)` to supply a value. Omit the metadata argument for InjectionJS. Token descriptions are labels, not identifiers: separate token instances stay distinct even when their descriptions match.
+
+## Inversify metadata
+
+With `@suites/di.inversify/metadata` referenced, pass named or tagged metadata as the second argument: `.mock(Repository, { named: 'primary' })`. Retrieve it using the same metadata in `unitRef.get()`. With `@suites/di.nestjs/metadata`, omit this argument; NestJS identifies dependencies by class or token alone.
 
 ## Example
 

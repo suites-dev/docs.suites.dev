@@ -11,9 +11,11 @@ The `UnitReference` object provides access to mocked dependencies within the tes
 
 ```typescript
 interface UnitReference {
-  get<T>(token: Type<T> | string | symbol): Mocked<T>;
+  get<T>(token: InjectableIdentifier<T>, metadata?: IdentifierMetadata): Mocked<T>;
 }
 ```
+
+`InjectableIdentifier<T>` comes from `@suites/types.di` and includes tokens registered by the selected DI adapter. The signatures above and below summarize the public overloads.
 
 ## Method
 
@@ -24,14 +26,15 @@ Retrieves a mocked instance of a dependency.
 #### Signature
 
 ```typescript
-get<T>(token: Type<T> | string | symbol): Mocked<T>
+get<T>(token: InjectableIdentifier<T>, metadata?: IdentifierMetadata): Mocked<T>
 ```
 
 #### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| token | `Type<T> \| string \| symbol` | The class constructor or injection token |
+| token | `InjectableIdentifier<T>` | A class, string, symbol, or adapter-registered token |
+| metadata | `IdentifierMetadata` | Inversify named/tagged metadata; omit for NestJS and InjectionJS |
 
 #### Returns
 
@@ -92,9 +95,9 @@ class DataService {
 const { unitRef } = await TestBed.solitary(DataService).compile();
 
 // Use symbols to retrieve mocks
-const database = unitRef.get(TYPES.Database);
-const logger = unitRef.get(TYPES.Logger);
-const cache = unitRef.get(TYPES.Cache);
+const database = unitRef.get<Database>(TYPES.Database);
+const logger = unitRef.get<Logger>(TYPES.Logger);
+const cache = unitRef.get<Cache>(TYPES.Cache);
 ```
 
 ### String-based Tokens
@@ -103,9 +106,35 @@ const cache = unitRef.get(TYPES.Cache);
 // Some frameworks use string tokens
 const { unitRef } = await TestBed.solitary(ConfigService).compile();
 
-const apiUrl = unitRef.get<string>('API_URL');
+// Retrieve an automatically mocked token dependency.
 const dbConfig = unitRef.get<DatabaseConfig>('DATABASE_CONFIG');
 ```
+
+### InjectionJS tokens
+
+Load `@suites/di.injectionjs/metadata` in your test declarations. Using the service and token from the [InjectionJS guide](/docs/guides/injectionjs/):
+
+```typescript
+import { TestBed } from '@suites/unit';
+import { USER_REPOSITORY, UserService } from './user.service';
+import type { UserRepository } from './user.service';
+
+const { unitRef } = await TestBed.solitary(UserService).compile();
+const repository = unitRef.get<UserRepository>(USER_REPOSITORY);
+repository.findName.mockResolvedValue('Alice');
+```
+
+Pass the original token instance. Creating another `new InjectionToken('UserRepository')` does not identify the same dependency, even when the descriptions match. Omit the metadata argument for InjectionJS.
+
+### Named and tagged dependencies (Inversify)
+
+Load `@suites/di.inversify/metadata` in your declarations, then pass the metadata used by the injection:
+
+```typescript
+const repository = unitRef.get(Repository, { named: 'primary' });
+```
+
+With `@suites/di.nestjs/metadata`, the metadata type is `never`; NestJS calls take only a class or token. See [Types](/docs/api-reference/types/#dependency-identifier-metadata).
 
 ## Important Limitations
 
@@ -129,12 +158,12 @@ const database = unitRef.get(Database);
 
 ### Cannot Retrieve Dependencies with .mock().final()
 
-Dependencies configured with `.mock().final()` are immutable and sealed upon compilation. This is a design choice to ensure that their behavior remains fixed throughout the test. As they are not intended to be modified or inspected after compilation, they cannot be retrieved via `unitRef`. If you need to access or modify a mock during your tests, use `.mock().impl()` instead.
+Dependencies configured with `.mock().final()` are injected as supplied and cannot be retrieved via `unitRef`. Suites does not freeze the supplied object. If you need to retrieve and configure a mock during your tests, use `.mock().impl()` instead.
 
 ```typescript
 const { unitRef } = await TestBed.solitary(UserService)
   .mock(Database)
-  .final({ find: async () => [] }) // Immutable mock
+  .final({ find: async () => [] }) // Supplied implementation
   .compile();
 
 // ❌ This will throw an error because the mock is final
@@ -152,7 +181,7 @@ interface UserRepository {
   delete(id: string): Promise<void>;
 }
 
-const userRepo = unitRef.get(UserRepository);
+const userRepo = unitRef.get<UserRepository>('USER_REPOSITORY'); // Match the injected token
 
 // ✅ TypeScript knows these methods exist
 userRepo.findById.mockResolvedValue(testUser);
@@ -198,7 +227,7 @@ const logger = unitRef.get('LoggerToken'); // ❌ String doesn't match
 // Solution: Use the exact token used in injection
 const logger = unitRef.get(LoggerService); // ✅ Correct class
 // or
-const logger = unitRef.get<Logger>('LoggerToken'); // ✅ Correct symbol
+const logger = unitRef.get<Logger>('LoggerToken'); // ✅ Correct string token
 ```
 
 ## See Also

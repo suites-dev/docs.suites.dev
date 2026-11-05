@@ -66,55 +66,26 @@ const unitSections = [
             isolation or with selected collaborators left real.
           </p>
 
-          <button class="docs-search" type="button" data-docs-landing-search>
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <circle cx="11" cy="11" r="6.5"></circle>
-              <path d="m16 16 4 4"></path>
-            </svg>
-            <span>Search documentation</span>
-            <kbd aria-hidden="true">/</kbd>
-          </button>
+          <div class="docs-hero__actions">
+            <button class="docs-search" type="button" data-docs-landing-search>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="11" cy="11" r="6.5"></circle>
+                <path d="m16 16 4 4"></path>
+              </svg>
+              <span>Search documentation</span>
+              <kbd aria-hidden="true">/</kbd>
+            </button>
 
-        </div>
-      </Container>
-    </section>
-
-    <section class="docs-products" aria-labelledby="docs-products-title">
-      <Container>
-        <h2 id="docs-products-title" class="sr-only">Choose a Suites product</h2>
-        <div class="docs-product-grid">
-          <article class="docs-product-card" id="unit-docs">
-            <div class="docs-product-card__header">
-              <h3>Suites Whitebox</h3>
-              <p>
-                Create <strong>unit tests</strong> with every dependency mocked, or keep selected
-                dependencies real.
-              </p>
-            </div>
-
-            <div class="docs-code" aria-label="Suites Unit example">
-              <div class="docs-code__label">order.service.spec.ts</div>
-              <pre tabindex="0"><code><span class="code-keyword">const</span> &#123; unit, unitRef &#125; =
-  <span class="code-keyword">await</span> TestBed.<span class="code-function">solitary</span>(OrderService).compile();</code></pre>
-            </div>
-
-            <div class="docs-product-card__actions">
-              <a class="docs-primary-link" href="/docs/get-started/quickstart/">
-                Write your first unit test <span aria-hidden="true">→</span>
-              </a>
-              <div class="docs-secondary-links">
-                <a href="/docs/get-started/installation/">Installation</a>
-                <a href="/docs/api-reference/">API reference</a>
-              </div>
-            </div>
-          </article>
-
+            <a class="docs-continue" href="/docs/get-started/">
+              Continue to docs <span aria-hidden="true">→</span>
+            </a>
+          </div>
         </div>
       </Container>
     </section>
 
     <section class="docs-section" aria-labelledby="docs-tasks-title">
-      <Container>
+      <Container class="docs-section__layout">
         <div class="docs-section__heading">
           <p class="docs-eyebrow">Task paths</p>
           <h2 id="docs-tasks-title">Start with your current task.</h2>
@@ -140,7 +111,7 @@ const unitSections = [
     </section>
 
     <section class="docs-section" aria-labelledby="docs-browse-title">
-      <Container>
+      <Container class="docs-section__layout">
         <div class="docs-section__heading">
           <p class="docs-eyebrow">Directory</p>
           <h2 id="docs-browse-title">Browse the documentation.</h2>
@@ -270,14 +241,45 @@ const unitSections = [
     text-wrap: pretty;
   }
 
+  .docs-hero__actions {
+    display: flex;
+    align-items: stretch;
+    flex-wrap: wrap;
+    gap: 16px;
+    max-width: 840px;
+    margin-top: 32px;
+  }
+
+  .docs-continue {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 48px;
+    flex-shrink: 0;
+    padding: 12px 24px;
+    border: 1px solid var(--primary);
+    border-radius: 6px;
+    background: var(--primary);
+    color: var(--on-primary);
+    font-size: 0.9375rem;
+    font-weight: var(--fw-semibold);
+  }
+
+  .docs-continue:hover {
+    background: var(--primary-light);
+    border-color: var(--primary-light);
+  }
+
   .docs-search {
     display: grid;
     grid-template-columns: auto 1fr auto;
-    width: min(100%, 600px);
+    flex: 1 1 320px;
+    min-width: 0;
+    width: 100%;
     min-height: 56px;
     align-items: center;
     gap: 12px;
-    margin-top: 32px;
     padding: 8px 10px 8px 16px;
     color: var(--text-muted);
     background: var(--surface);
@@ -320,154 +322,11 @@ const unitSections = [
     font-size: 0.75rem;
   }
 
-  .docs-secondary-links a {
-    display: inline-flex;
-    min-height: 44px;
-    align-items: center;
-    gap: 8px;
-    color: var(--text-muted);
-    font-size: 0.875rem;
-    font-weight: var(--fw-medium);
-  }
-
-  .docs-secondary-links a:hover {
-    color: var(--text);
-  }
-
-  .docs-products {
-    padding-bottom: clamp(64px, 9vw, 104px);
-  }
-
-  .docs-product-grid,
   .docs-task-grid,
   .docs-directory-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--ui-grid-gap);
-  }
-
-  .docs-product-card {
-    display: flex;
-    min-width: 0;
-    min-height: 100%;
-    flex-direction: column;
-    padding: clamp(24px, 4vw, 36px);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-top-color: var(--primary-border);
-    border-radius: var(--ui-radius-panel);
-  }
-
-  .docs-product-card__header h3 {
-    margin: 0;
-    font-size: clamp(1.75rem, 3vw, 2.25rem);
-    font-weight: var(--fw-bold);
-    letter-spacing: -0.035em;
-    line-height: 1.08;
-  }
-
-  .docs-product-card__header > p:last-child {
-    max-width: 55ch;
-    margin: 18px 0 0;
-    color: var(--text-muted);
-    line-height: 1.65;
-  }
-
-  .docs-product-card__header strong {
-    color: var(--text);
-    font-weight: var(--fw-semibold);
-  }
-
-  .docs-alpha-label {
-    margin-left: 8px;
-    color: var(--text-soft);
-    font-size: 0.625rem;
-    letter-spacing: 0.1em;
-  }
-
-  .docs-code {
-    min-width: 0;
-    margin-top: 28px;
-    overflow: hidden;
-    color: var(--code-text);
-    background: var(--code-bg);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    font-family: var(--font-code);
-  }
-
-  .docs-code__label {
-    padding: 10px 14px;
-    color: var(--text-soft);
-    border-bottom: 1px solid var(--border);
-    font-size: 0.6875rem;
-    letter-spacing: 0.03em;
-  }
-
-  .docs-code pre {
-    margin: 0;
-    padding: 18px 16px;
-    overflow: auto;
-    font: inherit;
-    font-size: 0.75rem;
-    line-height: 1.75;
-    scrollbar-color: var(--border-strong) transparent;
-  }
-
-  .docs-code pre:focus-visible {
-    outline-offset: -3px;
-  }
-
-  .docs-code code {
-    font: inherit;
-  }
-
-  .code-keyword,
-  .code-error {
-    color: var(--primary-light);
-  }
-
-  .code-function {
-    color: var(--info);
-  }
-
-  .code-success {
-    color: var(--success);
-  }
-
-  .docs-product-card__actions {
-    margin-top: auto;
-    padding-top: 28px;
-  }
-
-  .docs-primary-link {
-    display: inline-flex;
-    min-height: 44px;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 10px 16px;
-    color: var(--on-primary);
-    background: var(--primary);
-    border: 1px solid var(--primary);
-    border-radius: 7px;
-    font-size: 0.875rem;
-    font-weight: var(--fw-semibold);
-    transition:
-      background-color 160ms ease,
-      border-color 160ms ease;
-  }
-
-  .docs-primary-link:hover {
-    background: var(--brand-mid);
-    border-color: var(--brand-mid);
-  }
-
-  .docs-secondary-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px 24px;
-    margin-top: 10px;
   }
 
   .docs-section {
@@ -478,6 +337,19 @@ const unitSections = [
   .docs-section__heading {
     max-width: 720px;
     margin-bottom: clamp(32px, 5vw, 48px);
+  }
+
+  @media (min-width: 981px) {
+    .docs-section :global(.docs-section__layout) {
+      display: grid;
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      gap: clamp(40px, 6vw, 80px);
+      align-items: start;
+    }
+
+    .docs-section__heading {
+      margin-bottom: 0;
+    }
   }
 
   .docs-section__heading h2,
@@ -637,15 +509,11 @@ const unitSections = [
   }
 
   @media (max-width: 760px) {
-    .docs-product-grid,
     .docs-task-grid,
     .docs-directory-grid {
       grid-template-columns: 1fr;
     }
 
-    .docs-product-card {
-      border-radius: var(--ui-radius-base);
-    }
   }
 
   @media (max-width: 600px) {
@@ -666,21 +534,15 @@ const unitSections = [
       gap: 40px;
     }
 
-    .docs-product-card,
     .docs-directory-group,
     .docs-help__panel {
       padding: 22px;
     }
 
-    .docs-code pre {
-      font-size: 0.6875rem;
-    }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .docs-search,
-    .docs-primary-link,
-    .docs-secondary-links a,
     .docs-link-group a,
     .docs-directory-group a,
     .docs-help__links a,
