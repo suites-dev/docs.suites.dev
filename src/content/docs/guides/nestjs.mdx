@@ -5,11 +5,17 @@ description: Test NestJS services with Suites, typed dependency mocks, custom in
 meta_title: "NestJS Unit Testing with Jest or Vitest"
 ---
 
-Use `@suites/di.nestjs` to test a NestJS **provider**, a class managed by dependency injection. Suites reads its dependency metadata and constructs the class with mocks without bootstrapping a Nest application.
+import ContainerComparisonDiagram from '@/components/docs/ContainerComparisonDiagram.astro';
 
-This is the NestJS path in [Quick Start](/docs/get-started/quickstart/). Define a service, test it with mocked dependencies, then keep a selected collaborator real. This guide targets Suites 4 with Jest or Vitest; check [Installation](/docs/get-started/installation/#prerequisites) for supported versions.
+Use `@suites/di.nestjs` with Jest or Vitest to test a NestJS **provider**, a class managed by dependency injection.
+
+**Choose your test boundary:** Suites reads injection metadata and constructs your service with controlled dependencies. Use Nest's `Test.createTestingModule()` with the relevant production modules and providers to verify their wiring and resolution. Both approaches can use mocks. [Compare Suites with framework test containers](/docs/guides/how-suites-works/#suites-vs-your-frameworks-test-container).
+
+<ContainerComparisonDiagram framework="nestjs" />
 
 ## 1. Configure the test project
+
+This guide targets Suites 4. Check [Installation](/docs/get-started/installation/#prerequisites) for supported NestJS and runner versions.
 
 Follow [Installation](/docs/get-started/installation/) with `@suites/di.nestjs` and either `@suites/doubles.jest` or `@suites/doubles.vitest`. Include these references in the TypeScript project that runs your tests:
 

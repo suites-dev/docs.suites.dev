@@ -5,13 +5,17 @@ description: Test InjectionJS constructor injection with Suites, Jest or Vitest,
 meta_title: "InjectionJS Unit Testing with Jest or Vitest"
 ---
 
-Use `@suites/di.injectionjs` to test constructor-injected services with Jest or Vitest. Suites reads the constructor's dependencies, supplies mocks, and creates the service without starting a production injector.
+import ContainerComparisonDiagram from '@/components/docs/ContainerComparisonDiagram.astro';
 
-This is the InjectionJS path in [Quick Start](/docs/get-started/quickstart/). Define a service, test it with a mocked dependency, then configure an override.
+Use `@suites/di.injectionjs` with Jest or Vitest to test a service that uses constructor injection.
 
-This guide uses Suites 4.1 or later and InjectionJS `^2.6.1`; CommonJS and ESM are supported. See [Installation](/docs/get-started/installation/#prerequisites) for Node.js and runner requirements.
+**Choose your test boundary:** Suites reads supported constructor metadata and creates your service with controlled dependencies. Use InjectionJS's `ReflectiveInjector` with the relevant production configuration to verify provider factories, multi-providers, or hierarchy lookup. Both approaches can use mocks. [Compare Suites with framework test containers](/docs/guides/how-suites-works/#suites-vs-your-frameworks-test-container).
+
+<ContainerComparisonDiagram framework="injectionjs" />
 
 ## 1. Configure your test project
+
+This guide uses Suites 4.1 or later and InjectionJS `^2.6.1`; CommonJS and ESM are supported. See [Installation](/docs/get-started/installation/#prerequisites) for Node.js and runner requirements.
 
 Complete [Installation](/docs/get-started/installation/) with the InjectionJS adapter and your chosen runner. For an existing Jest project:
 

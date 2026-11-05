@@ -2099,6 +2099,87 @@ body.docs-page {
   border-radius: 6px;
 }
 
+.legacy-anchor {
+  display: block;
+  height: 0;
+  scroll-margin-top: calc(var(--docs-header-h, 64px) + 24px);
+}
+
+.doc-edit-link {
+  margin-top: 32px;
+  font-size: 0.875rem;
+}
+
+.framework-choices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 16px;
+  margin-block: 24px;
+}
+
+.framework-choices > a {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  color: var(--text);
+  background: var(--surface);
+  text-decoration: none;
+}
+
+.framework-choices > a:hover {
+  border-color: var(--text-muted);
+  background: var(--surface-raised);
+}
+
+.framework-choices > a > span {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.framework-choices > a > .framework-choices-action {
+  margin-top: auto;
+  color: var(--text);
+  font-weight: var(--fw-semibold);
+}
+
+.framework-choices > a > .framework-choice-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.framework-choice-icon {
+  display: block;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+}
+
+.framework-choice-icon-nestjs {
+  background: currentColor;
+  -webkit-mask: url('/img/nestjs-logo.png') center / contain no-repeat;
+  mask: url('/img/nestjs-logo.png') center / contain no-repeat;
+}
+
+.doc-table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  margin-block: 24px;
+  border-radius: 10px;
+}
+
+.doc-table-scroll:focus-visible {
+  outline: 2px solid var(--primary-light);
+  outline-offset: 4px;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;

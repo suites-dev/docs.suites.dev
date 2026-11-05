@@ -5,11 +5,17 @@ description: Test InversifyJS classes with Suites, symbol tokens, named dependen
 meta_title: "InversifyJS Unit Testing with Jest or Vitest"
 ---
 
-Use `@suites/di.inversify` to construct an InversifyJS class with typed dependency mocks. Suites reads injection metadata directly, so these unit tests do not need an application `Container` or production bindings.
+import ContainerComparisonDiagram from '@/components/docs/ContainerComparisonDiagram.astro';
 
-This is the InversifyJS path in [Quick Start](/docs/get-started/quickstart/). Define a service, test it with mocked dependencies, then keep a selected collaborator real. This guide targets Suites 4 and InversifyJS 7 or 8, with Jest or Vitest; check [Installation](/docs/get-started/installation/#prerequisites) for supported runtime and runner versions.
+Use `@suites/di.inversify` with Jest or Vitest to test an InversifyJS class.
+
+**Choose your test boundary:** Suites reads injection metadata and constructs your class with controlled dependencies. Use an InversifyJS `Container` with the relevant production configuration to verify bindings, scopes, or activation hooks. Both approaches can use mocks. [Compare Suites with framework test containers](/docs/guides/how-suites-works/#suites-vs-your-frameworks-test-container).
+
+<ContainerComparisonDiagram framework="inversify" />
 
 ## 1. Configure the test project
+
+This guide targets Suites 4 and InversifyJS 7 or 8. Check [Installation](/docs/get-started/installation/#prerequisites) for supported runtime and runner versions.
 
 Follow [Installation](/docs/get-started/installation/) with `@suites/di.inversify` and one doubles adapter. Include these references in your test TypeScript project:
 

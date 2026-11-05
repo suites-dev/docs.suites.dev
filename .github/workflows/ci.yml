@@ -1,0 +1,26 @@
+name: Website checks
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+jobs:
+  website:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        context: [production, deploy-preview]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+      - run: pnpm test
+      - run: pnpm build
+        env:
+          CONTEXT: ${{ matrix.context }}

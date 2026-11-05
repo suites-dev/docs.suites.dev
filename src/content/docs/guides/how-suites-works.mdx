@@ -5,13 +5,14 @@ description: "See how Suites reads dependency metadata, generates typed mocks, a
 meta_title: "How Suites Discovers and Mocks Dependencies"
 ---
 
+import ContainerComparisonDiagram from '@/components/docs/ContainerComparisonDiagram.astro';
+
 # How Suites works
 
 > **What this covers:** How Suites creates lightweight test environments without full framework initialization \
 > **Time to read:** ~10 minutes
 
-The Virtual Test Container is the engine that drives Suites' testing capabilities. It analyzes classes to understand
-their dependencies, then builds minimal test environments tailored specifically for the class under test. This approach eliminates two time-consuming tasks: waiting for a full framework to initialize and manually setting up mocks for every test.
+Suites' test container reads a class's supported injection metadata, creates dependency mocks, and constructs the class under test. Sociable tests can keep selected collaborators real. It does not load the framework's production provider registrations.
 
 ## Overview
 
@@ -25,30 +26,56 @@ This guide covers:
 
 ## Concept
 
-Traditional testing for a single class requires either starting up the entire application (slow and brittle) or manually creating mocks for every dependency (tedious and error-prone).
+You can test a class by constructing it yourself, using its framework's dependency injection container, or using Suites. Each approach exercises a different part of the application setup.
 
 The virtual test container takes a different approach. It inspects the tested class at test time to discover what
 dependencies it needs. Based on this analysis, it generates only the necessary mocks and wires them together. TestBed creates an isolated test environment without the overhead of full application initialization or the maintenance burden of manual mock setup.
 
+## Suites vs your framework's test container
+
+Your framework's **IoC container** resolves dependencies using the provider registrations and resolution rules configured for that container. Suites reads supported injection metadata and constructs the **unit**, the class under test, with generated mocks or selected real collaborators.
+
+**Both approaches can use mocks.** A native container can contain just a few providers; it does not have to start the entire application. The choice is about whether the test should exercise the framework's own dependency resolution.
+
+<ContainerComparisonDiagram />
+
+| Concern | Framework test container | Suites TestBed |
+| --- | --- | --- |
+| Dependency discovery | Uses registered providers, bindings, or modules | Reads the class's supported injection metadata |
+| Test setup | Register real providers and mock replacements in the container | Compile the class; injected dependencies are mocked by default |
+| Real collaborators | Register or retain their real implementations | Select class dependencies with `.sociable(...).expose(...)` |
+| Provider factories and resolution rules | Runs the rules and factories configured in the test container | Does not load production provider registrations or execute their factories |
+| What a passing test demonstrates | Class behavior plus the configured test container's resolution | Class behavior with the dependency boundary chosen by the test |
+
+### What this means for each framework
+
+| Framework | Native testing entry point | What Suites does not exercise |
+| --- | --- | --- |
+| NestJS | `Test.createTestingModule(...)` | Module imports, provider registrations and factories, or Nest's scope resolution |
+| InversifyJS | Bind dependencies in a `Container`, then resolve the service | Application bindings, container modules, scopes, and activation hooks |
+| InjectionJS | `ReflectiveInjector.resolveAndCreate(...)` | Provider configuration, factories, multi-providers, and injector hierarchy lookup |
+
+For example, a NestJS service can pass its Suites test even if its module forgets to register a dependency. Suites discovers that dependency from the class metadata and supplies a mock. A test that resolves the service from the relevant Nest module can catch the missing registration.
+
+Native container tests only validate the registrations included in that test. A minimal test container does not prove that the production application is wired correctly unless it uses the relevant production configuration.
+
+### Choose the boundary your test needs
+
+- **Use Suites** to test class behavior with controlled dependency responses or selected real collaborators.
+- **Use your framework's container** to test provider registration, factories, scopes, or resolution behavior.
+- **Use application tests** to exercise request handling, framework lifecycle behavior, or other application wiring that matters to the scenario.
+
+A sociable Suites test still uses Suites' test bed. Selecting a real collaborator with `.expose()` does not boot the framework's native container.
+
+For framework-specific details, see the [NestJS boundary guide](/docs/guides/nestjs/#choose-the-right-test-boundary), [InversifyJS boundary guide](/docs/guides/inversify/#supply-values-and-understand-the-boundary), and [InjectionJS limitations](/docs/guides/injectionjs/#scope-and-limitations).
+
 ## The Problem It Addresses
 
-Before diving into how the Virtual Test Container works, let's understand why it exists. Traditional IoC (Inversion of Control) testing typically relies on two approaches, and both have significant drawbacks.
+A test that imports a broad application module or container configuration can become coupled to unrelated providers. A new external connection elsewhere in that graph may require extra test setup even when the class's own behavior has not changed.
 
-**Full container initialization:**
-- Initializes entire module/application
-- Tests break when unrelated dependencies change
-- Requires extensive mocking configuration
+Constructing the class manually avoids that container setup, but requires creating and wiring its dependencies yourself. Typed manual mocks are possible; constructor changes still require updating the setup that supplies those dependencies.
 
-The problem here is coupling. When spinning up the full container, the test becomes dependent on the entire application state. If a colleague adds a new database connection three layers deep in an unrelated module, the test might suddenly fail or become slower.
-
-**Manual mocking:**
-- Requires substantial boilerplate code
-- Lacks type safety (requires `as any` / `as unknown as` casts)
-- Every constructor change requires updating multiple tests
-
-Manual mocking means writing code like `const mockUserApi = { getUser: jest.fn() } as unknown as UserApi`. This loses TypeScript's type safety. Worse, when adding a parameter to the class constructor, every test file that instantiates it needs updates.
-
-The Virtual Test Container solves both problems by automating the discovery and mock generation process while maintaining full type safety.
+Suites automates dependency discovery and mock creation for class behavior tests. Use native container or application tests alongside it when the production wiring also needs verification.
 
 ## How It Works
 

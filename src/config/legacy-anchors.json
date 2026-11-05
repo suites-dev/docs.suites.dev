@@ -1,0 +1,342 @@
+[
+  {
+    "slug": "api-reference/mock",
+    "aliases": [
+      {
+        "old": "sinon",
+        "target": "when-to-use"
+      }
+    ]
+  },
+  {
+    "slug": "api-reference/types",
+    "aliases": [
+      {
+        "old": "automatic-type-resolution",
+        "target": "configure-module-augmentation"
+      },
+      {
+        "old": "core-types",
+        "target": "mockedt"
+      },
+      {
+        "old": "how-mockedt-works-module-augmentation",
+        "target": "configure-module-augmentation"
+      },
+      {
+        "old": "single-import-point",
+        "target": "mockedt"
+      },
+      {
+        "old": "why-this-architecture-matters",
+        "target": "configure-module-augmentation"
+      }
+    ]
+  },
+  {
+    "slug": "changelog",
+    "aliases": [
+      {
+        "old": "-from-automock-to-suites",
+        "target": "-from-automock-to-suites-unit"
+      },
+      {
+        "old": "-suites-v300",
+        "target": "-suites-unit-v300"
+      }
+    ]
+  },
+  {
+    "slug": "get-started",
+    "aliases": [
+      {
+        "old": "prerequisites",
+        "target": "supported-frameworks-and-runners"
+      }
+    ]
+  },
+  {
+    "slug": "get-started/installation",
+    "aliases": [
+      {
+        "old": "available-mocking-libraries",
+        "target": "supported-libraries-adapters"
+      },
+      {
+        "old": "framework-adapters",
+        "target": "supported-libraries-adapters"
+      },
+      {
+        "old": "installation-1",
+        "target": "install-suites-and-adapters"
+      },
+      {
+        "old": "recommended-setups",
+        "target": "monorepo-support"
+      },
+      {
+        "old": "setting-up-type-references",
+        "target": "type-reference-configuration"
+      },
+      {
+        "old": "whats-next",
+        "target": "next-step-run-your-first-test"
+      }
+    ]
+  },
+  {
+    "slug": "get-started/quickstart",
+    "aliases": [
+      {
+        "old": "create-a-repository-class",
+        "target": "choose-your-framework"
+      },
+      {
+        "old": "create-a-service-class-with-a-dependency",
+        "target": "choose-your-framework"
+      },
+      {
+        "old": "how-it-works-no-modules-no-bootstrapping",
+        "target": "follow-the-same-testing-flow"
+      },
+      {
+        "old": "prerequisites",
+        "target": "choose-your-framework"
+      },
+      {
+        "old": "running-the-test",
+        "target": "run-your-first-test"
+      },
+      {
+        "old": "step-1-creating-the-application-code",
+        "target": "choose-your-framework"
+      },
+      {
+        "old": "step-2-writing-the-first-test-with-suites",
+        "target": "choose-your-framework"
+      },
+      {
+        "old": "step-3-testing-with-real-dependencies-sociable-mode",
+        "target": "run-your-first-test"
+      },
+      {
+        "old": "the-suites-solution-virtual-test-container",
+        "target": "follow-the-same-testing-flow"
+      },
+      {
+        "old": "the-traditional-testing-problem",
+        "target": "follow-the-same-testing-flow"
+      },
+      {
+        "old": "what-just-happened",
+        "target": "follow-the-same-testing-flow"
+      },
+      {
+        "old": "whats-next",
+        "target": "next-steps"
+      }
+    ]
+  },
+  {
+    "slug": "get-started/why-suites",
+    "aliases": [
+      {
+        "old": "1-manual-mocks-break-silently-during-refactors",
+        "target": "compare-the-same-test"
+      },
+      {
+        "old": "2-excessive-boilerplate-obscures-test-intent-and-confuses-llms",
+        "target": "compare-the-same-test"
+      },
+      {
+        "old": "3-inconsistent-patterns-across-teams",
+        "target": "what-suites-handles"
+      },
+      {
+        "old": "framework-support",
+        "target": "supported-stacks"
+      },
+      {
+        "old": "how-suites-solves-it",
+        "target": "what-suites-handles"
+      },
+      {
+        "old": "in-summary",
+        "target": "what-suites-handles"
+      },
+      {
+        "old": "the-core-problem",
+        "target": "compare-the-same-test"
+      },
+      {
+        "old": "the-problems-with-manual-dependency-injection-testing",
+        "target": "compare-the-same-test"
+      },
+      {
+        "old": "the-quick-win",
+        "target": "compare-the-same-test"
+      }
+    ]
+  },
+  {
+    "slug": "guides",
+    "aliases": [
+      {
+        "old": "in-this-section",
+        "target": "understand-the-basics"
+      }
+    ]
+  },
+  {
+    "slug": "guides/sociable",
+    "aliases": [
+      {
+        "old": "11-create-the-services",
+        "target": "step-1-define-the-service-and-its-collaborators"
+      },
+      {
+        "old": "12-write-the-sociable-test",
+        "target": "step-2-select-the-real-collaborator"
+      },
+      {
+        "old": "21-add-database-dependency",
+        "target": "step-1-define-the-service-and-its-collaborators"
+      },
+      {
+        "old": "22-test-with-mocked-io",
+        "target": "step-2-select-the-real-collaborator"
+      },
+      {
+        "old": "31-service-with-many-dependencies",
+        "target": "choose-which-dependencies-stay-real"
+      },
+      {
+        "old": "32-using-expose",
+        "target": "choose-which-dependencies-stay-real"
+      },
+      {
+        "old": "overview",
+        "target": ""
+      },
+      {
+        "old": "sociable-tests-are-unit-tests",
+        "target": ""
+      },
+      {
+        "old": "step-1-set-up-the-first-sociable-test",
+        "target": "step-1-define-the-service-and-its-collaborators"
+      },
+      {
+        "old": "step-2-handle-external-dependencies",
+        "target": "step-1-define-the-service-and-its-collaborators"
+      },
+      {
+        "old": "step-3-manage-multiple-dependencies",
+        "target": "choose-which-dependencies-stay-real"
+      },
+      {
+        "old": "step-4-choose-when-to-configure-mocks",
+        "target": "configure-mocks-before-construction"
+      },
+      {
+        "old": "takeaways",
+        "target": "summary"
+      }
+    ]
+  },
+  {
+    "slug": "guides/solitary",
+    "aliases": [
+      {
+        "old": "additional-resources",
+        "target": "next-steps"
+      },
+      {
+        "old": "automatic-mocking-of-dependencies",
+        "target": "step-2-compile-the-test-bed-in-beforeall"
+      },
+      {
+        "old": "overview",
+        "target": ""
+      },
+      {
+        "old": "step-1-set-up-the-class-under-test",
+        "target": "step-1-define-the-service-and-its-dependencies"
+      },
+      {
+        "old": "step-2-write-the-first-solitary-test",
+        "target": "step-2-compile-the-test-bed-in-beforeall"
+      },
+      {
+        "old": "step-3-configure-mock-behavior",
+        "target": "step-4-configure-different-responses"
+      },
+      {
+        "old": "terminology",
+        "target": ""
+      },
+      {
+        "old": "what-just-happened",
+        "target": "step-2-compile-the-test-bed-in-beforeall"
+      }
+    ]
+  },
+  {
+    "slug": "guides/test-doubles",
+    "aliases": [
+      {
+        "old": "additional-resources",
+        "target": "next-steps"
+      },
+      {
+        "old": "dependencies-what-can-be-replaced",
+        "target": "know-which-dependencies-suites-can-replace"
+      },
+      {
+        "old": "how-suites-uses-mocks-and-stubs",
+        "target": "choose-a-test-double"
+      },
+      {
+        "old": "quick-reference",
+        "target": "choose-a-test-double"
+      },
+      {
+        "old": "takeaways",
+        "target": "summary"
+      },
+      {
+        "old": "test-doubles-in-suites",
+        "target": "configure-a-mock-and-verify-a-call"
+      },
+      {
+        "old": "testing-with-real-implementations",
+        "target": "choose-configurable-mocks-or-supplied-values"
+      },
+      {
+        "old": "two-ways-to-verify-tests",
+        "target": "verify-results-and-interactions"
+      },
+      {
+        "old": "using-mocks-in-suites",
+        "target": "configure-a-mock-and-verify-a-call"
+      },
+      {
+        "old": "why-test-doubles-matter",
+        "target": ""
+      }
+    ]
+  },
+  {
+    "slug": "migration-guides",
+    "aliases": [
+      {
+        "old": "future-guides",
+        "target": "available-guides"
+      }
+    ]
+  },
+  {
+    "slug": "guides/how-suites-works",
+    "aliases": []
+  }
+]

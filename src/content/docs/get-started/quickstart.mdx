@@ -12,11 +12,41 @@ Write your first unit test with **NestJS**, **InversifyJS**, or **InjectionJS**.
 
 Follow the guide for the framework your project already uses. You only need one path.
 
-| Framework | Start here | What you will test |
-| --- | --- | --- |
-| NestJS | [**Write your first NestJS test**](/docs/guides/nestjs/) | A service with class dependencies, then a selected real collaborator |
-| InversifyJS | [**Write your first InversifyJS test**](/docs/guides/inversify/) | A class with symbol tokens, then a selected real collaborator |
-| InjectionJS | [**Write your first InjectionJS test**](/docs/guides/injectionjs/) | A constructor-injected service with a typed injection token |
+<div class="framework-choices">
+  <a href="/docs/guides/nestjs/">
+    <span class="framework-choice-heading">
+      <span class="framework-choice-icon framework-choice-icon-nestjs" aria-hidden="true"></span>
+      <strong>NestJS</strong>
+    </span>
+    <span>Test a service with class dependencies, then keep a selected collaborator real.</span>
+    <span class="framework-choices-action">Start with NestJS →</span>
+  </a>
+  <a href="/docs/guides/inversify/">
+    <span class="framework-choice-heading">
+      <svg class="framework-choice-icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+        <path d="M3 5h26L16 28Z" />
+        <path d="M8 15s3-4 8-4 8 4 8 4-3 4-8 4-8-4-8-4Z" />
+        <circle cx="16" cy="15" r="3" />
+      </svg>
+      <strong>InversifyJS</strong>
+    </span>
+    <span>Test a class with symbol tokens, then keep a selected collaborator real.</span>
+    <span class="framework-choices-action">Start with InversifyJS →</span>
+  </a>
+  <a href="/docs/guides/injectionjs/">
+    <span class="framework-choice-heading">
+      <svg class="framework-choice-icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+        <rect x="11" y="3" width="10" height="8" rx="2" />
+        <rect x="2" y="22" width="10" height="8" rx="2" />
+        <rect x="20" y="22" width="10" height="8" rx="2" />
+        <path d="M16 11v6M7 22v-5h18v5" />
+      </svg>
+      <strong>InjectionJS</strong>
+    </span>
+    <span>Test a constructor-injected service with a typed injection token.</span>
+    <span class="framework-choices-action">Start with InjectionJS →</span>
+  </a>
+</div>
 
 Need to configure your project first? Follow [Installation](/docs/get-started/installation/) for the adapter, type declarations, and runner configuration. Each framework guide points to the settings it needs.
 

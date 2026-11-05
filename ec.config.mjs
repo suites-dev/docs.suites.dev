@@ -1,18 +1,13 @@
-import fs from "node:fs";
-import { fileURLToPath } from "node:url";
 import { defineEcConfig, ExpressiveCodeTheme } from "astro-expressive-code";
+import darkTheme from "./src/styles/suites-code-theme.json" with { type: "json" };
+import lightTheme from "./src/styles/suites-code-light-theme.json" with { type: "json" };
 
 const suitesCodeTheme = ExpressiveCodeTheme.fromJSONString(
-  fs.readFileSync(
-    fileURLToPath(
-      new URL("./src/styles/suites-code-theme.json", import.meta.url),
-    ),
-    "utf-8",
-  ),
+  JSON.stringify(darkTheme),
 );
 
 const suitesLightCodeTheme = ExpressiveCodeTheme.fromJSONString(
-  fs.readFileSync(new URL("./src/styles/suites-code-light-theme.json", import.meta.url), "utf-8"),
+  JSON.stringify(lightTheme),
 );
 
 export default defineEcConfig({

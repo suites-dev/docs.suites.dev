@@ -210,7 +210,7 @@ const graph = canonicalUrl && !preventIndexing ? {
       })();
     </script>
 
-    <GoogleAnalytics />
+    {process.env.CONTEXT === 'production' && <GoogleAnalytics />}
   </head>
   <body class:list={{ 'docs-page': header === 'docs' }}>
     <a href="#main" class="skip-link">Skip to main content</a>

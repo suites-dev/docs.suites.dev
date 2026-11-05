@@ -23,6 +23,7 @@ import PageActions from '@/components/docs/PageActions.astro';
 import LastUpdated from '@/components/docs/LastUpdated.astro';
 import { docsBreadcrumbs } from '@/lib/breadcrumbs';
 import { SITE_URL } from '@/config/seo';
+import { addLegacyAnchors } from '@/lib/legacyAnchors';
 
 interface Heading {
   depth: number;
@@ -69,10 +70,14 @@ const {
   entryId,
 } = Astro.props;
 
-const GITHUB_EDIT_BASE = 'https://github.com/suites-dev/suites.dev/edit/master/src/content/docs/';
+const GITHUB_EDIT_BASE = 'https://github.com/suites-dev/docs.suites.dev/edit/master/src/content/docs/';
 const editUrl = editUrlProp ?? (entryId ? GITHUB_EDIT_BASE + entryId : GITHUB_EDIT_BASE);
 
 const showToc = !hideToc && headings.length > 0;
+let tableNumber = 0;
+const content = addLegacyAnchors(slug, await Astro.slots.render('default'))
+  .replace(/<table\b[^>]*>[\s\S]*?<\/table>/g, table =>
+    `<div class="doc-table-scroll" role="region" aria-label="Scrollable table ${++tableNumber}" tabindex="0">${table}</div>`);
 const site = Astro.site ?? new URL(SITE_URL);
 const breadcrumbItems = [{ label: 'Documentation', href: '/docs/' }, ...docsBreadcrumbs(slug, title)];
 const breadcrumbSchema = {
@@ -132,9 +137,10 @@ const breadcrumbSchema = {
               read on every page. */}
         </header>
 
-        <slot />
+        <Fragment set:html={content} />
 
         {lastUpdated && <LastUpdated iso={lastUpdated} />}
+        <p class="doc-edit-link"><a href={editUrl}>Edit this page on GitHub</a></p>
         <PrevNext slug={slug} />
       </article>
 

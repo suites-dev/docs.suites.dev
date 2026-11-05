@@ -1,11 +1,10 @@
 # ===========================================
 # BUILD
 # ===========================================
-# `pnpm build` runs scripts/algolia-reindex.mjs as a postbuild step, which
-# triggers an Algolia DocSearch crawler reindex after every successful
-# production build. The script is a no-op for deploy previews and branch
-# deploys, and a no-op (with a warning) if crawler env vars are missing,
-# so it cannot break the build.
+# Builds validate metadata, links, legacy fragments and emitted assets.
+# The local plugin syncs the crawler configuration and requests a recrawl only
+# after a production deploy is published. Previews never mutate the index.
+# Production credentials are checked before building.
 #
 # Required env vars in Netlify → Site settings → Environment variables:
 #   ALGOLIA_CRAWLER_USER_ID
@@ -15,6 +14,9 @@
 [build]
 command = "pnpm build"
 publish = "dist"
+
+[[plugins]]
+package = "./plugins/algolia-crawler"
 
 # Pinned rather than left to the dashboard toggle, because file configuration
 # overrides UI configuration. Pretty URLs serves the slash-terminated form,
