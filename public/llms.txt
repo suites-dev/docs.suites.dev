@@ -17,6 +17,8 @@ Suites supports NestJS 10/11/12 and Inversify 7/8, plus InjectionJS ^2.6.1 start
 - [Fundamentals](https://suites.dev/docs/guides/fundamentals): core concepts and the testing model
 - [Solitary tests](https://suites.dev/docs/guides/solitary): isolating a single class with auto-generated mocks
 - [Sociable tests](https://suites.dev/docs/guides/sociable): testing a class together with selected real collaborators
+- [NestJS](https://suites.dev/docs/guides/nestjs/): service tests, custom injection tokens, and selected real collaborators
+- [InversifyJS](https://suites.dev/docs/guides/inversify/): symbol tokens, named lookups, and sociable tests
 - [InjectionJS](https://suites.dev/docs/guides/injectionjs/): constructor injection, InjectionToken overrides, Vitest module identity, and support boundaries
 - [Test doubles](https://suites.dev/docs/guides/test-doubles): mocks, stubs, and spies in Suites
 - [How Suites works](https://suites.dev/docs/guides/how-suites-works/): how Suites builds an isolated DI graph for each test

@@ -65,8 +65,32 @@ describe('User Service', () => {
   });
 }`;
 
+const heroExample = `import { TestBed } from '@suites/unit';
+import { UserService } from './user.service';
+import { UserRepository } from './user.repository';
+
+const { unit, unitRef } = await TestBed
+  .solitary(UserService)
+  .compile();
+
+const repository = unitRef.get(UserRepository);
+repository.getUserById.mockResolvedValue(user);
+
+expect(await unit.getUserName(user.id))
+  .toBe(user.name);`;
+
+const supportedFrameworks = [
+  { name: 'NestJS', icon: '/img/nestjs-logo.png' },
+  { name: 'InversifyJS', icon: '/img/inversify-logo.png' },
+  { name: 'InjectionJS', icon: null },
+];
+const supportedRunners = [
+  { name: 'Jest', icon: '/img/jest-logo.png' },
+  { name: 'Vitest', icon: '/img/vitest-logo.png' },
+];
+
 const frameworks = `// Same pattern works everywhere
-// NestJS, InversifyJS, TSyringe...
+// NestJS, InversifyJS, InjectionJS
 
 TestBed.solitary(OrderService).compile();
 
@@ -116,10 +140,11 @@ const { unit, unitRef } = await TestBed
   <div class="home workbench">
     <section class="home-hero" aria-labelledby="home-title">
       <div class="hero-shell">
-        <h1 id="home-title" class="hero-title">Project Suites</h1>
+        <p class="eyebrow"><span class="brand-dot" aria-hidden="true"></span> SUITES / TYPESCRIPT UNIT TESTING</p>
+        <h1 id="home-title" class="hero-title">Project Suites.</h1>
         <p class="hero-lede">
           A unit testing framework for TypeScript backends working with
-          inversion of control and dependency injection.
+          inversion of control and dependency injection
         </p>
 
         <nav class="hero-actions" aria-label="Get started with Suites">
@@ -140,12 +165,35 @@ const { unit, unitRef } = await TestBed
             <span>GitHub</span>
           </a>
         </nav>
+        <p class="hero-note">Open source. Built for dependency injection.</p>
+      </div>
+      <div class="hero-preview">
+        <div class="preview-heading"><span class="file-tab">user.service.spec.ts</span><span class="preview-language">TypeScript</span></div>
+        <Code code={heroExample} lang="ts" />
+        <div class="preview-footer"><span class="preview-check" aria-hidden="true">✓</span> Real unit. Typed mocks. Ready to test.</div>
+      </div>
+    </section>
+
+    <section class="ecosystem" aria-labelledby="ecosystem-title">
+      <div class="ecosystem-intro"><p class="eyebrow" id="ecosystem-title">FITS YOUR STACK</p><p>One testing pattern.<br />The tools you already use.</p></div>
+      <div class="ecosystem-group">
+        <h2>Dependency injection</h2>
+        <ul>
+          {supportedFrameworks.map(({ name, icon }) => (
+            <li><span class="stack-icon">{icon ? <img src={icon} width="32" height="32" alt="" /> : <svg viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="11" y="3" width="10" height="8" rx="2" /><rect x="2" y="22" width="10" height="8" rx="2" /><rect x="20" y="22" width="10" height="8" rx="2" /><path d="M16 11v6M7 22v-5h18v5" /></svg>}</span><span>{name}</span></li>
+          ))}
+        </ul>
+      </div>
+      <div class="ecosystem-group runners">
+        <h2>Test runners</h2>
+        <ul>{supportedRunners.map(({ name, icon }) => <li><span class="stack-icon"><img src={icon} width="32" height="32" alt="" /></span><span>{name}</span></li>)}</ul>
       </div>
     </section>
 
     <section class="compare" aria-labelledby="comparison-title">
       <div class="rule-head">
-        <h2 id="comparison-title" class="rule-title">Suites compared with manual mocking</h2>
+        <div><p class="eyebrow">LESS WIRING. MORE TESTING.</p><h2 id="comparison-title" class="rule-title">Suites compared with manual mocking</h2></div>
+        <p>Keep the test.<br />Let Suites handle the setup.</p>
       </div>
 
       <div class="compare-tray">
@@ -160,6 +208,7 @@ const { unit, unitRef } = await TestBed
       </div>
     </section>
 
+    <div class="section-intro"><p class="eyebrow">A SMALL API. A CLEARER TEST.</p><h2>Make room for the behavior<br />that matters.</h2></div>
     <div class="capabilities">
 
       <section class="cap" aria-labelledby="cap-standards">
@@ -171,10 +220,10 @@ const { unit, unitRef } = await TestBed
           <p>
             Stop relearning test patterns on every project. Suites provides a
             consistent, standardized approach that works identically across
-            NestJS, InversifyJS, and any DI framework, giving teams a unified
-            testing experience.
+            NestJS, InversifyJS, and InjectionJS, with Jest or Vitest as your
+            test runner.
           </p>
-          <a class="cap-link" href="/docs/get-started/why-suites/#3-inconsistent-patterns-across-teams">
+          <a class="cap-link" href="/docs/get-started/#supported-frameworks-and-runners">
             See framework support <span aria-hidden="true">→</span>
           </a>
         </div>
@@ -188,9 +237,8 @@ const { unit, unitRef } = await TestBed
         </header>
         <div class="cap-copy">
           <p>
-            Suites' declarative API removes 90% of test setup code. No more
-            scrolling through mock wiring, logic is front and center. New team
-            members write tests on day one, not day ten.
+            Create the unit and its dependency mocks in one step. Keep setup
+            short so the behavior you arrange, run, and assert is easy to find.
           </p>
           <a class="cap-link" href="/docs/get-started/quickstart/">
             See quick start <span aria-hidden="true">→</span>
@@ -225,19 +273,18 @@ const { unit, unitRef } = await TestBed
         </header>
         <div class="cap-copy">
           <p>
-            Manual mocking forces AI agents to hold 40+ lines of boilerplate per
-            test in context. Suites provides one canonical pattern that reduces
-            token consumption by 95%. AI coding assistants like Claude Code,
-            Cursor, and GitHub Copilot generate accurate tests in a single pass
-            without burning tokens on repetitive setup code.
+            A consistent TestBed pattern gives coding assistants a small,
+            repeatable example to follow. Spend your review on test behavior
+            instead of generated mock classes and constructor wiring.
           </p>
-          <a class="cap-link" href="/docs/get-started/why-suites/#2-excessive-boilerplate-obscures-test-intent-and-confuses-llms">
+          <a class="cap-link" href="/docs/get-started/why-suites/">
             Suites and AI <span aria-hidden="true">→</span>
           </a>
         </div>
         <div class="cap-code"><Code code={aiFirst} lang="ts" /></div>
       </section>
     </div>
+    <section class="closing-cta" aria-labelledby="closing-title"><div><p class="eyebrow">START WITH ONE CLASS</p><h2 id="closing-title">Write your first Suites test.</h2><p>Choose your framework and runner. Follow the same simple pattern.</p></div><a class="cta cta--primary" href="/docs/get-started/quickstart/">Open the quickstart <span aria-hidden="true">→</span></a></section>
   </div>
 </MarketingLayout>
 
@@ -255,365 +302,67 @@ const { unit, unitRef } = await TestBed
 </script>
 
 <style>
-  .workbench {
-    --bench-radius: 8px;
-    --bench-gap: clamp(24px, 4vw, 56px);
-    width: min(100%, 1200px);
-    padding: 0 var(--ui-gutter) clamp(64px, 8vw, 112px);
-    margin-inline: auto;
-  }
-
-  .home-hero {
-    display: flex;
-    align-items: center;
-    padding-block: clamp(72px, 8vw, 112px);
-  }
-
-  .hero-shell {
-    width: min(100%, 880px);
-    padding-inline-start: clamp(24px, 4vw, 48px);
-    border-inline-start: 3px solid var(--primary);
-  }
-
-  .hero-title {
-    margin: 0 0 24px;
-    font-family: var(--font-title);
-    font-size: clamp(2.5rem, 5vw, 4.25rem);
-    font-weight: var(--fw-semibold);
-    line-height: 1.06;
-    letter-spacing: -0.045em;
-    color: var(--text);
-  }
-
-  .hero-lede {
-    max-width: 760px;
-    margin: 0 0 36px;
-    font-size: clamp(1.25rem, 2.4vw, 1.875rem);
-    line-height: 1.5;
-    letter-spacing: -0.02em;
-    color: var(--text-muted);
-    text-wrap: pretty;
-  }
-
-  .hero-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  .cta {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    min-height: 48px;
-    padding: 12px 24px;
-    border: 1px solid var(--control-border);
-    border-radius: 6px;
-    background: var(--bg);
-    color: var(--text);
-    font-size: 0.9375rem;
-    font-weight: var(--fw-semibold);
-    text-decoration: none;
-    transition: background 180ms ease, border-color 180ms ease;
-  }
-
-  .cta--primary {
-    background: var(--primary);
-    border-color: var(--primary);
-    color: var(--on-primary);
-  }
-
-  .compare {
-    border: 1px solid var(--border-strong);
-    border-radius: var(--bench-radius);
-    background: var(--bg-subtle);
-    margin-bottom: clamp(64px, 8vw, 104px);
-    min-width: 0;
-  }
-
-  .rule-head {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    padding: 26px 28px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .rule-title {
-    margin: 0;
-    max-width: 36rem;
-    font-size: clamp(1.25rem, 2.5vw, 1.875rem);
-    font-weight: var(--fw-semibold);
-    line-height: 1.25;
-    letter-spacing: -0.03em;
-    color: var(--text);
-    text-wrap: balance;
-  }
-
-  .compare-tray {
-    padding: 20px;
-    min-width: 0;
-  }
-
-  .compare-tray :global(.tabs) {
-    display: flex;
-    width: fit-content;
-    max-width: 100%;
-    gap: 4px;
-    padding: 4px;
-    border-radius: 6px;
-    background: var(--surface-raised);
-    border: 1px solid var(--border);
-  }
-
-  .compare-tray :global(.tab) {
-    min-height: 44px;
-    padding: 10px 20px;
-    border-radius: 4px;
-    border: 1px solid transparent;
-    font-size: 0.875rem;
-    font-weight: var(--fw-medium);
-    color: var(--text-muted);
-    cursor: pointer;
-  }
-
-  .compare-tray :global(.tab[aria-selected='true']) {
-    background: var(--bg);
-    color: var(--text);
-    border-color: var(--border-strong);
-    box-shadow: inset 0 -2px 0 var(--primary);
-  }
-
-  .compare-tray :global(.tabs-panels) {
-    margin-top: 16px;
-  }
-
-  .compare-tray :global(.expressive-code),
-  .cap-code :global(.expressive-code) {
-    margin: 0;
-    min-width: 0;
-    max-width: 100%;
-  }
-
-  .compare-tray :global(pre),
-  .cap-code :global(pre) {
-    max-height: none;
-    font-size: 0.8125rem;
-    line-height: 1.75;
-    border-radius: 6px;
-  }
-
-  .capabilities {
-    border-top: 1px solid var(--border-strong);
-  }
-
-  .cap {
-    display: grid;
-    grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.85fr);
-    column-gap: var(--bench-gap);
-    row-gap: 30px;
-    padding-block: 48px 56px;
-    border-bottom: 1px solid var(--border-strong);
-  }
-
-  .cap-heading {
-    display: flex;
-    align-items: baseline;
-    gap: 20px;
-    grid-column: 1 / -1;
-    min-width: 0;
-  }
-
-  .cap-index {
-    flex: 0 0 38px;
-    color: var(--primary-light);
-    font-family: var(--font-code);
-    font-size: 0.8125rem;
-    line-height: 1;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .cap h2 {
-    margin: 0;
-    max-width: 46rem;
-    font-size: clamp(1.5rem, 2.6vw, 2rem);
-    font-weight: var(--fw-semibold);
-    line-height: 1.2;
-    letter-spacing: -0.03em;
-    color: var(--text);
-    text-wrap: balance;
-  }
-
-  .cap-copy {
-    grid-column: 2;
-    grid-row: 2;
-    min-width: 0;
-    padding-top: 8px;
-  }
-
-  .cap p {
-    margin: 0 0 20px;
-    font-size: 1rem;
-    line-height: 1.75;
-    color: var(--text-muted);
-    text-wrap: pretty;
-  }
-
-  .cap-code {
-    grid-column: 1;
-    grid-row: 2;
-    align-self: start;
-    min-width: 0;
-    padding: 8px;
-    background: var(--bg-subtle);
-    border: 1px solid var(--border);
-    border-radius: var(--bench-radius);
-  }
-
-  .cap-link {
-    display: inline-flex;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 44px;
-    max-width: 100%;
-    gap: 20px;
-    padding: 8px 0;
-    color: var(--primary-light);
-    font-size: 0.9375rem;
-    font-weight: var(--fw-medium);
-    text-decoration: none;
-    border-bottom: 1px solid var(--primary-border);
-  }
-
-  .cap-link span {
-    flex-shrink: 0;
-    transition: transform 180ms ease;
-  }
-
-  .cta:focus-visible,
-  .cap-link:focus-visible,
-  .compare-tray :global(.tab:focus-visible) {
-    outline: 2px solid var(--primary-light);
-    outline-offset: 4px;
-  }
-
-  @media (hover: hover) {
-    .cta:hover {
-      border-color: var(--primary-light);
-      background: var(--surface-hover);
-    }
-
-    .cta--primary:hover {
-      background: var(--primary-hover);
-      color: var(--on-primary-hover);
-    }
-
-    .cap-link:hover {
-      border-color: var(--primary-light);
-    }
-
-    .cap-link:hover span {
-      transform: translateX(3px);
-    }
-  }
-
-  @media (max-width: 900px) {
-    .cap {
-      grid-template-columns: minmax(0, 1fr);
-      row-gap: 24px;
-    }
-
-    .cap-copy,
-    .cap-code {
-      grid-column: 1;
-      grid-row: auto;
-    }
-
-    .cap-copy {
-      max-width: 42rem;
-      padding-top: 0;
-    }
-  }
-
-  @media (max-width: 600px) {
-    .home-hero {
-      padding-block: 64px;
-    }
-
-    .hero-shell {
-      padding-inline-start: 20px;
-    }
-
-    .hero-title {
-      font-size: clamp(2rem, 8vw, 2.5rem);
-    }
-
-    .hero-lede {
-      font-size: 1.25rem;
-      margin-bottom: 28px;
-    }
-
-    .hero-actions {
-      gap: 10px;
-    }
-
-    .cta {
-      padding-inline: 16px;
-    }
-
-    .rule-head {
-      padding: 20px 16px;
-      align-items: flex-start;
-      gap: 12px;
-    }
-
-    .compare-tray {
-      padding: 12px;
-    }
-
-    .compare-tray :global(.tabs) {
-      width: 100%;
-    }
-
-    .compare-tray :global(.tab) {
-      flex: 1;
-      padding-inline: 8px;
-      font-size: 0.8125rem;
-    }
-
-    .cap {
-      padding-block: 36px 40px;
-    }
-
-    .cap-heading {
-      gap: 12px;
-    }
-
-    .cap-index {
-      flex-basis: 24px;
-    }
-
-    .cap-code {
-      padding: 4px;
-    }
-  }
-
-  @media (max-width: 360px) {
-    .hero-actions {
-      flex-direction: column;
-      align-items: stretch;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .cta,
-    .cap-link span {
-      transition: none;
-    }
-
-    .cap-link:hover span {
-      transform: none;
-    }
-  }
+  .workbench { width: min(100%,1200px); margin-inline:auto; padding:0 var(--ui-gutter) 80px; }
+  .home-hero { display:grid; grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr); align-items:center; gap:56px; padding:88px 0 64px; }
+  .hero-shell,.hero-preview { min-width:0; }
+  .eyebrow { display:block; width:auto; padding:0; border:0; border-radius:0; background:none; margin:0 0 20px; font-family:var(--font-code); font-size:.6875rem; font-weight:500; letter-spacing:.1em; line-height:1.6; color:var(--text-muted); }
+  .hero-shell .eyebrow { display:flex; gap:10px; align-items:center; }
+  .brand-dot { width:7px; height:7px; border-radius:50%; background:var(--primary-light); }
+  .hero-title { margin:0 0 24px; font-family:var(--font-title); font-size:clamp(2.75rem,4.5vw,4rem); font-weight:600; line-height:1.06; letter-spacing:-.055em; }
+  .hero-title span { color:var(--primary-light); }
+  .hero-lede { max-width:38ch; margin:0 0 28px; font-size:1.125rem; line-height:1.7; color:var(--text-muted); text-wrap:pretty; }
+  .hero-actions { display:flex; flex-wrap:wrap; gap:12px; }
+  .cta { display:inline-flex; align-items:center; justify-content:center; gap:10px; min-height:48px; padding:12px 22px; border:1px solid var(--control-border); border-radius:6px; background:var(--bg); color:var(--text); font-size:.875rem; font-weight:600; text-decoration:none; transition:background 180ms,border-color 180ms; }
+  .cta--primary { background:var(--primary); border-color:var(--primary); color:var(--on-primary); }
+  .hero-note { margin:18px 0 0; font-size:.75rem; color:var(--text-soft); }
+  .hero-preview { border:1px solid var(--border-strong); border-radius:12px; overflow:hidden; background:var(--code-bg); box-shadow:0 16px 48px -24px color-mix(in srgb,var(--text) 18%,transparent); }
+  .preview-heading { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:16px 20px; border-bottom:1px solid var(--border); background:var(--surface); font-family:var(--font-code); font-size:.6875rem; }
+  .preview-language { color:var(--text-soft); }
+  .hero-preview :global(.expressive-code pre) { border:0; border-radius:0; font-size:.75rem; line-height:1.85; }
+  .hero-preview :global(.expressive-code .frame) { border:0; }
+  .preview-footer { display:flex; align-items:center; gap:10px; padding:14px 20px; font-size:.75rem; color:var(--text-muted); border-top:1px solid var(--border); background:var(--surface); }
+  .preview-check { color:var(--success); font-size:1rem; }
+  .ecosystem { display:grid; grid-template-columns:1fr 1.8fr 1fr; align-items:center; gap:32px; padding:32px 0; border-block:1px solid var(--border); }
+  .ecosystem-intro .eyebrow { margin-bottom:8px; }
+  .ecosystem-intro>p:last-child { margin:0; color:var(--text-muted); font-size:.875rem; line-height:1.6; }
+  .ecosystem-group h2 { margin:0 0 16px; font-size:.6875rem; font-weight:500; color:var(--text-soft); }
+  .ecosystem ul { display:flex; gap:28px; list-style:none; margin:0; padding:0; }
+  .ecosystem li { display:flex; align-items:center; gap:10px; font-size:.8125rem; font-weight:600; white-space:nowrap; }
+  .stack-icon { display:grid; place-items:center; flex:0 0 36px; width:36px; height:36px; color:var(--primary-light); }
+  .stack-icon img { display:block; width:28px; height:28px; object-fit:contain; }
+  .compare { margin-block:80px 96px; border:1px solid var(--border-strong); border-radius:12px; overflow:hidden; background:var(--bg-subtle); min-width:0; }
+  .rule-head { display:flex; align-items:center; justify-content:space-between; gap:32px; padding:28px 32px; border-bottom:1px solid var(--border); }
+  .rule-head .eyebrow { margin-bottom:10px; }
+  .rule-title { margin:0; font-size:clamp(1.375rem,2.6vw,1.875rem); line-height:1.25; letter-spacing:-.035em; font-weight:600; }
+  .rule-head>p { margin:0; flex-shrink:0; color:var(--text-muted); font-size:.875rem; line-height:1.6; }
+  .compare-tray { padding:24px; min-width:0; }
+  .compare-tray :global(.tabs) { display:flex; width:fit-content; max-width:100%; gap:4px; padding:4px; border:1px solid var(--border); border-radius:7px; background:var(--surface-raised); }
+  .compare-tray :global(.tab) { min-height:44px; padding:10px 20px; border:1px solid transparent; border-radius:4px; font-size:.8125rem; color:var(--text-muted); cursor:pointer; }
+  .compare-tray :global(.tab[aria-selected='true']) { background:var(--surface); color:var(--text); border-color:var(--border-strong); box-shadow:inset 0 -2px 0 var(--primary); }
+  .compare-tray :global(.tabs-panels) { margin-top:16px; }
+  .compare-tray :global(pre) { max-height:540px; font-size:.8125rem; line-height:1.8; }
+  .section-intro { margin-bottom:48px; }
+  .section-intro h2 { margin:0; font-size:clamp(1.875rem,3.5vw,2.75rem); font-weight:600; line-height:1.15; letter-spacing:-.04em; }
+  .cap { display:grid; grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr); column-gap:72px; row-gap:20px; padding:40px 0 48px; border-top:1px solid var(--border); }
+  .cap-heading { grid-column:1; display:flex; flex-direction:column; gap:20px; }
+  .cap-index { color:var(--primary-light); font-family:var(--font-code); font-size:.75rem; }
+  .cap h2 { margin:0; max-width:22ch; font-size:clamp(1.375rem,2.5vw,1.75rem); font-weight:600; line-height:1.25; letter-spacing:-.025em; }
+  .cap-copy { grid-column:1; grid-row:2; min-width:0; }
+  .cap p { margin:0 0 16px; font-size:.9375rem; line-height:1.75; color:var(--text-muted); }
+  .cap-code { grid-column:2; grid-row:1 / span 2; align-self:center; min-width:0; border:1px solid var(--border); border-radius:10px; padding:6px; background:var(--bg-subtle); }
+  .cap-code :global(pre) { font-size:.75rem; line-height:1.85; }
+  .cap-code :global(.expressive-code),.compare-tray :global(.expressive-code) { margin:0; min-width:0; max-width:100%; }
+  .cap-link { display:inline-flex; align-items:center; gap:16px; min-height:44px; color:var(--primary-light); font-size:.8125rem; font-weight:600; text-decoration:none; }
+  .cap-link:hover { text-decoration:underline; text-underline-offset:5px; }
+  .closing-cta { display:flex; align-items:center; justify-content:space-between; gap:32px; margin-top:48px; padding:40px; border:1px solid var(--primary-border); border-radius:12px; background:var(--primary-soft); }
+  .closing-cta .eyebrow { margin-bottom:12px; }
+  .closing-cta h2 { margin:0 0 12px; font-size:clamp(1.5rem,3vw,2rem); letter-spacing:-.035em; line-height:1.2; }
+  .closing-cta p:last-child { margin:0; color:var(--text-muted); font-size:.9375rem; line-height:1.6; }
+  .closing-cta .cta { flex-shrink:0; }
+  .cta:focus-visible,.cap-link:focus-visible,.compare-tray :global(.tab:focus-visible) { outline:2px solid var(--primary-light); outline-offset:4px; }
+  @media(hover:hover) { .cta:hover { background:var(--surface-hover); border-color:var(--primary-light); } .cta--primary:hover { background:var(--primary-hover); color:var(--on-primary-hover); } }
+  @media(max-width:1050px) { .home-hero { gap:32px; } .ecosystem { grid-template-columns:minmax(0,1.8fr) minmax(0,1fr); } .ecosystem-intro { grid-column:1 / -1; display:flex; align-items:center; gap:32px; } .ecosystem-intro>p:last-child br { display:none; } .ecosystem ul { gap:20px; } .cap { column-gap:40px; } }
+  @media(max-width:800px) { .home-hero { grid-template-columns:1fr; padding-top:56px; gap:40px; } .hero-lede { max-width:48ch; } .hero-title { font-size:clamp(2.75rem,7vw,3.75rem); } .rule-head { align-items:flex-start; } .rule-head>p { display:none; } .cap { grid-template-columns:1fr; row-gap:16px; } .cap h2 { max-width:32ch; } .cap-code { grid-column:1; grid-row:3; } .cap-heading { gap:12px; } .cap-copy { max-width:54ch; } .closing-cta { align-items:flex-start; flex-direction:column; } }
+  @media(max-width:600px) { .ecosystem { grid-template-columns:1fr; gap:24px; } .ecosystem-intro { display:block; } .ecosystem-intro .eyebrow { margin-bottom:8px; } .ecosystem ul { flex-wrap:wrap; column-gap:20px; row-gap:16px; } .ecosystem li { font-size:.75rem; gap:6px; } .stack-icon { flex-basis:28px; width:28px; } .stack-icon img { width:24px; height:24px; } .ecosystem-group h2 { margin-bottom:10px; } .compare { margin-block:48px 64px; } .rule-head { padding:24px 20px; } .compare-tray { padding:12px; } .compare-tray :global(.tab) { padding-inline:12px; } .section-intro { margin-bottom:32px; } .cap { padding-block:32px; } .closing-cta { padding:28px 24px; margin-top:32px; } .preview-heading { padding:14px; } .preview-language { display:none; } }
+  @media(prefers-reduced-motion:reduce) { .cta { transition:none; } }
 </style>

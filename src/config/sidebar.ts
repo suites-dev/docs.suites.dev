@@ -8,6 +8,7 @@ export interface SidebarItem {
 export interface SidebarGroup {
   label: string;
   items: SidebarItem[];
+  collapsible?: boolean;
 }
 
 export type ProductKey = "unit";
@@ -84,6 +85,14 @@ const sidebar: SidebarConfig = {
           href: "/docs/guides/sociable/",
         },
         {
+          label: "NestJS",
+          href: "/docs/guides/nestjs/",
+        },
+        {
+          label: "InversifyJS",
+          href: "/docs/guides/inversify/",
+        },
+        {
           label: "InjectionJS",
           href: "/docs/guides/injectionjs/",
         },
@@ -136,6 +145,7 @@ const sidebar: SidebarConfig = {
     },
     {
       label: "Changelog",
+      collapsible: false,
       items: [
         // sidebar_position: 6
         { label: "Changelog", href: "/docs/changelog/" },

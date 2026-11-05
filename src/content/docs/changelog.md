@@ -1,18 +1,37 @@
 ---
 sidebar_position: 6
-title: Changelog
-description: Version history and release notes for Suites
+title: Suites Unit Changelog
+description: Version history and release notes for Suites Unit
 ---
 
-All notable changes to Suites are documented here. For the complete version history, visit our [GitHub Releases](https://github.com/suites-dev/unit/releases).
+All notable changes to Suites Unit are documented here. For the complete version history, visit our [GitHub Releases](https://github.com/suites-dev/unit/releases).
 
 ---
 
 ## November 5, 2026
 
-### Suites v4.1.0
+### Suites Unit v4.1.2
 
-Suites 4.1 adds `@suites/di.injectionjs` for testing InjectionJS services with Jest or Vitest, in CommonJS and ESM.
+Suites Unit 4.1.2 fixes TypeScript errors when abstract classes are used as dependency tokens. You can pass an abstract class directly to `.mock()` and `unitRef.get()` without a constructor cast, with inferred Jest or Vitest mock types.
+
+- Accepts abstract dependency tokens in mock lookups, `.impl()` mock configuration, and `.final()` supplied values across NestJS, Inversify, and InjectionJS.
+- Preserves Inversify named and tagged metadata when configuring or retrieving an abstract-token dependency.
+- Adds `AbstractType<T>` to `@suites/types.common` for abstract or concrete class tokens. `Type<T>` continues to represent concrete constructors.
+- Keeps `TestBed.solitary()`, `TestBed.sociable()`, and `.expose()` restricted to concrete classes because Suites Unit instantiates them.
+- Adds abstract-token E2E coverage across all ten adapter/runner fixtures on Node.js 22, 24, and 26, including the CommonJS and ESM configurations.
+- Updates the NestJS and Inversify adapters to `4.0.3`, InjectionJS to `4.1.2`, and `@suites/types.doubles` to `4.0.2` for shared type dependencies. Supported framework and Node.js versions are unchanged.
+
+Update `@suites/unit`, your DI adapter, and your doubles adapter together.
+
+[Full v4.1.2 release notes →](https://github.com/suites-dev/unit/releases/tag/v4.1.2) · [Mock configuration →](/docs/api-reference/mock-configuration/) · [Dependency lookups →](/docs/api-reference/unit-reference/)
+
+---
+
+## November 5, 2026
+
+### Suites Unit v4.1.0
+
+Suites Unit 4.1 adds `@suites/di.injectionjs` for testing InjectionJS services with Jest or Vitest, in CommonJS and ESM.
 
 - Supports constructor injection with class, string, symbol, and `InjectionToken` identifiers, plus `forwardRef()` and static constructor metadata.
 - Preserves token identity in mock overrides and lookups: two tokens with the same description remain distinct.
@@ -28,9 +47,9 @@ InjectionJS requires `injection-js` `^2.6.1`. Contextual `inject()` calls and pr
 
 ## November 4, 2026
 
-### Suites v4.0.0
+### Suites Unit v4.0.0
 
-Suites 4 supports Node.js 22, 24, and 26, adds NestJS 12 and Inversify 8 support, and retains NestJS 10/11 and Inversify 7 compatibility. CommonJS and ESM remain supported.
+Suites Unit 4 supports Node.js 22, 24, and 26, adds NestJS 12 and Inversify 8 support, and retains NestJS 10/11 and Inversify 7 compatibility. CommonJS and ESM remain supported.
 
 **Breaking changes:**
 
@@ -47,13 +66,13 @@ Suites 4 supports Node.js 22, 24, and 26, adds NestJS 12 and Inversify 8 support
 - The repository uses Node 26, pnpm 12, and TypeScript 6. Consumer projects can keep their package manager.
 - Release E2E tests cover 96 compatibility combinations across Node 22/24/26 and supported NestJS/Inversify majors.
 
-[Upgrade from Suites 3 →](/docs/migration-guides/from-v3/) · [Full v4.0.0 release notes →](https://github.com/suites-dev/unit/releases/tag/v4.0.0)
+[Upgrade from Suites Unit 3 →](/docs/migration-guides/from-v3/) · [Full v4.0.0 release notes →](https://github.com/suites-dev/unit/releases/tag/v4.0.0)
 
 ---
 
 ## May 8, 2026
 
-### Suites v3.1.1
+### Suites Unit v3.1.1
 
 This hotfix resolves `TS2300: Duplicate identifier` errors for `Mocked` and `Stub` when `skipLibCheck` is `false`. It removes duplicate direct exports from `@suites/unit`, leaving the adapters' module augmentations as the source of these types. You can still import both types from `@suites/unit`.
 
@@ -65,7 +84,7 @@ Only `@suites/unit` was updated to `3.1.1`; the other packages remained at `3.1.
 
 ## May 5, 2026
 
-### Suites v3.1.0
+### Suites Unit v3.1.0
 
 This release fixes ESM output by adding missing `.js` extensions, restores Vitest 4 compatibility, and corrects `Mocked<T>` resolution with `moduleResolution: NodeNext`. It also fixes missing internal dependencies, removes the Inversify adapter's lodash dependency, and adds package READMEs and public API documentation.
 
@@ -95,15 +114,15 @@ This release ensures smoother integration with popular DI frameworks and reduces
 
 ## July 13, 2024
 
-### 🎉 Suites v3.0.0
+### 🎉 Suites Unit v3.0.0
 
-We're incredibly excited to announce **Suites v3.0.0**, marking the official evolution from Automock to Suites. This
+We're incredibly excited to announce **Suites Unit v3.0.0**, marking the official evolution from Automock to Suites Unit. This
 major release represents a significant milestone in the project's journey.
 
-#### 📜 From Automock to Suites
+#### 📜 From Automock to Suites Unit
 
-Suites was previously known as **Automock** through version `2.x`. Starting with version `3.0.0`, the project has been
-rebranded to Suites while maintaining the same powerful foundations and principles. Automock continued to receive critical fixes during the transition. Its maintenance ended on June 30, 2026; new development continues in Suites.
+Suites Unit was previously known as **Automock** through version `2.x`. Starting with version `3.0.0`, the project has been
+rebranded to Suites Unit while maintaining the same powerful foundations and principles. Automock continued to receive critical fixes during the transition. Its maintenance ended on June 30, 2026; new development continues in Suites Unit.
 
 #### ⚡ What's New
 
@@ -154,13 +173,13 @@ We've prepared comprehensive migration guides to help you upgrade smoothly:
 
 ## Earlier History: Automock (2022-2023)
 
-Before becoming Suites at `v3.0.0`, the project was developed as **Automock** from `v1.0.0` through `v2.x`. During this period, the foundational architecture was established:
+Before becoming Suites Unit at `v3.0.0`, the project was developed as **Automock** from `v1.0.0` through `v2.x`. During this period, the foundational architecture was established:
 
 - **`v2.1.0`** (Dec 2023): InversifyJS adapter support
 - **`v2.0.0`** (Nov 2022): Native mocking implementation, Node.js v16+ requirement
 - **`v1.x series`** (2022): Property injection support, enhanced dependency resolution
 
-The transition to Suites represented a rebranding and modernization while preserving the core testing philosophy and architectural foundations built during the Automock era.
+The transition to Suites Unit represented a rebranding and modernization while preserving the core testing philosophy and architectural foundations built during the Automock era.
 
 [View complete Automock release history →](https://github.com/suites-dev/unit/releases?q=v2&expanded=true)
 
@@ -168,13 +187,13 @@ The transition to Suites represented a rebranding and modernization while preser
 
 ## Version Support
 
-These docs describe Suites 4. Earlier Suites releases remain available in [GitHub Releases](https://github.com/suites-dev/unit/releases). Automock 2.x is no longer maintained.
+These docs describe Suites Unit 4. Earlier Suites Unit releases remain available in [GitHub Releases](https://github.com/suites-dev/unit/releases). Automock 2.x is no longer maintained.
 
 See [Installation](/docs/get-started/installation/#prerequisites) for supported runtime and framework versions, and [Migration Guides](/docs/migration-guides/) to upgrade.
 
 ## Get Involved
 
-We're grateful to our growing community of contributors and users. Your feedback shapes Suites' development.
+We're grateful to our growing community of contributors and users. Your feedback shapes the development of Suites Unit.
 
 - 🐛 [Report issues](https://github.com/suites-dev/unit/issues)
 - 💡 [Request features](https://github.com/suites-dev/unit/discussions)

@@ -15,6 +15,19 @@ function isGroupActive(items: { href: string }[]) {
 <nav class="sidebar-nav" aria-label="Documentation">
   {groups.map((group) => {
     const open = isGroupActive(group.items);
+    if (group.collapsible === false) {
+      const item = group.items[0];
+      const isActive = currentPath === item.href.replace(/\/$/, '');
+      return (
+        <a
+          href={item.href}
+          class:list={['sidebar-group', 'sidebar-group-label', 'sidebar-direct-link', { active: isActive }]}
+          aria-current={isActive ? 'page' : undefined}
+        >
+          {item.label}
+        </a>
+      );
+    }
     return (
       <details class="sidebar-group" open={open}>
         <summary class="sidebar-group-label">
@@ -44,3 +57,11 @@ function isGroupActive(items: { href: string }[]) {
     );
   })}
 </nav>
+
+<style>
+  .sidebar-nav .sidebar-direct-link {
+    font-size: 12px;
+    font-weight: var(--fw-semibold);
+    text-decoration: none;
+  }
+</style>
