@@ -18,7 +18,11 @@ export default defineConfig({
   outDir: "./dist",
   vite: {
     optimizeDeps: { include: ["@docsearch/react"] },
-    ssr: { noExternal: ["@docsearch/react"] },
+    ssr: {
+      // Bundle ESM helpers so legacy host dependencies cannot shadow them
+      // when Expressive Code renders the static pages.
+      noExternal: ["@docsearch/react", "hastscript", "unist-util-visit-parents"],
+    },
     plugins: [{
       name: "suites-dependency-cache",
       // Builds must not replace dependency files used by a running dev server.
