@@ -8,7 +8,7 @@ const groups = sidebar[activeProduct];
 function isGroupActive(items: { href: string }[]) {
   return items.some((item) => {
     const h = item.href.replace(/\/$/, '');
-    return currentPath === h || currentPath.startsWith(h + '/');
+    return currentPath === h;
   });
 }
 ---

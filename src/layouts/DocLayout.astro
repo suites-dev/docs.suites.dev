@@ -21,6 +21,8 @@ import PrevNext from '@/components/docs/PrevNext.astro';
 import Breadcrumb from '@/components/docs/Breadcrumb.astro';
 import PageActions from '@/components/docs/PageActions.astro';
 import LastUpdated from '@/components/docs/LastUpdated.astro';
+import { docsBreadcrumbs } from '@/lib/breadcrumbs';
+import { SITE_URL } from '@/config/seo';
 
 interface Heading {
   depth: number;
@@ -71,6 +73,17 @@ const GITHUB_EDIT_BASE = 'https://github.com/suites-dev/suites.dev/edit/master/s
 const editUrl = editUrlProp ?? (entryId ? GITHUB_EDIT_BASE + entryId : GITHUB_EDIT_BASE);
 
 const showToc = !hideToc && headings.length > 0;
+const site = Astro.site ?? new URL(SITE_URL);
+const breadcrumbItems = [{ label: 'Documentation', href: '/docs/' }, ...docsBreadcrumbs(slug, title)];
+const breadcrumbSchema = {
+  '@type': 'BreadcrumbList',
+  itemListElement: breadcrumbItems.map((item, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: item.label,
+    item: new URL(item.href, site).href,
+  })),
+};
 ---
 <BaseLayout
   title={metaTitle ?? title}
@@ -79,14 +92,17 @@ const showToc = !hideToc && headings.length > 0;
   noIndex={noIndex}
   canonicalUrl={canonicalUrl}
   header="docs"
+  pageType="TechArticle"
+  modifiedTime={lastUpdated}
+  structuredData={[breadcrumbSchema]}
 >
   <div class="shell shell--docs">
     <div class="doc-layout">
-      <nav class="sidebar" aria-label="Documentation">
+      <aside class="sidebar">
         <div class="sidebar-viewport">
           <Sidebar />
         </div>
-      </nav>
+      </aside>
 
       <article class="article">
         <header class="article-header">

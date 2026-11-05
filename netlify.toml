@@ -99,7 +99,7 @@ status = 301
 
 [[redirects]]
 from = "/docs/getting-started/change-log"
-to = "/docs/migration-guides/from-automock/"
+to = "/docs/changelog/"
 status = 301
 
 # ===========================================
@@ -184,9 +184,8 @@ status = 301
 # ===========================================
 # SITEMAP
 # ===========================================
-# robots.txt and Search Console both point at /sitemap.xml. @astrojs/sitemap
-# writes sitemap-index.xml, so serve it under the path crawlers already know
-# rather than changing the advertised URL.
+# Preserve the sitemap URL used by existing Search Console submissions.
+# robots.txt advertises the generated sitemap-index.xml directly.
 
 [[redirects]]
 from = "/sitemap.xml"
@@ -273,7 +272,7 @@ status = 301
 
 [[redirects]]
 from = "/docs/guides/adapters/inversifyjs"
-to = "/docs/get-started/"
+to = "/docs/guides/inversify/"
 status = 301
 
 # ===========================================

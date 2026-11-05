@@ -1,7 +1,8 @@
 ---
 sidebar_position: 7
 title: How Suites works
-description: How Suites creates lightweight test environments following inversion of control and dependency injection
+description: "See how Suites reads dependency metadata, generates typed mocks, and constructs your class without bootstrapping the application framework."
+meta_title: "How Suites Discovers and Mocks Dependencies"
 ---
 
 # How Suites works

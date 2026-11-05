@@ -1,0 +1,99 @@
+---
+import Tabs from '@/components/mdx/Tabs.astro';
+import TabItem from '@/components/mdx/TabItem.astro';
+import { Code } from 'astro-expressive-code/components';
+
+interface Props {
+  example?: 'greeting' | 'email';
+}
+const { example: exampleType = 'greeting' } = Astro.props;
+
+const frameworks = [
+  { label: 'NestJS', value: 'nestjs', module: '@nestjs/common', decorator: 'Injectable', inject: '' },
+  { label: 'InversifyJS', value: 'inversify', module: 'inversify', decorator: 'injectable', inject: 'inject' },
+  { label: 'InjectionJS', value: 'injectionjs', module: 'injection-js', decorator: 'Injectable', inject: '' },
+];
+
+function example(framework: typeof frameworks[number]) {
+  const { decorator, inject } = framework;
+  if (exampleType === 'email') {
+    const tokenDecorator = inject || 'Inject';
+    const validator = inject ? '@inject(EmailValidator) ' : '';
+    return `import 'reflect-metadata';
+import { ${decorator}, ${tokenDecorator} } from '${framework.module}';
+
+export interface SavedUser {
+  id: number;
+  email: string;
+}
+
+export interface DatabaseClient {
+  users: {
+    save(user: { email: string }): Promise<SavedUser>;
+  };
+}
+
+@${decorator}()
+export class EmailValidator {
+  isValid(email: string): boolean {
+    return email.includes('@') && email.includes('.');
+  }
+}
+
+@${decorator}()
+export class UserService {
+  constructor(
+    ${validator}private readonly validator: EmailValidator,
+    @${tokenDecorator}('DATABASE') private readonly database: DatabaseClient,
+  ) {}
+
+  async createUser(email: string): Promise<SavedUser> {
+    if (!this.validator.isValid(email)) {
+      throw new Error('Invalid email');
+    }
+    return this.database.users.save({ email });
+  }
+}`;
+  }
+  const imports = inject ? `${decorator}, ${inject}` : decorator;
+  const repository = inject ? `@${inject}(UserRepository) ` : '';
+  const formatter = inject ? `@${inject}(NameFormatter) ` : '';
+  return `import 'reflect-metadata';
+import { ${imports} } from '${framework.module}';
+
+@${decorator}()
+export class UserRepository {
+  async findName(id: string): Promise<string> {
+    throw new Error(\`Database access is not configured for \${id}\`);
+  }
+}
+
+@${decorator}()
+export class NameFormatter {
+  format(name: string): string {
+    return name.trim();
+  }
+}
+
+@${decorator}()
+export class UserService {
+  constructor(
+    ${repository}private readonly repository: UserRepository,
+    ${formatter}private readonly formatter: NameFormatter,
+  ) {}
+
+  async greet(id: string): Promise<string> {
+    const name = await this.repository.findName(id);
+    return \`Hello, \${this.formatter.format(name)}!\`;
+  }
+}`;
+}
+---
+
+<Tabs label="Dependency injection framework">
+  {frameworks.map((framework, index) => (
+    <TabItem label={framework.label} value={framework.value} default={index === 0}>
+      <Code code={example(framework)} lang="typescript" title="src/user.service.ts" />
+    </TabItem>
+  ))}
+</Tabs>

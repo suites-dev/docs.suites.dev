@@ -2,6 +2,7 @@
 sidebar_position: 2
 title: Why Suites?
 description: Compare manual mock setup with Suites. Create typed dependency mocks and choose between solitary and sociable unit tests for NestJS, Inversify, and InjectionJS.
+meta_title: "Why Suites? Typed Mocks and Simpler Unit Tests"
 ---
 
 import Tabs from '@/components/mdx/Tabs.astro';
@@ -11,29 +12,35 @@ Suites discovers a class's injected dependencies, creates typed mocks, and const
 
 ## Compare the Same Test
 
-Both tests below verify that a service returns a user's name. They use the `UserService` and `UserRepository` files from [Quickstart](/docs/get-started/quickstart/#step-1-creating-the-application-code). Complete [Installation](/docs/get-started/installation/) with NestJS and Jest to run them.
+Both tests below verify that a service greets a user. They use the `UserService`, `UserRepository`, and `NameFormatter` classes from the [NestJS quick start](/docs/guides/nestjs/#2-define-the-service-and-its-collaborators). Complete [Installation](/docs/get-started/installation/) with NestJS and Jest to run them.
 
 <Tabs>
 <TabItem value="manual" label="Manual setup" default>
 
 ```typescript title="src/user.service.manual.spec.ts"
 import 'reflect-metadata';
-import { expect, it, jest } from '@jest/globals';
-import { UserService } from './user.service';
-import { UserRepository } from './user.repository';
+import { beforeAll, describe, expect, it, jest } from '@jest/globals';
+import { NameFormatter, UserRepository, UserService } from './user.service';
 
-it('returns the user name', async () => {
-  const repository: jest.Mocked<UserRepository> = {
-    getUserById: jest.fn<UserRepository['getUserById']>(),
-  };
-  const service = new UserService(repository);
+describe('UserService, manual setup', () => {
+  let service: UserService;
+  let repository: jest.Mocked<UserRepository>;
+  let formatter: jest.Mocked<NameFormatter>;
 
-  repository.getUserById.mockResolvedValue({
-    id: 1, name: 'Ada', email: 'ada@example.com',
+  beforeAll(() => {
+    repository = { findName: jest.fn<UserRepository['findName']>() };
+    formatter = { format: jest.fn<NameFormatter['format']>() };
+    service = new UserService(repository, formatter);
   });
 
-  expect(await service.getUserName(1)).toBe('Ada');
-  expect(repository.getUserById).toHaveBeenCalledWith(1);
+  it('greets the user returned by the repository', async () => {
+    repository.findName.mockResolvedValue(' Ada ');
+    formatter.format.mockReturnValue('Ada');
+
+    await expect(service.greet('user-1')).resolves.toBe('Hello, Ada!');
+    expect(repository.findName).toHaveBeenCalledWith('user-1');
+    expect(formatter.format).toHaveBeenCalledWith(' Ada ');
+  });
 });
 ```
 
@@ -42,21 +49,30 @@ it('returns the user name', async () => {
 
 ```typescript title="src/user.service.suites.spec.ts"
 import 'reflect-metadata';
-import { expect, it } from '@jest/globals';
-import { TestBed } from '@suites/unit';
-import { UserService } from './user.service';
-import { UserRepository } from './user.repository';
+import { beforeAll, describe, expect, it } from '@jest/globals';
+import { TestBed, type Mocked } from '@suites/unit';
+import { NameFormatter, UserRepository, UserService } from './user.service';
 
-it('returns the user name', async () => {
-  const { unit, unitRef } = await TestBed.solitary(UserService).compile();
-  const repository = unitRef.get(UserRepository);
+describe('UserService, Suites setup', () => {
+  let unit: UserService;
+  let repository: Mocked<UserRepository>;
+  let formatter: Mocked<NameFormatter>;
 
-  repository.getUserById.mockResolvedValue({
-    id: 1, name: 'Ada', email: 'ada@example.com',
+  beforeAll(async () => {
+    const testBed = await TestBed.solitary(UserService).compile();
+    unit = testBed.unit;
+    repository = testBed.unitRef.get(UserRepository);
+    formatter = testBed.unitRef.get(NameFormatter);
   });
 
-  expect(await unit.getUserName(1)).toBe('Ada');
-  expect(repository.getUserById).toHaveBeenCalledWith(1);
+  it('greets the user returned by the repository', async () => {
+    repository.findName.mockResolvedValue(' Ada ');
+    formatter.format.mockReturnValue('Ada');
+
+    await expect(unit.greet('user-1')).resolves.toBe('Hello, Ada!');
+    expect(repository.findName).toHaveBeenCalledWith('user-1');
+    expect(formatter.format).toHaveBeenCalledWith(' Ada ');
+  });
 });
 ```
 
@@ -90,4 +106,4 @@ Use `TestBed` and augmented types such as `Mocked<T>` from `@suites/unit`. Stand
 
 ## Next Step
 
-[Install Suites](/docs/get-started/installation/), then follow [Quickstart](/docs/get-started/quickstart/) to run your first solitary and sociable tests.
+[Install Suites](/docs/get-started/installation/), then choose your framework in [Quick Start](/docs/get-started/quickstart/) to write your first unit test.

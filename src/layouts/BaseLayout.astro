@@ -4,14 +4,22 @@ import MarketingHeader from '@/components/site/MarketingHeader.astro';
 import Footer from '@/components/site/Footer.astro';
 import GoogleAnalytics from '@/components/islands/GoogleAnalytics.astro';
 import '@/styles/globals.css';
+import { DEFAULT_SOCIAL_IMAGE, SITE_DESCRIPTION, SITE_NAME, SITE_URL, pageTitle } from '@/config/seo';
 
 interface Props {
   title?: string;
   description?: string;
   ogImage?: string;
+  ogImageAlt?: string;
+  ogImageWidth?: number;
+  ogImageHeight?: number;
+  ogImageType?: string;
   keywords?: string[];
-  canonicalUrl?: string;
+  canonicalUrl?: string | false;
   noIndex?: boolean;
+  pageType?: 'WebPage' | 'TechArticle';
+  modifiedTime?: string;
+  structuredData?: Record<string, unknown>[];
   /* Routes can opt out of the shared branded footer when they provide their
      own page ending. Documentation and marketing surfaces render it by default. */
   showFooter?: boolean;
@@ -25,9 +33,13 @@ interface Props {
 }
 
 const {
-  title = 'Suites Documentation',
-  description = 'A unit testing framework for TypeScript backends working with inversion of control and dependency injection',
-  ogImage = 'https://suites.dev/img/banner.png',
+  title = SITE_NAME,
+  description = SITE_DESCRIPTION,
+  ogImage = DEFAULT_SOCIAL_IMAGE.path,
+  ogImageAlt,
+  ogImageWidth,
+  ogImageHeight,
+  ogImageType,
   keywords = [
     'auto mocking',
     'unit testing framework',
@@ -37,6 +49,7 @@ const {
     'inversion of control',
     'nestjs',
     'inversifyjs',
+    'injectionjs',
     'unit testing',
     'test doubles',
     'typescript testing',
@@ -49,15 +62,68 @@ const {
     Astro.site ?? Astro.url.origin,
   ).toString(),
   noIndex = false,
+  pageType = 'WebPage',
+  modifiedTime,
+  structuredData = [],
   showFooter = true,
   showHeader = true,
   header = 'marketing',
 } = Astro.props;
 
-const fullTitle = title === 'Suites Documentation' ? title : `${title} | Suites`;
-const robots = noIndex
+const site = Astro.site ?? new URL(SITE_URL);
+const fullTitle = pageTitle(title);
+const imageUrl = new URL(ogImage, site).href;
+const isDefaultImage = imageUrl === new URL(DEFAULT_SOCIAL_IMAGE.path, site).href;
+const imageAlt = ogImageAlt ?? (isDefaultImage ? DEFAULT_SOCIAL_IMAGE.alt : title);
+const imageWidth = ogImageWidth ?? (isDefaultImage ? DEFAULT_SOCIAL_IMAGE.width : undefined);
+const imageHeight = ogImageHeight ?? (isDefaultImage ? DEFAULT_SOCIAL_IMAGE.height : undefined);
+const imageType = ogImageType ?? (isDefaultImage ? DEFAULT_SOCIAL_IMAGE.type : undefined);
+const previewBuild = ['deploy-preview', 'branch-deploy'].includes(process.env.CONTEXT ?? '');
+const preventIndexing = noIndex || previewBuild;
+const robots = preventIndexing
   ? 'noindex, follow'
   : 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1';
+const dateModified = modifiedTime && !Number.isNaN(Date.parse(modifiedTime))
+  ? new Date(modifiedTime).toISOString()
+  : undefined;
+const organizationId = new URL('/#organization', site).href;
+const websiteId = new URL('/#website', site).href;
+const graph = canonicalUrl && !preventIndexing ? {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': organizationId,
+      name: SITE_NAME,
+      url: site.href,
+      logo: new URL('/img/branding/Suites_LogoMark_FullColor.png', site).href,
+      sameAs: ['https://github.com/suites-dev'],
+    },
+    {
+      '@type': 'WebSite',
+      '@id': websiteId,
+      name: SITE_NAME,
+      url: site.href,
+      description: SITE_DESCRIPTION,
+      inLanguage: 'en',
+      publisher: { '@id': organizationId },
+    },
+    {
+      '@type': pageType,
+      '@id': `${canonicalUrl}#webpage`,
+      url: canonicalUrl,
+      name: fullTitle,
+      ...(pageType === 'TechArticle' ? { headline: title, author: { '@id': organizationId } } : {}),
+      description,
+      inLanguage: 'en',
+      isPartOf: { '@id': websiteId },
+      publisher: { '@id': organizationId },
+      dateModified,
+      primaryImageOfPage: { '@type': 'ImageObject', url: imageUrl, width: imageWidth, height: imageHeight, caption: imageAlt },
+    },
+    ...structuredData,
+  ],
+} : undefined;
 ---
 <!doctype html>
 <html lang="en">
@@ -74,9 +140,7 @@ const robots = noIndex
     <link rel="shortcut icon" href="/img/favicon.ico?v=20260823" />
     <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=20260823" />
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Fonts are served locally. -->
     {header === 'docs' && (
       <>
         <link
@@ -86,10 +150,6 @@ const robots = noIndex
           type="font/ttf"
           crossorigin="anonymous"
         />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap"
-        />
       </>
     )}
 
@@ -98,17 +158,20 @@ const robots = noIndex
     <meta name="author" content="Suites" />
     <meta name="robots" content={robots} />
     <meta name="googlebot" content={robots} />
-    <link rel="canonical" href={canonicalUrl} />
+    {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
 
     <!-- Open Graph -->
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={ogImage} />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content={fullTitle} />
-    <meta property="og:url" content={canonicalUrl} />
-    <meta property="og:type" content="website" />
+    <meta property="og:image" content={imageUrl} />
+    <meta property="og:image:secure_url" content={imageUrl} />
+    {imageWidth && <meta property="og:image:width" content={String(imageWidth)} />}
+    {imageHeight && <meta property="og:image:height" content={String(imageHeight)} />}
+    {imageType && <meta property="og:image:type" content={imageType} />}
+    <meta property="og:image:alt" content={imageAlt} />
+    {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
+    <meta property="og:type" content={pageType === 'TechArticle' ? 'article' : 'website'} />
+    {pageType === 'TechArticle' && dateModified && <meta property="article:modified_time" content={dateModified} />}
     <meta property="og:site_name" content="Suites" />
     <meta property="og:locale" content="en_US" />
 
@@ -116,11 +179,12 @@ const robots = noIndex
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={ogImage} />
-    <meta name="twitter:image:alt" content={fullTitle} />
+    <meta name="twitter:image" content={imageUrl} />
+    <meta name="twitter:image:alt" content={imageAlt} />
+    {graph && <script is:inline type="application/ld+json" set:html={JSON.stringify(graph).replace(/</g, '\\u003c')} />}
 
     <!-- Additional SEO -->
-    <meta name="theme-color" content="#1a1a1a" />
+    <meta name="theme-color" content="#0F0F12" />
     <meta name="application-name" content="Suites" />
     <meta name="apple-mobile-web-app-title" content="Suites" />
 

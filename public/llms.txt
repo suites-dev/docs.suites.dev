@@ -9,7 +9,7 @@ Suites supports NestJS 10/11/12 and Inversify 7/8, plus InjectionJS ^2.6.1 start
 - [Get Started overview](https://suites.dev/docs/get-started/): entry point for new users
 - [Why Suites](https://suites.dev/docs/get-started/why-suites): the problem Suites solves and how it differs from manual mocking
 - [Installation](https://suites.dev/docs/get-started/installation): install the right packages for your DI framework and test runner
-- [Quickstart](https://suites.dev/docs/get-started/quickstart): a minimal end-to-end example
+- [Quick Start](https://suites.dev/docs/get-started/quickstart): choose a NestJS, InversifyJS, or InjectionJS walkthrough using Jest or Vitest
 
 ## Guides
 

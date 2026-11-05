@@ -4,6 +4,9 @@ import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import expressiveCode from "astro-expressive-code";
 import remarkGfm from "remark-gfm";
+import { readFileSync } from "node:fs";
+
+const outputDirectory = new URL("./dist/", import.meta.url);
 
 export default defineConfig({
   site: "https://suites.dev",
@@ -12,6 +15,7 @@ export default defineConfig({
   // to agree with it or every page redirects away from its own canonical URL.
   trailingSlash: "always",
   output: "static",
+  outDir: "./dist",
   vite: {
     optimizeDeps: { include: ["@docsearch/react"] },
     ssr: { noExternal: ["@docsearch/react"] },
@@ -27,6 +31,16 @@ export default defineConfig({
       remarkPlugins: [remarkGfm],
     }),
     react(),
-    sitemap(),
+    sitemap({
+      // Read the rendered directive so content-level no_index and previews agree
+      // with the sitemap. Status pages are already excluded by the integration.
+      filter: (page) => {
+        const pathname = new URL(page).pathname;
+        const route = pathname.endsWith('/') ? pathname : `${pathname}/`;
+        const html = readFileSync(new URL(`.${route}index.html`, outputDirectory), "utf8");
+        const head = html.split("</head>")[0];
+        return !/<meta\b[^>]*name="robots"[^>]*content="[^"]*noindex/i.test(head);
+      },
+    }),
   ],
 });

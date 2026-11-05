@@ -2,17 +2,14 @@
 sidebar_position: 5
 title: Testing InjectionJS Services
 description: Test InjectionJS constructor injection with Suites, Jest or Vitest, typed tokens, and mock overrides.
+meta_title: "InjectionJS Unit Testing with Jest or Vitest"
 ---
 
 Use `@suites/di.injectionjs` to test constructor-injected services with Jest or Vitest. Suites reads the constructor's dependencies, supplies mocks, and creates the service without starting a production injector.
 
-```typescript
-const { unit, unitRef } = await TestBed.solitary(UserService).compile();
-const repository = unitRef.get<UserRepository>(USER_REPOSITORY);
-repository.findName.mockResolvedValue('Alice');
-```
+This is the InjectionJS path in [Quick Start](/docs/get-started/quickstart/). Define a service, test it with a mocked dependency, then configure an override.
 
-This guide uses Suites 4.1 or later and InjectionJS `^2.6.1`. CommonJS and ESM are supported. See [Installation](/docs/get-started/installation/#prerequisites) for Node.js and runner requirements.
+This guide uses Suites 4.1 or later and InjectionJS `^2.6.1`; CommonJS and ESM are supported. See [Installation](/docs/get-started/installation/#prerequisites) for Node.js and runner requirements.
 
 ## 1. Configure your test project
 
@@ -72,37 +69,56 @@ export class UserService {
 
 Load `reflect-metadata` before decorated classes. You can also import it once in your runner's setup file.
 
-## 3. Test the service
+## 3. Test with mocked collaborators
+
+A **solitary test** exercises the unit with all injected collaborators mocked. Compile the test bed in `beforeAll`, then configure the repository response and assert the result in `it`.
 
 ```typescript title="src/user.service.spec.ts"
-import { expect, it } from '@jest/globals';
-import { TestBed } from '@suites/unit';
+import { beforeAll, describe, expect, it } from '@jest/globals';
+import { TestBed, type Mocked } from '@suites/unit';
 import { USER_REPOSITORY, UserService } from './user.service';
 import type { UserRepository } from './user.service';
 
-it('returns the repository result', async () => {
-  const { unit, unitRef } = await TestBed.solitary(UserService).compile();
-  const repository = unitRef.get<UserRepository>(USER_REPOSITORY);
-  repository.findName.mockResolvedValue('Alice');
+describe('UserService, solitary', () => {
+  let unit: UserService;
+  let repository: Mocked<UserRepository>;
 
-  await expect(unit.findName('1')).resolves.toBe('Alice');
-  expect(repository.findName).toHaveBeenCalledWith('1');
+  beforeAll(async () => {
+    const testBed = await TestBed.solitary(UserService).compile();
+    unit = testBed.unit;
+    repository = testBed.unitRef.get<UserRepository>(USER_REPOSITORY);
+  });
+
+  it('returns the repository result', async () => {
+    repository.findName.mockResolvedValue('Alice');
+
+    await expect(unit.findName('1')).resolves.toBe('Alice');
+    expect(repository.findName).toHaveBeenCalledWith('1');
+  });
 });
 ```
 
-For Vitest, import `expect` and `it` from `vitest`. For NodeNext ESM projects, use `.js` extensions for relative imports and keep your runner's ESM configuration.
+For Vitest, import `beforeAll`, `describe`, `expect`, and `it` from `vitest`. For NodeNext ESM projects, use `.js` extensions for relative imports and keep your runner's ESM configuration.
 
-Run `pnpm exec jest` or `pnpm exec vitest run`. The test should pass: the service returns `Alice`, and the generated repository mock receives `'1'`.
+Run `pnpm exec jest` or `pnpm exec vitest run`. Expect **one passing test**: the service returns `Alice`, and the generated repository mock receives `'1'`.
+
+## Your first test passes
+
+You have a working solitary test. Continue to [Solitary Unit Tests](/docs/guides/solitary/) to extend this pattern, or [Sociable Unit Tests](/docs/guides/sociable/) to keep selected constructor-injected classes real. The remaining sections are optional details for dependency overrides and adapter support.
 
 ## Override a dependency
 
-Using the same imports, configure behavior before compiling:
+To configure behavior before compilation, replace the previous `beforeAll` hook with this one. Keep the same imports and test:
 
 ```typescript
-const { unit, unitRef } = await TestBed.solitary(UserService)
-  .mock<UserRepository>(USER_REPOSITORY)
-  .impl(stub => ({ findName: stub().mockResolvedValue('Alice') }))
-  .compile();
+beforeAll(async () => {
+  const testBed = await TestBed.solitary(UserService)
+    .mock<UserRepository>(USER_REPOSITORY)
+    .impl(stub => ({ findName: stub().mockResolvedValue('Alice') }))
+    .compile();
+  unit = testBed.unit;
+  repository = testBed.unitRef.get<UserRepository>(USER_REPOSITORY);
+});
 ```
 
 Use `.final(...)` to inject a supplied value instead. Final values cannot be retrieved through `unitRef`. Pass an explicit dependency type to token lookups and overrides, such as `.mock<UserRepository>(USER_REPOSITORY)`.
@@ -129,9 +145,16 @@ Suites builds a flat test container. It does not consume production provider con
 
 Optional dependencies are mocked like other dependencies. To test an absent optional dependency, supply `null` explicitly, for example `.mock<UserRepository | null>(USER_REPOSITORY).final(null)`.
 
+## Summary
+
+- Configure the InjectionJS metadata reference and your runner's decorator transform.
+- Share injection tokens between the service and its test.
+- Compile in `beforeAll` and retrieve typed mocks through `unitRef`.
+- Use constructor injection for the unit and any exposed real dependencies.
+
 ## Next steps
 
-- [Mock Configuration](/docs/api-reference/mock-configuration/) for implementations and final values
-- [UnitReference](/docs/api-reference/unit-reference/) for retrieving dependency mocks
-- [Types](/docs/api-reference/types/) for adapter declarations and token types
-- [Sociable tests](/docs/guides/sociable/) for selected real dependencies
+- **[Solitary Unit Tests](/docs/guides/solitary/)**: Extend your first test with more mock configurations.
+- **[Mock Configuration](/docs/api-reference/mock-configuration/)**: Configure implementations and final values.
+- **[Sociable Unit Tests](/docs/guides/sociable/)**: Keep selected class dependencies real.
+- **[Quick Start](/docs/get-started/quickstart/)**: Return to the overview or choose another framework.

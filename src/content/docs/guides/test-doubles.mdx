@@ -3,38 +3,58 @@ sidebar_position: 2
 title: "TypeScript Test Doubles: Mocks, Stubs, Spies, and Fakes"
 description: "Configure typed mocks, verify calls, and choose test doubles for TypeScript unit tests with Suites, Jest, and Vitest."
 keywords: [test doubles, mocks, stubs, spies, fakes, mocks vs stubs, typescript testing, unit testing, mock generation typescript, auto mocks, nestjs testing, vitest mocks, jest mocks]
+meta_title: "TypeScript Test Doubles: Mocks, Stubs, Spies, and Fakes"
 ---
 
 import ImportedDependencyDiagram from '@/components/docs/ImportedDependencyDiagram.astro';
+import ClassDependenciesExample from '@/components/docs/ClassDependenciesExample.astro';
 
 A **test double** replaces a dependency in a test so you can control its behavior. With Suites, retrieve the mock, set the value its method should return, and assert the result.
 
+## Define the service for your framework
+
+Complete [Installation](/docs/get-started/installation/) for your framework and runner. Choose the matching version of `src/user.service.ts`; the test below works unchanged with all three versions. The repository throws if its real method runs, so the tests replace it.
+
+<ClassDependenciesExample />
+
+NestJS and InjectionJS use emitted constructor types; InversifyJS uses explicit `@inject()` decorators here. Token dependencies use the same mocking workflow; see your [framework quick start](/docs/get-started/quickstart/) for token examples.
+
 ## Configure a Mock and Verify a Call
 
-Using the classes from [Quickstart](/docs/get-started/quickstart/#step-1-creating-the-application-code), add this test. It runs with either Jest or the Vitest globals configuration from [Installation](/docs/get-started/installation/).
+Create this test alongside the service. It uses Jest; for Vitest, change the runner import from `@jest/globals` to `vitest`.
 
 ```typescript title="src/test-doubles.spec.ts"
 import 'reflect-metadata';
+import { beforeAll, describe, expect, it } from '@jest/globals';
 import { TestBed, type Mocked } from '@suites/unit';
-import { UserService } from './user.service';
-import { UserRepository } from './user.repository';
+import { NameFormatter, UserRepository, UserService } from './user.service';
 
-it('returns a name using the repository', async () => {
-  const { unit, unitRef } = await TestBed.solitary(UserService).compile();
-  const repository: Mocked<UserRepository> = unitRef.get(UserRepository);
+describe('UserService, dependency mocks', () => {
+  let unit: UserService;
+  let repository: Mocked<UserRepository>;
+  let formatter: Mocked<NameFormatter>;
 
-  repository.getUserById.mockResolvedValue({
-    id: 1, name: 'Ada', email: 'ada@example.com',
+  beforeAll(async () => {
+    const testBed = await TestBed.solitary(UserService).compile();
+    unit = testBed.unit;
+    repository = testBed.unitRef.get(UserRepository);
+    formatter = testBed.unitRef.get(NameFormatter);
   });
 
-  expect(await unit.getUserName(1)).toBe('Ada');
-  expect(repository.getUserById).toHaveBeenCalledWith(1);
+  it('greets the user returned by the repository', async () => {
+    repository.findName.mockResolvedValue(' Ada ');
+    formatter.format.mockReturnValue('Ada');
+
+    await expect(unit.greet('user-1')).resolves.toBe('Hello, Ada!');
+    expect(repository.findName).toHaveBeenCalledWith('user-1');
+    expect(formatter.format).toHaveBeenCalledWith(' Ada ');
+  });
 });
 ```
 
 Run `pnpm exec jest` or `pnpm exec vitest run`. This test should pass without executing the real repository method.
 
-`repository` is the **mock**, a replacement for the dependency. Its `getUserById` method is a **stub**: `.mockResolvedValue()` supplies the response, and the runner records calls so you can verify how the service used it.
+`repository` is the **mock**, a replacement for the dependency. Its `findName` method is a **stub**: `.mockResolvedValue()` supplies the response, and the runner records calls so you can verify how the service used it.
 
 ## Choose a Test Double
 
@@ -53,8 +73,8 @@ Suites' doubles adapters create mocks and stub methods. Write a fake implementat
 
 The first example checks both:
 
-- **Result verification:** The service returns `'Ada'`.
-- **Interaction verification:** The repository receives ID `1`.
+- **Result verification:** The service returns `'Hello, Ada!'`.
+- **Interaction verification:** The repository receives ID `'user-1'`.
 
 Choose assertions that describe the behavior you care about. An interaction assertion is useful when the interaction itself matters, such as sending an email or saving a record. You do not need to assert every internal call.
 
@@ -64,17 +84,25 @@ Create a fresh TestBed for another scenario, then configure a rejected promise:
 
 ```typescript title="src/user.service.error.spec.ts"
 import 'reflect-metadata';
-import { TestBed } from '@suites/unit';
-import { UserService } from './user.service';
-import { UserRepository } from './user.repository';
+import { beforeAll, describe, expect, it } from '@jest/globals';
+import { TestBed, type Mocked } from '@suites/unit';
+import { UserRepository, UserService } from './user.service';
 
-it('propagates a repository error', async () => {
-  const { unit, unitRef } = await TestBed.solitary(UserService).compile();
-  unitRef.get(UserRepository).getUserById.mockRejectedValue(
-    new Error('User not found'),
-  );
+describe('UserService, repository errors', () => {
+  let unit: UserService;
+  let repository: Mocked<UserRepository>;
 
-  await expect(unit.getUserName(1)).rejects.toThrow('User not found');
+  beforeAll(async () => {
+    const testBed = await TestBed.solitary(UserService).compile();
+    unit = testBed.unit;
+    repository = testBed.unitRef.get(UserRepository);
+  });
+
+  it('propagates a repository error', async () => {
+    repository.findName.mockRejectedValue(new Error('User not found'));
+
+    await expect(unit.greet('user-1')).rejects.toThrow('User not found');
+  });
 });
 ```
 

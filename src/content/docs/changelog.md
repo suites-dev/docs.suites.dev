@@ -1,7 +1,8 @@
 ---
 sidebar_position: 6
 title: Suites Unit Changelog
-description: Version history and release notes for Suites Unit
+description: "Read Suites Unit release notes, new features, fixes, breaking changes, and upgrade guidance for supported dependency injection frameworks and test runners."
+meta_title: "Changelog and Release Notes"
 ---
 
 All notable changes to Suites Unit are documented here. For the complete version history, visit our [GitHub Releases](https://github.com/suites-dev/unit/releases).

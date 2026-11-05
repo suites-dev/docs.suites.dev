@@ -8,11 +8,12 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
-    "postbuild": "node scripts/algolia-reindex.mjs",
+    "postbuild": "node scripts/check-seo.mjs && node scripts/algolia-reindex.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "check": "astro check",
-    "typecheck": "astro check"
+    "typecheck": "astro check",
+    "check:seo": "node scripts/check-seo.mjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",

@@ -15,8 +15,7 @@ User-agent: DuckDuckBot
 Allow: /
 
 # ===========================================
-# AI crawlers: explicitly allowed so Suites
-# shows up in AI-generated answers.
+# AI crawlers: explicitly allowed.
 # ===========================================
 User-agent: OAI-SearchBot
 Allow: /
@@ -68,4 +67,4 @@ Disallow: /
 User-agent: serpstatbot
 Disallow: /
 
-Sitemap: https://suites.dev/sitemap.xml
+Sitemap: https://suites.dev/sitemap-index.xml

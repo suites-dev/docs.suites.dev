@@ -1,7 +1,8 @@
 ---
 sidebar_position: 3
 title: API Reference
-description: Complete API reference for Suites testing framework
+description: "Explore the Suites API for solitary and sociable tests, typed mock creation, dependency lookups, mock configuration, and TypeScript adapter declarations."
+meta_title: "TestBed, Mock Configuration, and Types API Reference"
 ---
 
 API reference for setting up and managing unit tests with Suites.
@@ -13,8 +14,8 @@ API reference for setting up and managing unit tests with Suites.
 - [**TestBed.solitary()**](/docs/api-reference/testbed-solitary/) - Create isolated unit tests where all dependencies are automatically mocked
 - [**TestBed.sociable()**](/docs/api-reference/testbed-sociable/) - Test business logic interactions, keep specific dependencies real
 - [**Mock Configuration**](/docs/api-reference/mock-configuration/) - Configure mock behavior with `.mock().final()` and `.mock().impl()`
-- [**mock() and stub()**](/docs/api-reference/mock/) - Create standalone mocks outside `TestBed` API
 - [**UnitReference**](/docs/api-reference/unit-reference/) - Access mocked dependencies in tests
+- [**Standalone mocks and stubs**](/docs/api-reference/mock/) - Create test doubles outside the `TestBed` API
 - [**Types**](/docs/api-reference/types/) - TypeScript type definitions
 
 </div>

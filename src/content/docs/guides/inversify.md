@@ -2,11 +2,12 @@
 sidebar_position: 6
 title: Testing InversifyJS Classes
 description: Test InversifyJS classes with Suites, symbol tokens, named dependencies, and selected real collaborators using Jest or Vitest.
+meta_title: "InversifyJS Unit Testing with Jest or Vitest"
 ---
 
 Use `@suites/di.inversify` to construct an InversifyJS class with typed dependency mocks. Suites reads injection metadata directly, so these unit tests do not need an application `Container` or production bindings.
 
-This guide targets Suites 4 and InversifyJS 7 or 8, with Jest or Vitest. Check [Installation](/docs/get-started/installation/#prerequisites) for supported runtime and runner versions.
+This is the InversifyJS path in [Quick Start](/docs/get-started/quickstart/). Define a service, test it with mocked dependencies, then keep a selected collaborator real. This guide targets Suites 4 and InversifyJS 7 or 8, with Jest or Vitest; check [Installation](/docs/get-started/installation/#prerequisites) for supported runtime and runner versions.
 
 ## 1. Configure the test project
 
@@ -57,7 +58,7 @@ export class UserService {
 
 Load `reflect-metadata` before decorated classes. You can also load it once in your runner's setup file. No `Container.bind()` calls are needed for this test.
 
-## 3. Configure and verify the mocks
+## 3. Test with mocked collaborators
 
 A **solitary test** exercises the unit with all injected collaborators mocked.
 
@@ -91,9 +92,13 @@ describe('UserService, solitary', () => {
 
 For Vitest, import `beforeAll`, `describe`, `expect`, and `it` from `vitest`. For NodeNext ESM projects, use `.js` extensions for relative imports and the runner's ESM configuration.
 
-Run `pnpm exec jest` or `pnpm exec vitest run`. The test should pass without a real directory implementation: the generated mock supplies the name, and the service produces the greeting.
+Run `pnpm exec jest` or `pnpm exec vitest run`. Expect **one passing test**: the generated mock supplies the name, and the service produces the greeting without a real directory implementation.
 
-## 4. Run a selected collaborator's real logic
+## Your first test passes
+
+You have a working solitary test. Continue to [Solitary Unit Tests](/docs/guides/solitary/) to extend this pattern, or [Sociable Unit Tests](/docs/guides/sociable/) to test selected real collaborators. The remaining examples are optional; use them when your service needs real collaborators, custom tokens, or framework-specific configuration.
+
+## 4. Keep selected business logic real
 
 A **sociable test** exercises the unit with selected real collaborators. Add this test to the same spec file, using its existing imports:
 
@@ -119,6 +124,8 @@ describe('UserService, sociable', () => {
 ```
 
 `.expose(NameFormatter)` selects the real class. The directory remains mocked. Select each real collaborator explicitly and check its dependencies for I/O. Exposed classes cannot be retrieved through `unitRef`.
+
+Run the same test command again. With both examples in the spec file, expect **two passing tests**.
 
 ## Retrieve a named dependency
 
@@ -204,9 +211,10 @@ Token dependencies are mocked by default, but `.final()` can supply a value or i
 
 ## Next steps
 
+- **[Solitary Unit Tests](/docs/guides/solitary/)**: Extend your first test with more mock configurations.
 - **[Mock Configuration](/docs/api-reference/mock-configuration/)**: Choose between `.impl()` and `.final()`.
 - **[UnitReference](/docs/api-reference/unit-reference/)**: Retrieve and configure dependency mocks.
-- **[NestJS](/docs/guides/nestjs/)** and **[InjectionJS](/docs/guides/injectionjs/)**: Use the same TestBed pattern with other adapters.
+- **[Quick Start](/docs/get-started/quickstart/)**: Return to the overview or choose another framework.
 
 ## Additional resources
 

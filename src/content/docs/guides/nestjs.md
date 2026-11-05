@@ -2,11 +2,12 @@
 sidebar_position: 5
 title: Testing NestJS Services
 description: Test NestJS services with Suites, typed dependency mocks, custom injection tokens, and selected real collaborators.
+meta_title: "NestJS Unit Testing with Jest or Vitest"
 ---
 
 Use `@suites/di.nestjs` to test a NestJS **provider**, a class managed by dependency injection. Suites reads its dependency metadata and constructs the class with mocks without bootstrapping a Nest application.
 
-This guide targets Suites 4 with Jest or Vitest. Check [Installation](/docs/get-started/installation/#prerequisites) for supported NestJS and runner versions.
+This is the NestJS path in [Quick Start](/docs/get-started/quickstart/). Define a service, test it with mocked dependencies, then keep a selected collaborator real. This guide targets Suites 4 with Jest or Vitest; check [Installation](/docs/get-started/installation/#prerequisites) for supported versions.
 
 ## 1. Configure the test project
 
@@ -91,7 +92,11 @@ describe('UserService, solitary', () => {
 
 For Vitest, import `beforeAll`, `describe`, `expect`, and `it` from `vitest`. For NodeNext ESM projects, use `.js` extensions for relative imports and your runner's ESM configuration.
 
-Run `pnpm exec jest` or `pnpm exec vitest run`. The test should pass: the repository receives the requested ID, and the service returns the greeting using the configured formatter result.
+Run `pnpm exec jest` or `pnpm exec vitest run`. Expect **one passing test**: the repository receives the requested ID, and the service returns the greeting using the configured formatter result.
+
+## Your first test passes
+
+You have a working solitary test. Continue to [Solitary Unit Tests](/docs/guides/solitary/) to extend this pattern, or [Sociable Unit Tests](/docs/guides/sociable/) to test selected real collaborators. The remaining examples are optional; use them when your service needs real collaborators, custom tokens, or framework-specific configuration.
 
 ## 4. Keep selected business logic real
 
@@ -110,7 +115,7 @@ describe('UserService, sociable', () => {
     repository = testBed.unitRef.get(UserRepository);
   });
 
-  it('formats the real repository response', async () => {
+  it('formats the mocked repository response with the real formatter', async () => {
     repository.findName.mockResolvedValue(' Ada ');
 
     await expect(unit.greet('user-1')).resolves.toBe('Hello, Ada!');
@@ -119,6 +124,8 @@ describe('UserService, sociable', () => {
 ```
 
 `NameFormatter.format()` now runs its real trimming logic. The repository stays mocked. Exposed real classes cannot be retrieved through `unitRef`; see [UnitReference](/docs/api-reference/unit-reference/#important-limitations).
+
+Run the same test command again. With both examples in the spec file, expect **two passing tests**.
 
 ## Supply custom injection tokens
 
@@ -187,9 +194,10 @@ Suites reads constructor and supported property injection metadata. It does not 
 
 ## Next steps
 
+- **[Solitary Unit Tests](/docs/guides/solitary/)**: Extend your first test with more mock configurations.
 - **[Mock Configuration](/docs/api-reference/mock-configuration/)**: Configure mocks before construction.
 - **[Sociable Unit Tests](/docs/guides/sociable/)**: Choose which collaborators run real code.
-- **[InjectionJS](/docs/guides/injectionjs/)** and **[InversifyJS](/docs/guides/inversify/)**: Use the same testing pattern with another DI adapter.
+- **[Quick Start](/docs/get-started/quickstart/)**: Return to the overview or choose another framework.
 
 ## Additional resources
 

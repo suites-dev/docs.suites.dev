@@ -1,14 +1,15 @@
 export interface SidebarItem {
   label: string;
   href: string;
-  previous?: string;
-  next?: string;
+  previous?: string | null;
+  next?: string | null;
 }
 
 export interface SidebarGroup {
   label: string;
   items: SidebarItem[];
   collapsible?: boolean;
+  sequential?: boolean;
 }
 
 export type ProductKey = "unit";
@@ -41,18 +42,42 @@ const sidebar: SidebarConfig = {
       label: "Get Started",
       items: [
         // sidebar_position: 1
-        { label: "Get Started", href: "/docs/get-started/" },
+        { label: "Supported stacks", href: "/docs/get-started/" },
         // sidebar_position: 2
         { label: "Why Suites?", href: "/docs/get-started/why-suites/" },
         // sidebar_position: 3
         {
           label: "Installation",
           href: "/docs/get-started/installation/",
+          next: "/docs/get-started/quickstart/",
         },
-        // sidebar_position: 4
+      ],
+    },
+    {
+      label: "Quick Start",
+      sequential: false,
+      items: [
         {
-          label: "Quick Start",
+          label: "Choose your framework",
           href: "/docs/get-started/quickstart/",
+          previous: "/docs/get-started/installation/",
+        },
+        {
+          label: "NestJS",
+          href: "/docs/guides/nestjs/",
+          previous: "/docs/get-started/quickstart/",
+          next: "/docs/guides/solitary/",
+        },
+        {
+          label: "InversifyJS",
+          href: "/docs/guides/inversify/",
+          previous: "/docs/get-started/quickstart/",
+          next: "/docs/guides/solitary/",
+        },
+        {
+          label: "InjectionJS",
+          href: "/docs/guides/injectionjs/",
+          previous: "/docs/get-started/quickstart/",
           next: "/docs/guides/solitary/",
         },
       ],
@@ -61,7 +86,10 @@ const sidebar: SidebarConfig = {
       label: "Guides",
       items: [
         // sidebar_position: 2 (section index)
-        { label: "Overview", href: "/docs/guides/" },
+        {
+          label: "Overview",
+          href: "/docs/guides/",
+        },
         // sidebar_position: 1
         {
           label: "Unit Testing Fundamentals",
@@ -75,26 +103,13 @@ const sidebar: SidebarConfig = {
         },
         // sidebar_position: 3
         {
-          label: "Testing in Isolation (Solitary)",
+          label: "Solitary tests",
           href: "/docs/guides/solitary/",
-          previous: "/docs/get-started/quickstart/",
         },
         // sidebar_position: 4
         {
-          label: "Testing Components Together (Sociable)",
+          label: "Sociable tests",
           href: "/docs/guides/sociable/",
-        },
-        {
-          label: "NestJS",
-          href: "/docs/guides/nestjs/",
-        },
-        {
-          label: "InversifyJS",
-          href: "/docs/guides/inversify/",
-        },
-        {
-          label: "InjectionJS",
-          href: "/docs/guides/injectionjs/",
         },
         {
           label: "How Suites works",
@@ -125,21 +140,29 @@ const sidebar: SidebarConfig = {
         // sidebar_position: 5 (unit-reference)
         { label: "UnitReference", href: "/docs/api-reference/unit-reference/" },
         // sidebar_position: 5 (mock)
-        { label: "mock() and stub()", href: "/docs/api-reference/mock/" },
+        { label: "Standalone mocks and stubs", href: "/docs/api-reference/mock/" },
         // sidebar_position: 6
         { label: "Types", href: "/docs/api-reference/types/" },
       ],
     },
     {
       label: "Migration Guides",
+      sequential: false,
       items: [
         // sidebar_position: 5 (section index)
-        { label: "Migration Guides", href: "/docs/migration-guides/" },
-        { label: "Suites 3 to 4", href: "/docs/migration-guides/from-v3/" },
+        { label: "Overview", href: "/docs/migration-guides/" },
+        {
+          label: "Suites 3 to 4",
+          href: "/docs/migration-guides/from-v3/",
+          previous: "/docs/migration-guides/",
+          next: "/docs/get-started/quickstart/",
+        },
         // sidebar_position: 5
         {
-          label: "Migrating from Automock to Suites",
+          label: "From Automock",
           href: "/docs/migration-guides/from-automock/",
+          previous: "/docs/migration-guides/",
+          next: "/docs/get-started/quickstart/",
         },
       ],
     },

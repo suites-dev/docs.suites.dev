@@ -1,7 +1,8 @@
 ---
 sidebar_position: 2
 title: TestBed.solitary()
-description: Create isolated unit tests with all dependencies mocked
+description: "Create an isolated test environment with TestBed.solitary(). Learn the signature, compilation results, and how to retrieve generated dependency mocks."
+meta_title: "TestBed.solitary(): Isolated Unit Testing API"
 ---
 
 Creates a test environment where all dependencies are automatically mocked for testing a class in complete isolation.
