@@ -5,6 +5,7 @@ import sitemap from "@astrojs/sitemap";
 import expressiveCode from "astro-expressive-code";
 import remarkGfm from "remark-gfm";
 import { readFileSync } from "node:fs";
+import { esmDependencies } from "./scripts/esm-dependencies.mjs";
 
 const outputDirectory = new URL("./dist/", import.meta.url);
 
@@ -19,9 +20,9 @@ export default defineConfig({
   vite: {
     optimizeDeps: { include: ["@docsearch/react"] },
     ssr: {
-      // Bundle ESM helpers so legacy host dependencies cannot shadow them
-      // when Expressive Code renders the static pages.
-      noExternal: ["@docsearch/react", "hastscript", "unist-util-visit-parents"],
+      // Bundle the renderer's ESM graph so legacy host dependencies cannot
+      // shadow it. Native CommonJS dependencies keep their normal loader.
+      noExternal: ["@docsearch/react", ...esmDependencies("astro-expressive-code", import.meta.url)],
     },
     plugins: [{
       name: "suites-dependency-cache",
