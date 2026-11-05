@@ -10,6 +10,8 @@ Suites provides two methods for configuring mock behavior:
 * `.mock().final()` for supplied values and implementations
 * `.mock().impl()` for flexible implementations
 
+Both configurations inject a dependency into the unit, but only `.impl()` creates a mock available through `unitRef.get()`. See [injected dependencies and retrievable mocks](/docs/api-reference/unit-reference/#important-limitations) for the relationship.
+
 <Aside type="note">
 This page describes the `.mock()` configuration method for `TestBed`. For creating standalone mocks manually, see the [`mock()` and `stub()` utility functions](/docs/api-reference/mock/).
 </Aside>

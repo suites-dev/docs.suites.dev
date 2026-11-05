@@ -9,9 +9,7 @@ import Aside from '@/components/mdx/Aside.astro';
 Creates a test environment that mixes real implementations with mocked dependencies for testing interactions between business logic classes.
 
 <Aside type="info" title="Sociable Tests Are Still Unit Tests">
-Even with multiple real classes, sociable tests remain unit tests because external I/O (databases, HTTP, caches) are
-injected via tokens (`@Inject('DATABASE')`) which are automatically mocked. You're testing business logic interactions,
-not actual I/O.  See the [Sociable Unit Tests Guide](/docs/guides/sociable/) for concepts.
+Keep external I/O dependencies mocked to test interactions between real business logic classes without contacting databases or APIs. Suites mocks injected dependencies by default, including tokens such as `@Inject('DATABASE')`. Direct imports and supplied implementations can still perform I/O. See the [Sociable Unit Tests Guide](/docs/guides/sociable/) for concepts.
 </Aside>
 
 ## Signature
@@ -40,9 +38,7 @@ TestBed.sociable<T>(targetClass: Type<T>): SociableTestBedBuilder<T>
 expose<D>(dependency: Type<D>): SociableTestBedBuilder<T>
 ```
 
-* `.expose()` only accepts class constructors, not tokens. Tokens represent abstractions (interfaces, types) following
-the Dependency Inversion Principle - there is no concrete implementation to "expose". Additionally, tokens typically
-represent external I/O (databases, HTTP clients) and are always mocked to keep sociable tests fast and side-effect-free.
+* `.expose()` only accepts class constructors, not string, symbol, or other non-class tokens. Those tokens identify dependencies but do not supply a class implementation for Suites to instantiate. Token dependencies are mocked by default; `.mock().final()` can instead inject a supplied value or implementation.
 
 * `.expose()` method only controls explicit, injected dependencies. Implicit dependencies (direct imports) are not
 intercepted by `TestBed` and will execute as normal.
@@ -65,9 +61,12 @@ const database = unitRef.get(Database);
 
 **With `.expose()`:**
 - ✅ Non-exposed dependencies (mocked by default)
-- ✅ Tokens (auto-mocked)
-- ✅ Explicitly mocked dependencies
+- ✅ Tokens (auto-mocked or configured with `.impl()`)
+- ✅ Dependencies configured with `.mock().impl()`
 - ❌ Exposed dependencies (real, not retrievable)
+- ❌ Values supplied with `.mock().final()`
+
+See [injected dependencies and retrievable mocks](/docs/api-reference/unit-reference/#important-limitations) for how injection differs from `unitRef` lookup.
 
 ## See Also
 

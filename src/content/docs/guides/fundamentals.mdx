@@ -5,6 +5,7 @@ description: Master unit testing fundamentals with the IoC principle. Learn soli
 ---
 
 import Aside from '@/components/mdx/Aside.astro';
+import TestingModeComparison from '@/components/docs/TestingModeComparison.astro';
 
 > **What this covers:** Core principles of unit testing with the IoC principle and how Suites eliminates testing complexity \
 > **Time to read:** ~10 minutes \
@@ -165,6 +166,13 @@ See [Solitary Unit Tests](/docs/guides/solitary/) for examples and usage.
 See [Sociable Unit Tests](/docs/guides/sociable/) for examples and usage.
 
 Suites follows Fowler's pragmatic approach: use test doubles when collaboration is awkward (external services, I/O), but allow real collaborators when interactions are fast and stable.
+
+The same service can use either boundary. Here, `UserService` depends on an `EmailValidator` class and a database client injected with `'DATABASE'`.
+
+<TestingModeComparison />
+
+Choose real collaborators deliberately. Suites resolves injected dependencies; it does not detect I/O inside exposed code or intercept direct imports.
+
 
 ## What Suites Provides
 

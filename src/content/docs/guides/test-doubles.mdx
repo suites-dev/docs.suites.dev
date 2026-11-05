@@ -5,6 +5,8 @@ description: "Configure typed mocks, verify calls, and choose test doubles for T
 keywords: [test doubles, mocks, stubs, spies, fakes, mocks vs stubs, typescript testing, unit testing, mock generation typescript, auto mocks, nestjs testing, vitest mocks, jest mocks]
 ---
 
+import ImportedDependencyDiagram from '@/components/docs/ImportedDependencyDiagram.astro';
+
 A **test double** replaces a dependency in a test so you can control its behavior. With Suites, retrieve the mock, set the value its method should return, and assert the result.
 
 ## Configure a Mock and Verify a Call
@@ -83,6 +85,8 @@ This test passes when the service propagates the rejection. Fresh mocks keep ret
 TestBed resolves dependencies through the DI adapter: constructor parameters and supported injected properties. It does not intercept functions imported directly by the tested class, such as `import { sendEmail } from './email-utils'`.
 
 For external I/O, inject a collaborator that the test can replace. Direct imports that remain in the code execute normally; TestBed does not prevent network or database calls inside them.
+
+<ImportedDependencyDiagram />
 
 For code without a DI framework, import `mock()` from `@suites/doubles.jest` or `@suites/doubles.vitest`, then pass the mock into the function or constructor. See [Standalone Mocks](/docs/api-reference/mock/) for examples.
 

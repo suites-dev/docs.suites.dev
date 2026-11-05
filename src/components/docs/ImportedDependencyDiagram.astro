@@ -1,0 +1,62 @@
+---
+const id = `imports-${crypto.randomUUID()}`;
+---
+
+<figure class="dependency-figure">
+  <div class="diagram-scroll" tabindex="0" role="region" aria-label="Injected dependencies versus direct imports">
+  <svg viewBox="0 0 760 300" role="img" aria-labelledby={`${id}-title ${id}-desc`}>
+    <title id={`${id}-title`}>Injected dependencies and direct imports</title>
+    <desc id={`${id}-desc`}>The real service receives an injected repository mock. Its directly imported sendEmail function still runs and can call an external email service. TestBed does not intercept this import.</desc>
+    <defs>
+      <marker id={`${id}-arrow`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)" />
+      </marker>
+    </defs>
+    <g class="edges" marker-end={`url(#${id}-arrow)`}>
+      <path d="M202 162 H238 V76 H294" />
+      <path d="M202 162 H238 V242 H294" />
+      <path d="M486 242 H566" />
+    </g>
+    <rect class="unit" x="8" y="122" width="194" height="80" rx="10" />
+    <text x="105" y="155">Service under test</text>
+    <text class="label" x="105" y="182">REAL IMPLEMENTATION</text>
+    <text class="edge-label" x="390" y="26">Constructor injection</text>
+    <rect class="mock" x="298" y="40" width="188" height="72" rx="10" />
+    <text x="392" y="70">Repository</text>
+    <text class="label" x="392" y="97">MOCK</text>
+    <text class="note" x="392" y="141">Replaced by TestBed</text>
+    <text class="edge-label" x="390" y="192">Direct import</text>
+    <rect class="real" x="298" y="206" width="188" height="72" rx="10" />
+    <text x="392" y="236">sendEmail()</text>
+    <text class="label" x="392" y="263">REAL FUNCTION</text>
+    <text class="edge-label" x="622" y="192">Can call external I/O</text>
+    <rect class="external" x="570" y="206" width="182" height="72" rx="10" />
+    <text x="661" y="236">Email service</text>
+    <text class="label" x="661" y="263">EXTERNAL I/O</text>
+  </svg>
+  </div>
+  <figcaption>TestBed replaces injected dependencies. Direct imports still run unless you replace them separately.</figcaption>
+</figure>
+
+<style>
+  .dependency-figure {
+    margin: 28px 0;
+    padding: clamp(12px, 3vw, 24px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--bg-subtle);
+  }
+  .diagram-scroll { overflow-x: auto; }
+  .diagram-scroll:focus-visible { outline: 2px solid var(--primary-light); outline-offset: 4px; }
+  svg { display: block; width: 100%; min-width: 600px; max-width: 900px; height: auto; margin: auto; overflow: visible; }
+  text { fill: var(--text); font-family: var(--font-body); font-size: 16px; font-weight: 600; text-anchor: middle; }
+  .label { fill: var(--text-muted); font-size: 12px; font-weight: 500; letter-spacing: .5px; }
+  .edge-label, .note { fill: var(--text-muted); font-size: 14px; font-weight: 400; }
+  rect { fill: var(--surface); stroke: var(--text-soft); stroke-width: 1.5; }
+  .unit { fill: var(--primary-soft); stroke: var(--primary-light); stroke-width: 2.5; }
+  .mock { stroke-dasharray: 6 4; }
+  .external { fill: var(--surface-raised); }
+  .edge-label-bg { fill: var(--bg-subtle); stroke: none; }
+  .edges { fill: none; stroke: var(--text-muted); stroke-width: 1.5; }
+  figcaption { margin-top: 16px; color: var(--text-muted); font-size: 14px; line-height: 1.6; text-align: center; }
+</style>

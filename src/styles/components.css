@@ -188,8 +188,8 @@
 
 .marketing-logo {
   display: block;
-  width: 36px;
-  height: 40px;
+  width: 28.8px;
+  height: 32px;
   object-fit: contain;
 }
 
@@ -224,8 +224,8 @@
   }
 
   .marketing-logo {
-    width: 32px;
-    height: 36px;
+    width: 25.6px;
+    height: 28.8px;
   }
 
   .topbar[data-variant="marketing"] .nav-cluster {
@@ -2692,7 +2692,7 @@ html.docs-menu-open {
 
 .site-footer-logo {
   display: block;
-  width: clamp(156px, 17vw, 190px);
+  width: clamp(124.8px, 13.6vw, 152px);
   height: auto;
 }
 

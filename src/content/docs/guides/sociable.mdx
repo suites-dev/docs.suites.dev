@@ -7,7 +7,8 @@ description: Testing real component interactions with Suites
 import Aside from '@/components/mdx/Aside.astro';
 import Tabs from '@/components/mdx/Tabs.astro';
 import TabItem from '@/components/mdx/TabItem.astro';
-import MermaidDiagram from '@/components/mdx/MermaidDiagram';
+import TestingModeDiagram from '@/components/docs/TestingModeDiagram.astro';
+import DependencyDecisionDiagram from '@/components/docs/DependencyDecisionDiagram.astro';
 
 # Testing Components Together (Sociable Testing)
 
@@ -118,7 +119,7 @@ export class UserService {
 
 ### 2.2 Test with Mocked I/O
 
-Dependencies injected using tokens are automatically mocked.
+Leave the `'DATABASE'` dependency mocked and expose only `EmailValidator`, whose validation runs without I/O.
 
 ```typescript title="src/services/user.service.spec.ts"
 import { TestBed, Mocked } from '@suites/unit';
@@ -147,7 +148,11 @@ describe('UserService', () => {
 });
 ```
 
-Third-party packages use `@Inject('TOKEN')` because they're not `@Injectable()` classes. Dependencies injected this way are **always mocked** automatically.
+The test runs the real service and validator, while the database mock supplies the saved user. Token-injected dependencies remain mocked by default; `.mock(token).final(value)` can supply an explicit replacement.
+
+<TestingModeDiagram mode="sociable" caption="The test selects EmailValidator with .expose(). The dashed database mock records save calls and returns the configured result without contacting a database." />
+
+Suites does not detect external I/O. An exposed class or directly imported function can still access a real external system, so keep that access behind a dependency the test replaces.
 
 ## Step 3: Manage Multiple Dependencies
 
@@ -219,7 +224,7 @@ describe('OrderService', () => {
 ```
 
 <Aside type="tip" title="Understanding the Control Boundary">
-Suites can only control **explicit dependencies** (passed through constructors). It cannot control implicit dependencies (direct imports). For more, see [Test Doubles](/docs/guides/test-doubles/).
+Suites replaces dependencies resolved through the DI adapter, including constructor parameters and supported injected properties. It does not intercept direct imports. For more, see [Test Doubles](/docs/guides/test-doubles/).
 </Aside>
 
 ## Step 4: Choose When to Configure Mocks
@@ -292,21 +297,15 @@ it('handles successful save', async () => {
 
 ## Decision Framework
 
-Use this flowchart to decide how to handle each dependency:
+Use these questions to choose how to handle each injected dependency. These are decisions you make when writing the test; Suites does not classify dependencies by whether they perform I/O.
 
-<MermaidDiagram chart={`
-flowchart LR
-    A["Dependency"] --> B{"External I/O?"}
-    B -->|Yes| C["@Inject TOKEN<br/>Auto-mocked"]
-    B -->|No| D{"Business logic<br/>to test?"}
-    D -->|Yes| E[".expose Class<br/>Uses real code"]
-    D -->|No| F["Leave mocked<br/>default behavior"]
-`} client:visible />
+<DependencyDecisionDiagram />
 
 **Rules:**
-- **External I/O** (databases, APIs, file systems) → Use token injection → Auto-mocked
-- **Business logic** to test → Use `.expose()` → Runs real code
-- **Everything else** → Leave as default → Auto-mocked
+- **External I/O:** Keep the injected dependency mocked, or supply a controlled test double.
+- **Selected real classes:** Use `.expose()` when their real behavior belongs in the test, and check their dependencies for I/O too.
+- **Token values:** Use `.mock(token).final(value)` when a supplied value or implementation is needed.
+- **Other injected dependencies:** Leave them mocked by default.
 
 ## Summary
 
@@ -318,10 +317,10 @@ Sociable tests work alongside solitary tests to provide comprehensive coverage:
 ### Takeaways
 
 - Sociable tests verify how components interact using real implementations for business logic
-- External systems (I/O) are always mocked using token injection (`@Inject('TOKEN')`)
+- Keep external I/O behind injected dependencies that the test replaces
 - Use `.expose()` to specify which dependencies should use real implementations
 - Configure mocks before compilation for consistent values, or after for test-specific scenarios
-- Follow the decision tree: External I/O → token injection, business logic → expose, everything else stays mocked
+- Suites does not detect I/O or intercept direct imports; choose the real-code boundary deliberately
 
 ## Next Steps
 

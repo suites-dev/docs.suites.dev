@@ -1,0 +1,21 @@
+---
+import TestingModeDiagram from './TestingModeDiagram.astro';
+---
+<div class="testing-mode-comparison">
+  <section aria-label="Solitary test">
+    <p class="mode-label">Solitary</p>
+    <p class="mode-summary">Only the unit runs real code.</p>
+    <TestingModeDiagram mode="solitary" caption="TestBed.solitary(UserService) replaces both injected collaborators with mocks. Dashed borders identify mocks." />
+  </section>
+  <section aria-label="Sociable test">
+    <p class="mode-label">Sociable</p>
+    <p class="mode-summary">Selected collaborators run real code.</p>
+    <TestingModeDiagram mode="sociable" caption="TestBed.sociable(UserService).expose(EmailValidator) expands the real-code boundary. Mocks still run within the test." />
+  </section>
+</div>
+<style>
+  .testing-mode-comparison { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 560px), 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
+  section { min-width: 0; }
+  .mode-label { margin: 0; font-weight: 700; }
+  .mode-summary { margin: .35rem 0 0; color: var(--text-muted); font-size: .95rem; min-height: 3.2em; }
+</style>

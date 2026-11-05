@@ -4,6 +4,8 @@ title: UnitReference
 description: Access mocked dependencies in your tests
 ---
 
+import UnitReferenceDiagram from '@/components/docs/UnitReferenceDiagram.astro';
+
 The `UnitReference` object provides access to mocked dependencies within the test environment. It's returned by both
 `TestBed.solitary()` and `TestBed.sociable()` after compilation.
 
@@ -137,6 +139,10 @@ const repository = unitRef.get(Repository, { named: 'primary' });
 With `@suites/di.nestjs/metadata`, the metadata type is `never`; NestJS calls take only a class or token. See [Types](/docs/api-reference/types/#dependency-identifier-metadata).
 
 ## Important Limitations
+
+Injection and retrieval are separate: a dependency can be injected into `unit` without being available through `unitRef.get()`.
+
+<UnitReferenceDiagram />
 
 ### Cannot Retrieve Exposed Classes in Sociable Tests
 
